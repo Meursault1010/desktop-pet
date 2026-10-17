@@ -15,6 +15,10 @@ POSES=('left','right','back','front')
 POSE_NAMES=dict(left='左侧背靠',right='右侧背靠',back='背对屏幕',front='正面背靠')
 # Contact on normalized sprite canvas, at the shoulder blade rather than feet.
 CONTACTS=dict(left=(.76,.48),right=(.24,.48),back=(.76,.49),front=(.50,.48))
+_legacy_metadata=Path(__file__).parent/'assets/icon-sleep-v2/poses.json'
+if _legacy_metadata.exists():
+    CONTACTS.update({key:tuple(value['contact']) for key,value in
+                     json.loads(_legacy_metadata.read_text(encoding='utf-8')).items()})
 ASSET_ROOT=Path(__file__).parent/'assets/icon-interactions'
 NEW_POSES=json.loads((ASSET_ROOT/'poses.json').read_text(encoding='utf-8'))
 GEOMETRIES={key:PoseGeometry(tuple(value['contact']),value['support'],value['target_x']) for key,value in NEW_POSES.items()}
@@ -278,7 +282,7 @@ class IconSleep(QObject):
             else:self.skirts[side]=skirt_region(pixmap.toImage())
             self.pixmaps[side]=pixmap
 
-    def start(self,icon_id,instant=False,auto_pose=False):
+    def start(self,icon_id,instant=False,auto_pose=False,pose=None):
         if not self.pet.isVisible(): raise ValueError('请先显示宠物')
         icon=next((i for i in self.icons if i['id']==icon_id),None)
         if not icon: raise ValueError('请先刷新并选择桌面图标')
@@ -287,7 +291,7 @@ class IconSleep(QObject):
         if edge:edge.release(cooldown=20)
         self.wake('')
         self.target=icon; self.image=self.cache_images.get(icon_id); self.exposed=True;self.icon_images={};self.glyph_regions={}
-        self.auto_direction=random.choice(('sit-front','sit-back','prone-front','prone-back','perch-front','perch-back')) if auto_pose else None
+        self.auto_direction=(pose if pose in POSES else random.choice(('sit-front','sit-back','prone-front','prone-back','perch-front','perch-back'))) if auto_pose else None
         try: self.align()
         except ValueError:
             self.target=None; raise

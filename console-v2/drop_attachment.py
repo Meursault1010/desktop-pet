@@ -8,12 +8,13 @@ from edge_attachment import logical_surface
 from window_edges import visible_surfaces
 
 
-def icon_candidate(pet,point,surfaces):
+def icon_candidate(pet,point,surfaces,origin=None,size=None):
     poses=pet.state.icon_sleep
     if not poses or time.monotonic()-poses.scanned_at>3:return None
     screens=QGuiApplication.screens()
     blockers=[logical_surface(s,screens)[0] for s in surfaces]
     choices=[]
+    ox,oy=origin or (pet.x(),pet.y());width,height=size or (pet.width(),pet.height())
     for icon in poses.icons:
         try:rect,_=logical_rect(icon['rect'])
         except ValueError:continue
@@ -23,8 +24,8 @@ def icon_candidate(pet,point,surfaces):
         # or a pointer just beside the glyph, without considering icon labels.
         px,py=point.x(),point.y()
         pointer=math.hypot(max(x-px,0,px-x-w),max(y-py,0,py-y-h))
-        foot=math.hypot(pet.x()+pet.width()*.5-cx,pet.y()+pet.height()*.75-cy)
-        radius=min(poses.options['snap_distance'],max(36,pet.width()*.45))
+        foot=math.hypot(ox+width*.5-cx,oy+height*.75-cy)
+        radius=min(poses.options['snap_distance'],max(36,width*.45))
         if pointer<=min(30,radius) or foot<=radius:
             choices.append((min(pointer,foot),icon['id']))
     return min(choices)[1] if choices else None
@@ -38,7 +39,9 @@ def settle_drop(pet,point=None):
         surfaces=visible_surfaces(edge.excluded() if edge else ())
         target=icon_candidate(pet,point,surfaces)
         if target:
-            pet.state.icon_sleep.start(target,instant=True,auto_pose=True)
+            preview=getattr(pet,'snap_preview',None)
+            pose=preview.candidate['pose'] if preview and preview.candidate and preview.candidate.get('icon')==target else None
+            pet.state.icon_sleep.start(target,instant=True,auto_pose=True,pose=pose)
             return True
         return bool(edge and edge.on_drop(surfaces,point))
     except (ValueError,OSError,RuntimeError) as error:

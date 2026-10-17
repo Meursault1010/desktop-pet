@@ -1,7 +1,7 @@
-"""Natural, read-only attachment to native window/screen surfaces.
+"""Manual-drop attachment to native window/screen surfaces.
 
-Foreground changes require a dwell. Manual actions suspend attachment, and
-icon interactions have priority. Never activates or moves another app.
+Only explicit drops initiate attachment; the timer follows existing support.
+Never activates or moves another app.
 """
 import math
 import os
@@ -60,7 +60,6 @@ class EdgeAttachment(QObject):
         self.timer=QTimer(self);self.timer.setInterval(100);self.timer.timeout.connect(self.tick)
         self.animation=QTimer(self);self.animation.setInterval(33);self.animation.timeout.connect(self.animate)
         pet.state.edge_attachment=self
-        if self.options['enabled']:self.timer.start()
 
     def snapshot(self):return dict(options=self.options,active=self.active,kind=self.kind,message=self.message,error=self.error,direction=self.side)
 
@@ -68,8 +67,7 @@ class EdgeAttachment(QObject):
         self.options=validated({**self.options,**values})
         for key,value in self.options.items():self.store.settings.setValue('edge_attachment/'+key,value)
         saved=self.store.sync();self.release(cooldown=0)
-        if self.options['enabled']:self.timer.start()
-        else:self.timer.stop();self.message='自动附着已关闭'
+        self.timer.stop();self.message='拖到边框后松手停靠'
         self.pet.state_changed.emit()
         if not saved:raise ValueError('边缘设置已应用，但无法保存到本机')
 
@@ -90,9 +88,9 @@ class EdgeAttachment(QObject):
     def excluded(self):
         return (os.getppid(),int(os.environ.get('PET_CONTROL_PID','0')))
 
-    def choices(self,surfaces):
+    def choices(self,surfaces,size=None,origin=None):
         from edge_geometry import candidates,corner_landing,screen_landings
-        screens=QGuiApplication.screens();size=(self.pet.width(),self.pet.height());origin=(self.pet.x(),self.pet.y())
+        screens=QGuiApplication.screens();size=size or (self.pet.width(),self.pet.height());origin=origin or (self.pet.x(),self.pet.y())
         result=[];higher=[];foreground=inspect_foreground(self.excluded())
         # During a mouse grab the pet may own foreground focus. The first
         # external visible surface still identifies the fullscreen page.
@@ -115,13 +113,12 @@ class EdgeAttachment(QObject):
                     result.append((landing,None,screen,area))
         return result
 
-    def on_drop(self,surfaces,point):
-        """Immediate manual landing, independent of dwell, walking and pause."""
-        if not self.pet.preferences.auto_snap:return False
+    def drop_candidate(self,surfaces,point,origin=None,size=None):
         self.poses.load_poses()
-        origin=(self.pet.x(),self.pet.y());limit=max(48,self.pet.width()*.6)
+        origin=origin or (self.pet.x(),self.pet.y());size=size or (self.pet.width(),self.pet.height())
+        limit=max(48,size[0]*.6)
         choices=[]
-        for item in self.choices(surfaces):
+        for item in self.choices(surfaces,size,origin):
             landing=item[0]
             shift=math.hypot(landing.position[0]-origin[0],landing.position[1]-origin[1])
             # Corner projection is only valid close to that corner. A drop in
@@ -129,8 +126,14 @@ class EdgeAttachment(QObject):
             cursor=math.hypot(point.x()-landing.anchor[0],point.y()-landing.anchor[1])
             if shift<=limit or (landing.kind!='corner' and cursor<=28 and shift<=limit*1.6):
                 choices.append((shift,item))
-        if not choices:return False
-        _,(landing,surface,screen,rect)=min(choices,key=lambda pair:pair[0])
+        return min(choices,key=lambda pair:pair[0])[1] if choices else None
+
+    def on_drop(self,surfaces,point):
+        """Immediate manual landing, independent of dwell, walking and pause."""
+        if not self.pet.preferences.auto_snap:return False
+        candidate=self.drop_candidate(surfaces,point)
+        if candidate is None:return False
+        landing,surface,screen,rect=candidate
         self.set_landing(landing,rect);self.handle=surface.handle if surface else None;self.screen=screen
         now=time.monotonic();self.active=True;self.phase='resting';self.started=now;self.last_tick=now
         self.distance=0.;self.crawl_target=None;self.next_move=now+random.uniform(2,5);self.until=0
@@ -188,26 +191,12 @@ class EdgeAttachment(QObject):
         return True
 
     def tick(self):
+        # Attachment is initiated only by an explicit drop, never by a timer.
+        if not self.active:return
         if self.busy():return
-        if not self.active and (not self.options['enabled'] or time.monotonic()<self.until):return
-        now=time.monotonic()
         try:
-            self.poses.load_poses();surfaces=visible_surfaces(self.excluded())
-            if self.active:
-                if not self.follow(surfaces):self.release(cooldown=2)
-                return
-            if self.pet.preferences.paused or self.pet.preferences.quiet:return
-            choices=self.choices(surfaces)
-            if not choices:self.pending=None;return
-            landing,surface,screen,rect=min(choices,key=lambda item:round(item[0].distance,6))
-            identity=('window',surface.handle,landing.kind) if surface else ('screen',screen.name(),landing.kind)
-            if identity!=self.pending:self.pending=identity;self.pending_since=now
-            if now-self.pending_since<self.options['delay']:return
-            self.set_landing(landing,rect);self.handle=surface.handle if surface else None;self.screen=screen
-            self.active=True;self.phase='approaching';self.started=now;self.last_tick=now
-            self.distance=0.;self.crawl_target=None;self.next_move=now+random.uniform(2,5)
-            self.pet.state.walking=False;self.pet.state.jump_started=None;self.pet.state.travel_position=None
-            self.animation.start();self.error='';self.message='走向最近边缘';self.pet.state_changed.emit()
+            surfaces=visible_surfaces(self.excluded())
+            if not self.follow(surfaces):self.release(cooldown=2)
         except Exception as error:
             self.error=str(error);self.release(cooldown=5);self.pet.state_changed.emit()
 

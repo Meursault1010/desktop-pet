@@ -5,6 +5,8 @@ const fs=require('node:fs');
 const {Sidecar}=require('./sidecar.cjs');
 const {CSP,resourcePath,trusted,webPreferences,harden,closeBehavior}=require('./security.cjs');
 const {validate}=require('../shared/protocol.cjs');
+const {Assistant}=require('./assistant.cjs');
+const assistant=new Assistant();
 
 protocol.registerSchemesAsPrivileged([{scheme:'yuki',privileges:{standard:true,secure:true,supportFetchAPI:true}}]);
 const smoke=process.argv.includes('--smoke-test');
@@ -24,10 +26,14 @@ function guard(event){if(!trusted(event,window))throw new Error('拒绝未知页
 async function stopAndQuit(){
   if(exitWork)return exitWork;
   quitting=true;
+  assistant.cancel();
   exitWork=(async()=>{await sidecar?.stop();tray?.destroy();tray=null;app.quit();})();
   return exitWork;
 }
 function configureIpc(){
+  ipcMain.handle('yuki:ai-models',async event=>{guard(event);return assistant.models();});
+  ipcMain.handle('yuki:ai-chat',async(event,payload)=>{guard(event);return assistant.chat(payload,value=>send('yuki:ai-update',value));});
+  ipcMain.handle('yuki:ai-cancel',async event=>{guard(event);assistant.cancel();});
   ipcMain.handle('yuki:request',async(event,name,payload)=>{guard(event);validate(name,payload);
     if(name==='shutdown')throw new Error('请使用保存并退出');
     if(sidecar.starting)await sidecar.starting;

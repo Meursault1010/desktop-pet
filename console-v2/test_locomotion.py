@@ -82,13 +82,14 @@ class MotionGeometryTests(unittest.TestCase):
 
 
 class GripLifecycleTests(unittest.TestCase):
+    manual_attach=edge_tests.EdgeTests.manual_attach
     setUpClass=classmethod(edge_tests.EdgeTests.setUpClass.__func__)
     setUp=edge_tests.EdgeTests.setUp
     tearDown=edge_tests.EdgeTests.tearDown
     def test_side_crawls_with_motion_and_pause_keeps_grip(self):
         self.pet.move(80,280);self.edge.options.update(enabled=True,delay=2,screens=False);self.edge.until=0
         with patch('edge_attachment.inspect_foreground',return_value=self.surface),patch('edge_attachment.logical_surface',return_value=(self.surface.rect,self.surface.work_area,QApplication.primaryScreen())):
-            self.edge.tick();self.edge.pending_since-=3;self.edge.tick()
+            self.manual_attach()
             self.assertTrue(self.edge.active);self.assertEqual(self.edge.kind,'left')
             for _ in range(300):
                 self.edge.last_tick-=.1;self.edge.animate()
@@ -107,7 +108,7 @@ class GripLifecycleTests(unittest.TestCase):
     def test_passive_window_movement_does_not_walk_or_advance_climb(self):
         self.pet.move(80,280);self.edge.options.update(enabled=True,delay=2);self.edge.until=0
         with patch('edge_attachment.inspect_foreground',return_value=self.surface),patch('edge_attachment.logical_surface',return_value=(self.surface.rect,self.surface.work_area,QApplication.primaryScreen())):
-            self.edge.tick();self.edge.pending_since-=3;self.edge.tick()
+            self.manual_attach()
             for _ in range(300):
                 self.edge.last_tick-=.1;self.edge.animate()
                 if self.edge.phase=='resting':break

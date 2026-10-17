@@ -7,7 +7,9 @@ from functools import lru_cache
 
 from idle_animation import IdleAnimation, motion_phase
 from action_player import ActionPlayer, catalog
-from locomotion import frame as motion_frame, step_towards
+from idle_actions import IdleActions
+from click_reaction import ClickReaction
+from locomotion import frame as motion_frame, step_towards, metadata as motion_metadata
 
 from PySide6.QtCore import QPoint, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QIcon, QImage, QPainter, QPen, QPixmap
@@ -31,6 +33,9 @@ class PetState:
         self.next_action = self.started + 3
         self.idle = IdleAnimation(now=self.started)
         self.action_player = ActionPlayer()
+        self.ambient = IdleActions()
+        self.ambient.defer(self.started)
+        self.ambient.next_at=self.started+random.uniform(5,8)
         self.icon_sleep = None
         self.edge_attachment = None
         self.gait_distance = 0.
@@ -38,6 +43,7 @@ class PetState:
         self.travel_target = None
         self.travel_position = None
         self.drag_feedback = None
+        self.click_reaction = ClickReaction()
 
 
 class PetAnimator:
@@ -56,6 +62,7 @@ class PetAnimator:
         state.last_tick = now
         state.idle.update(now)
         state.action_player.frame(now)
+        self.update_ambient(now)
 
         previous = self.pet.status_text()
         if state.travel_target is not None:
@@ -66,13 +73,13 @@ class PetAnimator:
         elif self.pet.movement_allowed():
             if now >= state.next_action:
                 probability, interval = {
-                    '少动': (0.25, (4, 8)),
-                    '默认': (0.65, (2, 5)),
-                    '活跃': (0.90, (1, 3)),
+                    '少动': (0.08, (14, 22)),
+                    '默认': (0.15, (10, 18)),
+                    '活跃': (0.25, (7, 12)),
                 }[self.pet.preferences.activity]
                 state.walking = random.random() < probability
                 state.direction = random.choice([-1, 1])
-                state.next_action = now + random.uniform(*interval)
+                state.next_action = now + random.uniform(*( (1, 2.5) if state.walking else interval))
             if state.walking:
                 area = self.pet.screen_area()
                 low = area.left()
@@ -92,6 +99,52 @@ class PetAnimator:
         self.pet.update()
         if previous != self.pet.status_text():
             self.pet.state_changed.emit()
+
+    def update_ambient(self, now):
+        pet = self.pet
+        state = pet.state
+        ambient = state.ambient
+        player = state.action_player
+        blocked = (not pet.isVisible() or pet.drag_origin is not None
+                   or pet.preferences.paused or pet.preferences.quiet
+                   or state.travel_target is not None
+                   or bool(state.icon_sleep and state.icon_sleep.target)
+                   or bool(state.edge_attachment and state.edge_attachment.active))
+        if ambient.current:
+            key, started, origin, duration = ambient.current
+            if blocked or not player.action or player.action['id'] != key or player.started != started:
+                completed = not blocked and player.action is None and now-started >= duration
+                if blocked and player.action and player.started == started:
+                    player.stop()
+                ambient.current = None
+                ambient.defer(now, pet.preferences.activity)
+                posture = catalog().get(key, {}).get('end_posture')
+                if completed and posture in ('sit', 'prone'):
+                    # Already seated after rolling: skip the lowering section,
+                    # dwell in a living seated state, then play its rise once.
+                    followup = 'prone-rest' if posture == 'prone' else 'sit-neat'
+                    seated = catalog().get(followup)
+                    if seated:
+                        seated_start = now-sum(seated['durations'][:3])/1000
+                        player.play(followup, now=seated_start)
+                        ambient.current = (followup, seated_start, float(pet.x()),
+                                           sum(player.action['durations'])/1000)
+                        return
+        if blocked or player.action is not None:
+            if blocked:
+                ambient.defer(now, pet.preferences.activity)
+            return
+        if now < ambient.next_at:
+            return
+        key = ambient.choose(catalog())
+        ambient.defer(now, pet.preferences.activity)
+        if key is None:
+            return
+        player.play(key, now=now)
+        ambient.current = (key, now, float(pet.x()), sum(player.action['durations'])/1000)
+        state.walking = False
+        state.gait_until = 0
+        pet.state_changed.emit()
 
     def jump(self):
         if not self.pet.isVisible():
@@ -120,6 +173,71 @@ class PetRenderer:
 
     def __init__(self):
         self.atlases = self.load_atlases()
+        self.last_pose = None
+        self.last_image = None
+        self.transition_image = None
+        self.transition_started = 0
+        self.transition_duration = .22
+
+    def draw(self, painter, state):
+        # Dragging needs immediate cursor feedback, without a stale pose overlay.
+        if state.drag_feedback is not None:
+            self.last_pose = None
+            self.last_image = None
+            self.transition_image = None
+            self.draw_pose(painter, state)
+            return
+        now = time.monotonic()
+        frame = state.action_player.frame(now)
+        action = state.action_player.action
+        staged = action and (action.get('ground_idle') or action.get('travel_window') or action.get('lazy_roll') or action['id'] in ('shy', 'affection'))
+        pose = ('action', action['id'], state.action_player.started, frame if staged else None) if action else (
+            ('walk', state.direction) if now < state.gait_until else ('idle',))
+        image = QImage(180, 190, QImage.Format.Format_RGBA32FPx4_Premultiplied)
+        image.fill(Qt.GlobalColor.transparent)
+        layer = QPainter(image)
+        self.draw_pose(layer, state)
+        layer.end()
+        if self.last_pose is not None and pose != self.last_pose:
+            self.transition_image = self.last_image
+            self.transition_started = now
+            # Briefly blend authored ground keyframes; retain the longer blend
+            # when changing clips so sitting/standing does not flash abruptly.
+            self.transition_duration = .08 if pose[:3] == self.last_pose[:3] else .22
+        progress = min(1., max(0., (now-self.transition_started)/self.transition_duration))
+        if self.transition_image is not None and progress < 1:
+            # Smoothstep eases both ends; weighted addition preserves alpha at
+            # overlapping translucent edges instead of flashing brighter.
+            weight = progress*progress*(3-2*progress)
+            mixed = QImage(image.size(), image.format())
+            mixed.fill(Qt.GlobalColor.transparent)
+            for source, opacity in ((self.transition_image, 1-weight), (image, weight)):
+                weighted = source.copy()
+                mask = QPainter(weighted)
+                mask.setCompositionMode(QPainter.CompositionMode.CompositionMode_DestinationIn)
+                color = QColor(0, 0, 0)
+                color.setAlphaF(opacity)
+                mask.fillRect(weighted.rect(), color)
+                mask.end()
+                blend = QPainter(mixed)
+                blend.setCompositionMode(QPainter.CompositionMode.CompositionMode_Plus)
+                blend.drawImage(0, 0, weighted)
+                blend.end()
+            image = mixed
+        else:
+            self.transition_image = None
+        self.last_pose = pose
+        self.last_image = image
+        painter.save()
+        dx, dy, angle, scale_x, scale_y, shear = state.click_reaction.transform(now)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
+        painter.translate(90+dx, 178+dy)
+        painter.rotate(angle)
+        painter.shear(shear, 0)
+        painter.scale(scale_x, scale_y)
+        painter.translate(-90, -178)
+        painter.drawImage(0, 0, image)
+        painter.restore()
 
     def motion_image(self, elapsed, eye_frame):
         first, second, fraction = motion_phase(elapsed)
@@ -149,7 +267,7 @@ class PetRenderer:
             mix.end()
         return QPixmap.fromImage(image)
 
-    def draw(self, painter, state):
+    def draw_pose(self, painter, state):
         now = time.monotonic()
         elapsed = now - state.started
         jump = 0 if state.jump_started is None else 36 * math.sin(
@@ -162,6 +280,8 @@ class PetRenderer:
         frame = state.action_player.frame(now)
         if frame is not None:
             action = state.action_player.action
+            if action.get('pixel_art'):
+                painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, False)
             atlas = self.action_atlas(action['id'])
             painter.drawPixmap(QRectF(10, 25, 160, 160), atlas,
                                QRectF((frame % action['columns'])*256,
@@ -169,7 +289,7 @@ class PetRenderer:
             return
         if now < state.gait_until:
             name='walk-right' if state.direction>0 else 'walk-left'
-            painter.drawPixmap(QRectF(10,185-160*.92578125,160,160),
+            painter.drawPixmap(QRectF(10,181.875-160*motion_metadata()[name]['baseline'],160,160),
                                motion_frame(name,state.gait_distance),QRectF(0,0,256,256))
             return
         if now < state.message_until:
@@ -215,7 +335,10 @@ class DesktopPet(QWidget):
         super().__init__()
         self.preferences = preferences or Preferences()
         self.controller = None
-        self.setWindowTitle('小橘 · 桌面宠物')
+        from snap_preview import SnapPreview
+        self.snap_preview = SnapPreview(self)
+        self.destroyed.connect(self.snap_preview.deleteLater)
+        self.setWindowTitle('yuki · 桌面宠物')
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint |
                             Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowType.Tool)
@@ -226,6 +349,11 @@ class DesktopPet(QWidget):
         self.press_position = None
         self.dragged = False
         self.state = PetState()
+        self.click_timer = QTimer(self)
+        self.click_timer.setSingleShot(True)
+        self.click_timer.timeout.connect(self.finish_single_click)
+        self.click_x = 90.
+        self.double_click = False
         self.renderer = PetRenderer()
         self.animator = PetAnimator(self)
         self.menu = PetMenu(self)
@@ -357,7 +485,9 @@ class DesktopPet(QWidget):
         self.wake_icon_sleep()
         super().hideEvent(event)
         self.animator.timer.stop()
+        self.cancel_click()
         self.end_drag_feedback()
+        self.snap_preview.clear()
         self.drag_origin = None
         self.state.walking = False
         self.state.jump_started = None
@@ -374,66 +504,127 @@ class DesktopPet(QWidget):
             painter.end()
             return
         factor=self.preferences.size/100 if self.state.drag_feedback else None
-        painter.scale(factor or self.width()/180, factor or self.height()/190)
+        scale=factor if factor is not None else min(self.width()/180,self.height()/190)
+        painter.scale(scale,scale)
         self.renderer.draw(painter, self.state)
         painter.end()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
+            self.click_timer.stop()
+            self.double_click = False
             self.wake_icon_sleep()
+            self.click_x = event.position().x()*180/max(1,self.width())
+            self.state.click_reaction.trigger('press', self.click_x)
+            self.state.walking = False
+            self.state.jump_started = None
+            self.state.ambient.current = None
+            self.state.ambient.defer(time.monotonic(), self.preferences.activity)
             self.drag_origin = event.globalPosition().toPoint() - self.pos()
             self.press_position = event.globalPosition().toPoint()
             self.dragged = False
             self.state.action_player.stop()
             if self.state.icon_sleep:
                 self.state.icon_sleep.refresh()
+            self.update()
+
+    def cancel_click(self):
+        self.click_timer.stop()
+        self.double_click = False
+        self.state.click_reaction.clear()
+
+    def finish_single_click(self):
+        if self.isVisible() and self.drag_origin is None:
+            self.play_click_reaction('shy')
+
+    def play_click_reaction(self, kind):
+        self.state.walking = False
+        self.state.gait_until = 0
+        self.state.jump_started = None
+        self.state.ambient.current = None
+        self.state.ambient.defer(time.monotonic(), self.preferences.activity)
+        self.state.action_player.play('affection' if kind == 'headpat' else 'shy')
+        self.state.click_reaction.trigger(kind, self.click_x)
+        self.update()
+        self.state_changed.emit()
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            # Qt sends press/release, double-click/release. Set up a possible
+            # second-press drag while suppressing its trailing single click.
+            self.mousePressEvent(event)
+            self.double_click = True
+            self.play_click_reaction('headpat')
+            event.accept()
 
     def mouseMoveEvent(self, event):
         if self.drag_origin is not None:
             point = event.globalPosition().toPoint()
             if (point - self.press_position).manhattanLength() > QApplication.startDragDistance():
                 if not self.dragged:
+                    self.cancel_click()
+                    self.state.action_player.stop()
                     from drag_feedback import DragFeedback
                     factor=self.preferences.size/100
                     target=(self.drag_origin.x()/factor,self.drag_origin.y()/factor)
-                    self.state.drag_feedback=DragFeedback(target)
-                    self.setFixedSize(round(420*factor),round(440*factor))
-                    self.drag_origin=QPoint(round(210*factor),round(220*factor))
+                    # Resize and reposition as one paint transaction, otherwise
+                    # the enlarged sprite briefly appears at the old origin.
+                    self.setUpdatesEnabled(False)
+                    try:
+                        self.state.drag_feedback=DragFeedback(target)
+                        self.state.drag_feedback.image(0)
+                        self.setFixedSize(round(420*factor),round(440*factor))
+                        self.drag_origin=QPoint(round(210*factor),round(220*factor))
+                        self.move(point-self.drag_origin)
+                    finally:
+                        self.setUpdatesEnabled(True)
                 self.dragged = True
             if self.dragged:
                 self.move(point - self.drag_origin)
                 self.state.position_x = float(self.x())
-                self.state_changed.emit()
+                self.snap_preview.queue(point)
+                self.update()
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton and self.drag_origin is not None:
             self.drop_point=event.globalPosition().toPoint()
+            if self.dragged and self.state.drag_feedback:
+                self.snap_preview.last_probe=0
+                self.snap_preview.surfaces_at=0
+                self.snap_preview.probe(self.drop_point)
             self.end_drag_feedback()
             self.drag_origin = None
             if not self.dragged:
-                self.animator.jump()
-                if 'clicked' in catalog():
-                    self.state.action_player.play('clicked')
+                if not self.double_click:
+                    self.click_timer.start(QApplication.doubleClickInterval())
+                self.double_click = False
             elif self.state.action_player.action and self.state.action_player.action['id']=='dragged':
                 self.state.action_player.stop()
             self.clamp_to_screen()
             if self.dragged:
                 from drop_attachment import settle_drop
                 settle_drop(self,self.drop_point)
+                self.snap_preview.clear()
                 self.drag_finished.emit()
             self.position_settled.emit()
             self.update()
             self.state_changed.emit()
 
     def end_drag_feedback(self):
+        self.snap_preview.timer.stop()
+        self.snap_preview.hide()
         feedback=self.state.drag_feedback
         if feedback is None:return
         factor=self.preferences.size/100
         dx,dy=feedback.body_origin()
         origin=self.pos()+QPoint(round((dx-10)*factor),round((dy-25)*factor))
-        self.state.drag_feedback=None
-        self.setFixedSize(round(180*factor),round(190*factor))
-        self.move(origin)
+        self.setUpdatesEnabled(False)
+        try:
+            self.state.drag_feedback=None
+            self.setFixedSize(round(180*factor),round(190*factor))
+            self.move(origin)
+        finally:
+            self.setUpdatesEnabled(True)
         self.state.position_x=float(self.x())
 
     def contextMenuEvent(self, event):

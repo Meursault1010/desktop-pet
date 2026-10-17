@@ -9,6 +9,8 @@ yuki 是一只运行在 Windows 桌面上的白发蓝裙桌宠，也是本项目
 - [本次整理记录](docs/整理记录/整理说明.md)：整理范围、校验结果及保留内容。
 - [后续交接入口](项目交接摘要.md)。
 - [版本记录](CHANGELOG.md)。
+- [工作台改版说明](docs/工作台改版说明.md)：蓝白银九页界面、动态与验收范围。
+- [本地模型接入说明](docs/本地模型接入说明.md)：雪的本地中文聊天、LM Studio 配置、模型来源与能力边界。
 - [Electron 迁移总结](docs/Electron迁移总结.md)：迁移范围、启动与回退、测试证据、包体与限制。
 
 ## 从仓库运行
@@ -36,6 +38,6 @@ tools/maintenance/ 本次整理脚本，仅供审计，不要重复执行
 
 本项目根目录 `start.bat` 已切换为 Electron。桌面旧安装目录 `C:\Users\meursault\Desktop\desktop-pet` 未部署更新，那里仍是旧版。宠物设置继续使用 `%LOCALAPPDATA%\XiaoJu\DesktopPet\settings.ini`。
 
-工作台展示名称统一为 **yuki**；Qt 窗口标题、旧 `xiaoju-console.exe`、`XiaoJu` 配置目录等保留历史兼容标识。
+工作台与 Qt 用户可见品牌统一为 **yuki**；旧 `xiaoju-console.exe` 和 `XiaoJu` 配置目录保留历史兼容标识。
 
 已通过 86 项 Python、22 项前端/Electron/PNG 测试及最终便携版 10 组端到端检查。原有 623 个运行文件哈希保持一致。多屏、混合 DPI、休眠恢复及 Electron 原生透明窗口全套验收仍待完成；详见迁移总结。

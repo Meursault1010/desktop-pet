@@ -18,9 +18,12 @@ test('PNG renderer validates loaded atlas cells and rejects missing/external ass
   const context={clearRect(){cleared++;},drawImage(){},imageSmoothingEnabled:true,globalAlpha:1};
   const canvas={getContext:()=>context,width:256,height:256};const renderer=new PngRenderer(canvas);
   try{
-    await renderer.loadCharacter('yuki');tick(performance.now());assert.equal(context.imageSmoothingEnabled,false);
+    await renderer.loadCharacter('yuki');tick(performance.now());assert.equal(context.imageSmoothingEnabled,true);
     const clip={id:'screen',atlas:'actions/screen/atlas.png',frames:12,columns:4,cell:256,durations:Array(12).fill(100),loop_start:5};
     await renderer.playAction(clip,true);tick(performance.now());
+    assert.equal(context.imageSmoothingEnabled,true);
+    await renderer.playAction({...clip,pixel_art:true},true);tick(performance.now());
+    assert.equal(context.imageSmoothingEnabled,false);
     await assert.rejects(renderer.playAction({...clip,atlas:'missing.png'}),/加载失败/);
     await assert.rejects(renderer.playAction({...clip,frames:100,durations:Array(100).fill(10)}),/缺帧/);
     await assert.rejects(renderer.playAction({...clip,cell:64}),/定义无效/);

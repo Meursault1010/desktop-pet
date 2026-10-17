@@ -39,7 +39,7 @@ export class PngRenderer implements PetRenderer {
   setParameter(name:'opacity'|'scale',value:number){if(!Number.isFinite(value))throw new Error('参数无效');if(name==='opacity')this.alpha=Math.max(0,Math.min(1,value));else this.scale=Math.max(.5,Math.min(2,value));}
   private tick(now:number){
     if(this.disposed)return;const context=this.context;context.clearRect(0,0,this.canvas.width,this.canvas.height);
-    context.imageSmoothingEnabled=false;context.globalAlpha=this.alpha;
+    context.imageSmoothingEnabled=!this.clip?.pixel_art;context.globalAlpha=this.alpha;
     let image=this.idle,index=Math.floor(((now-this.started)%4800)/75),columns=8;
     if(this.clip&&this.image){const frame=frameAt((now-this.started)*this.speed,this.clip.durations,this.loop,this.clip.loop_start??0);
       if(frame.done&&!this.loop){void this.stopAction();}else{image=this.image;index=frame.index;columns=this.clip.columns;}}

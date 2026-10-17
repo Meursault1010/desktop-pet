@@ -1,0 +1,6 @@
+2026-10-17
+Reviewed generated.png, review.png and runtime qa/drag-preview/shy-drag.png.
+Accepted six compact bent-elbow reaches, blushing surprised expressions, preserved outfit and full bodies.
+Palm centers remeasured on 512px cells in build_short_arm_drag.py.
+Runtime hand displacement is capped at 7 logical pixels; hands try toward the cursor without stretching to reach it.
+External image upload specifically authorized by the user for this arm/anatomy edit.

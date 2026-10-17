@@ -37,7 +37,8 @@
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_11_after_blink.png",
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_12_loop_end.png"
     ],
-    "review": "已转换"
+    "review": "已转换",
+    "scale_calibrated": true
   },
   {
     "id": "eat",
@@ -77,163 +78,8 @@
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_11_put_down.png",
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_12_idle.png"
     ],
-    "review": "已转换"
-  },
-  {
-    "id": "folder-sleep",
-    "name": "靠文件夹睡觉",
-    "category": "日常",
-    "origin": "existing",
-    "frames": 12,
-    "columns": 4,
-    "cell": 256,
-    "durations": [
-      350,
-      350,
-      350,
-      350,
-      350,
-      350,
-      350,
-      350,
-      350,
-      350,
-      350,
-      350
-    ],
-    "atlas": "actions/folder-sleep/atlas.png",
-    "poster": "actions/folder-sleep/poster.png",
-    "sources": [
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_01.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_02.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_03.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_04.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_05.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_06.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_07.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_08.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_09.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_10.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_11.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_12.png"
-    ],
-    "review": "原图道具与姿势差异较大，待精修"
-  },
-  {
-    "id": "roll-front",
-    "name": "向前打滚",
-    "category": "互动",
-    "origin": "existing",
-    "frames": 11,
-    "columns": 4,
-    "cell": 256,
-    "durations": [
-      400,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      450
-    ],
-    "atlas": "actions/roll-front/atlas.png",
-    "poster": "actions/roll-front/poster.png",
-    "sources": [
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_02.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_03.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_04.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_05.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_06.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_07.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_08.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_09.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_10.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_11.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_12.png"
-    ],
-    "review": "已转换"
-  },
-  {
-    "id": "roll-left",
-    "name": "向左打滚",
-    "category": "互动",
-    "origin": "existing",
-    "frames": 12,
-    "columns": 4,
-    "cell": 256,
-    "durations": [
-      400,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      450
-    ],
-    "atlas": "actions/roll-left/atlas.png",
-    "poster": "actions/roll-left/poster.png",
-    "sources": [
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_01.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_02.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_03.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_04.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_05.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_06.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_07.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_08.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_09.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_10.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_11.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_12.png"
-    ],
-    "review": "已转换"
-  },
-  {
-    "id": "roll-right",
-    "name": "向右打滚",
-    "category": "互动",
-    "origin": "existing",
-    "frames": 11,
-    "columns": 4,
-    "cell": 256,
-    "durations": [
-      400,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      140,
-      450
-    ],
-    "atlas": "actions/roll-right/atlas.png",
-    "poster": "actions/roll-right/poster.png",
-    "sources": [
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_02.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_03.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_04.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_05.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_06.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_07.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_08.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_09.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_10.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_11.png",
-      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_12.png"
-    ],
-    "review": "已转换"
+    "review": "已转换",
+    "scale_calibrated": true
   },
   {
     "id": "screen",
@@ -275,7 +121,8 @@
     ],
     "review": "修订版 · 取出一次，持续持屏操作",
     "loop_start": 5,
-    "revision": 2
+    "revision": 2,
+    "scale_calibrated": true
   },
   {
     "id": "sleep",
@@ -315,7 +162,8 @@
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_11_restore.png",
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_12_loop_end.png"
     ],
-    "review": "已转换"
+    "review": "已转换",
+    "scale_calibrated": true
   },
   {
     "id": "affection",
@@ -338,7 +186,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\affection\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "afraid",
@@ -361,7 +210,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\afraid\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "angry",
@@ -384,7 +234,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\angry\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "celebrate",
@@ -407,7 +258,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\celebrate\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "clicked",
@@ -430,7 +282,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\clicked\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "comb",
@@ -453,7 +306,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\comb\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "curious",
@@ -476,7 +330,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\curious\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "dragged",
@@ -499,7 +354,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\dragged\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "dress",
@@ -522,7 +378,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\dress\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "files",
@@ -545,7 +402,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\files\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "leap",
@@ -568,7 +426,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\leap\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "read",
@@ -591,7 +450,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\read\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "sad",
@@ -614,7 +474,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\sad\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "shy",
@@ -637,7 +498,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\shy\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "smile",
@@ -660,7 +522,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\smile\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "stretch",
@@ -683,7 +546,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\stretch\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "tea",
@@ -706,7 +570,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\tea\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "wait",
@@ -729,7 +594,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\wait\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "work",
@@ -752,7 +618,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\work\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "yawn",
@@ -775,7 +642,8 @@
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\yawn\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧"
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true
   },
   {
     "id": "reading-pose-1",
@@ -793,7 +661,8 @@
     "sources": [
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\sit\\ice_blue_catgirl_reading.png"
     ],
-    "review": "静态素材，非完整动作"
+    "review": "静态素材，非完整动作",
+    "scale_calibrated": true
   },
   {
     "id": "reading-pose-2",
@@ -811,7 +680,8 @@
     "sources": [
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\sit\\ice_blue_catgirl_reading_side.png"
     ],
-    "review": "静态素材，非完整动作"
+    "review": "静态素材，非完整动作",
+    "scale_calibrated": true
   },
   {
     "id": "reading-pose-3",
@@ -829,6 +699,354 @@
     "sources": [
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\看书\\pose_08_blue_spellbook.png"
     ],
-    "review": "静态素材，非完整动作"
+    "review": "静态素材，非完整动作",
+    "scale_calibrated": true
+  },
+  {
+    "id": "sit-neat",
+    "name": "端坐待机",
+    "category": "待机",
+    "origin": "generated",
+    "frames": 36,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      260,
+      260,
+      260,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      260,
+      260,
+      260
+    ],
+    "atlas": "actions/sit-neat/atlas.png",
+    "poster": "actions/sit-neat/poster.png",
+    "sources": [
+      "action-work\\ground-idle\\sit-neat\\raw.png"
+    ],
+    "review": "已审查：完整入姿、停留/翻滚及收姿",
+    "ground_idle": true,
+    "scale_calibrated": true
+  },
+  {
+    "id": "sit-relaxed",
+    "name": "抱膝待机",
+    "category": "待机",
+    "origin": "generated",
+    "frames": 42,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      260,
+      260,
+      260,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      260,
+      260,
+      260
+    ],
+    "atlas": "actions/sit-relaxed/atlas.png",
+    "poster": "actions/sit-relaxed/poster.png",
+    "sources": [
+      "action-work\\ground-idle\\sit-relaxed\\raw.png"
+    ],
+    "review": "已审查：完整入姿、停留/翻滚及收姿",
+    "ground_idle": true,
+    "scale_calibrated": true
+  },
+  {
+    "id": "sit-swing",
+    "name": "侧坐晃脚待机",
+    "category": "待机",
+    "origin": "generated",
+    "frames": 30,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      260,
+      260,
+      260,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      260,
+      260,
+      260
+    ],
+    "atlas": "actions/sit-swing/atlas.png",
+    "poster": "actions/sit-swing/poster.png",
+    "sources": [
+      "action-work\\ground-idle\\sit-swing\\raw.png"
+    ],
+    "review": "已审查：完整入姿、停留/翻滚及收姿",
+    "ground_idle": true,
+    "scale_calibrated": true
+  },
+  {
+    "id": "prone-chin",
+    "name": "托腮趴姿待机",
+    "category": "待机",
+    "origin": "generated",
+    "frames": 36,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      260,
+      260,
+      260,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      260,
+      260,
+      260
+    ],
+    "atlas": "actions/prone-chin/atlas.png",
+    "poster": "actions/prone-chin/poster.png",
+    "sources": [
+      "action-work\\ground-idle\\prone-chin\\raw.png"
+    ],
+    "review": "已审查：完整入姿、停留/翻滚及收姿",
+    "ground_idle": true,
+    "scale_calibrated": true
+  },
+  {
+    "id": "prone-rest",
+    "name": "枕臂趴姿待机",
+    "category": "待机",
+    "origin": "generated",
+    "frames": 42,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      260,
+      260,
+      260,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      650,
+      600,
+      500,
+      110,
+      500,
+      600,
+      260,
+      260,
+      260
+    ],
+    "atlas": "actions/prone-rest/atlas.png",
+    "poster": "actions/prone-rest/poster.png",
+    "sources": [
+      "action-work\\ground-idle\\prone-rest\\raw.png"
+    ],
+    "review": "已审查：完整入姿、停留/翻滚及收姿",
+    "ground_idle": true,
+    "scale_calibrated": true
+  },
+  {
+    "id": "lazy-roll-toward",
+    "name": "慵懒侧滚 · 朝向屏幕",
+    "category": "待机",
+    "origin": "generated",
+    "frames": 12,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      520,
+      400,
+      400,
+      420,
+      440,
+      460,
+      440,
+      420,
+      400,
+      400,
+      420,
+      180
+    ],
+    "atlas": "actions/lazy-roll-toward/atlas.png",
+    "poster": "actions/lazy-roll-toward/poster.png",
+    "sources": [
+      "action-work\\lazy-roll\\lazy-roll-toward\\raw.png"
+    ],
+    "pixel_art": false,
+    "lazy_roll": true,
+    "end_posture": "prone",
+    "review": "已审查：纵轴侧滚，统一全彩柔和边缘，首尾一致",
+    "scale_calibrated": true
+  },
+  {
+    "id": "lazy-roll-away",
+    "name": "慵懒侧滚 · 背向屏幕",
+    "category": "待机",
+    "origin": "generated",
+    "frames": 12,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      520,
+      400,
+      400,
+      420,
+      440,
+      460,
+      440,
+      420,
+      400,
+      400,
+      420,
+      180
+    ],
+    "atlas": "actions/lazy-roll-away/atlas.png",
+    "poster": "actions/lazy-roll-away/poster.png",
+    "sources": [
+      "action-work\\lazy-roll\\lazy-roll-toward\\raw.png"
+    ],
+    "pixel_art": false,
+    "lazy_roll": true,
+    "end_posture": "prone",
+    "review": "已审查：纵轴侧滚，统一全彩柔和边缘，首尾一致",
+    "scale_calibrated": true
   }
 ]

@@ -1,0 +1,16 @@
+Create a polished animation KEYFRAME sheet for Yuki, the exact character in the two supplied identity references. ONE sheet, EXACTLY 4 columns by 3 rows, 12 equal rectangular cells read left to right then top to bottom. One complete character per cell. No extra characters. Flat pure chroma green #00ff00 background, no floor, no shadows, no labels, no text, no borders, no grid lines.
+Identity: small chibi anime girl, long white hair, white cat ears, blue eyes, delicate blue-white-silver dress, blue Mary Jane shoes, snowflake hairclip on viewer RIGHT. Original face, petite short arms, consistent head-to-body proportion throughout. Fully clothed, modest skirt with opaque underskirt during rolling, innocent playful cozy companion. Detailed clean soft anime illustration matching references. Gorgeous expressive face, gentle asymmetry and lively eye contact, no stiff mannequin poses. Natural connected limbs, exactly two arms two legs. Hair follows gravity. Never stretch her body or arms.
+Action: 趴下翻滚后坐稳. Ordered poses, every cell is a different successive moment:
+1. standing
+2. crouching palms down
+3. lying on belly chin lifted
+4. tuck shoulder to start rolling
+5. side lying knees bent
+6. on back curled
+7. opposite side
+8. belly down completing one barrel roll
+9. push up to seated
+10. sit side saddle hands on lap
+11. sit smiling at viewer
+12. same seated pose soft blink
+Camera fixed at a slightly elevated front three-quarter view. Character scale, head size and perspective FIXED in every cell: do not enlarge seated/prone poses to fill the cell. The standing figure should fit within 80 percent of cell height, leave generous margins including in the widest lying poses. All poses must share one imaginary floor at 90 percent cell height, planted hands/hips/feet touch that floor. Keep character center near cell center. Rolling is a real connected body barrel roll with intermediate side/back/belly poses, not a rotated standing cutout. The program supplies horizontal travel. No motion streaks, no props, no furniture, no speech bubbles.

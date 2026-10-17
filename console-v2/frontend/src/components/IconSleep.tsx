@@ -46,15 +46,13 @@ export function IconSleep({state,disabled,act}:Props){
     </section>
     <section className="edge-options sleep-options">
       <h2>自然停靠</h2>
-      <p className="muted">走向离当前位置最近的可见边缘：侧边抓框爬行，下沿双手悬挂轻晃，上沿坐坐或趴趴。窗口移动、缩放时跟随；最大化与全屏时选择较近的内侧角落。</p>
-      <Toggle label="自动寻找边缘" checked={edgeOptions.enabled} disabled={locked} onChange={v=>{void configureEdge('enabled',v);}}/>
-      <Toggle label="停靠应用与浏览器窗口" checked={edgeOptions.windows} disabled={locked||!edgeOptions.enabled} onChange={v=>{void configureEdge('windows',v);}}/>
-      <Toggle label="也考虑屏幕边缘" checked={edgeOptions.screens} disabled={locked||!edgeOptions.enabled} onChange={v=>{void configureEdge('screens',v);}}/>
-      <label className="setting-label" htmlFor="edge-corner">角落等距时偏好</label><select id="edge-corner" value={edgeOptions.corner} disabled={locked||!edgeOptions.enabled} onChange={e=>void configureEdge('corner',e.target.value as 'left'|'right')}><option value="right">右侧</option><option value="left">左侧</option></select>
-      <Range label="窗口稳定后等待" description="避免切换页面时频繁换位置" value={edgeOptions.delay} min={2} max={60} unit=" 秒" defaultValue={8} disabled={locked||!edgeOptions.enabled} onCommit={v=>configureEdge('delay',v)}/>
-      <div role="status" className="sleep-status"><span>{edgeOptions.enabled?edge?.message:'自动停靠已关闭'}</span></div>
+      <p className="muted">只在你拖到边框附近并松手时停靠：侧边抓框爬行，下沿悬挂轻晃，上沿坐着或趴着。停靠后跟随窗口移动与缩放；平时以日常待机为主，偶尔散步。</p>
+      <Toggle label="停靠应用与浏览器窗口" checked={edgeOptions.windows} disabled={locked} onChange={v=>{void configureEdge('windows',v);}}/>
+      <Toggle label="允许拖到屏幕边缘停靠" checked={edgeOptions.screens} disabled={locked} onChange={v=>{void configureEdge('screens',v);}}/>
+      <label className="setting-label" htmlFor="edge-corner">角落等距时偏好</label><select id="edge-corner" value={edgeOptions.corner} disabled={locked} onChange={e=>void configureEdge('corner',e.target.value as 'left'|'right')}><option value="right">右侧</option><option value="left">左侧</option></select>
+      <div role="status" className="sleep-status"><span>{edge?.active?edge.message:'等待手动拖放停靠'}</span></div>
       {edge?.error&&<p role="alert" className="save-error">{edge.error}</p>}
-      <button className="button secondary" disabled={locked||!edge?.active} onClick={()=>void invoke('stop_edge_attachment')}>离开边缘，休息一分钟</button>
+      <button className="button secondary" disabled={locked||!edge?.active} onClick={()=>void invoke('stop_edge_attachment')}>离开边缘</button>
       <p className="muted">图标互动优先。跟随浏览器外框，不跟随网页内部卡片；若要覆盖在窗口上方，请开启「始终置顶」。</p>
     </section>
   </div>;

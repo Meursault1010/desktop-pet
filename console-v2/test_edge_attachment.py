@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QPoint
 from PySide6.QtGui import QImage
 from main import PetApplication
 from settings_model import SettingsStore
@@ -37,8 +38,30 @@ class EdgeTests(unittest.TestCase):
             with self.assertRaises(ValueError):validated(bad)
         self.edge.configure({'enabled':True,'delay':2,'corner':'left'})
         self.assertEqual(self.controller.store.settings.value('edge_attachment/corner'),'left')
-        self.assertTrue(self.edge.timer.isActive())
+        self.assertFalse(self.edge.timer.isActive())
         self.edge.configure({'enabled':False});self.assertFalse(self.edge.timer.isActive())
+
+    def test_timer_never_attaches_even_with_legacy_enabled(self):
+        self.edge.options['enabled']=True
+        self.edge.until=0
+        for _ in range(5):
+            self.edge.pending_since=0
+            self.edge.tick()
+        self.assertFalse(self.edge.active)
+        self.pet.state.ambient.next_at=0
+        self.pet.animator.update_ambient(time.monotonic()+2)
+        self.assertIsNotNone(self.pet.state.action_player.action)
+
+    def test_manual_docking_does_not_expire(self):
+        self.edge.active=True
+        with patch.object(self.edge,'follow',return_value=True):
+            self.edge.tick()
+        self.assertTrue(self.edge.active)
+
+    def manual_attach(self):
+        landing=min(self.edge.choices([self.surface]),key=lambda item:item[0].distance)[0]
+        self.pet.move(*(round(v) for v in landing.position))
+        self.assertTrue(self.edge.on_drop([self.surface],QPoint(*(round(v) for v in landing.anchor))))
 
     def test_exact_top_contact_and_fullscreen_corners(self):
         size=(180,190);area=(0,0,1280,860)
@@ -58,7 +81,7 @@ class EdgeTests(unittest.TestCase):
         self.edge.configure({'enabled':True,'delay':2})
         with patch('edge_attachment.inspect_foreground',return_value=self.surface),patch('edge_attachment.logical_surface',return_value=(self.surface.rect,self.surface.work_area,QApplication.primaryScreen())):
             self.edge.tick();self.assertFalse(self.edge.active)
-            self.edge.pending_since-=2.1;self.edge.tick();self.assertTrue(self.edge.active)
+            self.manual_attach();self.assertTrue(self.edge.active)
             for _ in range(200):
                 self.edge.last_tick-=.1;self.edge.animate()
                 if self.edge.phase=='resting':break
@@ -78,12 +101,12 @@ class EdgeTests(unittest.TestCase):
         self.edge.options.update(enabled=True,delay=2,screens=False)
         self.edge.until=0
         with patch('edge_attachment.inspect_foreground',return_value=self.surface),patch('edge_attachment.logical_surface',return_value=(self.surface.rect,self.surface.work_area,QApplication.primaryScreen())):
-            self.edge.tick();self.edge.pending_since-=2.1;self.edge.tick();self.assertTrue(self.edge.active)
+            self.manual_attach();self.assertTrue(self.edge.active)
         with patch('edge_attachment.visible_surfaces',return_value=[]),patch('edge_attachment.inspect_foreground',return_value=None):
             self.edge.tick();self.assertFalse(self.edge.active)
             self.edge.options['screens']=True;self.edge.until=0
             self.edge.tick();self.edge.pending_since-=2.1;self.edge.tick()
-            self.assertTrue(self.edge.active);self.assertIsNone(self.edge.handle)
+            self.assertFalse(self.edge.active);self.assertIsNone(self.edge.handle)
 
     def test_generated_pose_top_contact_stays_at_icon_surface(self):
         options={**ICON_DEFAULTS,'direction':'sit-front'}

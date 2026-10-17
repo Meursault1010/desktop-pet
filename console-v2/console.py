@@ -15,7 +15,7 @@ class ControlWindow(QMainWindow):
         self.controller = controller
         self.sliders = {}
         self.checks = {}
-        self.setWindowTitle('小橘 · 控制台')
+        self.setWindowTitle('yuki · 控制台')
         self.setMinimumSize(480, 430)
         self.resize(600, 760)
         self.setWindowIcon(controller.icon)
@@ -26,7 +26,7 @@ class ControlWindow(QMainWindow):
         layout = QVBoxLayout(content)
         layout.setContentsMargins(24, 20, 24, 20)
         layout.setSpacing(16)
-        title = QLabel('小橘的桌面小屋')
+        title = QLabel('yuki的桌面小屋')
         title.setObjectName('title')
         layout.addWidget(title)
         caption = QLabel('陪你工作，也给你留一点安静。')
@@ -56,7 +56,7 @@ class ControlWindow(QMainWindow):
 
         appearance = QGroupBox('外观')
         appearance_form = QFormLayout(appearance)
-        appearance_form.addRow('当前角色', QLabel('小橘 · 默认橘猫'))
+        appearance_form.addRow('当前角色', QLabel('yuki · 白发蓝裙角色'))
         self.add_slider(appearance_form, '宠物大小', 'size', '%')
         self.add_slider(appearance_form, '不透明度', 'opacity', '%')
         self.add_check(appearance_form, '始终置顶', 'always_on_top')
@@ -95,7 +95,7 @@ class ControlWindow(QMainWindow):
         reset.clicked.connect(self.confirm_reset)
         footer_buttons.addWidget(reset)
         footer_buttons.addStretch()
-        quit_button = QPushButton('退出小橘')
+        quit_button = QPushButton('退出yuki')
         quit_button.clicked.connect(controller.quit)
         footer_buttons.addWidget(quit_button)
         layout.addLayout(footer_buttons)
@@ -178,13 +178,13 @@ class ControlWindow(QMainWindow):
             self.checks[key].setEnabled(not preferences.quiet)
         self.save_label.setText('设置保存失败，请检查配置目录是否可写。' if self.controller.storage_error
                                 else '设置自动保存，修改立即生效。')
-        self.close_hint.setText('关闭此窗口后，小橘继续运行；点击系统托盘图标可重新打开。'
+        self.close_hint.setText('关闭此窗口后，yuki继续运行；点击系统托盘图标可重新打开。'
                                 if self.controller.tray_available
                                 else '当前系统托盘不可用；关闭窗口会将控制台最小化，方便重新打开。')
 
     def confirm_reset(self):
         answer = QMessageBox.question(
-            self, '恢复默认设置', '恢复全部偏好并将小橘移回主屏幕底部？\n宠物素材不会被删除。',
+            self, '恢复默认设置', '恢复全部偏好并将yuki移回主屏幕底部？\n宠物素材不会被删除。',
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No)
         if answer == QMessageBox.StandardButton.Yes:

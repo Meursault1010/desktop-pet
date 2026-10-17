@@ -1,0 +1,83 @@
+{
+  "reference": {
+    "head_span": 97,
+    "standing_height": 227,
+    "baseline": 251,
+    "canvas": 256
+  },
+  "actions": {
+    "blink": 87,
+    "eat": 92,
+    "screen": 101,
+    "sleep": 93,
+    "affection": 88,
+    "afraid": 85,
+    "angry": 92,
+    "celebrate": 89,
+    "clicked": 92,
+    "comb": 91,
+    "curious": 88,
+    "dragged": 89,
+    "dress": 98,
+    "files": 91,
+    "leap": 89,
+    "read": 88,
+    "sad": 87,
+    "shy": 89,
+    "smile": 94,
+    "stretch": 86,
+    "tea": 92,
+    "wait": 89,
+    "work": 97,
+    "yawn": 90,
+    "reading-pose-1": 115,
+    "reading-pose-2": 119,
+    "reading-pose-3": 93,
+    "sit-neat": 93,
+    "sit-relaxed": 97,
+    "sit-swing": 92,
+    "prone-chin": 95,
+    "prone-rest": 103,
+    "lazy-roll-toward": 94,
+    "lazy-roll-away": 94
+  },
+  "nonstanding": [
+    "eat",
+    "sleep",
+    "leap",
+    "work",
+    "reading-pose-1",
+    "reading-pose-2",
+    "lazy-roll-toward",
+    "lazy-roll-away"
+  ],
+  "motion": {
+    "walk-left": 87,
+    "walk-right": 91,
+    "climb-left": 84,
+    "climb-right": 84,
+    "hang": 68
+  },
+  "drag": {
+    "down": 83,
+    "left": 84,
+    "right": 85,
+    "up": 81,
+    "upper-left": 85,
+    "upper-right": 86
+  },
+  "icon": {
+    "sit-front": 93,
+    "sit-back": 87,
+    "perch-front": 94,
+    "perch-back": 91,
+    "prone-front": 101,
+    "prone-back": 94
+  },
+  "legacy": {
+    "front": 89,
+    "back": 100,
+    "left": 95,
+    "right": 95
+  }
+}

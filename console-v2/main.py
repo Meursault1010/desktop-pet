@@ -1,4 +1,4 @@
-"""小橘桌面宠物：宠物、控制台和系统托盘共用一个应用。"""
+"""yuki桌面宠物：宠物、控制台和系统托盘共用一个应用。"""
 import argparse
 from dataclasses import asdict
 import sys
@@ -28,6 +28,9 @@ class PetApplication(QObject):
         self.pet.controller = self
         self.icon_sleep = IconSleep(self.pet, self.store)
         self.edge_attachment = EdgeAttachment(self.pet, self.store, self.icon_sleep)
+        # Warm bounds and static pose pixmaps before the first drag, not inside
+        # a mouse-move handler. Preview uses these static images directly.
+        self.icon_sleep.load_poses()
         self.icon = make_pet_icon()
         self.app.setWindowIcon(self.icon)
         position = self.store.position()
@@ -38,7 +41,7 @@ class PetApplication(QObject):
         self.pet.position_settled.connect(self.save_position)
 
         self.tray = QSystemTrayIcon(self.icon, self)
-        self.tray.setToolTip('小橘 · 桌面宠物')
+        self.tray.setToolTip('yuki · 桌面宠物')
         self.tray_available = enable_tray and QSystemTrayIcon.isSystemTrayAvailable()
         self.window = ControlWindow(self) if create_console else None
         self.tray_menu = self.create_menu(self.window or self.pet)
@@ -115,7 +118,7 @@ class PetApplication(QObject):
         menu.addAction('回到桌面底部', self.pet.go_home)
         menu.addAction('停止图标互动 / 边缘附着', self.pet.wake_icon_sleep)
         menu.addSeparator()
-        menu.addAction('退出小橘', self.quit)
+        menu.addAction('退出yuki', self.quit)
         self.update_menu(menu)
         return menu
 
@@ -131,7 +134,7 @@ class PetApplication(QObject):
 
     def refresh_menus(self):
         self.update_menu(self.tray_menu)
-        self.tray.setToolTip('小橘 · ' + self.pet.status_text())
+        self.tray.setToolTip('yuki · ' + self.pet.status_text())
 
     def on_tray_activated(self, reason):
         if reason in (QSystemTrayIcon.ActivationReason.Trigger,
@@ -183,14 +186,14 @@ class PetApplication(QObject):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='小橘桌面宠物与控制台')
+    parser = argparse.ArgumentParser(description='yuki桌面宠物与控制台')
     parser.add_argument('--smoke-test', action='store_true', help='启动后自动退出')
     parser.add_argument('--settings-file', help='指定独立配置文件，适合测试')
     args = parser.parse_args()
     app = QApplication(sys.argv[:1])
     app.setOrganizationName('XiaoJu')
     app.setApplicationName('DesktopPet')
-    app.setApplicationDisplayName('小橘 · 桌面宠物')
+    app.setApplicationDisplayName('yuki · 桌面宠物')
     app.setQuitOnLastWindowClosed(False)
     controller = PetApplication(app, SettingsStore(args.settings_file))
     controller.start()

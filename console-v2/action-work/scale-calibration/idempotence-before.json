@@ -1,0 +1,717 @@
+{
+  "actions/blink": {
+    "version": 2,
+    "head_span": 87,
+    "requested_scale": 1.127749,
+    "transform": [
+      1.12890625,
+      -17,
+      -12
+    ],
+    "frames": 12,
+    "input_hash": "31ca862c292aa3def9719a1d33f29945fe85c61cf69f128651e3b2a2a4bd47af",
+    "output_hash": "31ca862c292aa3def9719a1d33f29945fe85c61cf69f128651e3b2a2a4bd47af"
+  },
+  "actions/eat": {
+    "version": 2,
+    "head_span": 92,
+    "requested_scale": 1.054348,
+    "transform": [
+      1.0546875,
+      -16,
+      9
+    ],
+    "frames": 12,
+    "input_hash": "5349f46f4054076684695ed010012177e0e354cb96404905947fe695d8c81f38",
+    "output_hash": "5349f46f4054076684695ed010012177e0e354cb96404905947fe695d8c81f38"
+  },
+  "actions/screen": {
+    "version": 2,
+    "head_span": 101,
+    "requested_scale": 0.993212,
+    "transform": [
+      0.9921875,
+      1,
+      9
+    ],
+    "frames": 12,
+    "input_hash": "2bf01de99d2be929de9e9f489678ccd316fdcd3297dd276977a3f232dbb178bb",
+    "output_hash": "2bf01de99d2be929de9e9f489678ccd316fdcd3297dd276977a3f232dbb178bb"
+  },
+  "actions/sleep": {
+    "version": 2,
+    "head_span": 93,
+    "requested_scale": 1.043011,
+    "transform": [
+      1.04296875,
+      -6,
+      17
+    ],
+    "frames": 12,
+    "input_hash": "e569adb9d5a1c5803a1e3bb3fc11e081517649550f8d880eac2bc8cb502e1836",
+    "output_hash": "e569adb9d5a1c5803a1e3bb3fc11e081517649550f8d880eac2bc8cb502e1836"
+  },
+  "actions/affection": {
+    "version": 2,
+    "head_span": 88,
+    "requested_scale": 1.07381,
+    "transform": [
+      1.07421875,
+      -10,
+      -11
+    ],
+    "frames": 6,
+    "input_hash": "e68f368de7992b46fa080e4919aeaa52b0e9757fdbe48b145c671239282b9734",
+    "output_hash": "e68f368de7992b46fa080e4919aeaa52b0e9757fdbe48b145c671239282b9734"
+  },
+  "actions/afraid": {
+    "version": 2,
+    "head_span": 85,
+    "requested_scale": 1.095122,
+    "transform": [
+      1.09375,
+      -12,
+      -16
+    ],
+    "frames": 6,
+    "input_hash": "82e945f791ca612ade0da0bc07090e0b3f8acade31c78b915dd85fe9b261d0e8",
+    "output_hash": "82e945f791ca612ade0da0bc07090e0b3f8acade31c78b915dd85fe9b261d0e8"
+  },
+  "actions/angry": {
+    "version": 2,
+    "head_span": 92,
+    "requested_scale": 1.060022,
+    "transform": [
+      1.05859375,
+      -7,
+      -7
+    ],
+    "frames": 6,
+    "input_hash": "13ad5852eba50eaa089fe427ec2387aab1f930da4393e82bc4a54be356efa70f",
+    "output_hash": "13ad5852eba50eaa089fe427ec2387aab1f930da4393e82bc4a54be356efa70f"
+  },
+  "actions/celebrate": {
+    "version": 2,
+    "head_span": 89,
+    "requested_scale": 1.07774,
+    "transform": [
+      1.078125,
+      -11,
+      -12
+    ],
+    "frames": 6,
+    "input_hash": "d5d84b268fcdd4d009d079a286708ff9a1528eb0c430c43dd889fe305eab2ca4",
+    "output_hash": "d5d84b268fcdd4d009d079a286708ff9a1528eb0c430c43dd889fe305eab2ca4"
+  },
+  "actions/clicked": {
+    "version": 2,
+    "head_span": 92,
+    "requested_scale": 1.043022,
+    "transform": [
+      1.04296875,
+      -6,
+      -3
+    ],
+    "frames": 6,
+    "input_hash": "b5a9619959d2197fadcfe9a7e2d55612b9966451e260727eb9d2f75350e090fd",
+    "output_hash": "b5a9619959d2197fadcfe9a7e2d55612b9966451e260727eb9d2f75350e090fd"
+  },
+  "actions/comb": {
+    "version": 2,
+    "head_span": 91,
+    "requested_scale": 1.063338,
+    "transform": [
+      1.0625,
+      -8,
+      -8
+    ],
+    "frames": 6,
+    "input_hash": "07cf91f53ba466e42205792493aa2d0d4a06a1c55eece922f4b363c5f43cca32",
+    "output_hash": "07cf91f53ba466e42205792493aa2d0d4a06a1c55eece922f4b363c5f43cca32"
+  },
+  "actions/curious": {
+    "version": 2,
+    "head_span": 88,
+    "requested_scale": 1.076293,
+    "transform": [
+      1.078125,
+      -10,
+      -12
+    ],
+    "frames": 6,
+    "input_hash": "ab8fa60924d40e2efcf5928802e2f957a5a3cc68797c3819da54e0ab2343a401",
+    "output_hash": "ab8fa60924d40e2efcf5928802e2f957a5a3cc68797c3819da54e0ab2343a401"
+  },
+  "actions/dragged": {
+    "version": 2,
+    "head_span": 89,
+    "requested_scale": 1.103966,
+    "transform": [
+      1.10546875,
+      -14,
+      -19
+    ],
+    "frames": 6,
+    "input_hash": "8bf1065a141732cd6b1c12094699e42d774a088a9259d78a7e521483fd3df483",
+    "output_hash": "8bf1065a141732cd6b1c12094699e42d774a088a9259d78a7e521483fd3df483"
+  },
+  "actions/dress": {
+    "version": 2,
+    "head_span": 98,
+    "requested_scale": 1.024658,
+    "transform": [
+      1.0234375,
+      -3,
+      1
+    ],
+    "frames": 6,
+    "input_hash": "2f9f200390106f3d08f4f4f0c4a4787f1da989a56ff38ee8393b9dcc639c96fe",
+    "output_hash": "2f9f200390106f3d08f4f4f0c4a4787f1da989a56ff38ee8393b9dcc639c96fe"
+  },
+  "actions/files": {
+    "version": 2,
+    "head_span": 91,
+    "requested_scale": 1.053537,
+    "transform": [
+      1.0546875,
+      -8,
+      -6
+    ],
+    "frames": 6,
+    "input_hash": "27e1126f5f2df96f0e78ab97a288083f38ce805c8caf8c562bd28ee1a2e92a98",
+    "output_hash": "27e1126f5f2df96f0e78ab97a288083f38ce805c8caf8c562bd28ee1a2e92a98"
+  },
+  "actions/leap": {
+    "version": 2,
+    "head_span": 89,
+    "requested_scale": 1.089888,
+    "transform": [
+      1.08984375,
+      -12,
+      -15
+    ],
+    "frames": 6,
+    "input_hash": "30823c196167981013c05b1578142cdd73c5cdea99f27d7e6c4c84ce54528f50",
+    "output_hash": "30823c196167981013c05b1578142cdd73c5cdea99f27d7e6c4c84ce54528f50"
+  },
+  "actions/read": {
+    "version": 2,
+    "head_span": 88,
+    "requested_scale": 1.096796,
+    "transform": [
+      1.09765625,
+      -13,
+      -17
+    ],
+    "frames": 6,
+    "input_hash": "2a8c6afef6aa1f253905f5b516a25beaa2af3be0aab27ffaa652166ff8a969d7",
+    "output_hash": "2a8c6afef6aa1f253905f5b516a25beaa2af3be0aab27ffaa652166ff8a969d7"
+  },
+  "actions/sad": {
+    "version": 2,
+    "head_span": 87,
+    "requested_scale": 1.097816,
+    "transform": [
+      1.09765625,
+      -12,
+      -17
+    ],
+    "frames": 6,
+    "input_hash": "40dcd41bc2f2d4fadd02b9b668b742e0df0405c058fe38b56ed2ec90ae4305ad",
+    "output_hash": "40dcd41bc2f2d4fadd02b9b668b742e0df0405c058fe38b56ed2ec90ae4305ad"
+  },
+  "actions/shy": {
+    "version": 2,
+    "head_span": 89,
+    "requested_scale": 1.072716,
+    "transform": [
+      1.07421875,
+      -10,
+      -11
+    ],
+    "frames": 6,
+    "input_hash": "4facdc90d72a2db537de7e525c1f123955bdee4a17e6739f925088f69881d12b",
+    "output_hash": "4facdc90d72a2db537de7e525c1f123955bdee4a17e6739f925088f69881d12b"
+  },
+  "actions/smile": {
+    "version": 2,
+    "head_span": 94,
+    "requested_scale": 1.038975,
+    "transform": [
+      1.0390625,
+      -5,
+      -3
+    ],
+    "frames": 6,
+    "input_hash": "479a8b61a9f3167015ca56d8f9bd8e7388212f11d3bd13597fb2e79b917e8d81",
+    "output_hash": "479a8b61a9f3167015ca56d8f9bd8e7388212f11d3bd13597fb2e79b917e8d81"
+  },
+  "actions/stretch": {
+    "version": 2,
+    "head_span": 86,
+    "requested_scale": 1.117565,
+    "transform": [
+      1.1171875,
+      -14,
+      -21
+    ],
+    "frames": 6,
+    "input_hash": "263ff5c8a27f279b5f435ba6db1b900af20a41aeb5c0a81281e184f009bf77db",
+    "output_hash": "263ff5c8a27f279b5f435ba6db1b900af20a41aeb5c0a81281e184f009bf77db"
+  },
+  "actions/tea": {
+    "version": 2,
+    "head_span": 92,
+    "requested_scale": 1.052635,
+    "transform": [
+      1.05078125,
+      -6,
+      -5
+    ],
+    "frames": 6,
+    "input_hash": "484350c98ee48a62156e2a4fbe75d82bb0a81dc83c1003100e09cc1c53257c1f",
+    "output_hash": "484350c98ee48a62156e2a4fbe75d82bb0a81dc83c1003100e09cc1c53257c1f"
+  },
+  "actions/wait": {
+    "version": 2,
+    "head_span": 89,
+    "requested_scale": 1.093248,
+    "transform": [
+      1.09375,
+      -12,
+      -16
+    ],
+    "frames": 6,
+    "input_hash": "23f1d377577fcd6f2567c8f18e78e0025db16b34e332d5a1fe310f2b5a463072",
+    "output_hash": "23f1d377577fcd6f2567c8f18e78e0025db16b34e332d5a1fe310f2b5a463072"
+  },
+  "actions/work": {
+    "version": 2,
+    "head_span": 97,
+    "requested_scale": 1.0,
+    "transform": [
+      1.0,
+      0,
+      7
+    ],
+    "frames": 6,
+    "input_hash": "d2ba054e7b1ec667bac38eca2d8a59d49fae97dae86e34b03524d1434e7e8162",
+    "output_hash": "d2ba054e7b1ec667bac38eca2d8a59d49fae97dae86e34b03524d1434e7e8162"
+  },
+  "actions/yawn": {
+    "version": 2,
+    "head_span": 90,
+    "requested_scale": 1.084541,
+    "transform": [
+      1.0859375,
+      -11,
+      -14
+    ],
+    "frames": 6,
+    "input_hash": "aa8d90cfb6f71f3776f3727ec403df0170a9620825f4392ab6e14aaf3bfdd174",
+    "output_hash": "aa8d90cfb6f71f3776f3727ec403df0170a9620825f4392ab6e14aaf3bfdd174"
+  },
+  "actions/reading-pose-1": {
+    "version": 2,
+    "head_span": 115,
+    "requested_scale": 0.843478,
+    "transform": [
+      0.84375,
+      20,
+      45
+    ],
+    "frames": 1,
+    "input_hash": "9bfd21eeee1cd255c3f87f34d079092f410cd4c01edaf208e0c2ae94d81ece83",
+    "output_hash": "9bfd21eeee1cd255c3f87f34d079092f410cd4c01edaf208e0c2ae94d81ece83"
+  },
+  "actions/reading-pose-2": {
+    "version": 2,
+    "head_span": 119,
+    "requested_scale": 0.815126,
+    "transform": [
+      0.81640625,
+      24,
+      52
+    ],
+    "frames": 1,
+    "input_hash": "9ae3af41f5d2dd1cc52e7cab62999ea53b37d461be6ae8f6b68c2e4fb5acf874",
+    "output_hash": "9ae3af41f5d2dd1cc52e7cab62999ea53b37d461be6ae8f6b68c2e4fb5acf874"
+  },
+  "actions/reading-pose-3": {
+    "version": 2,
+    "head_span": 93,
+    "requested_scale": 1.079964,
+    "transform": [
+      1.078125,
+      -14,
+      -2
+    ],
+    "frames": 1,
+    "input_hash": "eb0830c1b2bbf6f61a398d4f2119dd41bcffdfc6b03201797b0470c111840480",
+    "output_hash": "eb0830c1b2bbf6f61a398d4f2119dd41bcffdfc6b03201797b0470c111840480"
+  },
+  "actions/sit-neat": {
+    "version": 2,
+    "head_span": 93,
+    "requested_scale": 1.03505,
+    "transform": [
+      1.03515625,
+      -4,
+      -6
+    ],
+    "frames": 36,
+    "input_hash": "6e91b6ba8b4cb08befdc1eff864c04779356f9a63f0973c20a809277f5f17f23",
+    "output_hash": "6e91b6ba8b4cb08befdc1eff864c04779356f9a63f0973c20a809277f5f17f23"
+  },
+  "actions/sit-relaxed": {
+    "version": 2,
+    "head_span": 97,
+    "requested_scale": 1.011199,
+    "transform": [
+      1.01171875,
+      -2,
+      0
+    ],
+    "frames": 42,
+    "input_hash": "6c62132327e32bea6e7ed49a4485597528fa57a0aebb39589c8cd30398cb5ea9",
+    "output_hash": "6c62132327e32bea6e7ed49a4485597528fa57a0aebb39589c8cd30398cb5ea9"
+  },
+  "actions/sit-swing": {
+    "version": 2,
+    "head_span": 92,
+    "requested_scale": 1.038313,
+    "transform": [
+      1.0390625,
+      -5,
+      -7
+    ],
+    "frames": 30,
+    "input_hash": "b9731ecb38c4a9e559acdcbadc66352d06b1a79fff0596633dd8c05861fafd20",
+    "output_hash": "b9731ecb38c4a9e559acdcbadc66352d06b1a79fff0596633dd8c05861fafd20"
+  },
+  "actions/prone-chin": {
+    "version": 2,
+    "head_span": 95,
+    "requested_scale": 1.024096,
+    "transform": [
+      1.0234375,
+      -3,
+      -3
+    ],
+    "frames": 36,
+    "input_hash": "4846e46fab59f054ea3e0a59fd1f141e90d96404b312a38cc535d41d61fb0345",
+    "output_hash": "4846e46fab59f054ea3e0a59fd1f141e90d96404b312a38cc535d41d61fb0345"
+  },
+  "actions/prone-rest": {
+    "version": 2,
+    "head_span": 103,
+    "requested_scale": 1.004182,
+    "transform": [
+      1.00390625,
+      0,
+      2
+    ],
+    "frames": 42,
+    "input_hash": "64df353e37564f1c1f749c2c25486a538bf0d77c80f8cc46e7c24da4e9ca14fb",
+    "output_hash": "64df353e37564f1c1f749c2c25486a538bf0d77c80f8cc46e7c24da4e9ca14fb"
+  },
+  "actions/lazy-roll-toward": {
+    "version": 2,
+    "head_span": 94,
+    "requested_scale": 1.031915,
+    "transform": [
+      1.03125,
+      -4,
+      -5
+    ],
+    "frames": 12,
+    "input_hash": "a35b83adc32018edb1e95042026b57477c63d7a402fc5b6e9a4a611a60e4db3b",
+    "output_hash": "a35b83adc32018edb1e95042026b57477c63d7a402fc5b6e9a4a611a60e4db3b"
+  },
+  "actions/lazy-roll-away": {
+    "version": 2,
+    "head_span": 94,
+    "requested_scale": 1.031915,
+    "transform": [
+      1.03125,
+      -4,
+      -5
+    ],
+    "frames": 12,
+    "input_hash": "70b3e30619249e2e8be94ca864cc74243367de87ca8a23122ef1a898fae6394f",
+    "output_hash": "70b3e30619249e2e8be94ca864cc74243367de87ca8a23122ef1a898fae6394f"
+  },
+  "motion/walk-left": {
+    "version": 2,
+    "head_span": 87,
+    "requested_scale": 1.114943,
+    "transform": [
+      1.11328125,
+      -12,
+      -13
+    ],
+    "frames": 6,
+    "input_hash": "de539305af51d88bd003ff2291e1788b2c71d031a6256d06edbda76f5538c7dc",
+    "output_hash": "de539305af51d88bd003ff2291e1788b2c71d031a6256d06edbda76f5538c7dc"
+  },
+  "motion/walk-right": {
+    "version": 2,
+    "head_span": 91,
+    "requested_scale": 1.065934,
+    "transform": [
+      1.06640625,
+      3,
+      -2
+    ],
+    "frames": 6,
+    "input_hash": "f4ca4616272ed2ef8ff547e1d5077fa0810a6c7aa57b803678164abcb19d996b",
+    "output_hash": "f4ca4616272ed2ef8ff547e1d5077fa0810a6c7aa57b803678164abcb19d996b"
+  },
+  "motion/climb-left": {
+    "version": 2,
+    "head_span": 84,
+    "requested_scale": 1.098485,
+    "transform": [
+      1.0546875,
+      1,
+      -5
+    ],
+    "frames": 24,
+    "input_hash": "e1565eb287389009b67a214a762fae750907c6daad6b5cc796c532f4e343c9b3",
+    "output_hash": "e1565eb287389009b67a214a762fae750907c6daad6b5cc796c532f4e343c9b3"
+  },
+  "motion/climb-right": {
+    "version": 2,
+    "head_span": 84,
+    "requested_scale": 1.098485,
+    "transform": [
+      1.05859375,
+      -18,
+      -8
+    ],
+    "frames": 24,
+    "input_hash": "d5272d4d35d9f42996f170952788ae9f6ba9e701709955e0ecd5293054e18e8b",
+    "output_hash": "d5272d4d35d9f42996f170952788ae9f6ba9e701709955e0ecd5293054e18e8b"
+  },
+  "motion/hang": {
+    "version": 2,
+    "head_span": 68,
+    "requested_scale": 1.356952,
+    "transform": [
+      1.08203125,
+      -20,
+      -7
+    ],
+    "frames": 24,
+    "input_hash": "09d82790ce0bcb35ae9a328e2191f09c2ef5e592f8a4198184bf9a8fc69d6334",
+    "output_hash": "09d82790ce0bcb35ae9a328e2191f09c2ef5e592f8a4198184bf9a8fc69d6334"
+  },
+  "drag/down": {
+    "version": 2,
+    "head_span": 83,
+    "requested_scale": 1.168675,
+    "transform": [
+      1.16796875,
+      -7,
+      -12
+    ],
+    "frames": 1,
+    "input_hash": "1058bb7ea6e1a374f8d2018959e58932f5591542a62ce72f7b453ac55be1d654",
+    "output_hash": "1058bb7ea6e1a374f8d2018959e58932f5591542a62ce72f7b453ac55be1d654"
+  },
+  "drag/left": {
+    "version": 2,
+    "head_span": 84,
+    "requested_scale": 1.154762,
+    "transform": [
+      1.15625,
+      -24,
+      -6
+    ],
+    "frames": 1,
+    "input_hash": "bc7a082984aae459dcdc2b1b53981b7085486d4b66335522f52cbbc56dc4a9c1",
+    "output_hash": "bc7a082984aae459dcdc2b1b53981b7085486d4b66335522f52cbbc56dc4a9c1"
+  },
+  "drag/right": {
+    "version": 2,
+    "head_span": 85,
+    "requested_scale": 1.141176,
+    "transform": [
+      1.140625,
+      8,
+      -10
+    ],
+    "frames": 1,
+    "input_hash": "ac7ee05725a06f05b853dd524732db88ba86ccaa55ea0a08a36b34509afd6492",
+    "output_hash": "ac7ee05725a06f05b853dd524732db88ba86ccaa55ea0a08a36b34509afd6492"
+  },
+  "drag/up": {
+    "version": 2,
+    "head_span": 81,
+    "requested_scale": 1.197531,
+    "transform": [
+      1.19921875,
+      -24,
+      -32
+    ],
+    "frames": 1,
+    "input_hash": "d305c52babf98b6cf1221cf3f311f48c5d6ebd0ca6ee6d818242f7fed871ff54",
+    "output_hash": "d305c52babf98b6cf1221cf3f311f48c5d6ebd0ca6ee6d818242f7fed871ff54"
+  },
+  "drag/upper-left": {
+    "version": 2,
+    "head_span": 85,
+    "requested_scale": 1.141176,
+    "transform": [
+      1.140625,
+      -33,
+      -15
+    ],
+    "frames": 1,
+    "input_hash": "0d576e8d6d835771522ff63afffb961e779627d455b099e0c63808f7808dcc42",
+    "output_hash": "0d576e8d6d835771522ff63afffb961e779627d455b099e0c63808f7808dcc42"
+  },
+  "drag/upper-right": {
+    "version": 2,
+    "head_span": 86,
+    "requested_scale": 1.127907,
+    "transform": [
+      1.12890625,
+      -11,
+      -18
+    ],
+    "frames": 1,
+    "input_hash": "a530e4c0fc422220d27fc4bf034b06aad727b76478a34b929a205952f9f8f52b",
+    "output_hash": "a530e4c0fc422220d27fc4bf034b06aad727b76478a34b929a205952f9f8f52b"
+  },
+  "icon/sit-front": {
+    "version": 2,
+    "head_span": 93,
+    "requested_scale": 0.99218,
+    "transform": [
+      0.9921875,
+      -23,
+      1
+    ],
+    "frames": 33,
+    "input_hash": "e6af38e1336e755d7e64abb93992b024a95c43502ea47aed779da1d26b7db10f",
+    "output_hash": "e6af38e1336e755d7e64abb93992b024a95c43502ea47aed779da1d26b7db10f"
+  },
+  "icon/sit-back": {
+    "version": 2,
+    "head_span": 87,
+    "requested_scale": 1.060606,
+    "transform": [
+      1.0625,
+      -7,
+      -4
+    ],
+    "frames": 33,
+    "input_hash": "ccba7affa68125866d60232b17883a881bdd7ab5b42425a878c9f03d00e9321c",
+    "output_hash": "ccba7affa68125866d60232b17883a881bdd7ab5b42425a878c9f03d00e9321c"
+  },
+  "icon/perch-front": {
+    "version": 2,
+    "head_span": 94,
+    "requested_scale": 0.981625,
+    "transform": [
+      0.98046875,
+      16,
+      2
+    ],
+    "frames": 33,
+    "input_hash": "52d8ec0e247bc5f12d119d2e2748cba6d7bd1e7cb14455fe660ac28896e60010",
+    "output_hash": "52d8ec0e247bc5f12d119d2e2748cba6d7bd1e7cb14455fe660ac28896e60010"
+  },
+  "icon/perch-back": {
+    "version": 2,
+    "head_span": 91,
+    "requested_scale": 1.013986,
+    "transform": [
+      1.015625,
+      4,
+      12
+    ],
+    "frames": 33,
+    "input_hash": "892e45fa1d22190ca4d8262e791cc3ff74c76b55f5b9878162a2eac47734853a",
+    "output_hash": "892e45fa1d22190ca4d8262e791cc3ff74c76b55f5b9878162a2eac47734853a"
+  },
+  "icon/prone-front": {
+    "version": 2,
+    "head_span": 101,
+    "requested_scale": 0.913591,
+    "transform": [
+      0.9140625,
+      7,
+      16
+    ],
+    "frames": 33,
+    "input_hash": "9c1a1b8b65577645de9e9175e0f1500a8b5d2ea4921389342c969ae50008d0af",
+    "output_hash": "9c1a1b8b65577645de9e9175e0f1500a8b5d2ea4921389342c969ae50008d0af"
+  },
+  "icon/prone-back": {
+    "version": 2,
+    "head_span": 94,
+    "requested_scale": 0.981625,
+    "transform": [
+      0.98046875,
+      4,
+      7
+    ],
+    "frames": 33,
+    "input_hash": "7d71e2ef5bb0880d961daf822f390960f8378bf2485f9c2e29a7a6dd82463ad1",
+    "output_hash": "7d71e2ef5bb0880d961daf822f390960f8378bf2485f9c2e29a7a6dd82463ad1"
+  },
+  "legacy/front": {
+    "version": 2,
+    "head_span": 89,
+    "requested_scale": 1.036772,
+    "transform": [
+      1.03515625,
+      -4,
+      -7
+    ],
+    "frames": 1,
+    "input_hash": "71410228d4e0475c5becad29305a02af430cd7ae6ab0e8bbefbd67e100b0c3e8",
+    "output_hash": "71410228d4e0475c5becad29305a02af430cd7ae6ab0e8bbefbd67e100b0c3e8"
+  },
+  "legacy/back": {
+    "version": 2,
+    "head_span": 100,
+    "requested_scale": 0.922727,
+    "transform": [
+      0.921875,
+      10,
+      8
+    ],
+    "frames": 1,
+    "input_hash": "83932006a6611e7a8225927aa9d2e257189522044edbd54cda08eff5021a3879",
+    "output_hash": "83932006a6611e7a8225927aa9d2e257189522044edbd54cda08eff5021a3879"
+  },
+  "legacy/left": {
+    "version": 2,
+    "head_span": 95,
+    "requested_scale": 0.971292,
+    "transform": [
+      0.97265625,
+      4,
+      2
+    ],
+    "frames": 1,
+    "input_hash": "9a6d7b6979e3e23c09c68c6b8387b0b5ac12a2684cb54790f0e7bccadd63f89e",
+    "output_hash": "9a6d7b6979e3e23c09c68c6b8387b0b5ac12a2684cb54790f0e7bccadd63f89e"
+  },
+  "legacy/right": {
+    "version": 2,
+    "head_span": 95,
+    "requested_scale": 0.971292,
+    "transform": [
+      0.97265625,
+      4,
+      2
+    ],
+    "frames": 1,
+    "input_hash": "0c8b536df35c71be1a34c277efd9d32ff5abab5ca492b5ca453731c73dc81c07",
+    "output_hash": "0c8b536df35c71be1a34c277efd9d32ff5abab5ca492b5ca453731c73dc81c07"
+  }
+}

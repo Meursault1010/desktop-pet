@@ -37,11 +37,7 @@ NEW = [
 ]
 EXISTING = [
  ('blink','眨眼','待机动作/眨眼','日常'),
- ('roll-front','向前打滚','打滚动作/向前','互动'),
- ('roll-left','向左打滚','打滚动作/向左','互动'),
- ('roll-right','向右打滚','打滚动作/向右','互动'),
  ('sleep','睡觉','睡眠动作','日常'),
- ('folder-sleep','靠文件夹睡觉','靠文件夹睡觉动作','日常'),
  ('screen','口袋电子屏幕','口袋电子屏幕动作','日常'),
  ('eat','进食','eating','日常'),
 ]
@@ -137,9 +133,10 @@ def main():
     catalog=json.loads(manifest.read_text(encoding='utf-8')) if manifest.exists() else []
     if not args.generate:
         for action_id,name,folder,category in EXISTING:
+            if any(a['id']==action_id and 'travel_window' in a for a in catalog):
+                print(f'PRESERVED reviewed staged animation: {action_id}',flush=True)
+                continue
             paths=sorted((SOURCE/folder).glob('*.png'))
-            if action_id in ('roll-front','roll-right'):
-                paths=paths[1:]  # First input is a 3x3 overview, not an animation frame.
             result=export(action_id,name,category,[extract(Image.open(p)) for p in paths],'existing',[str(p) for p in paths])
             if action_id=='folder-sleep':result['review']='原图道具与姿势差异较大，待精修'
             catalog=[a for a in catalog if a['id']!=action_id]+[result]

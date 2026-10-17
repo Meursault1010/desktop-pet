@@ -140,10 +140,10 @@ class ConsoleTests(unittest.TestCase):
     def test_activity_frequency_changes_behavior(self):
         pet = self.controller.pet
         for activity, expected, interval in (
-                ('少动', False, (4, 8)), ('默认', True, (2, 5)), ('活跃', True, (1, 3))):
+                ('少动', False, (14, 22)), ('默认', False, (10, 18)), ('活跃', True, (1, 2.5))):
             self.controller.set_preference('activity', activity)
             pet.state.next_action = 0
-            with patch('pet.random.random', return_value=.4), \
+            with patch('pet.random.random', return_value=.2), \
                     patch('pet.random.uniform', return_value=3) as uniform:
                 pet.animator.tick()
             self.assertEqual(pet.state.walking, expected)

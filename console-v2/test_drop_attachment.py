@@ -109,18 +109,83 @@ class DropTests(unittest.TestCase):
   self.icons.scanned({'icons':[self.icon],'image':image,'requested_id':'drop-icon','images':{'drop-icon':image}})
   self.assertEqual(self.icons.phase,'sleeping');self.assertIsNotNone(self.icons.image)
 
+ def test_ghost_matches_icon_pose_and_final_landing(self):
+  self.pet.state.drag_feedback=DragFeedback((90,110))
+  self.pet.setFixedSize(420,440)
+  self.pet.move(210,210)
+  preview=self.pet.snap_preview
+  with patch('snap_preview.visible_surfaces',return_value=[]):
+   preview.probe(QPoint(420,370))
+  self.assertTrue(preview.isVisible())
+  self.assertEqual(preview.candidate['icon'],'drop-icon')
+  predicted=preview.pos();pose=preview.candidate['pose']
+  preview.last_probe=0
+  with patch('snap_preview.visible_surfaces',return_value=[]):
+   preview.probe(QPoint(420,370))
+  self.assertEqual(preview.candidate['pose'],pose)
+  self.pet.end_drag_feedback()
+  with patch('drop_attachment.visible_surfaces',return_value=[]):
+   self.assertTrue(settle_drop(self.pet,QPoint(420,370)))
+  self.assertEqual(self.icons.side,pose)
+  self.assertEqual(self.pet.pos(),predicted)
+  self.assertFalse(preview.isVisible())
+
+ def test_ghost_matches_edge_and_does_not_intercept_input(self):
+  self.edge.options['screens']=False
+  self.pet.state.drag_feedback=DragFeedback((90,110))
+  landing=min(self.edge.choices([self.surface]),key=lambda item:item[0].distance)[0]
+  dx,dy=self.pet.state.drag_feedback.body_origin()
+  self.pet.move(round(landing.position[0]-(dx-10)),round(landing.position[1]-(dy-25)))
+  self.pet.setFixedSize(420,440)
+  point=QPoint(*(round(v) for v in landing.anchor))
+  preview=self.pet.snap_preview
+  with patch('snap_preview.visible_surfaces',return_value=[self.surface]):preview.probe(point)
+  self.assertTrue(preview.isVisible())
+  predicted=preview.pos()
+  self.assertTrue(preview.windowFlags() & Qt.WindowType.WindowTransparentForInput)
+  self.pet.end_drag_feedback()
+  self.assertTrue(self.edge.on_drop([self.surface],point))
+  self.assertEqual(self.pet.pos(),predicted)
+  preview.clear()
+
 class DragArtTests(unittest.TestCase):
  @classmethod
  def setUpClass(cls):cls.app=QApplication.instance() or QApplication([])
- def test_palms_cover_exact_grab_point_and_body_keeps_moving(self):
+ def test_short_reaches_are_bounded_and_keep_trying(self):
   for target in ((45,55),(90,40),(135,55),(35,110),(90,160),(145,110),(10,185),(170,185)):
    feedback=DragFeedback(target);hx,hy=feedback.hand
    frames=[]
    for index in (0,4,8):
     point=feedback.vertex(hx,hy,index*math.tau/16)
-    self.assertAlmostEqual(point.x(),210);self.assertAlmostEqual(point.y(),220)
+    ox,oy=feedback.body_origin()
+    rest=(ox+hx*.625,oy+hy*.625)
+    self.assertLessEqual(math.hypot(point.x()-rest[0],point.y()-rest[1]),7.01)
+    if target==(10,185):self.assertGreater(math.hypot(point.x()-210,point.y()-220),25)
     image=feedback.image(index);frames.append(bytes(image.constBits()))
-    self.assertGreater(max(image.pixelColor(x,y).alpha() for x in range(206,215) for y in range(216,225)),150)
+    self.assertGreater(image.pixelColor(round(point.x()),round(point.y())).alpha(),100)
    self.assertGreater(len(set(frames)),1)
+
+ def test_render_never_stretches_or_shears_the_character(self):
+  for target in ((10,185),(90,40),(170,185)):
+   feedback=DragFeedback(target)
+   for index in range(32):
+    transform=feedback.sprite_transform(index)
+    # Basis lengths are identical and orthogonal: rotation/translation only.
+    x=(transform.m11(),transform.m12());y=(transform.m21(),transform.m22())
+    self.assertAlmostEqual(math.hypot(*x),1)
+    self.assertAlmostEqual(math.hypot(*y),1)
+    self.assertAlmostEqual(x[0]*y[0]+x[1]*y[1],0)
+
+ def test_preview_queue_never_scans_inside_mouse_handler(self):
+  from pet import DesktopPet
+  pet=DesktopPet()
+  try:
+   with patch('snap_preview.visible_surfaces') as scan:
+    for x in range(100):pet.snap_preview.queue(QPoint(x,100))
+    scan.assert_not_called()
+   self.assertEqual(pet.snap_preview.point,QPoint(99,100))
+  finally:
+   pet.snap_preview.clear();pet.close();pet.deleteLater()
+   self.app.sendPostedEvents(None,0);self.app.processEvents()
 
 if __name__=='__main__':unittest.main()

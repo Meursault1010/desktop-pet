@@ -1,0 +1,1 @@
+2026-10-17: Visually reviewed all 12 cropped keyframes: identity, connected limbs, full enter/dwell-or-roll/recover sequence, no neighbouring fragments, grounded poses. Accepted.

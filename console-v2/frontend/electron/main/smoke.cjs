@@ -6,12 +6,12 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function run({app,window,sidecar,tray,stopAndQuit}) {
   const results=[];const started=Date.now();
   const request=(name,payload={})=>window.webContents.executeJavaScript(`window.yukiHost.request(${JSON.stringify(name)},${JSON.stringify(payload)})`);
-  async function check(name,task){await task();results.push(name);console.log(`PASS ${name}`);}
+  async function check(name,task,timeout=30000){let timer;try{await Promise.race([task(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Timed out: '+name)),timeout);})]);results.push(name);console.log(`PASS ${name}`);}finally{clearTimeout(timer);}}
   const errors=[];window.webContents.on('console-message',event=>{if(event.level==='error'&&!/Content Security Policy|Refused to connect|Failed to fetch/.test(event.message))errors.push(event.message);});
   await check('preload isolation and bounded API',async()=>{
     assert.equal(await window.webContents.executeJavaScript('typeof require'), 'undefined');
     assert.equal(await window.webContents.executeJavaScript('window.yukiHost.kind'), 'electron');
-    assert.equal(await window.webContents.executeJavaScript('Object.keys(window.yukiHost).sort().join(",")'), 'exit,kind,reconnect,request,subscribe');
+    assert.equal(await window.webContents.executeJavaScript('Object.keys(window.yukiHost).sort().join(",")'), 'aiCancel,aiChat,aiModels,aiSubscribe,exit,kind,reconnect,request,subscribe');
     assert.equal(window.webContents.getLastWebPreferences().sandbox,true);
   });
   await check('React UI connected through Electron IPC',async()=>{
@@ -27,6 +27,62 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
       image.onload=()=>resolve(null);image.onerror=()=>resolve(image.src);
     }))).then(values=>values.filter(Boolean))`);
     assert.deepEqual(broken,[]);
+  });
+  const ui=code=>window.webContents.executeJavaScript(code);
+  // A visible surface is required for fresh compositor frames on Windows.
+  if(process.env.YUKI_UI_CAPTURE_DIR){window.showInactive();await wait(300);}
+  const navigate=async(label)=>{await ui(`[...document.querySelectorAll('nav button')].find(b=>b.getAttribute('aria-label')===${JSON.stringify(label)}).click()`);await wait(220);};
+  const capture=async(name)=>{
+    if(!process.env.YUKI_UI_CAPTURE_DIR)return;
+    const folder=path.resolve(process.env.YUKI_UI_CAPTURE_DIR);fs.mkdirSync(folder,{recursive:true});
+    // Freeze decoration for deterministic screenshots without persisting it.
+    const motion=await ui(`document.documentElement.dataset.motion`);
+    await ui(`document.documentElement.dataset.motion='reduced'`);
+    await wait(500);fs.writeFileSync(path.join(folder,name+'.png'),(await window.webContents.capturePage()).toPNG());
+    await ui(`document.documentElement.dataset.motion=${JSON.stringify(motion)}`);
+  };
+  await check('nine workbench pages, assets, planned capability boundaries',async()=>{
+    for(const label of ['总览','角色','动作库','动画','行为','音乐互动','AI 助手','工具','设置']){
+      await navigate(label);
+      assert.equal(await ui(`document.querySelector('nav [aria-current="page"]').getAttribute('aria-label')`),label);
+      assert.ok(await ui('document.documentElement.scrollWidth <= innerWidth'),'horizontal overflow: '+label);
+      const broken=await ui(`Promise.all([...document.images].map(image=>new Promise(resolve=>{image.loading='eager';if(image.complete)return resolve(!image.naturalWidth);image.onload=()=>resolve(false);image.onerror=()=>resolve(true);}))).then(items=>items.some(Boolean))`);
+      assert.equal(broken,false,'missing image: '+label);
+      if(['音乐互动','AI 助手','工具'].includes(label)){
+        assert.equal(await ui(`!!document.querySelector('main button:not(:disabled):not(.text-link)') && ${JSON.stringify(label)}!=='AI 助手'`),false);
+      }
+      if(['总览','动作库','音乐互动','AI 助手','设置'].includes(label))await capture('light-'+label);
+    }
+    await navigate('总览');
+    assert.equal(await ui(`document.body.innerText.includes('跳一下') || document.body.innerText.includes('轻轻一跃')`),false);
+    assert.equal(await ui(`document.querySelectorAll('.featured-motion').length`),4);
+  });
+  await check('real UI toggle reaches sidecar and action preview remains local',async()=>{
+    await ui(`document.querySelector('[role="switch"][aria-label="拖放即时吸附"]').click()`);await wait(300);
+    assert.equal((await request('get_state')).state.preferences.auto_snap,false);
+    await ui(`document.querySelector('[role="switch"][aria-label="拖放即时吸附"]').click()`);await wait(300);
+    assert.equal((await request('get_state')).state.preferences.auto_snap,true);
+    await ui(`document.querySelectorAll('.featured-motion')[1].click()`);await wait(300);
+    assert.equal(await ui(`document.querySelector('.action-viewer h2').textContent`),'看书');
+    await ui(`document.querySelector('[aria-label="暂停预览"]').click()`);
+    await ui(`(()=>{const input=document.querySelector('[aria-label="逐帧查看"]');const set=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;set.call(input,'2');input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));})()`);await wait(150);
+    assert.equal(await ui(`document.querySelector('[aria-label="逐帧查看"]').value`),'2');
+  });
+  await check('themes, reduced motion persistence and minimum window layout',async()=>{
+    await navigate('设置');
+    await ui(`document.querySelector('[aria-label="切换深色主题"]').click()`);
+    await ui(`document.querySelector('[role="switch"][aria-label="减少动态效果"]').click()`);await wait(100);
+    assert.equal(await ui(`document.documentElement.dataset.motion`),'reduced');
+    await window.webContents.reload();await wait(700);
+    assert.equal(await ui(`document.documentElement.dataset.theme`),'dark');
+    assert.equal(await ui(`document.documentElement.dataset.motion`),'reduced');
+    await capture('dark-overview');
+    await navigate('设置');await ui(`document.querySelector('[role="switch"][aria-label="减少动态效果"]').click()`);
+    await ui(`document.querySelector('[aria-label="切换浅色主题"]').click()`);
+    window.setSize(880,640);
+    assert.ok(await ui(`[...document.querySelectorAll('nav button')].every(button=>button.getBoundingClientRect().bottom<=innerHeight)`),'navigation must fit the minimum window height');
+    for(const label of ['总览','动作库','行为','AI 助手','设置']){await navigate(label);assert.ok(await ui('document.documentElement.scrollWidth <= innerWidth'),'minimum width overflow: '+label);if(['总览','动作库','行为'].includes(label))await capture('small-'+label);}
+    window.setSize(1180,820);await navigate('总览');
   });
   await check('reject unknown command, invalid preference and path traversal',async()=>{
     await assert.rejects(request('exec',{command:'whoami'}));
@@ -44,6 +100,20 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     await request('configure_edge_attachment',{enabled:false});
     await request('play_action',{action_id:'screen',loop:true,speed:1});await request('stop_action');
     await request('jump');await request('go_home');await request('refresh_desktop_icons');
+  });
+  await check('full-colour lazy roll atlases and frozen backend playback',async()=>{
+    const entries=await ui(`fetch('/actions/catalog.json').then(response=>response.json())`);
+    assert.deepEqual(entries.filter(entry=>entry.id.includes('roll')).map(entry=>entry.id).sort(),['lazy-roll-away','lazy-roll-toward']);
+    assert.ok(entries.length===34&&entries.every(entry=>entry.scale_calibrated===true),'Every action must use calibrated sprites');
+    for(const id of ['lazy-roll-toward','lazy-roll-away']){
+      const action=entries.find(entry=>entry.id===id);
+      assert.ok(action?.lazy_roll&&!action.pixel_art);
+      assert.equal(action.frames,12);
+      const dimensions=await ui(`new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve([image.naturalWidth,image.naturalHeight]);image.onerror=()=>reject(new Error('Missing lazy roll atlas'));image.src=${JSON.stringify('/'+action.atlas)};})`);
+      assert.deepEqual(dimensions,[1024,768]);
+      assert.equal((await request('play_action',{action_id:id})).ok,true);
+      await wait(100);await request('stop_action');
+    }
   });
   await check('backend crash and reconnect restores saved preference',async()=>{
     const closed=new Promise(resolve=>sidecar.once('disconnected',resolve));sidecar.child.kill();await closed;
@@ -69,6 +139,43 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     assert.equal(await window.webContents.executeJavaScript('window.open("https://example.com") === null'),true);
     assert.equal(await window.webContents.executeJavaScript('fetch("https://example.com").then(()=>false,()=>true)'),true);
   });
+  if(process.env.YUKI_AI_SMOKE==='1'){
+    window.showInactive();
+    await navigate('AI 助手');
+    const ask=async text=>{
+      await ui(`(()=>{const input=document.querySelector('textarea[aria-label="对话输入"]');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(input,${JSON.stringify(text)});input.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+      await wait(150);await ui(`document.querySelector('button[aria-label="发送消息"]').click()`);
+      for(let i=0;i<850;i++){
+        await wait(100);
+        if(await ui(`!document.querySelector('button[aria-label="停止回复"]')`)){
+          const failure=await ui(`document.querySelector('.chat-error')?.textContent||''`);assert.equal(failure,'');
+          return ui(`document.querySelector('.chat-turn.assistant:last-of-type p')?.textContent||[...document.querySelectorAll('.chat-turn.assistant p')].at(-1)?.textContent||''`);
+        }
+      }throw new Error('Local model reply timed out');
+    };
+    await check('local model discovery through guarded Electron IPC',async()=>{
+      const result=await ui('window.yukiHost.aiModels()');assert.ok(result.models.some(id=>id.includes('qwen3.8')));
+      for(let i=0;i<30;i++){if(await ui(`!!document.querySelector('#ai-model')?.value`))return;await wait(100);}throw Error('No selected model');
+    });
+    await check('real React chat receives a Chinese persona response',async()=>{
+      const answer=await ask('你好，你叫什么名字？用一句话介绍你自己。');assert.match(answer,/雪|yuki/i);assert.doesNotMatch(answer,/<think>/);await capture('ai-real-conversation');
+    },90000);
+    await check('multi-turn chat remembers information in current conversation',async()=>{
+      const answer=await ask('我给你准备了一杯茉莉花茶，请记住这个茶名，并用一句话回应。');assert.match(answer,/茉莉/);
+    },90000);
+    await check('chat survives page navigation and recalls the tea',async()=>{
+      await navigate('角色');await navigate('AI 助手');await wait(300);
+      assert.equal(await ui(`document.querySelectorAll('.chat-turn').length`),4);
+      const answer=await ask('刚刚我给你准备的是什么茶？只回答茶名。');assert.match(answer,/茉莉/);await capture('ai-memory');
+    },90000);
+    await check('stop generation returns the chat to an editable state',async()=>{
+      await ui(`(()=>{const input=document.querySelector('textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(input,'请详细介绍你喜欢的十种茶。');input.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+      await wait(150);await ui(`document.querySelector('button[aria-label="发送消息"]').click()`);await wait(200);
+      await ui(`document.querySelector('button[aria-label="停止回复"]').click()`);
+      for(let i=0;i<50;i++){if(await ui(`!document.querySelector('textarea').disabled`))return;await wait(100);}throw Error('Cancellation did not release composer');
+    });
+  }
+  assert.deepEqual(errors,[],'renderer console errors');
   const child=sidecar.child;
   await sidecar.stop();assert.equal(sidecar.child,null);assert.notEqual(child.exitCode,null);
   results.push('exit cleans up backend');

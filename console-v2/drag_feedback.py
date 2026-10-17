@@ -1,8 +1,7 @@
-"""Pointer-anchored, articulated reach with a fixed grab point.
+"""Pointer-anchored body with compact, bashful reaching hands.
 
-Generated directional palms/eyes supply the expression. A small mesh bends
-arms toward the actual click while the torso, hair and legs struggle around
-that fixed point. Qt only: no imaging packages added to the installation.
+Generated compact arms/eyes supply the expression. A rigid, uniform sprite
+transform adds effort without stretching anatomy. Qt only at runtime.
 """
 import json
 import math
@@ -10,7 +9,7 @@ import time
 from pathlib import Path
 from functools import lru_cache
 from PySide6.QtCore import QPointF,QRectF,Qt
-from PySide6.QtGui import QImage,QPainter,QPixmap,QPolygonF,QTransform,QPainterPath
+from PySide6.QtGui import QImage,QPainter,QPixmap,QTransform
 ROOT=Path(__file__).parent/'assets/drag-resist'
 
 
@@ -23,7 +22,8 @@ def direction(target):
 
 
 @lru_cache(maxsize=6)
-def asset(name):return QPixmap(str(ROOT/f'{name}.png'))
+def asset(name):
+    return QPixmap(str(ROOT/f'{name}.png'))
 
 
 class DragFeedback:
@@ -34,45 +34,47 @@ class DragFeedback:
         self.frames={}
 
     def body_origin(self):
-        tx,ty=self.target;dx,dy=self.delta
-        return 210-tx+10+dx*.6,220-ty+25+dy*.6
+        tx,ty=self.target
+        return 210-tx+10,220-ty+25
 
     def vertex(self,x,y,phase):
         hx,hy=self.hand;dx,dy=self.delta;ox,oy=self.body_origin()
         distance=math.hypot(x-hx,y-hy)
         # Smooth local hand bend; the palm center has exact unit weight.
         weight=math.exp(-(distance/64)**2)
-        effort=math.sin(phase)*1.8
+        # Tiny repeated attempts, never stretch the art until palms reach the
+        # pointer. The body stays anchored to the original mouse grab point.
+        reach=min(1.,7/max(.001,math.hypot(dx,dy)))
+        effort_scale=.72+.28*math.sin(phase)
+        rx,ry=dx*reach*effort_scale,dy*reach*effort_scale
+        effort=math.sin(phase)*1.8+math.sin(phase*3)*.45
         depth=max(0,min(1,(y-80)/170))
-        return QPointF(ox+x*.625+dx*.4*weight+effort*(1-weight)*depth,
-                       oy+y*.625+dy*.4*weight+math.sin(phase*2)*.7*(1-weight)*depth)
+        return QPointF(ox+x*.625+rx*weight+effort*(1-weight)*depth,
+                       oy+y*.625+ry*weight+math.sin(phase*2)*.7*(1-weight)*depth)
 
     def image(self,index):
         if index in self.frames:return self.frames[index]
-        phase=index*math.tau/16
         image=QImage(420,440,QImage.Format.Format_ARGB32_Premultiplied);image.fill(0)
         p=QPainter(image);p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
-        hx,hy=self.hand
-        xs=sorted(set([*range(0,257,16),hx]));ys=sorted(set([*range(0,257,16),hy]))
         pixmap=asset(self.name)
-        # Piecewise affine triangles cannot fold on the modest local hand bend.
-        for x1,x2 in zip(xs,xs[1:]):
-            for y1,y2 in zip(ys,ys[1:]):
-                corners=[(x1,y1),(x2,y1),(x2,y2),(x1,y2)]
-                for ids in ((0,1,2),(0,2,3)):
-                    a,b,c=[corners[i] for i in ids]
-                    source=QPolygonF([QPointF(*a),QPointF(*b),QPointF(*c),QPointF(a[0]+c[0]-b[0],a[1]+c[1]-b[1])])
-                    aa,bb,cc=[self.vertex(*corners[i],phase) for i in ids]
-                    dest=QPolygonF([aa,bb,cc,aa+cc-bb])
-                    transform=QTransform();success=QTransform.quadToQuad(source,dest,transform)
-                    if not success:continue
-                    path=QPainterPath();path.addPolygon(QPolygonF([aa,bb,cc]));p.save();p.setClipPath(path);p.setTransform(transform)
-                    p.drawPixmap(0,0,pixmap);p.restore()
+        # One cached sprite transform instead of hundreds of clipped triangles
+        # on the GUI thread. Compact arms retain their authored proportions.
+        p.setTransform(self.sprite_transform(index))
+        p.drawPixmap(QRectF(-80,-80,160,160),pixmap,QRectF(0,0,256,256))
         p.end();self.frames[index]=image
         return image
 
+    def sprite_transform(self,index):
+        phase=index*math.tau/32
+        ox,oy=self.body_origin()
+        transform=QTransform()
+        transform.translate(ox+80,oy+80)
+        transform.rotate(math.sin(phase)*.9)
+        transform.translate(math.sin(phase*3)*.45,math.sin(phase*2)*.6)
+        return transform
+
     def paint(self,painter,now=None):
         elapsed=max(0,(now or time.monotonic())-self.started)
-        index=int(elapsed*16/1.1)%16
+        index=int(elapsed*32/1.1)%32
         painter.drawImage(0,0,self.image(index))
 

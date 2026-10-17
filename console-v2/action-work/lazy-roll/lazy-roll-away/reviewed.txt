@@ -1,0 +1,2 @@
+2026-10-17: Reviewed all 12 processed frames. Accepted second toward sheet: grounded flank/supine/back/prone, head remains left and feet right, no somersault, hard pixel edges and shared palette. Away uses reverse of accepted cycle; independent away sheet rejected for frame-3 camera change. First/last identical by construction.
+2026-10-17 style revision: reviewed full-colour 256px frames against prone-rest. Removed 128px intermediate, 48-colour palette and binary alpha. Natural edges, original detail, same poses and exact loop closure.
