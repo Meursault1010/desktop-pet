@@ -1,5 +1,15 @@
 # yuki 版本记录
 
+## yuki v1.1.0 — 2026-10-17（本地 Electron 兼容迁移版）
+
+- Electron 接管 React 工作台、托盘、单实例、受限 IPC 与 Python 生命周期；保留 Tauri adapter 和回退入口。
+- 默认 `start.bat` 切换至 Electron。提供包含冻结 Python/PySide6 的 Windows x64 便携目录；原桌面安装版未部署更新。
+- 正式宠物继续使用原 PySide6 渲染与桌面行为，原有 623 个运行文件哈希未变。
+- 新增独立透明 PNG 宠物原型、PetRenderer 接口和未来音频/AI 类型边界；未接入网络服务或采集。
+- 工作台显示品牌与标题更新为 yuki，保留历史设置目录和标识。
+
+验证：86 项 Python、22 项前端/Electron/PNG、最终便携版 10 组 E2E 通过。完整范围、性能采样与未完成验收见 [Electron迁移总结](docs/Electron迁移总结.md)。源码通过 Git 提交同步至 GitHub；本版本未创建 Git 标签或 GitHub Release，便携目录不纳入源码仓库。
+
 ## yuki v1.0 — 2026-10-17
 
 首个以 yuki 命名的项目快照，在原 desktop-pet 仓库历史基础上发布。

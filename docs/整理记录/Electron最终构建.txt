@@ -1,0 +1,97 @@
+242 INFO: PyInstaller: 6.19.0, contrib hooks: 2026.8
+242 INFO: Python: 3.13.14
+289 INFO: Platform: Windows-11-10.0.26200-SP0
+289 INFO: Python environment: C:\Users\meursault\Documents\ChatGPT\�������\.electron-build\venv
+290 INFO: wrote C:\Users\meursault\Documents\ChatGPT\�������\.electron-build\yuki-backend.spec
+292 INFO: Removing temporary files and cleaning cache in C:\Users\meursault\AppData\Local\pyinstaller
+303 INFO: Module search paths (PYTHONPATH):
+['C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\console-v2',
+ 'C:\\Users\\meursault\\AppData\\Local\\Programs\\Python\\Python313\\python313.zip',
+ 'C:\\Users\\meursault\\AppData\\Local\\Programs\\Python\\Python313\\DLLs',
+ 'C:\\Users\\meursault\\AppData\\Local\\Programs\\Python\\Python313\\Lib',
+ 'C:\\Users\\meursault\\AppData\\Local\\Programs\\Python\\Python313',
+ 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv',
+ 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages',
+ 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\console-v2']
+901 INFO: Appending 'binaries' from .spec
+902 INFO: Appending 'datas' from .spec
+924 INFO: checking Analysis
+924 INFO: Building Analysis because Analysis-00.toc is non existent
+924 INFO: Looking for Python shared library...
+924 INFO: Using Python shared library: C:\Users\meursault\AppData\Local\Programs\Python\Python313\python313.dll
+924 INFO: Running Analysis Analysis-00.toc
+924 INFO: Target bytecode optimization level: 0
+924 INFO: Initializing module dependency graph...
+928 INFO: Initializing module graph hook caches...
+942 INFO: Analyzing modules for base_library.zip ...
+2676 INFO: Processing standard module hook 'hook-heapq.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+2939 INFO: Processing standard module hook 'hook-encodings.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+4796 INFO: Processing standard module hook 'hook-pickle.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+6434 INFO: Caching module dependency graph...
+6470 INFO: Analyzing C:\Users\meursault\Documents\ChatGPT\�������\console-v2\pet_backend.py
+6485 INFO: Processing standard module hook 'hook-PySide6.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+6743 INFO: Processing standard module hook 'hook-shiboken6.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+6953 INFO: Processing standard module hook 'hook-PySide6.QtNetwork.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+8811 INFO: Processing standard module hook 'hook-PySide6.QtCore.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+11716 INFO: Processing standard module hook 'hook-PySide6.QtGui.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+21662 INFO: Processing standard module hook 'hook-PySide6.QtWidgets.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+23610 INFO: Processing standard module hook 'hook-sysconfig.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+23615 INFO: Processing standard module hook 'hook-_ctypes.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+23675 INFO: Processing standard module hook 'hook-platform.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+23729 INFO: Processing module hooks (post-graph stage)...
+23741 INFO: Performing binary vs. data reclassification (724 entries)
+23833 INFO: Looking for ctypes DLLs
+23846 INFO: Analyzing run-time hooks ...
+23847 INFO: Including run-time hook 'pyi_rth_inspect.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+23850 INFO: Including run-time hook 'pyi_rth_pyside6.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+23852 INFO: Processing pre-find-module-path hook 'hook-_pyi_rth_utils.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+23853 INFO: Processing standard module hook 'hook-_pyi_rth_utils.py' from 'C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+23872 INFO: Creating base_library.zip...
+23896 INFO: Looking for dynamic libraries
+24185 INFO: Extra DLL search directories (AddDllDirectory): ['C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\shiboken6']
+24185 INFO: Extra DLL search directories (PATH): ['C:\\Users\\meursault\\Documents\\ChatGPT\\�������\\.electron-build\\venv\\Lib\\site-packages\\PySide6']
+25184 INFO: Warnings written to C:\Users\meursault\Documents\ChatGPT\�������\.electron-build\python-work\yuki-backend\warn-yuki-backend.txt
+25196 INFO: Graph cross-reference written to C:\Users\meursault\Documents\ChatGPT\�������\.electron-build\python-work\yuki-backend\xref-yuki-backend.html
+25236 INFO: checking PYZ
+25236 INFO: Building PYZ because PYZ-00.toc is non existent
+25236 INFO: Building PYZ (ZlibArchive) C:\Users\meursault\Documents\ChatGPT\�������\.electron-build\python-work\yuki-backend\PYZ-00.pyz
+25380 INFO: Building PYZ (ZlibArchive) C:\Users\meursault\Documents\ChatGPT\�������\.electron-build\python-work\yuki-backend\PYZ-00.pyz completed successfully.
+25388 INFO: checking PKG
+25388 INFO: Building PKG because PKG-00.toc is non existent
+25388 INFO: Building PKG (CArchive) yuki-backend.pkg
+25412 INFO: Building PKG (CArchive) yuki-backend.pkg completed successfully.
+25413 INFO: Bootloader C:\Users\meursault\Documents\ChatGPT\�������\.electron-build\venv\Lib\site-packages\PyInstaller\bootloader\Windows-64bit-intel\run.exe
+25413 INFO: checking EXE
+25413 INFO: Building EXE because EXE-00.toc is non existent
+25414 INFO: Building EXE from EXE-00.toc
+25414 INFO: Copying bootloader EXE to C:\Users\meursault\Documents\ChatGPT\�������\.electron-build\python-work\yuki-backend\yuki-backend.exe
+25425 INFO: Copying icon to EXE
+25434 INFO: Copying 0 resources to EXE
+25434 INFO: Embedding manifest in EXE
+25443 INFO: Appending PKG archive to EXE
+25445 INFO: Fixing EXE headers
+25492 INFO: Building EXE from EXE-00.toc completed successfully.
+25500 INFO: checking COLLECT
+25509 INFO: Removing dir C:\Users\meursault\Documents\ChatGPT\�������\.electron-build\python-dist\yuki-backend
+25939 INFO: Building COLLECT COLLECT-00.toc
+27566 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+27588 INFO: Build complete! The results are available in: C:\Users\meursault\Documents\ChatGPT\�������\.electron-build\python-dist
+
+> yuki-console@1.1.0 build
+> tsc -b && vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 1657 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/pet.html                       0.49 kB │ gzip:   0.34 kB
+dist/index.html                     0.50 kB │ gzip:   0.34 kB
+dist/assets/pet-CAhpDqNO.css        0.17 kB │ gzip:   0.14 kB
+dist/assets/console-CyTGFDCT.css   31.42 kB │ gzip:   7.80 kB
+dist/assets/pet-DRH1ajQS.js         4.17 kB │ gzip:   1.95 kB
+dist/assets/catalog-BbEKE4eO.js    23.17 kB │ gzip:   2.63 kB
+dist/assets/console-JTCbWSFj.js   316.63 kB │ gzip: 100.86 kB
+✓ built in 3.62s
+Packaging app for platform win32 x64 using electron v44.9.0
+Packaged: C:\Users\meursault\Documents\ChatGPT\桌面宠物\releases\electron\yuki-win32-x64

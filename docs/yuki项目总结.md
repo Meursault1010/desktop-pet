@@ -6,7 +6,7 @@
 
 yuki 是 Windows 透明桌面宠物与本地控制台项目。角色为白发、蓝眼、冰蓝裙的猫耳少女，设计目标是具有呼吸、视线、动作和接触关系的活泼陪伴感。角色依靠真实桌面图标和原生窗口边缘，不修改用户文件，也不改变其他窗口的位置。
 
-目前是可日常运行的本机版本：React/Tauri 控制台 EXE 启动 Python/PySide6 后端，素材为透明 PNG、动作图集和程序局部变形。它仍依赖本机 Python 环境，并非可复制到任意机器就运行的独立安装包，也不是完整 Live2D 骨骼模型。
+目前版本为 1.1.0 Electron 兼容迁移版：Electron 控制台启动内置冻结 Python/PySide6 后端，素材为透明 PNG、动作图集和程序局部变形。已提供本地 Windows x64 便携目录，正式宠物窗口仍保留 PySide6；Electron PNG 原型尚未接管桌面行为。迁移与验证范围见 [Electron迁移总结](Electron迁移总结.md)。它不是完整 Live2D 骨骼模型。
 
 ## 已有功能
 
@@ -36,7 +36,7 @@ yuki 是 Windows 透明桌面宠物与本地控制台项目。角色为白发、
 
 ```text
 React 19 / TypeScript / Vite 控制台
-  → Tauri 2 / Rust：命令白名单、托盘、单实例、子进程生命周期
+  → Electron：命令白名单、托盘、单实例、子进程生命周期
     → UTF-8 JSONL stdin/stdout：请求、响应、状态推送
       → Python / PySide6：透明宠物窗口、设置、行为与绘制
         → Windows Shell / Win32：只读图标与窗口几何
@@ -55,7 +55,8 @@ React 19 / TypeScript / Vite 控制台
 | `locomotion.py` | 按距离推进走路/攀爬动画 |
 | `window_edges.py`、`edge_geometry.py`、`edge_attachment.py` | 可见窗口、最近边缘、附着与跟随 |
 | `drag_feedback.py`、`drop_attachment.py` | 抓取点变形、松手即时停靠协调 |
-| `frontend/src/`、`frontend/src-tauri/` | 控制台界面、状态队列和 Rust 宿主 |
+| `frontend/src/`、`frontend/electron/` | 控制台、状态队列、宿主适配、Electron 主进程和 preload |
+| `frontend/src-tauri/` | 原 Rust/Tauri 宿主，保留回退 |
 
 ## 素材与制作方式
 
@@ -74,7 +75,7 @@ React 19 / TypeScript / Vite 控制台
 
 当前开发入口为本项目 `console-v2/`。本次已从最后开发暂存同步新增功能，并在同步前逐个核对核心 Python 文件与桌面安装版相同；旧文件先备份，未删除素材。
 
-实际运行版仍在 `C:\Users\meursault\Desktop\desktop-pet`。偏好继续保存于 `%LOCALAPPDATA%\XiaoJu\DesktopPet\settings.ini`，控制台主题继续使用 WebView 本地存储。技术名称 `xiaoju-console.exe`、Rust/Tauri identifier、配置命名及现有界面文案暂时保留，以保持兼容；项目文档正式使用 yuki。
+本项目默认入口已切换为 Electron，桌面旧安装目录 `C:\Users\meursault\Desktop\desktop-pet` 未更新。偏好继续保存于 `%LOCALAPPDATA%\XiaoJu\DesktopPet\settings.ini`；Electron 的主题本地存储与 Tauri 分开。工作台品牌为 yuki，旧 EXE、Tauri identifier、Qt 标题与配置命名保留兼容。
 
 ## 验证证据与限制
 
@@ -84,4 +85,4 @@ React 19 / TypeScript / Vite 控制台
 
 尚需持续关注混合 DPI、多显示器、不同桌面图标大小、主题与窗口遮挡。裙摆遮罩针对当前白发蓝裙，浅色花边保守留在前景；更换服装需要重新制作部位遮罩。旧动作中仍有少帧或单帧姿势，不应将程序变形等同于完整骨骼动画。
 
-尚未实现 AI 聊天、语音、音乐响应、开机启动、全局快捷键、皮肤导入、独立 sidecar 安装器与签名。根目录已有 Electron 迁移方案，但它是规划，不代表当前已迁移。本次工作仅总结与整理，没有扩展这些功能。
+尚未实现 AI 聊天、语音、音乐响应、开机启动、全局快捷键、皮肤导入、签名安装器。Electron 兼容迁移已完成，最新自动化结果为 86 项 Python、22 项前端/Electron/PNG、便携版 10 组 E2E 通过；原有 623 个运行文件哈希未变。Electron 完全替代 PySide6 渲染、多屏混合 DPI 与休眠恢复仍待后续验收。

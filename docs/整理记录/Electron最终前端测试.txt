@@ -1,0 +1,34 @@
+
+> yuki-console@1.1.0 test
+> node --experimental-strip-types --test tests/*.test.mjs electron/tests/*.test.cjs
+
+✔ schema blocks unknown, paths, bool integers, invalid edge options (1.3125ms)
+✔ resource allowlist and traversal protection (1.6814ms)
+✔ only console main frame may call IPC (0.4442ms)
+✔ sandbox and close/tray lifecycle decisions (0.7494ms)
+✔ spawn once, readiness, request, bounded queue and exit cleanup (259.7668ms)
+✔ incompatible protocol fails startup and cleans up (103.4818ms)
+✔ invalid JSON rejects pending requests without hanging (105.4532ms)
+✔ crash disconnects then reconnect starts a fresh child (765.6793ms)
+✔ missing interpreter rejects instead of hanging (2.3812ms)
+✔ action catalog is bundled, not dependent on runtime fetch (1.2249ms)
+✔ all catalog posters and atlases are packaged and schedules match (9.5783ms)
+✔ release security policy permits same-origin local resources (0.5076ms)
+✔ take-out intro plays once and loop keeps device held (0.9001ms)
+✔ ordinary actions still loop from frame zero (0.1306ms)
+✔ slider changes keep the last queued value without losing other preferences (1.5462ms)
+✔ duplicate actions execute only once while pending (0.1961ms)
+✔ reset stays between earlier and later preferences (0.2619ms)
+✔ failure does not block the next operation and pending status clears (0.5481ms)
+✔ disconnect cancels unsent operations (0.2288ms)
+✔ numeric settings accept only bounded integers (0.2044ms)
+✔ PNG timeline plays intro once and preserves screen loopStart (1.4293ms)
+✔ PNG renderer validates loaded atlas cells and rejects missing/external assets (2.0533ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1356.9875

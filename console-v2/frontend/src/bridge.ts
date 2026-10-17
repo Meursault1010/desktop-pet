@@ -1,5 +1,4 @@
-import { invoke, isTauri } from '@tauri-apps/api/core';
-import { listen } from '@tauri-apps/api/event';
+import { host } from './host';
 
 export type Preferences = { size: number; opacity: number; always_on_top: boolean; speed: number; activity: string; random_movement: boolean; greeting: boolean; quiet: boolean; paused: boolean; auto_snap: boolean };
 export type DesktopIcon = {id:string; name:string; folder:boolean; available?:boolean; rect:{x:number;y:number;width:number;height:number}};
@@ -10,7 +9,7 @@ export type EdgeState = {options:EdgeOptions;active:boolean;kind:string;message:
 export type PetSnapshot = { preferences: Preferences; status: string; visible: boolean; position: { x: number; y: number }; screen: string; storage_error: boolean; revision: number; config_path: string; icon_sleep?:IconSleepState;edge_attachment?:EdgeState };
 export type Message = { type: string; name?: string; state?: PetSnapshot; preview?: string };
 export const defaults: Preferences = { size: 100, opacity: 100, always_on_top: true, speed: 48, activity: '默认', random_movement: true, greeting: true, quiet: false, paused: false, auto_snap: true };
-export const demo = new URLSearchParams(location.search).get('demo') === '1' && !isTauri();
+export const demo = new URLSearchParams(location.search).get('demo') === '1' && !host;
 let demoState: PetSnapshot = { preferences: { ...defaults }, status: '待机', visible: true, position: { x: 1420, y: 820 }, screen: '预览显示器', storage_error: false, revision: 0, config_path: '演示模式，不写入设置' };
 let demoListener: ((message: Message) => void) | undefined;
 let jumpTimer: number | undefined;
@@ -29,17 +28,13 @@ export async function command(name: string, payload: Record<string, unknown> = {
     demoState.revision++;
     return { type: 'response', state: structuredClone(demoState), preview: '/pet-preview.png' };
   }
-  if (!isTauri()) throw new Error('请通过项目中的 start.bat 打开桌面控制台');
-  return invoke<Message>('pet_command', { name, payload });
+  if (!host) throw new Error('请通过项目中的启动脚本打开桌面控制台');
+  return host.request(name, payload);
 }
 export async function subscribe(onMessage: (message: Message) => void, onDisconnect: (reason: string) => void) {
   if (demo) { demoListener = onMessage; return () => { if (demoListener === onMessage) demoListener = undefined; }; }
-  if (!isTauri()) return () => {};
-  const stop = await listen<Message>('pet-message', event => onMessage(event.payload));
-  try {
-    const disconnect = await listen<string>('pet-disconnected', event => onDisconnect(event.payload));
-    return () => { stop(); disconnect(); };
-  } catch (error) { stop(); throw error; }
+  if (!host) return () => {};
+  return host.subscribe(onMessage, onDisconnect);
 }
-export async function reconnect() { if (isTauri()) await invoke('restart_pet'); }
-export async function exitApp() { if (isTauri()) await invoke('exit_app'); }
+export async function reconnect() { await host?.reconnect(); }
+export async function exitApp() { await host?.exit(); }

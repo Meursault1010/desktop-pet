@@ -1,0 +1,10 @@
+{
+  "prototype": {
+    "ready": "true",
+    "clear": 40745,
+    "solid": 23219,
+    "node": "undefined"
+  },
+  "transparent": true,
+  "note": "Hidden canvas test; native desktop composition still needs manual inspection"
+}

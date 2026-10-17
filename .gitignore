@@ -20,3 +20,5 @@ settings.ini
 
 # Large historical copies stay on disk; do not accidentally commit them
 /归档/
+/.electron-build/
+/releases/

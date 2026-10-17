@@ -9,5 +9,5 @@ export default defineConfig({
     strictPort: true,
     watch: { ignored: ['**/src-tauri/**'] }
   },
-  build: { target: 'es2022' }
+  build: { target: 'es2022', rollupOptions: { input: {console: 'index.html', pet: 'pet.html'} } }
 });
