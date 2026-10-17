@@ -1,0 +1,86 @@
+{
+  "canvas": [
+    512,
+    512
+  ],
+  "frames": [
+    {
+      "file": "透明静帧/frame_01.png",
+      "pose": "接近口袋",
+      "duration_ms": 350
+    },
+    {
+      "file": "透明静帧/frame_02.png",
+      "pose": "伸入口袋",
+      "duration_ms": 180
+    },
+    {
+      "file": "透明静帧/frame_03.png",
+      "pose": "抽出一半",
+      "duration_ms": 180
+    },
+    {
+      "file": "透明静帧/frame_04.png",
+      "pose": "完全取出",
+      "duration_ms": 240
+    },
+    {
+      "file": "透明静帧/frame_05.png",
+      "pose": "抬起点亮",
+      "duration_ms": 250
+    },
+    {
+      "file": "透明静帧/frame_06.png",
+      "pose": "持屏查看",
+      "duration_ms": 550
+    },
+    {
+      "file": "透明静帧/frame_07.png",
+      "pose": "手指靠近",
+      "duration_ms": 180
+    },
+    {
+      "file": "透明静帧/frame_08.png",
+      "pose": "点击屏幕",
+      "duration_ms": 180
+    },
+    {
+      "file": "透明静帧/frame_09.png",
+      "pose": "点击后抬指",
+      "duration_ms": 200
+    },
+    {
+      "file": "透明静帧/frame_10.png",
+      "pose": "滑动操作",
+      "duration_ms": 300
+    },
+    {
+      "file": "透明静帧/frame_11.png",
+      "pose": "再次点击",
+      "duration_ms": 180
+    },
+    {
+      "file": "透明静帧/frame_12.png",
+      "pose": "保持查看",
+      "duration_ms": 700
+    }
+  ],
+  "intro_frames": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "operating_loop_frames": [
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    6
+  ],
+  "notes": "取出与抬起时双手接住屏幕，操作段由固定一只手托屏、另一只手点击；不应把完整取出过程无限循环。"
+}

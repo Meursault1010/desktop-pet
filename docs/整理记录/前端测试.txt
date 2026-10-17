@@ -1,0 +1,19 @@
+✔ action catalog is bundled, not dependent on runtime fetch (1.0014ms)
+✔ all catalog posters and atlases are packaged and schedules match (8.2691ms)
+✔ release security policy permits same-origin local resources (0.4601ms)
+✔ take-out intro plays once and loop keeps device held (0.8196ms)
+✔ ordinary actions still loop from frame zero (0.1268ms)
+✔ slider changes keep the last queued value without losing other preferences (1.4914ms)
+✔ duplicate actions execute only once while pending (0.1776ms)
+✔ reset stays between earlier and later preferences (0.2409ms)
+✔ failure does not block the next operation and pending status clears (0.4613ms)
+✔ disconnect cancels unsent operations (0.2061ms)
+✔ numeric settings accept only bounded integers (0.1457ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 224.7011

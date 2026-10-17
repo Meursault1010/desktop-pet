@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "小橘桌面小屋",
+  "version": "0.2.0",
+  "identifier": "com.xiaoju.desktop-pet",
+  "build": { "beforeDevCommand": "npm run dev", "devUrl": "http://127.0.0.1:1420", "beforeBuildCommand": "npm run build", "frontendDist": "../dist" },
+  "app": {
+    "windows": [{ "label": "main", "title": "小橘 · 桌面小屋", "width": 1180, "height": 820, "minWidth": 880, "minHeight": 640, "center": true, "backgroundColor": "#FAF9F6" }],
+    "security": { "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost; script-src 'self'" }
+  },
+  "bundle": { "active": false, "icon": ["icons/icon.ico"] }
+}

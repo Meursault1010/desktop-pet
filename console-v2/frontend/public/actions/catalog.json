@@ -1,0 +1,834 @@
+[
+  {
+    "id": "blink",
+    "name": "眨眼",
+    "category": "日常",
+    "origin": "existing",
+    "frames": 12,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      190,
+      190,
+      190,
+      190,
+      190,
+      190,
+      190,
+      190,
+      190,
+      190,
+      450
+    ],
+    "atlas": "actions/blink/atlas.png",
+    "poster": "actions/blink/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_01_start.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_02_hair_left.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_03_hair_return.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_04_blink_prepare.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_05_blink_closed.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_06_blink_open.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_07_mouth_open.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_08_mouth_hold.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_09_mouth_close.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_10_blink_second.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_11_after_blink.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_12_loop_end.png"
+    ],
+    "review": "已转换"
+  },
+  {
+    "id": "eat",
+    "name": "进食",
+    "category": "日常",
+    "origin": "existing",
+    "frames": 12,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      190,
+      190,
+      190,
+      190,
+      190,
+      190,
+      190,
+      190,
+      190,
+      190,
+      450
+    ],
+    "atlas": "actions/eat/atlas.png",
+    "poster": "actions/eat/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_01_prepare.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_02_to_mouth.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_03_touch_lips.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_04_bite.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_05_move_away.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_06_chew_1.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_07_chew_2.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_08_swallow.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_09_pick_tissue.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_10_wipe_mouth.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_11_put_down.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_12_idle.png"
+    ],
+    "review": "已转换"
+  },
+  {
+    "id": "folder-sleep",
+    "name": "靠文件夹睡觉",
+    "category": "日常",
+    "origin": "existing",
+    "frames": 12,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350
+    ],
+    "atlas": "actions/folder-sleep/atlas.png",
+    "poster": "actions/folder-sleep/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_01.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_02.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_03.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_04.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_05.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_06.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_07.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_08.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_09.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_10.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_11.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\靠文件夹睡觉动作\\frame_12.png"
+    ],
+    "review": "原图道具与姿势差异较大，待精修"
+  },
+  {
+    "id": "roll-front",
+    "name": "向前打滚",
+    "category": "互动",
+    "origin": "existing",
+    "frames": 11,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      450
+    ],
+    "atlas": "actions/roll-front/atlas.png",
+    "poster": "actions/roll-front/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_02.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_03.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_04.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_05.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_06.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_07.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_08.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_09.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_10.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_11.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向前\\roll_向前_12.png"
+    ],
+    "review": "已转换"
+  },
+  {
+    "id": "roll-left",
+    "name": "向左打滚",
+    "category": "互动",
+    "origin": "existing",
+    "frames": 12,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      450
+    ],
+    "atlas": "actions/roll-left/atlas.png",
+    "poster": "actions/roll-left/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_01.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_02.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_03.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_04.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_05.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_06.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_07.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_08.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_09.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_10.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_11.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向左\\roll_向左_12.png"
+    ],
+    "review": "已转换"
+  },
+  {
+    "id": "roll-right",
+    "name": "向右打滚",
+    "category": "互动",
+    "origin": "existing",
+    "frames": 11,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      140,
+      450
+    ],
+    "atlas": "actions/roll-right/atlas.png",
+    "poster": "actions/roll-right/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_02.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_03.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_04.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_05.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_06.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_07.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_08.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_09.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_10.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_11.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\打滚动作\\向右\\roll_向右_12.png"
+    ],
+    "review": "已转换"
+  },
+  {
+    "id": "screen",
+    "name": "口袋电子屏幕",
+    "category": "日常",
+    "origin": "generated",
+    "frames": 12,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      350,
+      180,
+      180,
+      240,
+      250,
+      550,
+      180,
+      180,
+      200,
+      300,
+      180,
+      700
+    ],
+    "atlas": "actions/screen/atlas.png",
+    "poster": "actions/screen/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_01.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_02.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_03.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_04.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_05.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_06.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_07.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_08.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_09.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_10.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_11.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_12.png"
+    ],
+    "review": "修订版 · 取出一次，持续持屏操作",
+    "loop_start": 5,
+    "revision": 2
+  },
+  {
+    "id": "sleep",
+    "name": "睡觉",
+    "category": "日常",
+    "origin": "existing",
+    "frames": 12,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350
+    ],
+    "atlas": "actions/sleep/atlas.png",
+    "poster": "actions/sleep/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_01_start.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_02_breathe_up.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_03_breathe_down.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_04_ear_twitch.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_05_ear_restore.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_06_curl_in.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_07_hug_pillow.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_08_hair_sway.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_09_relax.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_10_sleep_breath.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_11_restore.png",
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\睡眠动作\\sleep_sequence_12_loop_end.png"
+    ],
+    "review": "已转换"
+  },
+  {
+    "id": "affection",
+    "name": "撒娇",
+    "category": "互动",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/affection/atlas.png",
+    "poster": "actions/affection/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\affection\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "afraid",
+    "name": "害怕",
+    "category": "情绪",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/afraid/atlas.png",
+    "poster": "actions/afraid/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\afraid\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "angry",
+    "name": "生气跺脚",
+    "category": "情绪",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/angry/atlas.png",
+    "poster": "actions/angry/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\angry\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "celebrate",
+    "name": "庆祝",
+    "category": "情绪",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/celebrate/atlas.png",
+    "poster": "actions/celebrate/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\celebrate\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "clicked",
+    "name": "被点击反应",
+    "category": "互动",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/clicked/atlas.png",
+    "poster": "actions/clicked/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\clicked\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "comb",
+    "name": "梳头",
+    "category": "日常",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/comb/atlas.png",
+    "poster": "actions/comb/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\comb\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "curious",
+    "name": "好奇查看",
+    "category": "互动",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/curious/atlas.png",
+    "poster": "actions/curious/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\curious\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "dragged",
+    "name": "拖动反应",
+    "category": "互动",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/dragged/atlas.png",
+    "poster": "actions/dragged/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\dragged\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "dress",
+    "name": "整理衣服",
+    "category": "日常",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/dress/atlas.png",
+    "poster": "actions/dress/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\dress\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "files",
+    "name": "查看文件",
+    "category": "日常",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/files/atlas.png",
+    "poster": "actions/files/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\files\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "leap",
+    "name": "跳跃",
+    "category": "互动",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/leap/atlas.png",
+    "poster": "actions/leap/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\leap\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "read",
+    "name": "看书",
+    "category": "日常",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/read/atlas.png",
+    "poster": "actions/read/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\read\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "sad",
+    "name": "失败沮丧",
+    "category": "情绪",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/sad/atlas.png",
+    "poster": "actions/sad/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\sad\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "shy",
+    "name": "害羞",
+    "category": "情绪",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/shy/atlas.png",
+    "poster": "actions/shy/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\shy\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "smile",
+    "name": "开心闭眼微笑",
+    "category": "情绪",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/smile/atlas.png",
+    "poster": "actions/smile/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\smile\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "stretch",
+    "name": "伸懒腰",
+    "category": "日常",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/stretch/atlas.png",
+    "poster": "actions/stretch/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\stretch\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "tea",
+    "name": "喝茶",
+    "category": "日常",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/tea/atlas.png",
+    "poster": "actions/tea/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\tea\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "wait",
+    "name": "等待",
+    "category": "日常",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/wait/atlas.png",
+    "poster": "actions/wait/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\wait\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "work",
+    "name": "工作",
+    "category": "日常",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/work/atlas.png",
+    "poster": "actions/work/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\work\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "yawn",
+    "name": "打哈欠",
+    "category": "日常",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      220,
+      220,
+      220,
+      220,
+      450
+    ],
+    "atlas": "actions/yawn/atlas.png",
+    "poster": "actions/yawn/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\yawn\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧"
+  },
+  {
+    "id": "reading-pose-1",
+    "name": "阅读姿势 1",
+    "category": "静态姿势",
+    "origin": "existing",
+    "frames": 1,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      450
+    ],
+    "atlas": "actions/reading-pose-1/atlas.png",
+    "poster": "actions/reading-pose-1/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\sit\\ice_blue_catgirl_reading.png"
+    ],
+    "review": "静态素材，非完整动作"
+  },
+  {
+    "id": "reading-pose-2",
+    "name": "阅读姿势 2",
+    "category": "静态姿势",
+    "origin": "existing",
+    "frames": 1,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      450
+    ],
+    "atlas": "actions/reading-pose-2/atlas.png",
+    "poster": "actions/reading-pose-2/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\sit\\ice_blue_catgirl_reading_side.png"
+    ],
+    "review": "静态素材，非完整动作"
+  },
+  {
+    "id": "reading-pose-3",
+    "name": "阅读姿势 3",
+    "category": "静态姿势",
+    "origin": "existing",
+    "frames": 1,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      450
+    ],
+    "atlas": "actions/reading-pose-3/atlas.png",
+    "poster": "actions/reading-pose-3/poster.png",
+    "sources": [
+      "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\看书\\pose_08_blue_spellbook.png"
+    ],
+    "review": "静态素材，非完整动作"
+  }
+]

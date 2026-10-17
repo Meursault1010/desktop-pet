@@ -1,0 +1,22 @@
+# Local dependency environments and generated caches
+**/.venv/
+**/__pycache__/
+*.py[cod]
+**/node_modules/
+**/.toolchain/
+**/src-tauri/target/
+**/src-tauri/gen/
+**/frontend/dist/
+*.tsbuildinfo
+
+# Private machine-specific settings and credentials
+.env
+.env.*
+!.env.example
+*-settings.ini
+settings.ini
+**/credentials.json
+**/secrets.json
+
+# Large historical copies stay on disk; do not accidentally commit them
+/归档/

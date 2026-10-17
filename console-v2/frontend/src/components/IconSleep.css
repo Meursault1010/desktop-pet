@@ -1,0 +1,20 @@
+.icon-sleep-page{display:grid;grid-template-columns:minmax(240px,1fr) minmax(280px,1fr);gap:32px;align-items:start}
+.sleep-section-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.icon-sleep-page h2{font-size:18px;margin:0 0 20px;letter-spacing:0}
+.sleep-section-heading h2{margin:0}
+.sleep-search,.sleep-options select{width:100%;min-height:40px;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:6px;padding:8px 12px;font:inherit;margin-bottom:16px}
+.sleep-icon-list{max-height:430px;overflow:auto;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.sleep-icon-row{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;border:0;border-bottom:1px solid var(--line);background:transparent;color:inherit;text-align:left;padding:10px;cursor:pointer}
+.sleep-icon-row span{flex:1;min-width:0;overflow-wrap:anywhere}
+.sleep-icon-row svg{flex-shrink:0;color:var(--green)}
+.sleep-icon-row.selected{background:var(--green-soft)}
+.sleep-icon-row:hover{outline:1px solid var(--green);outline-offset:-1px}
+.sleep-status{display:flex;gap:10px;align-items:center;margin:20px 0;min-height:40px;overflow-wrap:anywhere}
+.sleep-status svg{flex-shrink:0}
+.sleep-commands{display:flex;flex-wrap:wrap;gap:10px}
+.sleep-options{border-left:1px solid var(--line);padding-left:32px}
+.sleep-options .range-setting{padding:12px 0}
+.sleep-options .setting-label{display:block;margin-bottom:8px}
+@media(max-width:900px){.icon-sleep-page{grid-template-columns:minmax(0,1fr)}.sleep-options{border-left:0;border-top:1px solid var(--line);padding:24px 0 0}.sleep-icon-list{max-height:300px}}
+.pose-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}.pose-card{display:flex;flex-direction:column;align-items:center;background:#f6f8fc;border:1px solid #e3e7f0;border-radius:12px;padding:4px 3px 9px;color:#54617a;cursor:pointer;font-size:12px}.pose-card img{width:100%;height:90px;object-fit:contain}.pose-card.selected{border-color:#83a8d5;background:#eaf2fc;color:#315d8e;box-shadow:0 0 0 1px #83a8d5}.pose-card:focus-visible{outline:2px solid #5e8dc3;outline-offset:2px}.pose-card:disabled{opacity:.5;cursor:default}.edge-options{grid-column:1/-1}
+.pose-card{background:var(--panel);border-color:var(--line);color:var(--text)}.pose-card.selected{background:var(--green-soft);border-color:var(--green);color:var(--green);box-shadow:0 0 0 1px var(--green)}.edge-options{border-left:0;border-top:1px solid var(--line);padding:28px 0 0}

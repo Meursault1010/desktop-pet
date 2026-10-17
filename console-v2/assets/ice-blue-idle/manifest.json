@@ -1,0 +1,128 @@
+{
+  "canvas": [
+    384,
+    384
+  ],
+  "frames": [
+    {
+      "file": "01.png",
+      "source": "idle_sequence_01_start.png",
+      "source_bounds": [
+        99,
+        24,
+        411,
+        486
+      ]
+    },
+    {
+      "file": "02.png",
+      "source": "idle_sequence_02_hair_left.png",
+      "source_bounds": [
+        56,
+        24,
+        411,
+        486
+      ]
+    },
+    {
+      "file": "03.png",
+      "source": "idle_sequence_03_hair_return.png",
+      "source_bounds": [
+        89,
+        24,
+        411,
+        486
+      ]
+    },
+    {
+      "file": "04.png",
+      "source": "idle_sequence_04_blink_prepare.png",
+      "source_bounds": [
+        99,
+        24,
+        411,
+        486
+      ]
+    },
+    {
+      "file": "05.png",
+      "source": "idle_sequence_05_blink_closed.png",
+      "source_bounds": [
+        105,
+        4,
+        477,
+        508
+      ]
+    },
+    {
+      "file": "06.png",
+      "source": "idle_sequence_06_blink_open.png",
+      "source_bounds": [
+        100,
+        24,
+        412,
+        487
+      ]
+    },
+    {
+      "file": "07.png",
+      "source": "idle_sequence_07_mouth_open.png",
+      "source_bounds": [
+        99,
+        23,
+        412,
+        487
+      ]
+    },
+    {
+      "file": "08.png",
+      "source": "idle_sequence_08_mouth_hold.png",
+      "source_bounds": [
+        49,
+        24,
+        384,
+        486
+      ]
+    },
+    {
+      "file": "09.png",
+      "source": "idle_sequence_09_mouth_close.png",
+      "source_bounds": [
+        99,
+        24,
+        411,
+        486
+      ]
+    },
+    {
+      "file": "10.png",
+      "source": "idle_sequence_10_blink_second.png",
+      "source_bounds": [
+        95,
+        24,
+        418,
+        486
+      ]
+    },
+    {
+      "file": "11.png",
+      "source": "idle_sequence_11_after_blink.png",
+      "source_bounds": [
+        89,
+        24,
+        414,
+        487
+      ]
+    },
+    {
+      "file": "12.png",
+      "source": "idle_sequence_12_loop_end.png",
+      "source_bounds": [
+        99,
+        24,
+        411,
+        486
+      ]
+    }
+  ]
+}

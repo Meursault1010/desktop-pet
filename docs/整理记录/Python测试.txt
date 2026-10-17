@@ -1,0 +1,7 @@
+2026-10-17
+整理后 console-v2 目录
+QT_QPA_PLATFORM=offscreen; PYTHONDONTWRITEBYTECODE=1
+python -B -m unittest discover -p test_*.py
+Ran 86 tests in 31.069s
+OK
+exit_code=0

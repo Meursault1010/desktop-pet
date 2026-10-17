@@ -1,0 +1,68 @@
+{
+  "sit-front": {
+    "name": "坐在图标上 · 转头",
+    "contact": [
+      0.48828125,
+      0.703125
+    ],
+    "support": "top",
+    "target_x": 0.5,
+    "frames": 16,
+    "cycle": 6.4
+  },
+  "sit-back": {
+    "name": "坐在图标上 · 回眸",
+    "contact": [
+      0.40234375,
+      0.6640625
+    ],
+    "support": "top",
+    "target_x": 0.5,
+    "frames": 16,
+    "cycle": 6.4
+  },
+  "perch-front": {
+    "name": "斜坐倚靠 · 朝向你",
+    "contact": [
+      0.66015625,
+      0.5546875
+    ],
+    "support": "side",
+    "target_x": 0.9,
+    "frames": 16,
+    "cycle": 6.4
+  },
+  "prone-front": {
+    "name": "趴在图标上 · 托腮",
+    "contact": [
+      0.556640625,
+      0.68359375
+    ],
+    "support": "top",
+    "target_x": 0.5,
+    "frames": 16,
+    "cycle": 6.4
+  },
+  "prone-back": {
+    "name": "趴在图标上 · 回头",
+    "contact": [
+      0.40625,
+      0.705078125
+    ],
+    "support": "top",
+    "target_x": 0.5,
+    "frames": 16,
+    "cycle": 6.4
+  },
+  "perch-back": {
+    "name": "斜坐倚靠 · 侧背",
+    "contact": [
+      0.27734375,
+      0.482421875
+    ],
+    "support": "side",
+    "target_x": 0.1,
+    "frames": 16,
+    "cycle": 6.4
+  }
+}

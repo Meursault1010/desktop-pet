@@ -1,0 +1,34 @@
+"""Preserve the character identity while drawing six expressive support poses."""
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+OUT = ROOT / 'action-work/icon-interactions'
+PROMPT = '''Create a production character sprite sheet from the TWO supplied identity references. Reference 1 is the original character; reference 2 shows her exact front, side and back design. Preserve the same petite chibi proportions, large head, delicate pixel-anime linework, very long silver-white wavy hair, white cat ears, blue eyes, anatomical-left snowflake hairclip, dangling snowflake earrings, ice-blue off-shoulder layered snowflake dress, belt, white socks and blue Mary Jane shoes. The outfit stays fully intact and modest in every pose. No redesign or extra tail.
+
+Deliver EXACTLY SIX full-body isolated cutouts in a 3 COLUMN x 2 ROW grid, 1536 x 1024, each cell exactly 512 x 512. Cells in reading order are the six poses below. Uniform character scale (same head size), camera at character height with gentle view of top surfaces, crisp readable silhouettes. Leave at least 8 percent blank padding in EVERY cell. No cropped hair, ears, hands or shoes. Use a perfectly flat vivid chroma green #00FF00 background, including all space between limbs and loose hair. NO transparency checkerboard, no shadows, no labels, no outlines of cells. Do not draw ANY support, icon, furniture, prop, pillow or floor. The invisible support will later be replaced by a REAL desktop icon.
+
+Art direction: a charming living little person, quiet playful curiosity and warmth; subtle asymmetric expression, relaxed shoulders, believable counterbalance, natural S curves and foreshortening. Not a rigid profile doll. Every visible face has OPEN blue eyes, a tiny closed-mouth smile, and a lively gaze towards the viewer. Hands anatomically clear, no extra fingers, no exposed underwear. Avoid huge smile, exaggerated blush, generic standing pose, stiff symmetry, face pasted onto back of head.
+
+TOP LEFT (sit-front): Sitting ON the top edge of an invisible small block, weight clearly borne under the buttocks. Body rotated 30 degrees towards viewer LEFT so we see chest and both eyes; head turns a little back towards the viewer and tilts gently, one hand rests lightly beside the hip on the invisible ledge, the other smooths her skirt. Both lower legs dangle below the ledge, one blue shoe slightly lifted playfully, knees kept together. Her long hair falls freely behind, not used as a seat. Warm attentive eye contact. Not sitting on floor, not standing.
+TOP MIDDLE (sit-back): Sitting ON the top edge of an invisible small block, rear three-quarter body, back angled 40 degrees away from viewer towards RIGHT. Weight under buttocks, both lower legs visibly hang down on the right side. She turns her head over her nearer shoulder just enough to show a natural cheek and one blue eye looking back at us. Show back hair and rear dress faithfully. One hand braced beside her hip, other on lap. Natural torso twist, not a head rotated 180 degrees.
+TOP RIGHT (perch-front): Relaxed low seated doze against an invisible UPRIGHT support at her shoulder blade on viewer RIGHT. Torso is three-quarter towards viewer (not strict side profile), feet and knees extend diagonally LEFT, ankles casually crossed. Upper back inclines slightly right, head tilts towards viewer with a soft knowing smile, one hand relaxed on knee, other on skirt. Back touches support, never face. Full body, legs on invisible floor.
+BOTTOM LEFT (prone-front): Lying belly-down ALONG the top of an invisible block, long axis LEFT to RIGHT, head at LEFT. Both FOREARMS and lower chest rest naturally on the SAME horizontal ledge; chin lightly above folded hands, face three-quarter towards viewer with both blue eyes visible, gentle inquisitive smile. Hips and blue skirt extend to RIGHT; knees bent so the two blue shoes lift playfully behind at the right. White hair cascades loosely off the left/front edge in separated soft locks. Entire compact horizontal full body visible, modest skirt covering hips and thighs. Clear horizontal forearm/belly support, not kneeling, not curled on floor.
+BOTTOM MIDDLE (prone-back): Belly-down resting ALONG an invisible block, long axis RIGHT to LEFT, head at RIGHT and hips towards LEFT. Rear three-quarter view of torso with back hair and rear dress visible. She gently turns her head towards the viewer over her nearer forearm so ONE eye and cheek are visible naturally. Forearms and belly rest on the same invisible horizontal ledge; knees bent, two blue shoes lifted behind at LEFT with a small asymmetric height difference. Hair drapes off the right/front edge. A comfortable playful glance, not a rigid profile, not sleeping curled on the floor. Full body and modest skirt.
+BOTTOM RIGHT (perch-back): Relaxed low seated rest against an invisible upright support at shoulder blade on viewer LEFT. Rear three-quarter body, feet folded diagonally RIGHT on invisible floor, back and long hair facing us; she gently turns over her nearer shoulder and shows one blue eye and cheek, looking towards viewer. Relaxed curved spine, one hand on knee, upper back supported on left, not forehead. This is a whole-body candid pose, neither frontal nor exact side profile.
+
+Critical: draw ONLY these six characters, one per cell. No green tint on white hair or skin. Uniform soft neutral lighting, no glowing effects. Delicate original snowflake costume detail and pale-blue hair outlines remain consistent. This is an animation-ready master sheet, not a poster.'''
+
+if __name__ == '__main__':
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / 'prompt.txt').write_text(PROMPT, encoding='utf-8')
+    if (OUT / 'raw.png').exists():
+        raise SystemExit('Preserving existing generation; select a new output for revisions.')
+    refs = Path('C:/Users/meursault/Desktop/desktop-pet') / '\u56fe\u7247'
+    subprocess.run([
+        sys.executable, 'C:/Users/meursault/.codex/skills/shengtu-skill/scripts/generate_image.py',
+        '--provider', 'gpt', '--mode', 'edit', '--quality', 'high', '--size', '1536x1024',
+        '--prompt', PROMPT, '--image', str(refs / '\u53c2\u8003\u56fe.png'),
+        '--image', str(refs / '\u4e09\u89c6\u56fe.png'), '--out', str(OUT / 'raw.png'),
+    ], check=True)

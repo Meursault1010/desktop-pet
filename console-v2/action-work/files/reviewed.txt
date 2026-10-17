@@ -1,0 +1,1 @@
+2026-10-17: Reviewed six-pose contact sheet: character identity, action meaning, full-body framing and transparency. Keyframe first version; not a high-frame-rate animation.

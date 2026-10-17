@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.py[cod]
+qa/
+*-settings.ini
+frontend/node_modules/
+frontend/dist/
+frontend/src-tauri/target/
+frontend/src-tauri/gen/
+frontend/*.tsbuildinfo
+# Keep the verified Windows console in the v1.0 source distribution.
+app/*
+!app/xiaoju-console.exe
+.toolchain/

@@ -1,0 +1,2 @@
+# Preserve checked runtime bytes and SHA256 manifests across Windows clones.
+* -text

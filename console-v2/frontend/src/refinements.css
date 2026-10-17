@@ -1,0 +1,59 @@
+/* Usability refinements: preserve the original sage/cream visual language. */
+:root:not([data-theme=dark]) { --muted: #687260; }
+body { font-size: 14px; }
+button, input { font: inherit; }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--green); outline-offset: 4px; }
+button:disabled { cursor: not-allowed; }
+.workspace, .card, .stack { min-width: 0; }
+.setting-label, .range-heading, .info-row, .interaction-button strong, .quick-actions strong { font-size: 14px; }
+.setting-description, .range-setting p, .card-subtitle, .small, .muted, .note, .preview-note, .hero-bottom p, .tip-card p, .interaction-button small { font-size: 12px; line-height: 1.8; }
+.hero-bottom p { color: var(--muted); }
+.quick-actions small, .stage-caption, .subtle-badge, .page-footer, .range-limits, .version, .connection, .demo-badge, .config-path span, .config-path code, dt { font-size: 11px; }
+.mini-card-title h3, .tip-card h3, dd, .section-label, .theme-choice>span:last-child, .text-link, .breadcrumb { font-size: 13px; }
+.button, .segmented button, .connection-banner p, .dialog-content p, .toast { font-size: 13px; }
+.connection-banner strong { font-size: 14px; }
+.button, .icon-button { min-height: 38px; }
+.icon-button { min-width: 38px; }
+.segmented button { min-height: 38px; }
+.toggle { width: 42px; height: 26px; padding: 4px; border-radius: 16px; }
+.toggle-thumb { width: 18px; height: 18px; }
+.toggle-thumb[data-state=checked] { transform: translateX(16px); }
+.pending-icon { flex-shrink: 0; color: var(--green); }
+.range-tools { display: flex; align-items: center; gap: 8px; }
+.number-control { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding-right: 9px; overflow: visible; }
+.number-control input { width: 72px; min-height: 36px; padding: 5px 6px 5px 10px; border: 0; border-radius: 8px; color: var(--text); background: transparent; font-variant-numeric: tabular-nums; }
+.number-control>span { font-size: 11px; color: var(--muted); }
+.range-reset { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 36px; padding: 5px 9px; color: var(--green); border: 1px solid var(--line); border-radius: 8px; font-size: 12px; }
+.range-reset:hover:not(:disabled) { background: var(--hover); }
+.range-heading { flex-wrap: wrap; gap: 10px; }
+.range-state { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); }
+.range-setting .field-error { color: #a54831; font-size: 12px; margin-top: 8px; }
+.field-error:empty { display: none; }
+:root[data-theme=dark] .field-error, :root[data-theme=dark] .save-error { color: #f2b3a3; }
+input[type=range] { height: 8px; margin: 24px 0 15px; }
+input[type=range]::-webkit-slider-thumb { width: 22px; height: 22px; }
+.save-state { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--green); }
+.save-error { color: #a54831; }
+.controls-hint { margin-top: 12px; padding: 9px 12px; border-radius: 7px; background: var(--sidebar); font-size: 12px; color: var(--muted); line-height: 1.7; }
+.toast { width: max-content; max-width: min(620px, calc(100vw - 280px)); align-items: flex-start; }
+.toast>svg { flex-shrink: 0; margin-top: 3px; }
+.toast .toast-text { flex: 1; min-width: 0; line-height: 1.6; }
+.toast button { min-width: 28px; min-height: 28px; flex-shrink: 0; }
+.toast .toast-retry { display: inline-flex; padding: 3px 7px; border: 1px solid var(--line); border-radius: 5px; font-size: 12px; }
+.info-row strong { text-align: right; justify-content: flex-end; }
+.quick-actions>button:disabled:hover { transform: none; }
+.theme-choice { min-width: 150px; }
+.theme-choice:focus-visible { outline-offset: 3px; }
+@media (max-width: 1050px) {
+  .detail-grid { grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr); gap: 16px; }
+  .settings-card { padding: 20px; }
+  .quick-actions small, .hero-bottom p { font-size: 11px; }
+  .topbar-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .range-tools { gap: 5px; }
+}
+@media (max-width: 800px) {
+  .detail-grid { grid-template-columns: 1fr; }
+  .nav-item { position: relative; }
+  .nav-item:hover::after, .nav-item:focus-visible::after { content: attr(aria-label); position: absolute; left: 62px; padding: 7px 12px; border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 6px; white-space: nowrap; z-index: 20; }
+  .toast { max-width: calc(100vw - 110px); }
+}

@@ -1,19 +1,34 @@
-# 小橘桌面宠物
+# yuki
 
-Windows 桌面宠物原型，Python 3.10+ 与 PySide6。
+yuki 是一只运行在 Windows 桌面上的白发蓝裙桌宠，也是本项目的正式名称。当前版本：**yuki v1.0**（`VERSION`：`1.0.0`）。
 
-首次运行，在本文件所在目录打开终端：
+她可以持续呼吸和眨眼、走动、播放动作，坐靠或趴在桌面图标上，抓住窗口边框爬行，在下沿悬挂，在上沿坐卧；拖动时会看向抓取点并伸手阻挡，松手后可即时吸附。
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements.txt
-.\.venv\Scripts\python main.py
+- [项目总结](docs/yuki项目总结.md)：功能、架构、素材、验证及当前边界。
+- [目录与维护指南](docs/目录与维护指南.md)：目录用途、开发验证、构建和回退。
+- [本次整理记录](docs/整理记录/整理说明.md)：整理范围、校验结果及保留内容。
+- [后续交接入口](项目交接摘要.md)。
+- [版本记录](CHANGELOG.md)。
+
+## 从仓库运行
+
+需要 Windows、Python 3.10+ 和 Microsoft Edge WebView2。克隆或下载项目后，先运行根目录 `install.bat` 创建 `console-v2/.venv` 并安装 PySide6，再运行根目录 `start.bat`。不要同时运行其他副本。
+
+仓库包含已验证的 `console-v2/app/xiaoju-console.exe`，无需先安装 Node/Rust 即可启动本机版；重新开发构建时再安装对应工具链。Python 环境不随仓库分发，这仍不是独立安装包。
+
+## 目录
+
+```text
+console-v2/       当前完整开发源码、运行素材、控制台及本机构建缓存
+图片/             原有素材，原样保留
+素材/             从根目录分类收纳的早期角色方案、姿势和挥手补帧
+docs/             当前总结、历史文档、验收资料和整理清单
+tools/maintenance/ 本次整理脚本，仅供审计，不要重复执行
+归档/             本地第一版、旧备份、整理前源码和阶段脚本（不上传 Git）
 ```
 
-如果当前 Python 已安装 PySide6，可以直接双击 `start.bat`。
+实际日常启动仍使用 `C:\Users\meursault\Desktop\desktop-pet\start.bat`。本次整理没有修改桌面安装目录、个人设置或正在运行的进程。
 
-左键点击跳跃并打招呼；按住拖动位置；右键打开暂停、跳跃、回到底部与退出菜单。宠物会随机待机和左右行走，并在当前屏幕工作区边缘折返。暂停只暂停自主移动，眨眼与点击仍然有效。
+项目和角色名称统一为 **yuki**；程序内现存“小橘”、`xiaoju-console.exe`、`XiaoJu` 配置目录等为历史兼容名称。本次整理保留这些标识及现有 EXE，避免改变设置位置、单实例行为和当前运行体验。界面品牌替换及正式安装包发布应在后续单独构建和验收。
 
-当前角色由 Qt 矢量绘图实现，无需图片或联网。此版本包含透明置顶窗口、简单动画和交互；尚未加入 AI 聊天、语音、开机启动、位置保存或安装包。后续可以将绘制层替换为角色精灵图，再扩展行为状态机与聊天模块。
-
-无界面启动验证：`python main.py --smoke-test`（搭配 `QT_QPA_PLATFORM=offscreen`）。
+`ELECTRON_MIGRATION_PLAN.md` 是已有迁移方案，原样保留；当前实现仍为 Tauri + Python/PySide6，本次没有执行迁移。
