@@ -1,0 +1,6 @@
+v3.5.2/
+*.zip
+server*.log
+workspace/
+tmp/
+__pycache__/

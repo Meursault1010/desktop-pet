@@ -1,0 +1,54 @@
+import type {SVGProps} from 'react';
+
+type Props=SVGProps<SVGSVGElement>&{size?:number;strokeWidth?:number};
+// A compact set of solid-accent symbols shared by every workbench surface.
+function symbol(paths:string[],solid=false){
+  return function Icon({size=20,strokeWidth=1.8,...props}:Props){return <svg width={size} height={size} viewBox="0 0 24 24" fill={solid?'currentColor':'none'} stroke={solid?'none':'currentColor'} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>{paths.map((d,i)=><path key={i} d={d}/>)}</svg>;};
+}
+export const House=symbol(['M3 10 12 3l9 7v10H3Z','M9 20v-7h6v7']);
+export const Box=symbol(['m12 3 9 5v9l-9 5-9-5V8Z','m3 8 9 5 9-5M12 13v9']);
+export const Play=symbol(['M7 3.5v17L21 12Z'],true);
+export const Pause=symbol(['M5 4h5v16H5ZM14 4h5v16h-5Z'],true);
+export const Square=symbol(['M5 5h14v14H5Z'],true);
+export const Film=symbol(['M3 5h18v14H3Z','M7 5v14M17 5v14M3 10h4M3 14h4M17 10h4M17 14h4']);
+export const Activity=symbol(['M2 13h5l3-9 4 16 3-7h5']);
+export const AudioLines=symbol(['M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4']);
+export const Bot=symbol(['M5 7h14v13H5ZM8 3h8M12 3v4','M9 12v2M15 12v2M9 17h6']);
+export const Settings2=symbol(['M3 6h5m5 0h8M3 18h9m5 0h4','M8 3v6h5V3ZM12 15v6h5v-6Z']);
+export const WandSparkles=symbol(['m3 18 12-12 4 4L7 22Z','M4 3v5M1.5 5.5h5M19 1v5M16.5 3.5h5']);
+export const ArrowRight=symbol(['M4 12h16m-6-6 6 6-6 6']);
+export const ArrowUpRight=symbol(['M5 19 19 5M7 5h12v12']);
+export const ChevronRight=symbol(['m9 5 7 7-7 7']);
+export const ArrowDownToLine=symbol(['M12 3v12m-5-5 5 5 5-5M4 20h16']);
+export const Check=symbol(['m5 12 4 4L20 5']);
+export const X=symbol(['m6 6 12 12M18 6 6 18']);
+export const CircleHelp=symbol(['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20','M9 8a3 3 0 1 1 4 3c-1 .4-1 1-1 2M12 17h.01']);
+export const Clock3=symbol(['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20','M12 6v6l4 2']);
+export const Ellipsis=symbol(['M3 10h4v4H3Zm7 0h4v4h-4Zm7 0h4v4h-4Z'],true);
+export const Eye=symbol(['M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z','M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6']);
+export const Folder=symbol(['M3 6h7l2 3h9v11H3Z','M3 9h9']);
+export const File=symbol(['M5 3h9l5 5v13H5ZM14 3v6h5']);
+export const FileText=symbol(['M5 3h9l5 5v13H5ZM14 3v6h5M8 13h8M8 17h6']);
+export const Layers3=symbol(['m2 7 10-5 10 5-10 5Z','m2 12 10 5 10-5M2 17l10 5 10-5']);
+export const LoaderCircle=symbol(['M21 12a9 9 0 1 1-9-9']);
+export const Moon=symbol(['M20 14a9 9 0 0 1-10-11 9 9 0 1 0 10 11Z']);
+export const Sun=symbol(['M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10','M12 1v2M12 21v2M1 12h2M21 12h2M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2']);
+export const MousePointer2=symbol(['M4 2 7 21l5-7 8-3Z']);
+export const Power=symbol(['M12 2v10M6 5a9 9 0 1 0 12 0']);
+export const RotateCcw=symbol(['M3 10a9 9 0 1 1 1 7M3 3v7h7']);
+export const RefreshCw=symbol(['M3 10a9 9 0 0 1 16-5l2 3M21 3v5h-5M21 14A9 9 0 0 1 5 19l-2-3M3 21v-5h5']);
+export const ShieldCheck=symbol(['m12 2 9 4v6c0 5-9 10-9 10S3 17 3 12V6Z','m8 11 3 3 5-6']);
+export const Sparkles=symbol(['m12 1 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z'],true);
+export const Cable=symbol(['M5 3v4M9 3v4M3 7h8v4a4 4 0 0 1-8 0ZM7 15v2a4 4 0 0 0 8 0v-6M13 7h4v4h-4Z']);
+export const Search=symbol(['M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14','m15 15 6 6']);
+export const Monitor=symbol(['M2 3h20v14H2ZM12 17v5M7 22h10']);
+export const MessageCircle=symbol(['M21 11a9 9 0 0 1-9 9H3l1-6a9 9 0 1 1 17-3Z','M8 10h8M8 14h5']);
+export const Send=symbol(['M2 3 22 12 2 21l4-9Z','M6 12h16']);
+export const Trash2=symbol(['M5 7h14l-1 14H6ZM3 7h18M9 7V3h6v4M9 11v6M15 11v6']);
+export const Circle=symbol(['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20']);
+export const Code2=symbol(['m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18']);
+export const Globe=symbol(['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20M2 12h20','M12 2c-6 6-6 14 0 20 6-6 6-14 0-20Z']);
+export const Headphones=symbol(['M3 14v-2a9 9 0 0 1 18 0v2M3 12h4v9H3ZM17 12h4v9h-4Z']);
+export const LockKeyhole=symbol(['M5 10h14v12H5ZM8 10V6a4 4 0 0 1 8 0v4M12 15v3']);
+export const Mic=symbol(['M8 5a4 4 0 0 1 8 0v7a4 4 0 0 1-8 0ZM4 10v2a8 8 0 0 0 16 0v-2M12 20v3']);
+export const Waves=symbol(['M2 6c4-5 6 5 10 0s6 5 10 0M2 12c4-5 6 5 10 0s6 5 10 0M2 18c4-5 6 5 10 0s6 5 10 0']);

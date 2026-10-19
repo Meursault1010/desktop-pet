@@ -3,7 +3,7 @@ import random
 import time
 
 MOTION_FRAMES = 64
-MOTION_SECONDS = 4.8
+MOTION_SECONDS = 4.2
 
 
 def motion_phase(elapsed):

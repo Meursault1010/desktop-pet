@@ -29,6 +29,8 @@ class EdgeTests(unittest.TestCase):
         self.pet.move(460,50)
         self.edge.options['screens']=False
         probe=patch('edge_attachment.visible_surfaces',return_value=[self.surface]);probe.start();self.addCleanup(probe.stop)
+        self.pet.snap_preview.surfaces=[self.surface];self.pet.snap_preview.surfaces_at=time.monotonic()
+        probe=patch.object(self.pet.snap_preview,'request_surfaces');probe.start();self.addCleanup(probe.stop)
 
     def tearDown(self):
         self.controller.cleanup();self.pet.deleteLater();self.controller.deleteLater();self.app.processEvents();self.temp.cleanup()
@@ -103,6 +105,7 @@ class EdgeTests(unittest.TestCase):
         with patch('edge_attachment.inspect_foreground',return_value=self.surface),patch('edge_attachment.logical_surface',return_value=(self.surface.rect,self.surface.work_area,QApplication.primaryScreen())):
             self.manual_attach();self.assertTrue(self.edge.active)
         with patch('edge_attachment.visible_surfaces',return_value=[]),patch('edge_attachment.inspect_foreground',return_value=None):
+            self.pet.snap_preview.surfaces=[];self.pet.snap_preview.surfaces_at=time.monotonic()
             self.edge.tick();self.assertFalse(self.edge.active)
             self.edge.options['screens']=True;self.edge.until=0
             self.edge.tick();self.edge.pending_since-=2.1;self.edge.tick()

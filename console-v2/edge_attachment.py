@@ -1,6 +1,6 @@
 """Manual-drop attachment to native window/screen surfaces.
 
-Only explicit drops initiate attachment; the timer follows existing support.
+Explicit drops and airborne contact initiate attachment; timers only follow support.
 Never activates or moves another app.
 """
 import math
@@ -88,10 +88,10 @@ class EdgeAttachment(QObject):
     def excluded(self):
         return (os.getppid(),int(os.environ.get('PET_CONTROL_PID','0')))
 
-    def choices(self,surfaces,size=None,origin=None):
+    def choices(self,surfaces,size=None,origin=None,*,cached_only=False):
         from edge_geometry import candidates,corner_landing,screen_landings
         screens=QGuiApplication.screens();size=size or (self.pet.width(),self.pet.height());origin=origin or (self.pet.x(),self.pet.y())
-        result=[];higher=[];foreground=inspect_foreground(self.excluded())
+        result=[];higher=[];foreground=None if cached_only else inspect_foreground(self.excluded())
         # During a mouse grab the pet may own foreground focus. The first
         # external visible surface still identifies the fullscreen page.
         if foreground is None and surfaces:foreground=surfaces[0]
@@ -118,7 +118,7 @@ class EdgeAttachment(QObject):
         origin=origin or (self.pet.x(),self.pet.y());size=size or (self.pet.width(),self.pet.height())
         limit=max(48,size[0]*.6)
         choices=[]
-        for item in self.choices(surfaces,size,origin):
+        for item in self.choices(surfaces,size,origin,cached_only=True):
             landing=item[0]
             shift=math.hypot(landing.position[0]-origin[0],landing.position[1]-origin[1])
             # Corner projection is only valid close to that corner. A drop in
@@ -133,11 +133,40 @@ class EdgeAttachment(QObject):
         if not self.pet.preferences.auto_snap:return False
         candidate=self.drop_candidate(surfaces,point)
         if candidate is None:return False
+        return self.attach(candidate)
+
+    def flight_targets(self,surfaces):
+        """Use cached native surfaces; never enumerate windows in a physics tick."""
+        if not self.pet.preferences.auto_snap or not self.options['windows']:return []
+        from edge_geometry import candidates
+        self.poses.load_poses()
+        size=(self.pet.width(),self.pet.height());origin=(self.pet.x(),self.pet.y())
+        screens=QGuiApplication.screens();higher=[];result=[]
+        key=(tuple(surfaces),size,self.variant,tuple((s.geometry().getRect(),s.devicePixelRatio()) for s in screens))
+        if getattr(self,'_flight_key',None)==key:return self._flight_targets
+        for surface in surfaces:
+            rect,area,screen=logical_surface(surface,screens)
+            if surface.fullscreen:area=screen.geometry().getRect()
+            for _,landing in candidates(rect,area,size,self.poses.bounds,origin,self.variant,higher):
+                result.append((landing,surface,screen,rect))
+            higher.append(rect)
+        self._flight_key=key;self._flight_targets=result
+        return result
+
+    def catch_flight(self,start,end,targets):
+        if not self.pet.preferences.auto_snap or not self.pet.state.physics.flying:return False
+        from edge_geometry import flight_intersection
+        candidate=flight_intersection(start,end,(self.pet.width(),self.pet.height()),targets)
+        return self.attach(candidate) if candidate is not None else False
+
+    def attach(self,candidate):
+        """Shared immediate landing for a manual drop or a real airborne contact."""
         landing,surface,screen,rect=candidate
         self.set_landing(landing,rect);self.handle=surface.handle if surface else None;self.screen=screen
         now=time.monotonic();self.active=True;self.phase='resting';self.started=now;self.last_tick=now
         self.distance=0.;self.crawl_target=None;self.next_move=now+random.uniform(2,5);self.until=0
-        state=self.pet.state;state.travel_target=None;state.travel_position=None;state.walking=False
+        state=self.pet.state;state.physics.cancel();state.travel_target=None;state.travel_position=None;state.walking=False
+        self.pet.animator.timer.setInterval(33)
         state.jump_started=None;state.action_player.stop();state.gait_until=0
         self.pet.move(*(round(v) for v in self.destination));state.position_x=float(self.pet.x())
         self.message={'top':'上沿 · 轻松休息','bottom':'下沿 · 抓紧晃晃','left':'侧边 · 抓框爬行','right':'侧边 · 抓框爬行','corner':'角落 · 自然休息'}[self.kind]
@@ -163,8 +192,7 @@ class EdgeAttachment(QObject):
                 higher.append(logical_surface(other,QGuiApplication.screens())[0])
             full=target.fullscreen or target.maximized
             if target.fullscreen:area=self.screen.geometry().getRect()
-            if full:
-                if self.kind!='corner':return False
+            if full and self.kind=='corner':
                 # Keep the same corner when a full window is passively moved.
                 preferred='left' if self.side=='perch-back' else 'right'
                 landing=corner_landing(area,size,self.poses.bounds,(-1e7,origin[1]) if preferred=='left' else (1e7,origin[1]),preferred)
@@ -191,16 +219,23 @@ class EdgeAttachment(QObject):
         return True
 
     def tick(self):
-        # Attachment is initiated only by an explicit drop, never by a timer.
+        if self.pet.presence.active:return
+        # No autonomous search: only follow an already established grip.
         if not self.active:return
         if self.busy():return
         try:
-            surfaces=visible_surfaces(self.excluded())
+            preview=self.pet.snap_preview
+            preview.request_surfaces(force=True)
+            if not preview.surfaces_at or time.monotonic()-preview.surfaces_at>.75:return
+            surfaces=preview.surfaces
             if not self.follow(surfaces):self.release(cooldown=2)
         except Exception as error:
             self.error=str(error);self.release(cooldown=5);self.pet.state_changed.emit()
 
     def animate(self):
+        if self.pet.presence.active:
+            self.last_tick=time.monotonic()
+            return
         if not self.active or self.destination is None:return
         now=time.monotonic();dt=max(0,min(.1,now-self.last_tick));self.last_tick=now
         paused=self.pet.preferences.paused or self.pet.preferences.quiet

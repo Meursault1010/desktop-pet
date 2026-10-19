@@ -224,7 +224,8 @@ class IconSleep(QObject):
         if self.closed:return
         if self.worker and self.worker.isRunning(): return
         self.worker=Scanner(self.target['id'] if self.target else None,parent=self,
-                            image_ids=[i['id'] for i in self.icons if i['id'] not in self.cache_images] if self.pet.preferences.auto_snap else ())
+                            image_ids=[i['id'] for i in self.icons if i['id'] not in self.cache_images]
+                            if self.pet.preferences.auto_snap or (self.pet.state.patrol and self.pet.preferences.random_movement) else ())
         worker=self.worker
         worker.completed.connect(self.scanned)
         def finished():
@@ -333,6 +334,7 @@ class IconSleep(QObject):
         self.pet.setMask(region)
 
     def tick(self):
+        if self.pet.presence.active:return
         if not self.target: return
         now=time.monotonic()
         if self.phase=='approaching':
@@ -370,11 +372,14 @@ class IconSleep(QObject):
     def pose_pixmap(self,side,elapsed):
         if side not in NEW_POSES:return self.pixmaps[side]
         if side not in self.frames:
-            self.frames[side]={kind:[QPixmap(str(ASSET_ROOT/side/f'{kind}-{i:02}.png')) for i in range(16)] for kind in ('open','blink')}
+            self.frames[side]={kind:[None]*16 for kind in ('open','blink')}
         # Two brief, unevenly spaced blinks. Motion has its own slower clock.
         beat=elapsed%9.7
         kind='blink' if 3.2<beat<3.34 or 8.05<beat<8.18 else 'open'
-        return self.frames[side][kind][int(elapsed/6.4*16)%16]
+        index=int(elapsed/6.4*16)%16
+        if self.frames[side][kind][index] is None:
+            self.frames[side][kind][index]=QPixmap(str(ASSET_ROOT/side/f'{kind}-{index:02}.png'))
+        return self.frames[side][kind][index]
 
     def paint(self,painter):
         if not self.target: return False

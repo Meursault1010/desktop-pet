@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parent
 COUNT = 64
 SIZE = 256
-DURATION = 4.8
+DURATION = 4.2
 
 
 def prepare():
@@ -37,14 +37,16 @@ def prepare():
         phase = 2*math.pi*index/COUNT
         breath = math.sin(phase)
         anchor = np.clip((369-yy)/72, 0, 1)
-        # ~1.5px up/down at default size; no sliding feet.
-        dy = -3.6*breath*anchor
+        # Visible relaxed breathing at pet scale while keeping the feet planted.
+        dy = -14.0*breath*anchor
         chest = np.exp(-((yy-226)/60)**2)
-        dx = (xx-192)*.014*breath*chest
+        chest_lift = np.exp(-((yy-226)/39)**2)
+        dy -= 3.2*breath*chest_lift
+        dx = (xx-192)*.055*breath*chest
         side = np.clip((np.abs(xx-192)-43)/35, 0, 1)
         hair = side*np.clip((yy-138)/78, 0, 1)*np.clip((334-yy)/34, 0, 1)
         lag = (yy-138)/125
-        sway = 5.5*np.sin(phase-lag) + 1.4*np.sin(2*phase+xx/95-lag)
+        sway = 10.0*np.sin(phase-lag) + 2.5*np.sin(2*phase+xx/95-lag)
         dx += hair*sway
         dy += hair*.85*np.sin(phase-lag+.7)
         # Keep all facial features coherent; side weights are zero over the face.

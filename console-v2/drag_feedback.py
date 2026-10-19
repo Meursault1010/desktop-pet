@@ -26,14 +26,27 @@ def asset(name):
     return QPixmap(str(ROOT/f'{name}.png'))
 
 
+@lru_cache(maxsize=1)
+def poses():
+    return json.loads((ROOT/'poses.json').read_text(encoding='utf-8'))
+
+
+def warm_assets():
+    # Decode once before input, never block the first mouse move on PNG I/O.
+    for name in poses():
+        asset(name)
+
+
 class DragFeedback:
-    def __init__(self,target):
+    def __init__(self,target,compact=False):
+        self.compact=compact
         self.target=target;self.name=direction(target);self.started=time.monotonic()
-        self.hand=tuple(json.loads((ROOT/'poses.json').read_text(encoding='utf-8'))[self.name]['hand'])
+        self.hand=tuple(poses()[self.name]['hand'])
         self.delta=(target[0]-10-self.hand[0]*.625,target[1]-25-self.hand[1]*.625)
         self.frames={}
 
     def body_origin(self):
+        if self.compact:return 10,25
         tx,ty=self.target
         return 210-tx+10,220-ty+25
 
@@ -54,7 +67,8 @@ class DragFeedback:
 
     def image(self,index):
         if index in self.frames:return self.frames[index]
-        image=QImage(420,440,QImage.Format.Format_ARGB32_Premultiplied);image.fill(0)
+        width,height=(180,190) if self.compact else (420,440)
+        image=QImage(width,height,QImage.Format.Format_ARGB32_Premultiplied);image.fill(0)
         p=QPainter(image);p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         pixmap=asset(self.name)
         # One cached sprite transform instead of hundreds of clipped triangles

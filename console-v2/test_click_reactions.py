@@ -74,6 +74,53 @@ class ClickTests(unittest.TestCase):
         self.assertIsNone(self.pet.drag_origin)
         self.assertIsNone(self.pet.state.drag_feedback)
 
+    def test_press_is_gesture_neutral_and_drag_uses_smoother_refresh(self):
+        self.pet.state.click_reaction.trigger('shy', 120)
+        self.pet.mousePressEvent(self.event(QMouseEvent.Type.MouseButtonPress))
+        self.assertIsNone(self.pet.state.click_reaction.started)
+        self.assertEqual(self.pet.animator.timer.interval(), 33)
+        self.pet.mouseMoveEvent(self.event(QMouseEvent.Type.MouseMove, 155, 95))
+        self.assertTrue(self.pet.dragged)
+        self.assertEqual(self.pet.animator.timer.interval(), 16)
+        self.assertIsNone(self.pet.state.click_reaction.started)
+        self.pet.end_drag_feedback()
+        self.assertEqual(self.pet.animator.timer.interval(), 33)
+
+    def test_press_preserves_action_frame_until_drag_is_classified(self):
+        from PySide6.QtGui import QImage, QPainter
+        self.pet.state.action_player.play('read')
+        self.pet.state.click_reaction.trigger('headpat',150,now=time.monotonic()-.08)
+        image=QImage(180,190,QImage.Format.Format_ARGB32_Premultiplied)
+        image.fill(0)
+        painter=QPainter(image)
+        self.pet.renderer.draw(painter,self.pet.state)
+        painter.end()
+        visible=self.pet.renderer.last_display_image
+        self.pet.mousePressEvent(self.event(QMouseEvent.Type.MouseButtonPress))
+        self.assertIs(self.pet.renderer.pointer_hold_image,visible)
+        self.assertIsNone(self.pet.state.click_reaction.started)
+        held=image.copy();held.fill(0)
+        painter=QPainter(held)
+        with patch.object(self.pet.renderer,'draw_pose',side_effect=AssertionError('intermediate pose')):
+            self.pet.renderer.draw(painter,self.pet.state)
+        painter.end()
+        self.assertEqual(held,image,'press must preserve the actually rendered pixels')
+        self.pet.mouseMoveEvent(self.event(QMouseEvent.Type.MouseMove,155,95))
+        self.assertIsNone(self.pet.renderer.pointer_hold_image)
+        self.assertTrue(self.pet.dragged)
+
+    def test_drag_never_resizes_native_window_or_reanchors_pointer(self):
+        self.pet.mousePressEvent(self.event(QMouseEvent.Type.MouseButtonPress))
+        size=self.pet.size()
+        anchor=self.pet.drag_origin
+        with patch.object(self.pet,'setFixedSize',side_effect=AssertionError('native resize during drag')):
+            self.pet.mouseMoveEvent(self.event(QMouseEvent.Type.MouseMove,155,95))
+            self.assertEqual(self.pet.drag_origin,anchor)
+            self.assertEqual(self.pet.size(),size)
+            self.assertTrue(self.pet.state.drag_feedback.compact)
+            self.pet.end_drag_feedback()
+        self.assertEqual(self.pet.size(),size)
+
     def test_hide_cancels_single_before_timeout(self):
         self.click()
         self.pet.hide()
@@ -109,10 +156,10 @@ class ClickTests(unittest.TestCase):
         response.trigger('headpat', 150, now=100)
         compressed = response.transform(100.07)
         rebound = response.transform(100.25)
-        self.assertGreater(compressed[3], 1.1)
-        self.assertLess(compressed[4], .9)
+        self.assertGreater(compressed[3], 1.04)
+        self.assertLess(compressed[4], .96)
         self.assertLess(rebound[3], 1.)
-        self.assertGreater(rebound[4], 1.05)
+        self.assertGreater(rebound[4], 1.)
         self.assertNotEqual(compressed[5], 0)
         self.assertEqual(response.transform(100), (0, 0, 0, 1, 1, 0))
 

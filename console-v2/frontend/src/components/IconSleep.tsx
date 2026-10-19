@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Folder, File, Moon, RefreshCw, Sun, LoaderCircle } from 'lucide-react';
+import { Folder, File, Moon, RefreshCw, Sun, LoaderCircle } from './Icons';
 import { demo, type EdgeOptions, type IconSleepOptions, type PetSnapshot } from '../bridge';
 import { Range, Toggle } from './SettingControls';
 import './IconSleep.css';

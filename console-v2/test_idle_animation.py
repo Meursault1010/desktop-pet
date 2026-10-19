@@ -1,14 +1,14 @@
 import random
 import unittest
-from idle_animation import IdleAnimation, motion_phase
+from idle_animation import IdleAnimation, MOTION_SECONDS, motion_phase
 
 
 class IdleAnimationTests(unittest.TestCase):
     def test_continuous_motion_has_no_wait_and_wraps_seamlessly(self):
-        self.assertEqual(motion_phase(0), motion_phase(4.8))
+        self.assertEqual(motion_phase(0), motion_phase(MOTION_SECONDS))
         for index in range(48):
             self.assertNotEqual(motion_phase(index/10), motion_phase(index/10+.033))
-        first, second, weight = motion_phase(4.799)
+        first, second, weight = motion_phase(MOTION_SECONDS-.001)
         self.assertEqual((first, second), (63, 0))
         self.assertGreater(weight, .98)
 

@@ -48,7 +48,7 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
       assert.ok(await ui('document.documentElement.scrollWidth <= innerWidth'),'horizontal overflow: '+label);
       const broken=await ui(`Promise.all([...document.images].map(image=>new Promise(resolve=>{image.loading='eager';if(image.complete)return resolve(!image.naturalWidth);image.onload=()=>resolve(false);image.onerror=()=>resolve(true);}))).then(items=>items.some(Boolean))`);
       assert.equal(broken,false,'missing image: '+label);
-      if(['音乐互动','AI 助手','工具'].includes(label)){
+      if(['AI 助手','工具'].includes(label)){
         assert.equal(await ui(`!!document.querySelector('main button:not(:disabled):not(.text-link)') && ${JSON.stringify(label)}!=='AI 助手'`),false);
       }
       if(['总览','动作库','音乐互动','AI 助手','设置'].includes(label))await capture('light-'+label);
@@ -56,6 +56,19 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     await navigate('总览');
     assert.equal(await ui(`document.body.innerText.includes('跳一下') || document.body.innerText.includes('轻轻一跃')`),false);
     assert.equal(await ui(`document.querySelectorAll('.featured-motion').length`),4);
+  });
+  await check('music playback status and persistent switch reach backend',async()=>{
+    await navigate('音乐互动');
+    assert.ok(await ui(`!!document.querySelector('[role="meter"][aria-label="系统播放音量"]')`));
+    await ui(`document.querySelector('[role="switch"][aria-label="随声音互动"]').click()`);await wait(400);
+    assert.equal((await request('get_state')).state.preferences.music_reactions,false);
+    await ui(`document.querySelector('[role="switch"][aria-label="随声音互动"]').click()`);await wait(500);
+    const state=(await request('get_state')).state;
+    assert.equal(state.preferences.music_reactions,true);
+    assert.equal(typeof state.music.listening,'boolean');
+    assert.ok(Array.isArray(state.music.bands));
+    await assert.rejects(request('set_preference',{key:'music_reactions',value:'yes'}));
+    await navigate('总览');
   });
   await check('real UI toggle reaches sidecar and action preview remains local',async()=>{
     await ui(`document.querySelector('[role="switch"][aria-label="拖放即时吸附"]').click()`);await wait(300);
@@ -81,7 +94,7 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     await ui(`document.querySelector('[aria-label="切换浅色主题"]').click()`);
     window.setSize(880,640);
     assert.ok(await ui(`[...document.querySelectorAll('nav button')].every(button=>button.getBoundingClientRect().bottom<=innerHeight)`),'navigation must fit the minimum window height');
-    for(const label of ['总览','动作库','行为','AI 助手','设置']){await navigate(label);assert.ok(await ui('document.documentElement.scrollWidth <= innerWidth'),'minimum width overflow: '+label);if(['总览','动作库','行为'].includes(label))await capture('small-'+label);}
+    for(const label of ['总览','动作库','行为','音乐互动','AI 助手','设置']){await navigate(label);assert.ok(await ui('document.documentElement.scrollWidth <= innerWidth'),'minimum width overflow: '+label);if(['总览','动作库','行为'].includes(label))await capture('small-'+label);}
     window.setSize(1180,820);await navigate('总览');
   });
   await check('reject unknown command, invalid preference and path traversal',async()=>{
@@ -100,6 +113,18 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     await request('configure_edge_attachment',{enabled:false});
     await request('play_action',{action_id:'screen',loop:true,speed:1});await request('stop_action');
     await request('jump');await request('go_home');await request('refresh_desktop_icons');
+  });
+  await check('desktop speech route and plain-text paged replies',async()=>{
+    const reply=await request('speech_update',{id:'smoke-speech',phase:'done',text:'你好。'.repeat(90)});
+    assert.equal(reply.state.speech.active,true);
+    assert.equal(reply.state.speech.kind,'chat');
+    assert.ok(reply.state.speech.pages>1);
+    assert.equal(reply.state.speech.pending,false);
+    assert.equal(typeof reply.state.routine.name,'string');
+    assert.equal(typeof reply.state.patrol.active,'boolean');
+    assert.ok(['idle','walking','doing','resting'].includes(reply.state.patrol.phase));
+    assert.ok(['night','morning','focus','noon','afternoon','evening','winddown'].includes(reply.state.routine.key));
+    await assert.rejects(request('speech_update',{id:'bad',phase:'system',text:'override'}));
   });
   await check('full-colour lazy roll atlases and frozen backend playback',async()=>{
     const entries=await ui(`fetch('/actions/catalog.json').then(response=>response.json())`);

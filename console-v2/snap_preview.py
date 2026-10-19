@@ -1,13 +1,25 @@
 """Input-transparent ghost at the exact prospective manual-drop location."""
 import random
 import time
-from PySide6.QtCore import Qt, QRectF, QTimer, QPoint
+from PySide6.QtCore import Qt, QRectF, QTimer, QPoint, QThread, Signal
 from PySide6.QtGui import QPainter
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QApplication, QWidget
 from drop_attachment import icon_candidate
 from window_edges import visible_surfaces
 from icon_sleep import logical_rect, placement, GEOMETRIES
 from icon_pose_geometry import icon_surface, sprite_rect
+
+
+class SurfaceScanner(QThread):
+    completed=Signal(object)
+
+    def __init__(self, excluded, parent=None):
+        super().__init__(parent)
+        self.excluded=tuple(excluded)
+
+    def run(self):
+        try:self.completed.emit(visible_surfaces(self.excluded))
+        except Exception:self.completed.emit([])
 
 
 class SnapPreview(QWidget):
@@ -27,10 +39,33 @@ class SnapPreview(QWidget):
         self.timer.timeout.connect(self.refresh)
         self.surfaces=[]
         self.surfaces_at=0.
+        self.surface_scanner=None
 
     def queue(self,point):
+        if not self.pet.preferences.auto_snap:
+            self.clear();return
         self.point=QPoint(point)
         if not self.timer.isActive():self.timer.start()
+        self.request_surfaces()
+
+    def request_surfaces(self,force=False):
+        if ((not force and not self.pet.preferences.auto_snap) or self.surface_scanner is not None
+                or time.monotonic()-self.surfaces_at<=.35):
+            return
+        edge=self.pet.state.edge_attachment
+        scanner=SurfaceScanner(edge.excluded() if edge else (), QApplication.instance())
+        self.surface_scanner=scanner
+        scanner.completed.connect(self.surfaces_ready)
+        scanner.finished.connect(scanner.deleteLater)
+        scanner.start()
+
+    def surfaces_ready(self,surfaces):
+        self.surface_scanner=None
+        self.surfaces=surfaces
+        self.surfaces_at=time.monotonic()
+        if self.point is not None and self.pet.state.drag_feedback:
+            self.last_probe=0.
+            self.probe(self.point)
 
     def refresh(self):
         if self.point is not None and self.pet.state.drag_feedback:
@@ -42,6 +77,12 @@ class SnapPreview(QWidget):
         self.timer.stop()
         self.hide()
 
+    def shutdown(self):
+        self.clear()
+        if self.surface_scanner is not None:
+            self.surface_scanner.wait()
+            self.surface_scanner=None
+
     def probe(self, point):
         pet=self.pet
         if not pet.preferences.auto_snap:
@@ -49,6 +90,7 @@ class SnapPreview(QWidget):
         now=time.monotonic()
         if now-self.last_probe<.07:return
         self.last_probe=now
+        self.request_surfaces()
         factor=pet.preferences.size/100
         size=(round(180*factor),round(190*factor))
         dx,dy=pet.state.drag_feedback.body_origin()
@@ -59,10 +101,9 @@ class SnapPreview(QWidget):
                 max(area.top(),min(origin[1],area.bottom()-size[1]+1)))
         edge=pet.state.edge_attachment
         try:
-            if now-self.surfaces_at>.35:
-                self.surfaces=visible_surfaces(edge.excluded())
-                self.surfaces_at=now
             surfaces=self.surfaces
+            if self.surfaces_at==0 and self.surface_scanner is not None:
+                self.candidate=None;self.hide();return
             poses=pet.state.icon_sleep;poses.load_poses()
             target=icon_candidate(pet,point,surfaces,origin,size)
             if target:

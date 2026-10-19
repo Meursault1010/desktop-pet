@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import * as Switch from '@radix-ui/react-switch';
-import { LoaderCircle, RotateCcw } from 'lucide-react';
+import { LoaderCircle, RotateCcw } from './Icons';
 import { parseSettingNumber } from '../commandQueue';
 
 export function Toggle({ label, description, checked, disabled, pending, reason, onChange }: {

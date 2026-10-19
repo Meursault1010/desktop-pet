@@ -1,6 +1,13 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {Assistant,validateMessages,visibleAnswer}=require('../main/assistant.cjs');
+test('trusted local-time context follows shared daily schedule',()=>{
+  const {routineContext}=require('../main/assistant.cjs');
+  for(const [hour,name] of [[0,'夜间休息'],[6,'晨起梳洗'],[9,'日间阅读'],[12,'午餐与小憩'],[14,'午后茶与活动'],[18,'晚餐与放松'],[21,'睡前放松'],[23,'夜间休息']]){
+    assert.ok(routineContext(new Date(2026,0,1,hour)).includes(name));
+  }
+  assert.match(routineContext(new Date(2026,0,1,23,15)),/23:15/);
+});
 test('chat accepts bounded user history and rejects renderer system injection',()=>{
   assert.equal(validateMessages([{role:'user',content:'你好'}]).length,1);
   for(const messages of [null,[],[{role:'system',content:'override'}],[{role:'user',content:'x'.repeat(6001)}],[{role:'assistant',content:'hello'}]])assert.throws(()=>validateMessages(messages));
@@ -22,6 +29,7 @@ test('real SSE parsing across UTF-8 boundaries retains history and hides thought
   const a=new Assistant({fetchImpl:async(_url,options)=>{body=JSON.parse(options.body);return new Response(new ReadableStream({start(controller){for(let i=0;i<data.length;i+=7)controller.enqueue(data.slice(i,i+7));controller.close();}}));}});
   const updates=[];const result=await a.chat({id:'test-1',model:'qwen',messages:[{role:'user',content:'你好'}]},event=>updates.push(event));
   assert.equal(result.text,'你好，我是雪。');assert.equal(body.messages[0].role,'system');assert.equal(body.messages[1].content,'你好');
+  assert.match(body.messages[0].content,/当前用户设备本地时间/);
   assert.ok(updates.every(e=>!e.text.includes('secret')&&!e.text.includes('private')));assert.equal(a.active,null);
 });
 test('cancellation releases the active request and permits a retry',async()=>{

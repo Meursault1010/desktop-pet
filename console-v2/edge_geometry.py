@@ -30,6 +30,36 @@ def contact_offset(size,pose):
 
 def clamp(value,lo,hi):return max(lo,min(hi,value))
 
+
+def flight_intersection(start,end,size,targets):
+    """Earliest exposed grip crossed from outside, without proximity snapping.
+
+    Targets carry the same feasible silhouette intervals as manual attachment.
+    Sweep each pose's contact point, including fast and reflected segments.
+    """
+    from dataclasses import replace
+    hits=[]
+    dx,dy=end[0]-start[0],end[1]-start[1]
+    for item in targets:
+        landing=item[0];kind=landing.kind
+        horizontal=kind in ('top','bottom')
+        if kind not in ('top','bottom','left','right'):continue
+        delta=dy if horizontal else dx
+        if (kind in ('top','left') and delta<=0) or (kind in ('bottom','right') and delta>=0):continue
+        ox,oy=contact_offset(size,landing.pose)
+        contact=(start[0]+ox,start[1]+oy)
+        axis=1 if horizontal else 0
+        t=(landing.anchor[axis]-contact[axis])/delta
+        if not 0<=t<=1:continue
+        p=contact[0]+dx*t if horizontal else contact[1]+dy*t
+        if not landing.interval[0]<=p<=landing.interval[1]:continue
+        anchor=(p,landing.anchor[1]) if horizontal else (landing.anchor[0],p)
+        position=(anchor[0]-ox,anchor[1]-oy)
+        hits.append((t,replace(landing,position=position,anchor=anchor,parameter=p),item))
+    if not hits:return None
+    _,landing,item=min(hits,key=lambda hit:hit[0])
+    return (landing,*item[1:])
+
 def candidates(rect,area,size,bounds,origin,variant=0,blocked=(),screen=False):
     """Project current character center onto every feasible edge, no fixed slots.
 

@@ -62,7 +62,7 @@ def lazy_roll_timeline(action, rng=random):
     order = []
     durations = []
     for cycle in range(cycles):
-        tempo = rng.uniform(.95, 1.15)
+        tempo = rng.uniform(.98, 1.08)
         # Last pose equals the first: omit the duplicate between full turns.
         indices = range(12 if cycle == cycles-1 else 11)
         for index in indices:
@@ -88,7 +88,9 @@ def ground_idle_timeline(action, rng=random):
         # Always return to a neutral pose between expressions: no random jumps
         # from a head tilt to a foot kick or repeated closed-eye frames.
         order.extend((gesture, base))
-        durations.extend((rng.randint(400, 850), rng.randint(1400, 2600)))
+        # Half-lidded frames are a blink lead-in, not a long frozen expression.
+        durations.extend((rng.randint(140, 220) if gesture == 4 else rng.randint(350, 650),
+                          rng.randint(1400, 2600)))
         if rng.random() < .6:
             order.extend((blink, base))
             durations.extend((rng.randint(100, 160), rng.randint(700, 1500)))

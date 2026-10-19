@@ -234,14 +234,14 @@ def scan_desktop(image_id=None, image_ids=()):
             ole.CoUninitialize()
 
 
-def desktop_exposed(rect, ignore_hwnd):
+def desktop_exposed(rect, ignore_hwnd, ignore_hwnds=()):
     """Conservative occlusion: never draw a resting pet over an ordinary app."""
     user = _api()
     blocked = []
     callback_type = C.WINFUNCTYPE(W.BOOL, W.HWND, W.LPARAM)
     x, y, width, height = rect
     def inspect(hwnd, unused):
-        if int(hwnd) == ignore_hwnd or not user.IsWindowVisible(hwnd) or user.IsIconic(hwnd):
+        if int(hwnd) in (ignore_hwnd, *ignore_hwnds) or not user.IsWindowVisible(hwnd) or user.IsIconic(hwnd):
             return True
         name = C.create_unicode_buffer(256); user.GetClassNameW(hwnd, name, 256)
         if name.value in ('Progman', 'WorkerW', 'Shell_TrayWnd', 'Shell_SecondaryTrayWnd', 'tooltips_class32'):

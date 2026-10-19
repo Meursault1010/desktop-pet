@@ -8,6 +8,14 @@
 **/src-tauri/gen/
 **/frontend/dist/
 *.tsbuildinfo
+**/build/
+**/dist/
+**/__pycache__/
+*.log
+/.startup-smoke-userdata*/
+/.old-smoke-userdata*/
+/startup*.log
+/old*.log
 
 # Private machine-specific settings and credentials
 .env
@@ -23,3 +31,7 @@ settings.ini
 /.electron-build/
 /releases/
 /work/
+/tools/psd2live/v3.5.2/
+/tools/psd2live/PSD2Live-*-windows-x64-portable.zip
+/tools/psd2live/tmp/
+/tools/psd2live/workspace/

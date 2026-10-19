@@ -129,13 +129,15 @@ class AmbientTests(unittest.TestCase):
             pet.renderer.draw(painter, pet.state)
             pet.state.action_player.play('tea')
             pet.renderer.draw(painter, pet.state)
-            self.assertIsNotNone(pet.renderer.transition_image)
+            # Dissimilar poses must show one opaque character, never a long
+            # dissolve. A nearly identical silhouette may settle for 55 ms.
+            self.assertLessEqual(pet.renderer.transition_duration,.055)
             pet.renderer.transition_started -= 1
             pet.renderer.draw(painter, pet.state)
             self.assertIsNone(pet.renderer.transition_image)
             pet.state.action_player.stop()
             pet.renderer.draw(painter, pet.state)
-            self.assertIsNotNone(pet.renderer.transition_image)
+            self.assertLessEqual(pet.renderer.transition_duration,.055)
         finally:
             painter.end()
             self.dispose_pet(pet)

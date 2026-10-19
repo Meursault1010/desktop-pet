@@ -4,13 +4,16 @@ from dataclasses import asdict
 import sys
 
 from PySide6.QtCore import QObject, QTimer, Signal
-from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
+from PySide6.QtWidgets import QApplication, QSystemTrayIcon
 
 from console import ControlWindow
 from pet import DesktopPet, make_pet_icon
 from settings_model import SettingsStore, normalize, Preferences
 from icon_sleep import IconSleep
 from edge_attachment import EdgeAttachment
+from pet_menu import CompanionMenu
+from pet_patrol import Patrol
+from pet_music import MusicCompanion
 
 
 class PetApplication(QObject):
@@ -23,6 +26,10 @@ class PetApplication(QObject):
         self.preferences = self.store.load()
         self.storage_error = False
         self.shutting_down = False
+        self.exit_requested = False
+        self.quick_draft = ''
+        self.quick_pending = None
+        self.quick_last_text = ''
         self.saved_position = None
         self.pet = DesktopPet(self.preferences)
         self.pet.controller = self
@@ -31,6 +38,15 @@ class PetApplication(QObject):
         # Warm bounds and static pose pixmaps before the first drag, not inside
         # a mouse-move handler. Preview uses these static images directly.
         self.icon_sleep.load_poses()
+        from icon_sleep import GEOMETRIES
+        from locomotion import frames
+        for side in GEOMETRIES:self.icon_sleep.pose_pixmap(side,0)
+        for name in ('walk-left','walk-right','climb-left','climb-right','hang'):frames(name)
+        self.pet.snap_preview.request_surfaces()
+        self.patrol = Patrol(self.pet, self.icon_sleep, self.store)
+        self.pet.state.patrol = self.patrol
+        self.music = MusicCompanion(self.pet)
+        self.pet.state.music = self.music
         self.icon = make_pet_icon()
         self.app.setWindowIcon(self.icon)
         position = self.store.position()
@@ -63,7 +79,8 @@ class PetApplication(QObject):
         self.app.screenRemoved.connect(self.schedule_screen_check)
 
     def start(self):
-        self.pet.show()
+        self.pet.present(True)
+        self.music.start()
         self.open_console()
 
     def open_console(self):
@@ -85,11 +102,9 @@ class PetApplication(QObject):
         self.changed.emit()
 
     def toggle_visibility(self):
-        if self.pet.isVisible():
-            self.pet.hide()
-        else:
-            self.pet.clamp_to_screen()
-            self.pet.show()
+        if self.exit_requested:
+            return
+        self.pet.present(not self.pet.desired_visible())
         self.changed.emit()
 
     def toggle_pause(self):
@@ -107,34 +122,48 @@ class PetApplication(QObject):
         self.changed.emit()
 
     def create_menu(self, parent):
-        menu = QMenu(parent)
-        menu.addAction('打开控制台', self.open_console)
-        visible = menu.addAction('隐藏宠物', self.toggle_visibility)
-        visible.setObjectName('visibility')
-        paused = menu.addAction('暂停走动', self.toggle_pause)
-        paused.setObjectName('pause')
-        jump = menu.addAction('跳一下', self.pet.animator.jump)
-        jump.setObjectName('jump')
-        menu.addAction('回到桌面底部', self.pet.go_home)
-        menu.addAction('停止图标互动 / 边缘附着', self.pet.wake_icon_sleep)
+        menu = CompanionMenu(parent, self.icon)
+        menu.quick_chat(self)
         menu.addSeparator()
-        menu.addAction('退出yuki', self.quit)
+        menu.command('console', '打开工作台', self.open_console, 'console')
+        menu.addSeparator()
+        menu.command('visibility', '隐藏宠物', self.toggle_visibility, 'visibility')
+        menu.command('pause', '暂停走动', self.toggle_pause, 'pause')
+        menu.command('quiet', '安静陪伴', lambda checked: self.set_preference('quiet', checked), checkable=True)
+        menu.command('auto_snap', '拖放即时吸附', lambda checked: self.set_preference('auto_snap', checked), checkable=True)
+        menu.addSeparator()
+        menu.command('home', '回到桌面底部', self.pet.go_home, 'home')
+        menu.command('detach', '离开停靠处', self.pet.wake_icon_sleep, 'detach')
+        menu.addSeparator()
+        # PetService redirects the last action through Electron's exit handler.
+        menu.command('exit', '退出 yuki', self.quit, 'exit')
         self.update_menu(menu)
+        menu.aboutToShow.connect(lambda: self.update_menu(menu))
         return menu
 
     def update_menu(self, menu):
+        if isinstance(menu, CompanionMenu):
+            menu.status.setText(self.pet.status_text())
+            menu.routine.setText(self.pet.state.routine.period['name'])
+            menu.update_chat(self)
         for action in menu.actions():
             if action.objectName() == 'visibility':
-                action.setText('隐藏宠物' if self.pet.isVisible() else '显示宠物')
+                action.setText('隐藏宠物' if self.pet.desired_visible() else '显示宠物')
             elif action.objectName() == 'pause':
                 action.setText('继续走动' if self.preferences.paused else '暂停走动')
                 action.setEnabled(not self.preferences.quiet and self.preferences.random_movement)
-            elif action.objectName() == 'jump':
-                action.setEnabled(self.pet.isVisible())
+            elif action.objectName() in ('quiet', 'auto_snap'):
+                action.setChecked(getattr(self.preferences, action.objectName()))
+            elif action.objectName() in ('home', 'detach'):
+                action.setEnabled(self.pet.desired_visible())
 
     def refresh_menus(self):
         self.update_menu(self.tray_menu)
         self.tray.setToolTip('yuki · ' + self.pet.status_text())
+
+    def quick_chat_send(self, text):
+        self.pet.bubble.say('请使用 Electron 版 yuki 连接本地模型聊天。', 'error')
+        return False
 
     def on_tray_activated(self, reason):
         if reason in (QSystemTrayIcon.ActivationReason.Trigger,
@@ -156,6 +185,8 @@ class PetApplication(QObject):
             self.save_position()
 
     def save_position(self):
+        if self.pet.state.physics.active or self.pet.drag_origin is not None:
+            return
         position = self.pet.pos()
         if position != self.saved_position:
             success = self.store.save_position(position)
@@ -170,9 +201,13 @@ class PetApplication(QObject):
             return
         self.shutting_down = True
         self.save_timer.stop()
+        self.pet.snap_preview.shutdown()
+        self.music.cleanup()
         self.edge_attachment.cleanup()
         self.icon_sleep.cleanup()
         self.pet.animator.timer.stop()
+        self.pet.bubble.timer.stop()
+        self.pet.bubble.clear()
         self.store.save(self.preferences)
         self.save_position()
         self.tray.hide()
@@ -181,6 +216,17 @@ class PetApplication(QObject):
             self.window.hide()
 
     def quit(self):
+        if self.exit_requested:
+            return
+        self.exit_requested = True
+        if self.pet.isVisible():
+            self.pet.present(False)
+            delay = round(self.pet.presence.duration*1000)+50
+            QTimer.singleShot(delay, self.finish_quit)
+        else:
+            self.finish_quit()
+
+    def finish_quit(self):
         self.cleanup()
         self.app.quit()
 

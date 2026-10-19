@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
-import {Bot,MessageCircle,RefreshCw,Send,Sparkles,Square,Trash2} from 'lucide-react';
+import {Bot,MessageCircle,RefreshCw,Send,Square,Trash2} from './Icons';
 import {host} from '../host';
 import '../assistant.css';
 
@@ -46,7 +46,7 @@ export function AssistantWorkspace(){
   return <div className="assistant-layout page-enter"><section className="card conversation live-conversation">
     <div className="card-heading"><span><MessageCircle size={17}/> 与雪对话</span><span className="subtle-badge">{busy?'正在交流':model?'本地模型':'等待连接'}</span></div>
     <div className="chat-transcript" aria-live="polite" aria-relevant="additions text">
-      {!messages.length&&!busy?<div className="chat-empty"><div className="assistant-orbit"><Sparkles size={34}/></div><span className="eyebrow">YUKI · 雪</span><h2>我在这里，听你说。</h2><p>聊聊今天的小事，<br/>或者，安静地陪你一会儿。</p></div>:messages.map((item,i)=><div key={i} className={'chat-turn '+item.role}><span>{item.role==='user'?'你':'雪'}</span><p>{item.content}</p></div>)}
+      {!messages.length&&!busy?<div className="chat-empty"><div className="assistant-portrait"><img src="/pet-preview.png" alt="雪在等你说话"/></div><h2>Let me not to the marriage<br/>of true minds admit impediments.</h2><span className="poem-source">William Shakespeare · Sonnet 116</span><p>聊聊今天的小事，<br/>我在这里，听你说。</p><div className="suggestion-chips">{['今天过得怎么样？','陪我休息一会儿','介绍一下你自己'].map(text=><button key={text} disabled={!supported||busy} onClick={()=>setDraft(text)}>{text}</button>)}</div></div>:messages.map((item,i)=><div key={i} className={'chat-turn '+item.role}><span>{item.role==='user'?'你':'雪'}</span><p>{item.content}</p></div>)}
       {busy&&<div className="chat-turn assistant"><span>{phase}</span><p>{partial||'…'}</p></div>}<div ref={end}/>
     </div>
     {error&&<p className="save-error chat-error" role="alert">{error}</p>}

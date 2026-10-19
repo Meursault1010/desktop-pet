@@ -31,15 +31,23 @@ def icon_candidate(pet,point,surfaces,origin=None,size=None):
     return min(choices)[1] if choices else None
 
 
-def settle_drop(pet,point=None):
+def settle_drop(pet,point=None,*,cached_only=False):
     if not pet.preferences.auto_snap or not pet.isVisible():return False
     point=point or QPoint(pet.x()+pet.width()//2,pet.y()+pet.height()//2)
     edge=pet.state.edge_attachment
     try:
-        surfaces=visible_surfaces(edge.excluded() if edge else ())
+        preview=getattr(pet,'snap_preview',None)
+        if preview and preview.surfaces_at and time.monotonic()-preview.surfaces_at<=1.:
+            surfaces=preview.surfaces
+        elif cached_only:
+            # Never block pointer release on Win32 enumeration. An unknown
+            # surface must not be treated as an unobstructed desktop, either.
+            if preview:preview.request_surfaces()
+            return False
+        else:
+            surfaces=visible_surfaces(edge.excluded() if edge else ())
         target=icon_candidate(pet,point,surfaces)
         if target:
-            preview=getattr(pet,'snap_preview',None)
             pose=preview.candidate['pose'] if preview and preview.candidate and preview.candidate.get('icon')==target else None
             pet.state.icon_sleep.start(target,instant=True,auto_pose=True,pose=pose)
             return True

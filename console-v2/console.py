@@ -70,7 +70,7 @@ class ControlWindow(QMainWindow):
         self.activity.currentTextChanged.connect(
             lambda value: controller.set_preference('activity', value))
         behavior_form.addRow('活动频率', self.activity)
-        self.add_check(behavior_form, '自主随机移动', 'random_movement')
+        self.add_check(behavior_form, '自主巡逻与生活', 'random_movement')
         self.add_check(behavior_form, '点击时显示问候气泡', 'greeting')
         self.add_check(behavior_form, '安静模式', 'quiet')
         self.add_check(behavior_form, '拖放即时吸附', 'auto_snap')
@@ -157,10 +157,10 @@ class ControlWindow(QMainWindow):
     def refresh(self):
         preferences = self.controller.preferences
         self.status_label.setText('●  ' + self.controller.pet.status_text())
-        self.visibility_button.setText('隐藏宠物' if self.controller.pet.isVisible() else '显示宠物')
+        self.visibility_button.setText('隐藏宠物' if self.controller.pet.desired_visible() else '显示宠物')
         self.pause_button.setText('继续走动' if preferences.paused else '暂停走动')
         self.pause_button.setEnabled(not preferences.quiet and preferences.random_movement)
-        self.jump_button.setEnabled(self.controller.pet.isVisible())
+        self.jump_button.setEnabled(self.controller.pet.desired_visible())
         self.behavior_hint.setText('暂停只停止自主移动；眨眼、拖动和手动跳跃仍可使用。')
         for key, (slider, number, suffix) in self.sliders.items():
             blocker = QSignalBlocker(slider)

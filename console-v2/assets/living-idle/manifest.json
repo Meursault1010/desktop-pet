@@ -3,7 +3,7 @@
   "frames": 64,
   "cell": 256,
   "columns": 8,
-  "duration": 4.8,
+  "duration": 4.2,
   "expressions": [
     "open",
     "half",

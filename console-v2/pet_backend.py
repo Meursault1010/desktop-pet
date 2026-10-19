@@ -5,6 +5,8 @@ from dataclasses import asdict
 import json
 import sys
 import time
+import re
+import uuid
 
 from PySide6.QtCore import QByteArray, QBuffer, QIODevice, QThread, QTimer, Signal, Qt
 from PySide6.QtGui import QImage, QPainter
@@ -44,13 +46,45 @@ class PetService(PetApplication):
         self.preview = self.make_preview()
 
     def start(self):
-        self.pet.show()
+        self.pet.present(True)
+        self.music.start()
         self.reader.start()
         self.events.start()
         self.send({'type': 'ready', 'protocol': 1, 'state': self.snapshot(), 'preview': self.preview})
 
     def open_console(self):
         self.send({'type': 'event', 'name': 'open_console'})
+
+    def quick_chat_send(self, text):
+        if (self.quick_pending or self.exit_requested or not isinstance(text, str)
+                or not text.strip() or len(text.encode('utf-16-le'))//2>2000):
+            return False
+        self.quick_pending = str(uuid.uuid4())
+        self.quick_last_text = text.strip()
+        self.pet.bubble.say('让我想一想…', 'chat', streaming=True)
+        self.send({'type': 'event', 'name': 'quick_chat', 'id': self.quick_pending, 'text': text.strip()})
+        pending = self.quick_pending
+        QTimer.singleShot(195000, self, lambda: self.speech_update({'id':pending,'phase':'error',
+            'text':'这次等得有点久，请检查本地模型服务后再试。'}) if self.quick_pending == pending else None)
+        self.changed.emit()
+        return True
+
+    def speech_update(self, payload):
+        key, phase, text = payload.get('id'), payload.get('phase'), payload.get('text')
+        if (set(payload)-{'id','phase','text'} or not isinstance(key,str)
+                or not re.fullmatch(r'[a-zA-Z0-9-]{1,80}',key)
+                or phase not in ('thinking','answer','done','error')
+                or not isinstance(text,str) or len(text)>6000):
+            raise ValueError('气泡消息无效')
+        if self.quick_pending and key != self.quick_pending:
+            return
+        self.pet.bubble.say(text or '…', 'error' if phase=='error' else 'chat',
+                            streaming=phase in ('thinking','answer'))
+        if phase in ('done','error') and key == self.quick_pending:
+            if phase == 'error':
+                self.quick_draft = self.quick_last_text
+            self.quick_pending = None
+            self.changed.emit()
 
     def create_menu(self, parent):
         menu = super().create_menu(parent)
@@ -68,12 +102,18 @@ class PetService(PetApplication):
             QApplication.quit()
 
     def snapshot(self):
+        self.pet.state.routine.update()
         screen = QApplication.screenAt(self.pet.frameGeometry().center()) or QApplication.primaryScreen()
         return {'preferences': asdict(self.preferences), 'status': self.pet.status_text(),
-                'visible': self.pet.isVisible(), 'position': {'x': self.pet.x(), 'y': self.pet.y()},
+                'visible': self.pet.desired_visible(), 'position': {'x': self.pet.x(), 'y': self.pet.y()},
                 'screen': screen.name(), 'storage_error': self.storage_error,
                 'icon_sleep': self.icon_sleep.snapshot(),
                 'edge_attachment': self.edge_attachment.snapshot(),
+                'routine': self.pet.state.routine.snapshot(),
+                'patrol': self.patrol.snapshot(),
+                'music': self.music.snapshot(),
+                'speech': {'active': bool(self.pet.bubble.parts), 'kind': self.pet.bubble.kind,
+                           'pages': len(self.pet.bubble.parts), 'pending': bool(self.quick_pending)},
                 'revision': self.revision, 'config_path': self.store.settings.fileName()}
 
     def publish(self):
@@ -114,7 +154,9 @@ class PetService(PetApplication):
             payload = request.get('payload') or {}
             if not isinstance(payload, dict):
                 raise ValueError('参数格式不正确')
-            if command == 'set_preference':
+            if command == 'speech_update':
+                self.speech_update(payload)
+            elif command == 'set_preference':
                 key, value = payload.get('key'), payload.get('value')
                 defaults = asdict(Preferences())
                 if key not in defaults:
@@ -133,7 +175,7 @@ class PetService(PetApplication):
                 value = payload.get('visible')
                 if type(value) is not bool:
                     raise ValueError('显示状态必须是布尔类型')
-                if value != self.pet.isVisible():
+                if value != self.pet.desired_visible():
                     self.toggle_visibility()
             elif command == 'toggle_visibility':
                 self.toggle_visibility()
@@ -162,8 +204,11 @@ class PetService(PetApplication):
             elif command == 'configure_icon_sleep':
                 self.icon_sleep.configure(payload)
             elif command == 'start_icon_sleep':
+                self.music.cancel()
+                self.patrol.cancel()
                 self.icon_sleep.start(payload.get('icon_id'))
             elif command == 'stop_icon_sleep':
+                self.patrol.cancel()
                 self.icon_sleep.wake()
             elif command == 'configure_edge_attachment':
                 self.edge_attachment.configure(payload)

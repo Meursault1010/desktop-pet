@@ -7,6 +7,8 @@ const {CSP,resourcePath,trusted,webPreferences,harden,closeBehavior}=require('./
 const {validate}=require('../shared/protocol.cjs');
 const {Assistant}=require('./assistant.cjs');
 const assistant=new Assistant();
+const {QuickChat}=require('./quick-chat.cjs');
+const quickChat=new QuickChat(assistant, payload=>sidecar.request('speech_update',payload));
 
 protocol.registerSchemesAsPrivileged([{scheme:'yuki',privileges:{standard:true,secure:true,supportFetchAPI:true}}]);
 const smoke=process.argv.includes('--smoke-test');
@@ -27,13 +29,20 @@ async function stopAndQuit(){
   if(exitWork)return exitWork;
   quitting=true;
   assistant.cancel();
+  quickChat.cancel();
   exitWork=(async()=>{await sidecar?.stop();tray?.destroy();tray=null;app.quit();})();
   return exitWork;
 }
 function configureIpc(){
   ipcMain.handle('yuki:ai-models',async event=>{guard(event);return assistant.models();});
-  ipcMain.handle('yuki:ai-chat',async(event,payload)=>{guard(event);return assistant.chat(payload,value=>send('yuki:ai-update',value));});
-  ipcMain.handle('yuki:ai-cancel',async event=>{guard(event);assistant.cancel();});
+  ipcMain.handle('yuki:ai-chat',async(event,payload)=>{guard(event);
+    if(quickChat.busy)throw new Error('yuki 正在回复桌面快捷聊天，请稍等');
+    const result=await assistant.chat(payload,value=>send('yuki:ai-update',value));
+    assistant.preferredModel=payload.model;
+    if(sidecar?.ready)await sidecar.request('speech_update',{id:payload.id,phase:'done',text:result.text.slice(0,6000)}).catch(log);
+    return result;
+  });
+  ipcMain.handle('yuki:ai-cancel',async event=>{guard(event);if(!quickChat.busy)assistant.cancel();});
   ipcMain.handle('yuki:request',async(event,name,payload)=>{guard(event);validate(name,payload);
     if(name==='shutdown')throw new Error('请使用保存并退出');
     if(sidecar.starting)await sidecar.starting;
@@ -112,8 +121,9 @@ else {
     if(prototype){await require('./prototype.cjs').launch({app,BrowserWindow,uiRoot,smoke});return;}
     sidecar=new Sidecar(backendOptions());
     sidecar.on('message',message=>{send('yuki:message',message);
+      if(message.name==='quick_chat')void quickChat.run(message.id,message.text).catch(log);
       if(message.name==='open_console')showConsole();if(message.name==='exit_app')void stopAndQuit();});
-    sidecar.on('disconnected',reason=>{send('yuki:disconnected',reason);if(!quitting)showConsole();});
+    sidecar.on('disconnected',reason=>{quickChat.cancel();send('yuki:disconnected',reason);if(!quitting)showConsole();});
     sidecar.on('log',log);
     configureIpc();
     createTray();

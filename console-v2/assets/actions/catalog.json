@@ -49,18 +49,18 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      190,
-      190,
-      190,
-      190,
-      190,
-      190,
-      190,
-      190,
-      190,
-      190,
-      450
+      300,
+      220,
+      260,
+      360,
+      300,
+      220,
+      260,
+      360,
+      300,
+      220,
+      300,
+      380
     ],
     "atlas": "actions/eat/atlas.png",
     "poster": "actions/eat/poster.png",
@@ -79,7 +79,8 @@
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_12_idle.png"
     ],
     "review": "已转换",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "细嚼与停顿"
   },
   {
     "id": "screen",
@@ -174,12 +175,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
+      180,
       220,
-      220,
-      220,
-      220,
-      450
+      460,
+      520,
+      340,
+      300
     ],
     "atlas": "actions/affection/atlas.png",
     "poster": "actions/affection/poster.png",
@@ -187,7 +188,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\affection\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "温柔回应"
   },
   {
     "id": "afraid",
@@ -198,12 +200,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      220,
-      220,
-      220,
-      220,
-      450
+      100,
+      90,
+      160,
+      200,
+      230,
+      260
     ],
     "atlas": "actions/afraid/atlas.png",
     "poster": "actions/afraid/poster.png",
@@ -211,7 +213,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\afraid\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "迅速反应"
   },
   {
     "id": "angry",
@@ -222,12 +225,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      220,
-      220,
-      220,
-      220,
-      450
+      180,
+      180,
+      300,
+      360,
+      260,
+      240
     ],
     "atlas": "actions/angry/atlas.png",
     "poster": "actions/angry/poster.png",
@@ -235,7 +238,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\angry\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "短促表达"
   },
   {
     "id": "celebrate",
@@ -246,12 +250,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      220,
-      220,
-      220,
-      220,
-      450
+      180,
+      160,
+      180,
+      160,
+      180,
+      220
     ],
     "atlas": "actions/celebrate/atlas.png",
     "poster": "actions/celebrate/poster.png",
@@ -259,7 +263,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\celebrate\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "轻快节拍"
   },
   {
     "id": "clicked",
@@ -270,12 +275,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
+      140,
+      140,
+      200,
+      260,
       220,
-      220,
-      220,
-      220,
-      450
+      220
     ],
     "atlas": "actions/clicked/atlas.png",
     "poster": "actions/clicked/poster.png",
@@ -283,7 +288,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\clicked\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "轻快反馈"
   },
   {
     "id": "comb",
@@ -294,12 +300,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
       220,
-      220,
-      220,
-      220,
-      450
+      320,
+      450,
+      480,
+      340,
+      240
     ],
     "atlas": "actions/comb/atlas.png",
     "poster": "actions/comb/poster.png",
@@ -307,7 +313,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\comb\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "舒缓梳理"
   },
   {
     "id": "curious",
@@ -318,12 +325,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      220,
-      220,
-      220,
-      220,
-      450
+      180,
+      240,
+      450,
+      550,
+      360,
+      280
     ],
     "atlas": "actions/curious/atlas.png",
     "poster": "actions/curious/poster.png",
@@ -331,7 +338,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\curious\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "观察与停顿"
   },
   {
     "id": "dragged",
@@ -366,12 +374,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      220,
-      220,
-      220,
-      220,
-      450
+      200,
+      280,
+      380,
+      420,
+      280,
+      220
     ],
     "atlas": "actions/dress/atlas.png",
     "poster": "actions/dress/poster.png",
@@ -379,7 +387,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\dress\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "自然整理"
   },
   {
     "id": "files",
@@ -414,12 +423,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      220,
-      220,
-      220,
-      220,
-      450
+      200,
+      110,
+      90,
+      110,
+      150,
+      250
     ],
     "atlas": "actions/leap/atlas.png",
     "poster": "actions/leap/poster.png",
@@ -427,7 +436,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\leap\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "蓄力起跳落地"
   },
   {
     "id": "read",
@@ -438,12 +448,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      220,
-      220,
-      220,
-      220,
-      450
+      360,
+      520,
+      620,
+      680,
+      620,
+      420
     ],
     "atlas": "actions/read/atlas.png",
     "poster": "actions/read/poster.png",
@@ -451,7 +461,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\read\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "安静阅读"
   },
   {
     "id": "sad",
@@ -462,12 +473,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
+      280,
+      360,
+      480,
+      560,
       400,
-      220,
-      220,
-      220,
-      220,
-      450
+      320
     ],
     "atlas": "actions/sad/atlas.png",
     "poster": "actions/sad/poster.png",
@@ -475,7 +486,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\sad\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "缓慢低落"
   },
   {
     "id": "shy",
@@ -486,12 +498,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      220,
-      220,
-      220,
-      220,
-      450
+      180,
+      200,
+      340,
+      420,
+      280,
+      240
     ],
     "atlas": "actions/shy/atlas.png",
     "poster": "actions/shy/poster.png",
@@ -499,7 +511,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\shy\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "害羞与恢复"
   },
   {
     "id": "smile",
@@ -510,12 +523,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
+      240,
+      280,
+      500,
+      600,
       400,
-      220,
-      220,
-      220,
-      220,
-      450
+      320
     ],
     "atlas": "actions/smile/atlas.png",
     "poster": "actions/smile/poster.png",
@@ -523,7 +536,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\smile\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "柔和微笑"
   },
   {
     "id": "stretch",
@@ -534,12 +548,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      220,
-      220,
-      220,
-      220,
-      450
+      240,
+      360,
+      540,
+      600,
+      340,
+      240
     ],
     "atlas": "actions/stretch/atlas.png",
     "poster": "actions/stretch/poster.png",
@@ -547,7 +561,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\stretch\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "伸展与放松"
   },
   {
     "id": "tea",
@@ -558,12 +573,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
-      220,
-      220,
-      220,
-      220,
-      450
+      320,
+      420,
+      620,
+      850,
+      480,
+      350
     ],
     "atlas": "actions/tea/atlas.png",
     "poster": "actions/tea/poster.png",
@@ -571,7 +586,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\tea\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "举杯小饮停留"
   },
   {
     "id": "wait",
@@ -583,11 +599,11 @@
     "cell": 256,
     "durations": [
       400,
-      220,
-      220,
-      220,
-      220,
-      450
+      500,
+      650,
+      650,
+      500,
+      400
     ],
     "atlas": "actions/wait/atlas.png",
     "poster": "actions/wait/poster.png",
@@ -595,7 +611,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\wait\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "悠闲等待"
   },
   {
     "id": "work",
@@ -606,12 +623,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
+      280,
       400,
-      220,
-      220,
-      220,
-      220,
-      450
+      480,
+      520,
+      420,
+      320
     ],
     "atlas": "actions/work/atlas.png",
     "poster": "actions/work/poster.png",
@@ -619,7 +636,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\work\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "专注与停顿"
   },
   {
     "id": "yawn",
@@ -630,12 +648,12 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      400,
       220,
-      220,
-      220,
-      220,
-      450
+      280,
+      420,
+      560,
+      320,
+      220
     ],
     "atlas": "actions/yawn/atlas.png",
     "poster": "actions/yawn/poster.png",
@@ -643,7 +661,8 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\yawn\\raw.png"
     ],
     "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "张口停顿恢复"
   },
   {
     "id": "reading-pose-1",
@@ -711,9 +730,9 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      260,
-      260,
-      260,
+      180,
+      240,
+      220,
       650,
       600,
       500,
@@ -744,9 +763,9 @@
       110,
       500,
       600,
-      260,
-      260,
-      260
+      240,
+      240,
+      300
     ],
     "atlas": "actions/sit-neat/atlas.png",
     "poster": "actions/sit-neat/poster.png",
@@ -755,7 +774,8 @@
     ],
     "review": "已审查：完整入姿、停留/翻滚及收姿",
     "ground_idle": true,
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "利落入姿、随机久坐、完整收姿"
   },
   {
     "id": "sit-relaxed",
@@ -766,9 +786,9 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      260,
-      260,
-      260,
+      180,
+      240,
+      220,
       650,
       600,
       500,
@@ -805,9 +825,9 @@
       110,
       500,
       600,
-      260,
-      260,
-      260
+      240,
+      240,
+      300
     ],
     "atlas": "actions/sit-relaxed/atlas.png",
     "poster": "actions/sit-relaxed/poster.png",
@@ -816,7 +836,8 @@
     ],
     "review": "已审查：完整入姿、停留/翻滚及收姿",
     "ground_idle": true,
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "利落入姿、随机久坐、完整收姿"
   },
   {
     "id": "sit-swing",
@@ -827,9 +848,9 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      260,
-      260,
-      260,
+      180,
+      240,
+      220,
       650,
       600,
       500,
@@ -854,9 +875,9 @@
       110,
       500,
       600,
-      260,
-      260,
-      260
+      240,
+      240,
+      300
     ],
     "atlas": "actions/sit-swing/atlas.png",
     "poster": "actions/sit-swing/poster.png",
@@ -865,7 +886,8 @@
     ],
     "review": "已审查：完整入姿、停留/翻滚及收姿",
     "ground_idle": true,
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "利落入姿、随机久坐、完整收姿"
   },
   {
     "id": "prone-chin",
@@ -876,9 +898,9 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      260,
-      260,
-      260,
+      180,
+      240,
+      220,
       650,
       600,
       500,
@@ -909,9 +931,9 @@
       110,
       500,
       600,
-      260,
-      260,
-      260
+      240,
+      240,
+      300
     ],
     "atlas": "actions/prone-chin/atlas.png",
     "poster": "actions/prone-chin/poster.png",
@@ -920,7 +942,8 @@
     ],
     "review": "已审查：完整入姿、停留/翻滚及收姿",
     "ground_idle": true,
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "利落入姿、随机久坐、完整收姿"
   },
   {
     "id": "prone-rest",
@@ -931,9 +954,9 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      260,
-      260,
-      260,
+      180,
+      240,
+      220,
       650,
       600,
       500,
@@ -970,9 +993,9 @@
       110,
       500,
       600,
-      260,
-      260,
-      260
+      240,
+      240,
+      300
     ],
     "atlas": "actions/prone-rest/atlas.png",
     "poster": "actions/prone-rest/poster.png",
@@ -981,7 +1004,8 @@
     ],
     "review": "已审查：完整入姿、停留/翻滚及收姿",
     "ground_idle": true,
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "利落入姿、随机久坐、完整收姿"
   },
   {
     "id": "lazy-roll-toward",
@@ -992,18 +1016,18 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      520,
-      400,
-      400,
-      420,
-      440,
-      460,
-      440,
-      420,
-      400,
-      400,
-      420,
-      180
+      480,
+      280,
+      280,
+      300,
+      320,
+      320,
+      320,
+      300,
+      280,
+      300,
+      320,
+      520
     ],
     "atlas": "actions/lazy-roll-toward/atlas.png",
     "poster": "actions/lazy-roll-toward/poster.png",
@@ -1014,7 +1038,8 @@
     "lazy_roll": true,
     "end_posture": "prone",
     "review": "已审查：纵轴侧滚，统一全彩柔和边缘，首尾一致",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "连贯侧滚、首尾歇息"
   },
   {
     "id": "lazy-roll-away",
@@ -1025,18 +1050,18 @@
     "columns": 4,
     "cell": 256,
     "durations": [
-      520,
-      400,
-      400,
-      420,
-      440,
-      460,
-      440,
-      420,
-      400,
-      400,
-      420,
-      180
+      480,
+      280,
+      280,
+      300,
+      320,
+      320,
+      320,
+      300,
+      280,
+      300,
+      320,
+      520
     ],
     "atlas": "actions/lazy-roll-away/atlas.png",
     "poster": "actions/lazy-roll-away/poster.png",
@@ -1047,6 +1072,151 @@
     "lazy_roll": true,
     "end_posture": "prone",
     "review": "已审查：纵轴侧滚，统一全彩柔和边缘，首尾一致",
-    "scale_calibrated": true
+    "scale_calibrated": true,
+    "tempo_profile": "连贯侧滚、首尾歇息"
+  },
+  {
+    "id": "throw-flight",
+    "name": "被抛出 · 空中飞行",
+    "category": "物理互动",
+    "origin": "generated",
+    "frames": 12,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      85,
+      85,
+      85,
+      85,
+      85,
+      85,
+      85,
+      85,
+      85,
+      85,
+      85,
+      85
+    ],
+    "atlas": "actions/throw-flight/atlas.png",
+    "poster": "actions/throw-flight/poster.png",
+    "sources": [
+      "action-work/physics-v1/throw-flight-raw.png"
+    ],
+    "scale_calibrated": true,
+    "pixel_art": false,
+    "physics_only": true,
+    "review": "已检查角色与帧顺序；棋盘格背景已本地抠除"
+  },
+  {
+    "id": "impact-left",
+    "name": "撞左边 · 软弹回",
+    "category": "物理互动",
+    "origin": "generated",
+    "frames": 8,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      75,
+      65,
+      45,
+      55,
+      65,
+      75,
+      90,
+      100
+    ],
+    "atlas": "actions/impact-left/atlas.png",
+    "poster": "actions/impact-left/poster.png",
+    "sources": [
+      "action-work/physics-v1/impact-left-raw.png"
+    ],
+    "scale_calibrated": true,
+    "pixel_art": false,
+    "physics_only": true,
+    "review": "已检查角色与帧顺序；棋盘格背景已本地抠除"
+  },
+  {
+    "id": "impact-right",
+    "name": "撞右边 · 软弹回",
+    "category": "物理互动",
+    "origin": "generated",
+    "frames": 8,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      75,
+      65,
+      45,
+      55,
+      65,
+      75,
+      90,
+      100
+    ],
+    "atlas": "actions/impact-right/atlas.png",
+    "poster": "actions/impact-right/poster.png",
+    "sources": [
+      "action-work/physics-v1/impact-right-raw.png"
+    ],
+    "scale_calibrated": true,
+    "pixel_art": false,
+    "physics_only": true,
+    "review": "已检查角色与帧顺序；棋盘格背景已本地抠除"
+  },
+  {
+    "id": "impact-ceiling",
+    "name": "撞顶部 · 护住猫耳",
+    "category": "物理互动",
+    "origin": "generated",
+    "frames": 8,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      75,
+      65,
+      45,
+      55,
+      65,
+      75,
+      90,
+      100
+    ],
+    "atlas": "actions/impact-ceiling/atlas.png",
+    "poster": "actions/impact-ceiling/poster.png",
+    "sources": [
+      "action-work/physics-v1/impact-ceiling-raw.png"
+    ],
+    "scale_calibrated": true,
+    "pixel_art": false,
+    "physics_only": true,
+    "review": "已检查角色与帧顺序；棋盘格背景已本地抠除"
+  },
+  {
+    "id": "impact-floor",
+    "name": "撞底部 · 脚尖回弹",
+    "category": "物理互动",
+    "origin": "generated",
+    "frames": 8,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      75,
+      65,
+      45,
+      55,
+      65,
+      75,
+      90,
+      100
+    ],
+    "atlas": "actions/impact-floor/atlas.png",
+    "poster": "actions/impact-floor/poster.png",
+    "sources": [
+      "action-work/physics-v1/impact-floor-raw.png"
+    ],
+    "scale_calibrated": true,
+    "pixel_art": false,
+    "physics_only": true,
+    "review": "已检查角色与帧顺序；棋盘格背景已本地抠除"
   }
 ]

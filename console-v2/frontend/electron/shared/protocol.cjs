@@ -5,9 +5,9 @@ const MAX_REQUEST = 65_536;
 const COMMANDS = new Set(['get_state', 'set_preference', 'set_visible', 'toggle_visibility',
   'toggle_pause', 'jump', 'go_home', 'reset_defaults', 'shutdown', 'play_action', 'stop_action',
   'refresh_desktop_icons', 'configure_icon_sleep', 'start_icon_sleep', 'stop_icon_sleep',
-  'configure_edge_attachment', 'stop_edge_attachment']);
+  'configure_edge_attachment', 'stop_edge_attachment', 'speech_update']);
 const empty = new Set([...COMMANDS].filter(c => !['set_preference','set_visible','play_action',
-  'configure_icon_sleep','start_icon_sleep','configure_edge_attachment'].includes(c)));
+  'configure_icon_sleep','start_icon_sleep','configure_edge_attachment','speech_update'].includes(c)));
 function object(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
 function keys(v, allowed) { if (Object.keys(v).some(k => !allowed.includes(k))) throw new Error('未知参数'); }
 function integer(v, min, max) { return Number.isInteger(v) && v >= min && v <= max; }
@@ -16,12 +16,18 @@ function preference(key, value) {
   const limits = {size:[50,200], opacity:[30,100], speed:[10,150]};
   if (Object.hasOwn(limits,key)) return integer(value,...limits[key]);
   if (key === 'activity') return ['少动','默认','活跃'].includes(value);
-  return ['always_on_top','random_movement','greeting','quiet','paused','auto_snap'].includes(key) && boolean(value);
+  return ['always_on_top','random_movement','greeting','quiet','paused','auto_snap','music_reactions'].includes(key) && boolean(value);
 }
 function validate(name, payload = {}) {
   if (!COMMANDS.has(name) || !object(payload)) throw new Error('不支持的命令或参数');
   if (Buffer.byteLength(JSON.stringify(payload)) > MAX_REQUEST - 256) throw new Error('请求过大');
   if (empty.has(name)) keys(payload, []);
+  if (name === 'speech_update') {
+    keys(payload,['id','phase','text']);
+    if (typeof payload.id !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(payload.id) ||
+        !['thinking','answer','done','error'].includes(payload.phase) ||
+        typeof payload.text !== 'string' || payload.text.length > 6000) throw new Error('气泡消息无效');
+  }
   if (name === 'set_preference') {
     keys(payload,['key','value']);
     if (typeof payload.key !== 'string' || !preference(payload.key,payload.value)) throw new Error('设置值无效');

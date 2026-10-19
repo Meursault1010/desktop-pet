@@ -16,6 +16,7 @@ class Preferences:
     quiet: bool = False
     paused: bool = False
     auto_snap: bool = True
+    music_reactions: bool = True
 
 
 LIMITS = {'size': (50, 200), 'opacity': (30, 100), 'speed': (10, 150)}

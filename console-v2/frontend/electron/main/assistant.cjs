@@ -1,4 +1,14 @@
 'use strict';
+const fs=require('node:fs');
+const path=require('node:path');
+const schedulePath=[path.join(__dirname,'../../../assets/daily-routine.json'),
+  path.join(process.resourcesPath||'','pet/assets/daily-routine.json')].find(p=>fs.existsSync(p));
+const routineSchedule=JSON.parse(fs.readFileSync(schedulePath,'utf8'));
+function routineContext(at=new Date()){
+  const period=[...routineSchedule].reverse().find(p=>at.getHours()>=p.start);
+  const clock=String(at.getHours()).padStart(2,'0')+':'+String(at.getMinutes()).padStart(2,'0');
+  return `当前用户设备本地时间 ${clock}，你的生活阶段是「${period.name}」。让语气自然贴合时段，夜间可以轻声、带一点困意，但仍然乐意回应用户。日程是状态倾向，不代表你已完成进食、洗漱或睡眠，不据此推断用户正在做什么。不要每次回复都报时或重复日程。`;
+}
 const ENDPOINT='http://127.0.0.1:1235/v1';
 const MODEL_HINT='qwen3.8-4b';
 const PERSONA=`你是雪，英文名 yuki，是住在用户桌面上的白发蓝裙女孩。用自然、温柔、灵动的中文交流，有自己的小想法，不过分撒娇，不使用客服套话。日常回复通常两到四句话；用户需要详细帮助时可以展开。记住当前对话中的信息。不编造已经执行的动作、联网、看屏幕、读取文件或控制电脑的结果：目前你只能文字交流，没有这些工具。不要输出思考过程、分析草稿或 <think> 标签，直接对用户说话。`;
@@ -44,7 +54,7 @@ class Assistant {
     try{
       const response=await this.fetch(this.endpoint+'/chat/completions',{
         method:'POST',redirect:'error',signal:controller.signal,headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({model,messages:[{role:'system',content:PERSONA},...history],temperature:0.6,top_p:0.95,top_k:20,max_tokens:1536,stream:true,chat_template_kwargs:{enable_thinking:false}})
+        body:JSON.stringify({model,messages:[{role:'system',content:PERSONA+'\n'+routineContext()},...history],temperature:0.6,top_p:0.95,top_k:20,max_tokens:1536,stream:true,chat_template_kwargs:{enable_thinking:false}})
       });
       if(!response.ok)throw new Error(`本地推理失败（${response.status}），请检查模型是否已加载、上下文是否足够`);
       if(!response.body)throw new Error('模型没有返回响应');
@@ -73,4 +83,4 @@ class Assistant {
     finally{clearTimeout(timer);controller.abort();if(this.active===controller)this.active=null;}
   }
 }
-module.exports={Assistant,validateMessages,visibleAnswer,PERSONA,MODEL_HINT};
+module.exports={Assistant,validateMessages,visibleAnswer,PERSONA,MODEL_HINT,routineContext};
