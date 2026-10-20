@@ -6,6 +6,41 @@ import time
 from functools import lru_cache
 from pathlib import Path
 
+
+# Virtual roll frames reuse the existing, approved lowering poses. They are
+# resolved only by the renderer; the catalog and original artwork stay intact.
+ROLL_ENTRY = (12, 13, 14, 15)
+ROLL_ENTRY_DURATIONS = (200, 280, 300, 260)
+# Position at each authored pose, rather than elapsed time or frame number.
+# The away atlas reverses the turn, so its side-lying holds come first.
+ROLL_TRAVEL_PHASE = {
+    'lazy-roll-toward': (0., 0., .12, .28, .45, .62, .80, .94, 1., 1., 1., 1.),
+    'lazy-roll-away': (0., 0., 0., 0., .06, .20, .38, .55, .72, .88, 1., 1.),
+}
+
+
+def pose_ref(action_id, frame):
+    if action_id.startswith('lazy-roll-') and frame in ROLL_ENTRY:
+        return 'prone-rest', (0, 1, 2, 4)[frame-12]
+    return action_id, frame
+
+
+def transition_window(action, duration):
+    # Long expression holds remain holds. Spend only the end of a slot moving
+    # towards the next pose, then arrive exactly at that pose's start time.
+    return min(duration*.85, 340 if action.get('lazy_roll') else 240)
+
+
+def transition_phase(action, duration, elapsed, frame, target_frame):
+    # Rolling is continuous rotation: easing to zero at every keyframe creates
+    # a stop-motion cadence. Keep end rests, but travel linearly between angles.
+    if action.get('lazy_roll') and 0 <= frame <= 10 and 0 <= target_frame <= 11:
+        window = min(duration, 520) if frame == 0 else duration
+        return max(0., min(1., (elapsed-(duration-window))/window))
+    window = transition_window(action, duration)
+    t = max(0., min(1., (elapsed-(duration-window))/window))
+    return t*t*(3-2*t)
+
 @lru_cache(maxsize=1)
 def catalog():
     path=Path(__file__).resolve().parent/'assets/actions/catalog.json'
@@ -42,7 +77,7 @@ class ActionPlayer:
 
     def frame(self, now=None):
         if self.action is None: return None
-        elapsed=max(0,((time.monotonic() if now is None else now)-self.started)*1000*self.speed)
+        elapsed=max(0,((time.monotonic() if now is None else now)-self.started)*1000*self.speed)+1e-7
         durations=self.action['durations'];total=sum(durations)
         if elapsed>=total and not self.loop:
             self.stop();return None
@@ -55,12 +90,104 @@ class ActionPlayer:
             elapsed-=duration
         return len(durations)-1
 
+    def motion_sample(self, now=None):
+        """Two authored pose references and eased in-between position.
+
+        Pure time sampling: repaint rate never advances the clip, and a loop
+        with an intro wraps to loop_start rather than replaying that intro.
+        """
+        now = time.monotonic() if now is None else now
+        if self.frame(now) is None:
+            return None
+        action = self.action
+        durations = action['durations']
+        elapsed = max(0, (now-self.started)*1000*self.speed)+1e-7
+        total = sum(durations)
+        if elapsed >= total:
+            intro = sum(durations[:action.get('loop_start', 0)])
+            elapsed = intro+(elapsed-total) % (total-intro)
+        slot = 0
+        while slot < len(durations)-1 and elapsed >= durations[slot]:
+            elapsed -= durations[slot]
+            slot += 1
+        order = self.frame_order or list(range(len(durations)))
+        current = pose_ref(action['id'], order[slot])
+        if slot+1 == len(order) and not self.loop:
+            return current, current, 0.
+        following = slot+1 if slot+1 < len(order) else action.get('loop_start', 0)
+        target = pose_ref(action['id'], order[following])
+        return current, target, transition_phase(action, durations[slot], elapsed,
+                                                order[slot], order[following])
+
+    def roll_progress(self, now=None):
+        """Normalized lateral travel, synchronized with the authored roll cycles."""
+        if self.action is None or not self.action.get('lazy_roll'):
+            return None
+        now = time.monotonic() if now is None else now
+        elapsed = max(0, (now-self.started)*1000*self.speed)
+        durations = self.action['durations']
+        if elapsed >= sum(durations):
+            return 1.
+        slot = 0
+        while slot < len(durations)-1 and elapsed >= durations[slot]:
+            elapsed -= durations[slot]
+            slot += 1
+        order = self.frame_order or []
+        cycle_count = sum(frame == 0 for frame in order[4:])
+        if cycle_count <= 0:
+            return 0.
+        cycle = -1
+        positions = []
+        for index, frame in enumerate(order):
+            if index < 4:
+                positions.append(0.)
+                continue
+            if frame == 0:
+                cycle += 1
+            phase = ROLL_TRAVEL_PHASE[self.action['id']][frame]
+            positions.append((cycle + phase)/cycle_count)
+        current = positions[slot]
+        if slot+1 == len(positions):
+            return min(1., max(0., current))
+        t = transition_phase(self.action, durations[slot], elapsed,
+                             order[slot], order[slot+1])
+        return min(1., max(0., current+(positions[slot+1]-current)*t))
+
+    def upcoming_pairs(self, now=None):
+        """Prefetch a small lookahead without advancing/stopping the clip."""
+        if self.action is None:
+            return []
+        elapsed = max(0, ((time.monotonic() if now is None else now)-self.started)*1000*self.speed)
+        durations = self.action['durations']
+        total = sum(durations)
+        if elapsed >= total:
+            if not self.loop:
+                return []
+            intro = sum(durations[:self.action.get('loop_start',0)])
+            elapsed = intro+(elapsed-total) % (total-intro)
+        slot = 0
+        while slot < len(durations)-1 and elapsed >= durations[slot]:
+            elapsed -= durations[slot]
+            slot += 1
+        order = self.frame_order or list(range(len(durations)))
+        pairs = []
+        for _ in range(3):
+            following = slot+1
+            if following == len(order):
+                if not self.loop:
+                    break
+                following = self.action.get('loop_start',0)
+            pairs.append((pose_ref(self.action['id'],order[slot]),
+                          pose_ref(self.action['id'],order[following])))
+            slot = following
+        return pairs
+
 
 def lazy_roll_timeline(action, rng=random):
     """Keep rotational continuity; vary complete cycles, never shuffle angles."""
     cycles = rng.randint(2, 3)
-    order = []
-    durations = []
+    order = list(ROLL_ENTRY)
+    durations = list(ROLL_ENTRY_DURATIONS)
     for cycle in range(cycles):
         tempo = rng.uniform(.98, 1.08)
         # Last pose equals the first: omit the duplicate between full turns.
@@ -68,7 +195,7 @@ def lazy_roll_timeline(action, rng=random):
         for index in indices:
             order.append(index)
             durations.append(round(action['durations'][index]*tempo))
-    durations[0] += rng.randint(600, 1200)
+    durations[len(ROLL_ENTRY)] += rng.randint(600, 1200)
     durations[-1] += rng.randint(900, 1800)
     return order, durations
 

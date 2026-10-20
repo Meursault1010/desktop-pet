@@ -1,0 +1,59 @@
+[
+  {
+    "action": "comb",
+    "frame": 5,
+    "head_affine": [
+      [
+        0.9777813612066669,
+        0.02629820124751288,
+        -12.787171064393672
+      ],
+      [
+        -0.0019918187174036736,
+        0.9594974016021375,
+        -7.772984842623641
+      ]
+    ],
+    "outside_mask_exact": true,
+    "scope": "crown and upper side locks only; not tail/side/back repair",
+    "status": "approval sample; not shipped"
+  },
+  {
+    "action": "wait",
+    "frame": 5,
+    "head_affine": [
+      [
+        0.9362664800005401,
+        0.018798660935810448,
+        -35.29327730252861
+      ],
+      [
+        -0.0023552716356315183,
+        0.9140883353232061,
+        -6.63664527839611
+      ]
+    ],
+    "outside_mask_exact": true,
+    "scope": "crown and upper side locks only; not tail/side/back repair",
+    "status": "approval sample; not shipped"
+  },
+  {
+    "action": "yawn",
+    "frame": 5,
+    "head_affine": [
+      [
+        1.0123285795771835,
+        0.022913979616940614,
+        -30.12799369668608
+      ],
+      [
+        -0.009323117059852885,
+        0.9559169328844,
+        -10.748647405564427
+      ]
+    ],
+    "outside_mask_exact": true,
+    "scope": "crown and upper side locks only; not tail/side/back repair",
+    "status": "approval sample; not shipped"
+  }
+]

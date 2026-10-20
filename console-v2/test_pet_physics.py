@@ -93,23 +93,79 @@ class PhysicsTests(unittest.TestCase):
         pointer.add(100, 0, .3)
         self.assertEqual(pointer.release(100, 0, .32), (0., 0.))
 
-    def test_authored_physics_clip_starts_on_contact_and_recovers_to_flight(self):
+    def test_side_contact_is_brief_and_returns_to_continuous_flight(self):
         body = PetPhysics()
         body.launch((100, 100), (400, -300))
         self.assertEqual(body.animation_frame(), ('throw-flight', 0))
         body.hit('right', 700)
-        self.assertEqual(body.animation_frame(), ('impact-right', 6))
-        body.impact_age = .12
-        self.assertEqual(body.animation_frame(), ('impact-right', 6))
+        self.assertEqual(body.animation_frame(), ('impact-right', 2))
+        body.impact_age = .03
+        self.assertEqual(body.animation_frame(), ('impact-right', 3))
+        body.impact_age = .041
+        self.assertEqual(body.animation_frame(), ('throw-flight', 0))
         body.impact_age = .9
-        self.assertEqual(body.animation_frame(), ('impact-right', 7))
+        self.assertEqual(body.animation_frame(), ('throw-flight', 0))
 
-    def test_flight_settles_without_replaying_large_poses_and_squash_is_subtle(self):
+    def test_short_anticipation_tracks_approach_then_contact_immediately(self):
+        for position, velocity, kind in (
+            ((40, 200), (-700, 0), 'left'),
+            ((760, 200), (700, 0), 'right'),
+            ((200, 40), (0, -900), 'ceiling'),
+            ((200, 560), (0, 700), 'floor')):
+            body = PetPhysics()
+            body.launch(position, velocity)
+            body.step(.01, (0, 0, 800, 600))
+            self.assertEqual(body.anticipation[0], kind)
+            self.assertEqual(body.collision_count, 0)
+            if kind == 'floor':
+                self.assertEqual(body.animation_frame()[0], 'throw-flight')
+            else:
+                self.assertIn(body.animation_frame()[1], (0, 1))
+            for _ in range(20):
+                body.step(.004, (0, 0, 800, 600))
+                if body.collision_count:
+                    break
+            self.assertEqual(body.impact, kind)
+            self.assertIsNone(body.anticipation)
+            self.assertEqual(body.animation_frame()[1], 2)
+
+    def test_brace_only_when_approaching_and_diminish_after_repeated_contacts(self):
+        body = PetPhysics()
+        body.launch((400, 200), (700, 0))
+        body.step(.01, (0, 0, 800, 600))
+        self.assertIsNone(body.anticipation)
+        body.x, body.vx = 790, -700
+        body.step(.01, (0, 0, 800, 600))
+        self.assertIsNone(body.anticipation)
+        body.hit('right', 700)
+        body.impact_age = .25
+        self.assertEqual(body.transform()[1:], (1., 1.))
+        body.x, body.vx = 790, 700
+        body.step(0, (0, 0, 800, 600))
+        self.assertEqual(body.anticipation[0], 'right')
+        self.assertEqual(body.animation_frame(), ('impact-right', 0))
+        body.hit('left', 700)
+        body.impact_age = .081
+        self.assertEqual(body.animation_frame()[0], 'throw-flight')
+        body.impact_age = .25
+        body.x, body.vx = 790, 700
+        body.step(0, (0, 0, 800, 600))
+        self.assertIsNone(body.anticipation)
+
+    def test_airborne_sequence_contains_a_b_and_never_holds_directional_brace(self):
         body = PetPhysics()
         body.launch((100, 100), (1000, -300))
-        for age in (2, 3, 4, 6):
-            body.age = age
-            self.assertEqual(body.animation_frame(), ('throw-flight', 11))
+        seen = []
+        for _ in range(600):
+            body.step(.01, (-100000, -100000, 100000, 100000))
+            clip, frame = body.animation_frame()
+            self.assertEqual(clip, 'throw-flight')
+            self.assertLess(frame, 10)
+            if not seen or seen[-1] != frame:
+                seen.append(frame)
+        self.assertIn(0, seen)
+        self.assertIn(2, seen)
+        self.assertTrue(all(abs(a-b) == 1 for a, b in zip(seen, seen[1:])))
         body.hit('right', 1000)
         angle, sx, sy = body.transform()
         self.assertLess(abs(sx-1), .06)
@@ -124,16 +180,82 @@ class PhysicsTests(unittest.TestCase):
             body.hit('floor', speed)
             strengths.append(body.strength)
             frame = body.animation_frame()[1]
-            if count == 2:
-                self.assertIn(frame, (6, 7))
-            if count >= 3:
-                self.assertEqual(frame, 7)
+            self.assertEqual(frame, 2)
         self.assertTrue(all(b < a for a, b in zip(strengths, strengths[1:])))
-        self.assertLess(abs(body.transform()[1]-1), .001)
+        self.assertLess(abs(body.transform()[1]-1), .03)
         body.launch((100, 100), (800, -300))
         self.assertEqual(body.collision_count, 0)
         body.hit('left', 700)
         self.assertEqual(body.strength, 1)
+
+    def test_floor_contact_uses_c_only_until_liftoff_and_preserves_flight_phase(self):
+        body = PetPhysics()
+        body.launch((200, 590), (0, 700))
+        while not body.collision_count:
+            body.step(1/240, (0, 0, 800, 600))
+        phase = body.flight_phase
+        self.assertEqual(body.animation_frame(), ('impact-floor', 2))
+        for _ in range(14):
+            body.step(1/240, (0, 0, 800, 600))
+            if body.contact_hold > 0:
+                self.assertEqual(body.y, 600)
+                self.assertEqual(body.animation_frame(), ('impact-floor', 2))
+            else:
+                self.assertEqual(body.animation_frame()[0], 'throw-flight')
+        self.assertLess(body.y, 600)
+        self.assertGreaterEqual(body.flight_phase, phase)
+
+    def test_bounce_height_retains_about_one_third_instead_of_one_seventh(self):
+        body = PetPhysics()
+        body.launch((200, 600), (0, 800))
+        body.step(1/240, (0, 0, 800, 600))
+        first_rebound = -body.vy
+        self.assertGreater(first_rebound, 470)
+        self.assertLess(first_rebound, 490)
+        apexes = []
+        low = body.y
+        last_count = body.collision_count
+        for _ in range(1800):
+            body.step(1/240, (0, 0, 800, 600))
+            low = min(low, body.y)
+            if body.collision_count > last_count:
+                apexes.append(600-low)
+                low = 600
+                last_count = body.collision_count
+            if not body.flying:
+                break
+        self.assertGreaterEqual(len(apexes), 3)
+        for a, b in zip(apexes, apexes[1:]):
+            self.assertGreater(b/a, .30)
+            self.assertLess(b/a, .40)
+
+    def test_animation_slowdown_is_gradual_and_final_landing_recovers_once(self):
+        body = PetPhysics()
+        body.launch((200, 0), (0, 0))
+        speeds = []
+        last_count = 0
+        for _ in range(3000):
+            before = body.animation_speed
+            body.step(1/240, (0, 0, 800, 600))
+            self.assertLessEqual(abs(body.animation_speed-before), .03)
+            if body.collision_count > last_count:
+                speeds.append(body.animation_speed)
+                last_count = body.collision_count
+            if not body.flying:
+                break
+        self.assertGreaterEqual(len(speeds), 4)
+        self.assertTrue(all(a > b for a, b in zip(speeds, speeds[1:])))
+        self.assertEqual(body.animation_frame(), ('impact-floor', 2))
+        recovery = []
+        finished = 0
+        for _ in range(150):
+            pose = body.animation_frame()
+            if pose and (not recovery or recovery[-1] != pose[1]):
+                recovery.append(pose[1])
+            finished += body.step(.01, (0, 0, 800, 600))
+        self.assertEqual(recovery, [2, 3, 2, 1, 5, 6, 7])
+        self.assertEqual(finished, 1)
+        self.assertIsNone(body.animation_frame())
 
 
 class PetPhysicsIntegration(unittest.TestCase):

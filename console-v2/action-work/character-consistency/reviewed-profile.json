@@ -1,0 +1,5306 @@
+{
+  "version": 2,
+  "approved": true,
+  "reference_sha256": "7bd825dc50011433ee48da282300e14323b0aeab45d7175b8b3da34b32837992",
+  "method": "shared-crown-texture-local-registration-original-alpha",
+  "records": [
+    {
+      "ref": "blink:0",
+      "aliases": [],
+      "sha256": "368e17890c3076d5496a1a876e73fbc2a999c4fe311eed6b2dd4e59fc1592dd9",
+      "status": "approved",
+      "transform": [
+        [
+          1.0156053016022635,
+          0.008460262731233145,
+          -3.10461005196818
+        ],
+        [
+          -0.008344785025404155,
+          0.9860760119616787,
+          4.022416988453482
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "8db75fd593e3464b21b7cc0b9c1b75e4ebd857bdc29d8cb18c96f33058592a5d",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:1",
+      "aliases": [],
+      "sha256": "c3dd70ae0b4c2a2d4bf89a0d6224bfa0529b73086f06b00f28c44091f47d99d9",
+      "status": "approved",
+      "transform": [
+        [
+          0.9976841279074146,
+          0.0020589731542540513,
+          -0.8799758757177547
+        ],
+        [
+          -0.001939721097118474,
+          0.9861094047598524,
+          3.232494869063269
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "8f76421ad57eaed1d19b771b7b0402dc6d845513481ddce38cef95a3f0659ade",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:2",
+      "aliases": [],
+      "sha256": "44513635c296eb9a4320ad8c60fa857598563274170188817830946caf5c7793",
+      "status": "approved",
+      "transform": [
+        [
+          1.014410530594631,
+          0.004734412477552018,
+          -3.8332350347367186
+        ],
+        [
+          -0.004516994563108822,
+          0.9861008865387318,
+          3.443196016225189
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "fb792ab093ef5c228755bf901c451f4cbbc8966548a6847279914e2d6dff367b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:3",
+      "aliases": [],
+      "sha256": "352fe793a9d7b359f6515d8a576970ae01c8460fbf06a1c609a63aa386682737",
+      "status": "approved",
+      "transform": [
+        [
+          1.0110030408852824,
+          0.0013246613965589317,
+          -1.7688828110030417
+        ],
+        [
+          -0.0012030583163977907,
+          0.999999565586143,
+          2.818590230415221
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "9c4c5fba8d91fcb396408ba4f76bd102122446f27901ecc059fcda776fd8569b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:4",
+      "aliases": [],
+      "sha256": "a23e7416be8e91c3e800c37f24f37a4a3de5540bf9769d445995d023485e380a",
+      "status": "approved",
+      "transform": [
+        [
+          1.159231556972949,
+          0.0062260200817254386,
+          -21.250321611242573
+        ],
+        [
+          -0.00520173089255227,
+          1.0138756929805013,
+          2.9176209253891807
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "cbf2c35aa963ab8d08be377f0f53752c0e2a65e52e2a6a6c4d74afdd5dd3e9e5",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:5",
+      "aliases": [],
+      "sha256": "6264d537dec5010437fe49dbced3df6acb20334de6e8cc645beb145bd0ad5ae0",
+      "status": "approved",
+      "transform": [
+        [
+          0.9867858793097319,
+          0.009388231309156241,
+          -0.04677546651905292
+        ],
+        [
+          -0.009425451420204435,
+          0.999955442251189,
+          3.0130358745340824
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "278e90007827d038c933eb73fc8b4b157710ad42c67f8938392bf8304dcd2779",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:6",
+      "aliases": [],
+      "sha256": "7402c33724a0ca9d560202a7f3aec34db075248577765a97673ccaa08153f008",
+      "status": "approved",
+      "transform": [
+        [
+          1.0150477781448166,
+          0.009493072391698375,
+          -3.2911639116146714
+        ],
+        [
+          -0.009410239491364082,
+          0.986066569317118,
+          4.141272114201151
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "34de29e0047a52e44decdfb087c6c6465307eef2de2a561ba105e718e909697b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:7",
+      "aliases": [],
+      "sha256": "4895430ff65b123f98bce13e0cb29c441ad957e28f8d606956521703dc1fb032",
+      "status": "approved",
+      "transform": [
+        [
+          0.9978478433323084,
+          0.001175218778634507,
+          -0.7730308944385047
+        ],
+        [
+          -0.0010439582828366332,
+          0.9861108891278935,
+          3.1051643847632455
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b764767bd665ea24f0094e72f1ee2092bffb9ab16e298de00bd814e4d41ea57a",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:8",
+      "aliases": [],
+      "sha256": "77129430c9aeeeaabe5f68735243e72738b1280ece1310adf07e6fdea848fba1",
+      "status": "approved",
+      "transform": [
+        [
+          0.992376033772021,
+          0.007179327628413029,
+          -0.5601120100916333
+        ],
+        [
+          -0.0071473900131096444,
+          0.9860852331872804,
+          3.888297524903013
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "194673d68459063e9e347c9030b15661f40b0673d6b4b4a8705d09657b924823",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:9",
+      "aliases": [],
+      "sha256": "c8b8f86fc32f001db880bc0ca26ddf06f6c9cf073f228b2c61a44ea2f5c231ef",
+      "status": "approved",
+      "transform": [
+        [
+          1.0641979601139349,
+          0.0026698971651216894,
+          -8.431476212534536
+        ],
+        [
+          -0.0025849895815834587,
+          1.0555525457088089,
+          1.332423716285161
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "16e4a18a752c40b227d2aba7887d843f5d7af105794ad93116727481f6c66aae",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:10",
+      "aliases": [],
+      "sha256": "917aef9073a6bb0c36e3504d20b92ae8ed9b1acf48ea5e5b7d1909ae7528e4cb",
+      "status": "approved",
+      "transform": [
+        [
+          1.0035748417336967,
+          0.0006664249032877598,
+          -1.4805836569578332
+        ],
+        [
+          -0.00046133262819905474,
+          0.9861115595996524,
+          3.022373868257039
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f22ad07899f6685d8ff5720fae21646b81408b29553e03e456169696dd973019",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "blink:11",
+      "aliases": [],
+      "sha256": "e02ad406fcef4dd23f4168bc39a1ce00d41c785e20869009d249252acd2816fb",
+      "status": "approved",
+      "transform": [
+        [
+          1.0137023618326564,
+          0.01178070332513622,
+          -3.2727405101741036
+        ],
+        [
+          -0.01177240508820805,
+          0.9999311745811075,
+          3.527673349162557
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "932166a53b97954500605f6b74986618e3b05f89c80811ef766c4c6abd0715fe",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:0",
+      "aliases": [],
+      "sha256": "67857581e0dc56897551db53f579da911b4152b6ab748ab9c31ec7b67df0666b",
+      "status": "approved",
+      "transform": [
+        [
+          0.9420408985544308,
+          -0.05307834341089631,
+          -10.16900612690608
+        ],
+        [
+          0.053015690179540303,
+          0.9429516944447841,
+          18.71211371045371
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "e617713bd114d06110b71ed45a307f9ffcbdfe572a2188f0af9f5cc27e6c6231",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:1",
+      "aliases": [],
+      "sha256": "a17ef3bf82dde62660fd983594849927ff8e041c7b23857f067044c9339ae399",
+      "status": "approved",
+      "transform": [
+        [
+          1.0615434275389166,
+          -0.025887745330764798,
+          -28.840852075392057
+        ],
+        [
+          0.02884660622853801,
+          0.9857742035226302,
+          20.618306984564292
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f91e32c3b5d47f9b7e8f7b2803eed43b180f6baaecccff68935a9da58b7f16d2",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:2",
+      "aliases": [],
+      "sha256": "4e07705f6f13fa98aeef15573dc2887eddc923ff223e786b9dbf6979d7ba363a",
+      "status": "approved",
+      "transform": [
+        [
+          0.9393638144965624,
+          -0.05430536736538642,
+          -9.808718762085482
+        ],
+        [
+          0.05405943953208148,
+          0.9428818205923148,
+          19.641452839443225
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "140baa9f74dafae3e2a9ab4dcb6edb344b2399d5de991122507b84e8c6904ead",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:3",
+      "aliases": [],
+      "sha256": "1a16034e7cea9afbd971e8b9cf3e47ae9c33f7bf593bfa5a3922aeb15691c30d",
+      "status": "approved",
+      "transform": [
+        [
+          0.9410140319327718,
+          -0.05166964650210229,
+          -10.24365886819933
+        ],
+        [
+          0.05153436819692096,
+          0.9430299496143136,
+          18.906814794481527
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "d0028d2d8602e07402e18798e39f432aaa5f60980ddae52d5b7a9b6bfb736520",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:4",
+      "aliases": [],
+      "sha256": "c3d540a9495db96843daa4464c588e6b739d12dae45c27bf8b6ee800f649aef1",
+      "status": "approved",
+      "transform": [
+        [
+          0.9420621334075008,
+          -0.056529837422137935,
+          -9.841030800881095
+        ],
+        [
+          0.05648002294409034,
+          0.9427511158936923,
+          18.34779026939439
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "c4980453d445b65485df52db8d8aed92febcf2fd9bcb2ca5b43d43d4732590fc",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:5",
+      "aliases": [],
+      "sha256": "3430d02ea8290eb9049ac622970601508f8092f9bc9407275ee02aaa2000d299",
+      "status": "approved",
+      "transform": [
+        [
+          0.9392589440575558,
+          -0.055533891507374075,
+          -9.626020255560848
+        ],
+        [
+          0.055280988091302954,
+          0.9428102325330995,
+          18.474871962579133
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "fe0016b1e1811498ada5fc887ef3308fb33a2e77f49a3941e1fbbd6ea8ee674e",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:6",
+      "aliases": [],
+      "sha256": "3b00627c4f34dc932008ce30565937a788f1ff5e87637e5cd49df04796782200",
+      "status": "approved",
+      "transform": [
+        [
+          0.9414589377403382,
+          -0.05469339906055448,
+          -9.950010680103762
+        ],
+        [
+          0.054594894382088505,
+          0.9428594182002628,
+          18.546118818761645
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "124b027cdf8aac81298bcf225a08e83e5a456dbd4555e475f59584ada26f1f92",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:7",
+      "aliases": [],
+      "sha256": "ad9ef638e231d7b480eaa5a87e205b54892343891621d2278ec570095e18340d",
+      "status": "approved",
+      "transform": [
+        [
+          0.9393913020722395,
+          -0.04795143469923216,
+          -9.77255058798261
+        ],
+        [
+          0.04770911944771037,
+          0.9432261883583389,
+          19.629738551566884
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "cd79cde8117892eb8b39a46554beb45375c3048f1b7020c25c4d8cec9e9ef733",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:8",
+      "aliases": [],
+      "sha256": "7234f085c29860c736b64459ef5b7f768587ff1c349fc00b092fe7528e272acd",
+      "status": "approved",
+      "transform": [
+        [
+          0.9420621334075008,
+          -0.056529837422137935,
+          -9.841030800881095
+        ],
+        [
+          0.05648002294409034,
+          0.9427511158936923,
+          18.34779026939439
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "0be88d8266d2dd0a178b32305a688392ee95e277997a531f8a60a260859b2aec",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:9",
+      "aliases": [],
+      "sha256": "a65e9ff4b2fea2d330dc600b722a51d16d4f52dfd9cd14576d33ca37a6f549bb",
+      "status": "approved",
+      "transform": [
+        [
+          0.9458975193055807,
+          -0.11850774270037819,
+          1.4454252500196263
+        ],
+        [
+          0.1217410887599428,
+          0.9229795424362407,
+          11.827508245156784
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b31d8dd911d9d7519ecf89cd444dc3442086198252195f08a9c8a84e05be9e1f",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:10",
+      "aliases": [],
+      "sha256": "bed9d5913872d0a916fea237cb893227afc10a41d1b717bf3294fc31ea4f1401",
+      "status": "approved",
+      "transform": [
+        [
+          0.9420621334075008,
+          -0.056529837422137935,
+          -9.841030800881095
+        ],
+        [
+          0.05648002294409034,
+          0.9427511158936923,
+          18.34779026939439
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "1e4a6d8366b4c779a7ea7eab70f8474b23e7318278d4c026a19152e689da5d3b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "eat:11",
+      "aliases": [],
+      "sha256": "1d1de32761892ee1345b20797e52706cf2adca3cc311f23f300bf5b04921a84d",
+      "status": "approved",
+      "transform": [
+        [
+          0.9420621334075008,
+          -0.056529837422137935,
+          -9.841030800881095
+        ],
+        [
+          0.05648002294409034,
+          0.9427511158936923,
+          18.34779026939439
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "42d3076b7aa5f99ea0ed794d3451d326c51e51058aecdb722f03f3358c947743",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:0",
+      "aliases": [],
+      "sha256": "d9de089340be85b31ac94b4c41e9c409c87359e572e2f660612e0905c950a9da",
+      "status": "approved",
+      "transform": [
+        [
+          1.129751698810718,
+          0.005926497034951783,
+          -15.927989948888346
+        ],
+        [
+          -0.0044817521578479425,
+          0.9305450518287797,
+          10.264870868579296
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "dba3fb97ee8892568ddde5d3a0589b90a95e975464f38976255cb62107860982",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:1",
+      "aliases": [],
+      "sha256": "d78dbedf38d5e36559fb316a59e851c17a77cb6acc1a7d189ba166860544af6d",
+      "status": "approved",
+      "transform": [
+        [
+          1.1066018002229319,
+          0.11332104541543443,
+          -34.94581162618063
+        ],
+        [
+          -0.12472682136827752,
+          0.9935630650148635,
+          27.864538532293302
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "a984f56971099fec41b69c75ff4a298009bc4a7efb721c4f3c5a25ea69b61d69",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:2",
+      "aliases": [],
+      "sha256": "563e0c7f8f18f01118ed2f88314020328867c15ace3af818e76b5d91b7466cb2",
+      "status": "approved",
+      "transform": [
+        [
+          1.0828899187155168,
+          0.11259097145046336,
+          -35.357156618343396
+        ],
+        [
+          -0.12310122175176164,
+          0.9796665889388049,
+          28.75759159671493
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "be8c2be7a35f7face4fbf7ce43a36f1af65ffdcd06d3e422ee30932ab372e2a5",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:3",
+      "aliases": [],
+      "sha256": "8661a8e49bfb5c5cd91eb76a6cac275343af373b13c9c484ccddff45bbfd1341",
+      "status": "approved",
+      "transform": [
+        [
+          1.0626198620751277,
+          0.11044300406551978,
+          -25.914655371852618
+        ],
+        [
+          -0.11719631946314243,
+          0.993885171537016,
+          25.26834798032259
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "cd8ceaea669860d3153db2640cd1d9ee2d5ef25bbcbec5543d05750f720c5db6",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:4",
+      "aliases": [],
+      "sha256": "0e295075d6717ec92bd27ffd17507c1ee0524c865b3fae1b0586a77676ac22e3",
+      "status": "approved",
+      "transform": [
+        [
+          0.9517159783996674,
+          0.1172769962913695,
+          -10.333991572336565
+        ],
+        [
+          -0.10631226880650885,
+          1.0629905615102944,
+          21.035538115362996
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "7c946c89a196210ce0c48809a508566c0a57cecde1575d541981e75578b0dc5b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:5",
+      "aliases": [],
+      "sha256": "9a732c259604b22783089796dabe72f3ccc6a3077480705755ed2f8fd2c84ad8",
+      "status": "approved",
+      "transform": [
+        [
+          0.9525610598466591,
+          0.1190152135535472,
+          -14.06612444635056
+        ],
+        [
+          -0.1092353060338446,
+          1.0488210545534744,
+          22.71523008001098
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "e71255f4bf880d39c529111e7822893a81dcf2f63da0ba483fd16e615523aca8",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:6",
+      "aliases": [],
+      "sha256": "130c5f5975445a80f20297aedad748a28d618e39d822c4c7aab4356c3acbe0a8",
+      "status": "approved",
+      "transform": [
+        [
+          0.9527326502191596,
+          0.1069810952655476,
+          -7.065014283384603
+        ],
+        [
+          -0.09821330780768657,
+          1.0501166919822034,
+          20.755650605635285
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "7cd84fa52fb6d92a95bb43af8b169e9b9bcbc94009eebfef587f927988c60006",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:7",
+      "aliases": [],
+      "sha256": "6e6ae52248d5a8842e21e4936bf63c90e355de0cff258be9c5d02a8bae7cc1d7",
+      "status": "approved",
+      "transform": [
+        [
+          0.9464041877478612,
+          0.10912415537128586,
+          -8.529109416732554
+        ],
+        [
+          -0.09958962908170416,
+          1.0498959747993695,
+          20.85795815647706
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "37f40450e5bce9f69636f7d866fc0b28c0b6c7cdb303eb49046aa0e9902f0701",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:8",
+      "aliases": [],
+      "sha256": "c8cd5a28ecadd3863cf9e52326eef9c7768f87451ed40b1a8b5f46843761c594",
+      "status": "approved",
+      "transform": [
+        [
+          0.9480198595385951,
+          0.10813875864324751,
+          -12.398592501279953
+        ],
+        [
+          -0.09884130079559797,
+          1.0499980143675143,
+          20.878149152696917
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ca3097a623c5d3fd12c6393e86351f545cfb8d4bdeb1c0c723af4dc8c18c44cc",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:9",
+      "aliases": [],
+      "sha256": "2619937a5fe7b80b20e0a610ff026625314081d5610fcfaaca3a88fb4408814e",
+      "status": "approved",
+      "transform": [
+        [
+          0.9496571710711338,
+          0.10201081485595119,
+          -6.752156474341931
+        ],
+        [
+          -0.09234834575802539,
+          1.064563994498709,
+          17.92637571291469
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "e73427f3e484c46665fc396e53cfe6c96bdfb53efec4a76e64f9cd63b7f93c96",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:10",
+      "aliases": [],
+      "sha256": "e990b532bdf5e0b4653bb81ceaa3789ba8504525004d4d2901184e94c08d405a",
+      "status": "approved",
+      "transform": [
+        [
+          0.9548568867859778,
+          0.10594393712420501,
+          -11.532261561067216
+        ],
+        [
+          -0.09745402455982953,
+          1.0502219249410776,
+          20.647278527924385
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "2f09db983341fac9c66cff4f18138e12faba17c2fbd00462f3d4a40df2a814a8",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "screen:11",
+      "aliases": [],
+      "sha256": "b803c44ce4d9bc8ed00cd5298901fedc8712eb0f37f2048e190f73dade4ea757",
+      "status": "approved",
+      "transform": [
+        [
+          0.9575039923857226,
+          0.11148867187478928,
+          -20.161344511257745
+        ],
+        [
+          -0.10161872453159136,
+          1.0636134293613642,
+          19.24877629108466
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "0cd6bf370f77ba91ece96dca548c03d32e1ead050bee8211caf77089979474e2",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sleep:0",
+      "aliases": [],
+      "sha256": "8d90989d91a0597463c178f19e751e82aff173f49d7171aa9ce8ef739924192c",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:1",
+      "aliases": [],
+      "sha256": "0a10f0110dd4ded2e45c375c788692d11d34246ba64a465c6f0034794ae92353",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:2",
+      "aliases": [],
+      "sha256": "7bbf697009595a3afd04f0dbf9d6b89bad2014351a2f7c353e860f523aaef20b",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:3",
+      "aliases": [],
+      "sha256": "d5158b2e7830cd3566aa6c5ff7e76257284c32824978946be214b8681b489147",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:4",
+      "aliases": [],
+      "sha256": "883f0d0ef5e9078a0a6d30ddf7f5a35673e8cf34eccd591b06a62286ab5ee694",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:5",
+      "aliases": [],
+      "sha256": "df60fbad35c09e9ade131b367a8e675f8522158c9344e6db3e7a74a840a4298a",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:6",
+      "aliases": [],
+      "sha256": "777f674607301e6037ab7a738cfb8ae23df3f1b49179a1ee46db319dd95a2261",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:7",
+      "aliases": [],
+      "sha256": "6806ea5420b2ea8417e6860a4527c106112bdd1c200941b0e2435ba675dc3c33",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:8",
+      "aliases": [],
+      "sha256": "51f223c8c7d9a9fe9d471f625cc52cc3028f5a7435a6bb42e393a2b15b8b5e9f",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:9",
+      "aliases": [],
+      "sha256": "7c86a8d42a2b1b0469c29beaa75e1b1becb1f5f3ffa86a83102ab623e0337778",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:10",
+      "aliases": [],
+      "sha256": "c3b5f3a81a8d7fb78ccd3be677a5a6b16eea62aee999c62282c4aa8e66cda4a1",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sleep:11",
+      "aliases": [],
+      "sha256": "4ada6bc2422627ae25fb08a0e213ce134a936765e1171e60424bf20a254c4466",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "affection:0",
+      "aliases": [],
+      "sha256": "55ca5f81b737ba7df51f1c85157cf82cf583c92c7b27c01ced813e6da2acab07",
+      "status": "approved",
+      "transform": [
+        [
+          1.162834256444526,
+          0.007874442681820764,
+          -7.616263543602761
+        ],
+        [
+          -0.006842948101838601,
+          0.9721982986534005,
+          -8.42540003519352
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "8c120e0d1aa549335a21e715719ea4ba718eaa96b2559282245ee2b7e1b709f2",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "affection:1",
+      "aliases": [],
+      "sha256": "6e5f733242bb378d936c79e3dac9672fe674802626ed173716fc30564c4c5320",
+      "status": "approved",
+      "transform": [
+        [
+          0.9041877526847044,
+          -0.27938130680589873,
+          33.65154678568324
+        ],
+        [
+          0.2753986058289862,
+          0.916704999507596,
+          -30.989006845854455
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "df5d54f706ee9b0a176336685b5c385c84da5524cd5c7846aecec4663272b883",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "affection:2",
+      "aliases": [],
+      "sha256": "c30d1f702dc155c3576c9ee40d4f3c0dcfb15d205ec85043c97efa2a1ec3c5a8",
+      "status": "approved",
+      "transform": [
+        [
+          0.9673336604188607,
+          0.18817970799835232,
+          -45.31557922550194
+        ],
+        [
+          -0.19066905912060927,
+          0.9538372625603294,
+          34.59191126030758
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "5867aca2692449e1a76e420d75336902a2d0b9db67724613cfb102f8041927bb",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "affection:3",
+      "aliases": [],
+      "sha256": "1b7e7df1a7edaa7bf5f4e031f8adec4f35b393736dfd4e98a915fbfba85b690b",
+      "status": "approved",
+      "transform": [
+        [
+          0.8660527002520944,
+          -0.35231992482184604,
+          75.88933812648168
+        ],
+        [
+          0.3543407181098982,
+          0.8612808626013492,
+          -34.75060792195126
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "c04d3eda232a047b592c34841fe14c74611cefa12703f9ec11de9891bf7f4b4e",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "affection:4",
+      "aliases": [],
+      "sha256": "91da96056cfee5faebe4974e33612f555254357af2a59a16b77b7345a3200c4f",
+      "status": "approved",
+      "transform": [
+        [
+          1.0217231759886554,
+          0.3076804209256852,
+          -45.69962657583923
+        ],
+        [
+          -0.3394372712400737,
+          0.9222563770462883,
+          48.82290479779742
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "3852353a40751319c347e444a9c5930d9fb9c4f307de509e4fefe4708632a32a",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "affection:5",
+      "aliases": [],
+      "sha256": "fb29237bf5c5bef0783a2cdad44952e2b75dcb2ff4b64346e442360debe9653f",
+      "status": "approved",
+      "transform": [
+        [
+          1.0982432177918082,
+          0.005235029537044246,
+          -28.270844528491928
+        ],
+        [
+          -0.004040922455117542,
+          0.9444362536560267,
+          -4.964756534243653
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "1419de9e5be49978c2ddc915fbad8fc771d5049ec447f4eb9ca182342180b1e5",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "afraid:0",
+      "aliases": [],
+      "sha256": "85eae1f3a2e5c0e1001d9a8019372fb9f44e5733411788b27fed19fee8790476",
+      "status": "approved",
+      "transform": [
+        [
+          1.0118333779762934,
+          0.06266003146764206,
+          1.563586776802063
+        ],
+        [
+          -0.06482342810138113,
+          0.970202528155257,
+          1.4743202842539123
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "170a19fa1ae571f9967fe4eab2f1e4e457f05687200f4ab9a0509968a8710fef",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "afraid:1",
+      "aliases": [],
+      "sha256": "05640fd8d8199c1934969850631e54184cdadcae8dd0bbb149272da6c3eb82ac",
+      "status": "approved",
+      "transform": [
+        [
+          0.9850705595991551,
+          0.14830496111998306,
+          -22.26987001696303
+        ],
+        [
+          -0.1422544359189824,
+          1.031053649933123,
+          21.15439145659093
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "5244778d91d6fff34230e16ee72b2ee9dcd5d3cfad5e04210002b9e6e8516ee9",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "afraid:2",
+      "aliases": [],
+      "sha256": "ed38ab31de50bc8b1def0e58f19734f25efbca5e7bf4a1ec422fabf76c866b74",
+      "status": "approved",
+      "transform": [
+        [
+          1.0275241964269732,
+          0.0077496571112481375,
+          -21.884825649822865
+        ],
+        [
+          -0.007684821436709177,
+          1.0138598332630346,
+          -2.6867149629398748
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "1e2941151c53d1b7c240fc84daf97cd0fbfdba89c68dd7a288666b633f9a1624",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "afraid:3",
+      "aliases": [],
+      "sha256": "4a936c671d65388b3f235479b46155ab2d81a0289c73de0b1d27dd103d545f49",
+      "status": "approved",
+      "transform": [
+        [
+          0.9609585518773486,
+          0.07248340288059055,
+          -6.70482356190445
+        ],
+        [
+          -0.06652557571213616,
+          1.0669814478564748,
+          19.495147827707914
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "14a41e44e17430fe3e94660f7a75063914c01eeaf687d75cbd0a4151753a98f8",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "afraid:4",
+      "aliases": [],
+      "sha256": "e6e63fd25b0cae0bbca3e4567827503f20c13762e323f5a10996c6ea402ba454",
+      "status": "approved",
+      "transform": [
+        [
+          0.9471069034631305,
+          0.15651792996671982,
+          -37.88812916761928
+        ],
+        [
+          -0.1486512486401905,
+          1.0017328652544673,
+          14.220661813845556
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "7f7540f71fa23099cec58911b55cfb3da52159d73e4be7b597753d24a8c3d50f",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "afraid:5",
+      "aliases": [],
+      "sha256": "4d36d653dcbd7c3de8e069e53d2584e95a03054585dd6a3cac56f569dd5b888b",
+      "status": "approved",
+      "transform": [
+        [
+          1.0152469064980667,
+          0.017480517496933346,
+          -27.21221624908231
+        ],
+        [
+          -0.017421334677998092,
+          1.0276286422865555,
+          -14.465779014619114
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "cf23f64b8b19076087c6dea4b4a3dc8a019133582356a95f15f800648a84f7e6",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "angry:0",
+      "aliases": [],
+      "sha256": "496efce69d5a041b422b9856ac0c9011727798a06065c08636ba081888eb05ce",
+      "status": "approved",
+      "transform": [
+        [
+          1.040016457864551,
+          0.011478043370126733,
+          7.494590763652942
+        ],
+        [
+          -0.011463136091055695,
+          1.0277141628503972,
+          3.05952463263878
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f990b4538c1c0a68b87cf3e7d1d89c6e5886baaab5d7459d0c51be256e41ec86",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "angry:1",
+      "aliases": [],
+      "sha256": "5d6923d74c3e90091b22dd938a827a9037c2e33d6142a128a5a50b88b324f3fc",
+      "status": "approved",
+      "transform": [
+        [
+          1.090771938914347,
+          0.014789778650739464,
+          -9.699772919296882
+        ],
+        [
+          -0.014868527878018598,
+          1.041563607614969,
+          1.7701351962873935
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "61f349acf5f700ee739efbbf245cf2296ffdb7630d1d10bf921755800ed19f29",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "angry:2",
+      "aliases": [],
+      "sha256": "e6b7241cb932ad7a99c9b37577807c64dcc974926345bcce4797735f529857e7",
+      "status": "approved",
+      "transform": [
+        [
+          1.1782022041512514,
+          0.023479421077255383,
+          -49.90359166915243
+        ],
+        [
+          -0.02565383432023122,
+          0.9719473281398637,
+          5.139930282047878
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "1d7c1c0b93619cb27c9b3923dde402feae7f5d2e77eebc595aa800ba0896bbb4",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "angry:3",
+      "aliases": [],
+      "sha256": "e988ab5c29212e47ba41e06002cc8124bfa08fd95dfc8952580ff95d6596c841",
+      "status": "approved",
+      "transform": [
+        [
+          1.0815665248937296,
+          0.03237571076219651,
+          -2.3913240139540393
+        ],
+        [
+          -0.033686536805881205,
+          1.0133745458786356,
+          -1.4867650769643161
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "c3f0cf568a4003ae963422b0fafe02374735121c56c36dcc981c819ef45a5419",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "angry:4",
+      "aliases": [],
+      "sha256": "7545a832dbe9c76a9fb6a67df301a62f615455fb700a82bdd48b1ed3dfbf753c",
+      "status": "approved",
+      "transform": [
+        [
+          1.0329252255691266,
+          0.007343763912449077,
+          -6.236023764502614
+        ],
+        [
+          -0.007316916159553329,
+          1.0277517255643973,
+          -4.014643313583541
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "3a0db778dc7a4567e4eee3a6a6281077eb0de6e5c9ca0e026cf833088fe73658",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "angry:5",
+      "aliases": [],
+      "sha256": "258ab822ee01383c48ac0847e4b3a7fbd590d2fa52f188b3a0d15e34710adb87",
+      "status": "approved",
+      "transform": [
+        [
+          1.0201686410134263,
+          0.01221028157181942,
+          -24.023288213587364
+        ],
+        [
+          -0.01220852688802104,
+          1.0138156035177455,
+          -3.4988531393487494
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "cbf526d5cc44fb69b8983451768562453588ff1c2634335ef9d0c8e989076635",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "celebrate:0",
+      "aliases": [],
+      "sha256": "d0adc9793755e6ff521f6af9bd4db9fe91472eacb32fc56b76dc593539ebf1df",
+      "status": "approved",
+      "transform": [
+        [
+          1.0107546903984148,
+          0.03701379919488036,
+          25.355835797623467
+        ],
+        [
+          -0.03801568057582432,
+          0.9715189370680669,
+          2.4839678872376045
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "e7b0b33dbb103f9c39a92f33cb1994f834ed508247b969aaa4da83bed9eb8b98",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "celebrate:1",
+      "aliases": [],
+      "sha256": "34bef5671f5a78990cc43b46fce5e0108a6211b43ecde61835d954ae512f0eed",
+      "status": "approved",
+      "transform": [
+        [
+          0.9891877151033731,
+          -0.0003800740983056004,
+          2.5171043562508557
+        ],
+        [
+          0.0007782450160851837,
+          0.9583344975786289,
+          0.317070872213402
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "dc967d4bfa0896da985a3f23e842839f010766e47c01a577f7357896bcd87060",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "celebrate:2",
+      "aliases": [],
+      "sha256": "1c457604450355aead6d2f302e48110a759b352a0460e32ef33adbd686b3e0b2",
+      "status": "approved",
+      "transform": [
+        [
+          1.131532651403678,
+          0.009590360855261312,
+          -55.084467281275266
+        ],
+        [
+          -0.008921403453947234,
+          0.9305145584522658,
+          -0.8674956472745671
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "85da09ee6e75eca78a86b621c609502f9757e7ae0ffb59dd3fab514ff1243ca2",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "celebrate:3",
+      "aliases": [],
+      "sha256": "c1b9408b8dca2c9f3249ef0f5b6ae9df9093c7b89bfebde929d1952e630a453d",
+      "status": "approved",
+      "transform": [
+        [
+          0.9471803371032577,
+          -0.07260584173435576,
+          35.4738947453447
+        ],
+        [
+          0.07310113746872882,
+          0.9416496829904206,
+          -19.681595660582104
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "980d024fedc00529a22ec317047776dc51aeb077564951bd7415ef616ef58407",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "celebrate:4",
+      "aliases": [],
+      "sha256": "9eac1d3b1fa6f5d78a6c9c5a45d57722af3bd7f3578ac020477d38515316e063",
+      "status": "approved",
+      "transform": [
+        [
+          1.1077152636099348,
+          0.07068354107413384,
+          -21.39469439010992
+        ],
+        [
+          -0.07989617147237467,
+          0.9557293457354297,
+          -0.49840016507072105
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "d64d83757560ba5dc5c20497d8ceafa3ed22963b622e99fde942116498825ec9",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "celebrate:5",
+      "aliases": [],
+      "sha256": "5a74a01bc446e4e62a58f02f9869da604ecc8c9c12a8239833d61b8e34780c6b",
+      "status": "approved",
+      "transform": [
+        [
+          0.9977303157846599,
+          0.01849423810953775,
+          -39.29140446610878
+        ],
+        [
+          -0.018761071920824976,
+          0.9581564005344043,
+          -7.736017338093994
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "41da52993ed9ec1faf276e77984c17f400c9a5603f5a08df71c21a147320f5d0",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "clicked:0",
+      "aliases": [],
+      "sha256": "5cdb06f0d67ae545a501f2e6c0a6c2fdd1cc5384346e45c939a82daf6c89c0b1",
+      "status": "approved",
+      "transform": [
+        [
+          1.0145546758739286,
+          0.002790084755038208,
+          -2.919564750709129
+        ],
+        [
+          -0.0022417049314270064,
+          0.9583314946880718,
+          -0.2931950120308312
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "797d616d2e2e8d20b922fec8031f7c59eed5826c701d91ded0d81045af085fa8",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "clicked:1",
+      "aliases": [],
+      "sha256": "c034a45ebb1aa2b2a044a3c838f3c12ce4561916d6d05c6cebb3ca05190b4925",
+      "status": "approved",
+      "transform": [
+        [
+          1.0498901339890254,
+          0.0059377545836802525,
+          -3.4752095084988732
+        ],
+        [
+          -0.005790286385431287,
+          1.0277615153358595,
+          0.02883085905754605
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "c9a42b81679fa2446cbf1a54c3dc74b3df13ccb0c5bb1516fdab0447c2119b82",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "clicked:2",
+      "aliases": [],
+      "sha256": "a3b613772747c15113b56b6631b01f851bb1e67b1d0944ad77b080105b4a80e1",
+      "status": "approved",
+      "transform": [
+        [
+          1.1123584262435868,
+          0.042035531370261885,
+          -21.340032114297806
+        ],
+        [
+          -0.04532557684858067,
+          0.999120658220273,
+          9.088982748269377
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f082b8f11cb374e3ed05dc46525eb44246b827d4d90c6f2733a788d47ef20a15",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "clicked:3",
+      "aliases": [],
+      "sha256": "2e823dd6447377ce1be360c4176b4ea13f43f82b784b29141e686709752f5a27",
+      "status": "approved",
+      "transform": [
+        [
+          1.061919924358093,
+          0.002701553102159234,
+          -8.11654992795601
+        ],
+        [
+          -0.001795993734993356,
+          0.972222064261726,
+          -2.2096426439253776
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "c6307d122fbe854c1c5bdf5032bc02f963dc8cf2000c2ecb4b21a570fac58316",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "clicked:4",
+      "aliases": [],
+      "sha256": "177856c9d3f8cd231ae329adab476a14a1c7cdd603b8599ff2340fd078021086",
+      "status": "approved",
+      "transform": [
+        [
+          1.0398929812961615,
+          0.007724133298967199,
+          -7.775148093720549
+        ],
+        [
+          -0.007399945303363945,
+          0.9721942095110827,
+          -1.2629814770016914
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "fc1b785530bebfda7e7c0071977c362315b0a2759b4578d73d9bc0fa54cd04b1",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "clicked:5",
+      "aliases": [],
+      "sha256": "3647ecb196df6a162aba345453a16ab1c167d7b0593930261151d46784db2768",
+      "status": "approved",
+      "transform": [
+        [
+          1.0492252245536144,
+          0.05209375257448138,
+          -18.33087423628845
+        ],
+        [
+          -0.05409282130576602,
+          0.9986442331156897,
+          4.555713119307334
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "460d2f632b20555c59d4a912edfda6b42d49c4dcd14d7a6be40fd9ea974d4659",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "comb:0",
+      "aliases": [],
+      "sha256": "e38d84523755ebadf7a8e3ba117f19d2a95cba118b4560d1ccd706992ed43238",
+      "status": "approved",
+      "transform": [
+        [
+          1.023208331508677,
+          0.007260510502247845,
+          6.981802964222826
+        ],
+        [
+          -0.007068376473508808,
+          0.9860858252740664,
+          1.2503661420988215
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "20bbdd4bb1f020aa6995e65382762a44ff525446c138cde86024103071f0acfa",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "comb:1",
+      "aliases": [],
+      "sha256": "80c3a66fdc2822a3ed8f0cc17a8fd9e29d3ebb127bdbc3250ccc5927fe279587",
+      "status": "approved",
+      "transform": [
+        [
+          1.0176040719093196,
+          0.007044882423378336,
+          2.7475936999813007
+        ],
+        [
+          -0.006875963588740077,
+          0.9860872210020268,
+          1.0963325679641949
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b6889a6af642fcf74ed29cac20f11c9a649395f980c55c53598e4de38ad54c4e",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "comb:2",
+      "aliases": [],
+      "sha256": "c51308a3a3503bc62b9f64162792fd8be7e8d7f44858c18b4265b8cede20f92e",
+      "status": "approved",
+      "transform": [
+        [
+          1.0174234157206339,
+          0.002793799814484579,
+          -16.876817639716336
+        ],
+        [
+          -0.0024911280091089853,
+          0.9861083965284211,
+          0.7271829819848042
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "3e5160102db7b13ee85c74ac0a64daade0941cc85b4e10b54f49cc083b6ca469",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "comb:3",
+      "aliases": [],
+      "sha256": "8d9107d792158f7801287fedb2955c194148f2d67c97ab9b5066272b0326deb4",
+      "status": "approved",
+      "transform": [
+        [
+          0.9678395301257707,
+          0.006776648038751662,
+          13.037680245854729
+        ],
+        [
+          -0.006726040026317707,
+          0.9583097334947517,
+          -6.944704906671628
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "a92561a548ac03f93d1d7d9ed110ee2ef7aaa5ff248925a30a48c32383c9da86",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "comb:4",
+      "aliases": [],
+      "sha256": "cefb20ccc64333e1c716efef3c50b4828642c525611e5729622404524c116a9e",
+      "status": "approved",
+      "transform": [
+        [
+          0.9744338287400435,
+          0.007129817809166278,
+          5.780524580814004
+        ],
+        [
+          -0.007049654999420412,
+          0.9583074510879108,
+          -7.164359745908121
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "2da3b9959579c74221561138422e227066506afe386d63762111572acc7d9c01",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "comb:5",
+      "aliases": [],
+      "sha256": "2fe223a532d0c0b385e28caf38cfa4bf8cf9a832d64a635005a1a33f4ae3346e",
+      "status": "approved",
+      "transform": [
+        [
+          0.9778840849903873,
+          0.002319851414148641,
+          -10.503326241902109
+        ],
+        [
+          -0.002124153260755974,
+          0.9583312642177113,
+          -7.64072786401527
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "e8e199b365fbc852fc8e28cb11374562244e7ec6dd31f9c97ceb5b431637ed93",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "curious:0",
+      "aliases": [],
+      "sha256": "31dd879ca6284a77acc39ab095bfea1310efd05a71f032e8bbfe6bd5fa531768",
+      "status": "approved",
+      "transform": [
+        [
+          1.0304441438435974,
+          0.005296869681359873,
+          -3.5719978597173356
+        ],
+        [
+          -0.005077750233190416,
+          0.9999871183521342,
+          -9.078738595036569
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "836e5d25316c85deddaad04ee528519f14b573906f5e63a88fda969ed8c5338f",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "curious:1",
+      "aliases": [],
+      "sha256": "64319c419205c69ae00aaf1f40179e2b4aeabddc1fde6fbfd19d170ac83c9794",
+      "status": "approved",
+      "transform": [
+        [
+          0.9600274676573937,
+          0.12499830862891463,
+          -43.93444784976699
+        ],
+        [
+          -0.12451490726871725,
+          0.9641530256098965,
+          30.17660227766411
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "4ff5374239d27df74e3e4b5d6d4641ab61045e40d476851ede8d6e4f84dff9e0",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "curious:2",
+      "aliases": [],
+      "sha256": "291651c4e5396431921dda2a3c61588cb501b4c0989b959e4630d96a4b497fe1",
+      "status": "approved",
+      "transform": [
+        [
+          0.9647346977365953,
+          -0.28485636409383314,
+          29.892862108808956
+        ],
+        [
+          0.3010249220745692,
+          0.9150210557502496,
+          -25.590555706029427
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "d52bc4de75063f2608296c2e5181305fd1c01723d6bc7dfd139fea94781954d0",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "curious:3",
+      "aliases": [],
+      "sha256": "2b7e5b1992b51d23ed5a5f831f61bfdd7acbf6dacc8ebf06f0febc7eabab2c76",
+      "status": "approved",
+      "transform": [
+        [
+          0.8270026932236807,
+          0.11787603661326415,
+          -15.634909120271326
+        ],
+        [
+          -0.09766633255356155,
+          1.0209890465761837,
+          22.098153442742976
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ab9480bcc6cc75823c9c8459ff826030ec806def1688858dbb7106f27684c2e3",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "curious:4",
+      "aliases": [],
+      "sha256": "bdbadc047132655379693e6495a3bfeb46361562e209c95915f23958d32e2338",
+      "status": "approved",
+      "transform": [
+        [
+          0.9520261963749018,
+          -0.05325496232382342,
+          -4.811040344627593
+        ],
+        [
+          0.051998083406418406,
+          0.9707619118599702,
+          -14.676995431853836
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "c00103c23432726e38119b9a6dd2e5a7c12f7b5ca14853b583761ade8cff7dc5",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "curious:5",
+      "aliases": [],
+      "sha256": "808a4d2fd9051f8321a50b9afa4ad26d7e0405c1bed90a16385920a71dd81882",
+      "status": "approved",
+      "transform": [
+        [
+          1.1346808107427582,
+          0.0030247485420996567,
+          -35.11295579232009
+        ],
+        [
+          -0.001364338873611297,
+          0.9722241901354244,
+          -11.062594723616847
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ecdf6ffb094261e6aac514b267e2f6883559119aeaa8e9d8415ce3dcb30ff991",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dragged:0",
+      "aliases": [],
+      "sha256": "d0d9599f249ed6d2fef8f9f828d2ffc7ac8534b6b54acec1c0ba13ad032f274c",
+      "status": "approved",
+      "transform": [
+        [
+          1.0606498337577843,
+          0.00729371527561423,
+          5.27459466229871
+        ],
+        [
+          -0.007041250369820052,
+          1.0138645080231918,
+          0.20812078102917975
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "0b8b46f0c1e702138c0a082671e47472b477891c2732fa26dae7fedbef0cbbfa",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dragged:1",
+      "aliases": [],
+      "sha256": "c367d1a34e126c100033216c283b40f6f31a665d8c5dab367f9200fcaaee82f5",
+      "status": "approved",
+      "transform": [
+        [
+          0.9706930665191414,
+          0.07085218474813296,
+          -11.364208135902402
+        ],
+        [
+          -0.07358134236264438,
+          0.9278559919485502,
+          14.38595889499558
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "6f19ca6884fa5ab67da9b98c22f3b73c2843764612d66dbf7f65739ffa0b0bf4",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dragged:2",
+      "aliases": [],
+      "sha256": "ad21c79932339c80bef65e9a9b9bb690c710727549015db9f9b14b5d555e181a",
+      "status": "approved",
+      "transform": [
+        [
+          0.8492080076918229,
+          0.15675921309110075,
+          -13.83800787418787
+        ],
+        [
+          -0.14805699556766386,
+          0.9031614993365976,
+          30.968090616661918
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "fd0c623485b5288deeeadadd228cd59872b57470a6fdb9cb69f1393b23ff86c3",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dragged:3",
+      "aliases": [],
+      "sha256": "b80aca54ae284e6636788123fdfc74e132ee32cdf64a20fe5ae2492973992b27",
+      "status": "approved",
+      "transform": [
+        [
+          0.8534629965814109,
+          0.2932777918695676,
+          -21.468880203770617
+        ],
+        [
+          -0.2884086311045665,
+          0.8684842572147631,
+          37.09751408645972
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "90172f7857761946e714d4877e9a28762d1b6bc68c71888421ef015e1ef50d30",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dragged:4",
+      "aliases": [],
+      "sha256": "eacc610f000a47e40593aa529454369f719174cb6b9c107004821e3875d37448",
+      "status": "approved",
+      "transform": [
+        [
+          0.8631544304077978,
+          -0.2823952284831593,
+          61.57850109821041
+        ],
+        [
+          0.2745898203182606,
+          0.8866706347299825,
+          -34.60166820513841
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "c1726dbe4a8898f7d5d117f7dc619596421355589eabd158d8e1866576ee6507",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dragged:5",
+      "aliases": [],
+      "sha256": "204cc367c055d887bf8bd1c258cac102927e56d6c5e2dcc6afb206e26cfe875d",
+      "status": "approved",
+      "transform": [
+        [
+          1.024225824486069,
+          0.001627587456270744,
+          -16.53242757694719
+        ],
+        [
+          -0.001212481592118352,
+          0.9861112298648728,
+          -10.820753739733249
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "8c95bfdf51e8771a7ebee5b552c457b3ab03181d17cbdd5c965d2f0591e201af",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dress:0",
+      "aliases": [],
+      "sha256": "2adc4b09f67a07be028cf665025abb5642a77dc0a4dea718218365526d8c4d68",
+      "status": "approved",
+      "transform": [
+        [
+          0.9261588220992482,
+          0.02181971671691947,
+          6.228908066911596
+        ],
+        [
+          -0.02036058220684593,
+          1.0969993223853585,
+          8.961072676229266
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "9450179ddd59ae185fee968422d38bdb419e32f52d19a7ed823e5c621e23d19f",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dress:1",
+      "aliases": [],
+      "sha256": "07d70555ac2f42b201566aaae5a4abcf725666c3a76297f50a084a8be93604f1",
+      "status": "approved",
+      "transform": [
+        [
+          0.923313273386688,
+          0.015113170425843614,
+          8.11736426445951
+        ],
+        [
+          -0.014899042460744038,
+          0.9859930364661743,
+          10.314092577200157
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "13c4b5c0f34c3e4ef01635c4527ae7133844ab6085ed64c842779a98496ea6d4",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dress:2",
+      "aliases": [],
+      "sha256": "26efa57d35d375a1a0cf79e8aad491dc97c9ddcbe17034911efaa1adb3ed3cf2",
+      "status": "approved",
+      "transform": [
+        [
+          0.9075465137313333,
+          0.025285262036623353,
+          3.9334256145678608
+        ],
+        [
+          -0.024203493194165652,
+          0.9857840489370445,
+          11.658266220893127
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ccc2810711442736aa59fe72019a37510a772549f8ea72d782f87dc971e1f559",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dress:3",
+      "aliases": [],
+      "sha256": "0b1349eef662255b6cf4dec9fb7ec944e929f38e32ac81d4d98169c1cacea48f",
+      "status": "approved",
+      "transform": [
+        [
+          0.9237857362198952,
+          0.024853753243903907,
+          5.4172513186786215
+        ],
+        [
+          -0.02314214726660131,
+          1.0691504719603395,
+          0.04714207159997561
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "6a0fa8bd1194168b69830b3cb78cf7551f3ef2e08eefdcf90f05eea9e81c37f9",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dress:4",
+      "aliases": [],
+      "sha256": "7d2d22f01e46392c427b2519a787409788f321e13ed5841cde9bb8d648b98d17",
+      "status": "approved",
+      "transform": [
+        [
+          0.925519630338507,
+          0.023402357409672298,
+          3.390123388018337
+        ],
+        [
+          -0.023167439847087634,
+          0.9441538032886522,
+          3.1401689219803726
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f40d5908e4fa666418339c759e64597e570104174426eb1b0a684be35d43cd9d",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "dress:5",
+      "aliases": [],
+      "sha256": "e456afa4f15685202c1d5d6cadfd064f4d22b5f16571b87fb4ddeb0ceeade96f",
+      "status": "approved",
+      "transform": [
+        [
+          0.9779710594851396,
+          0.010579733407873843,
+          -1.4040777656899475
+        ],
+        [
+          -0.01050764421327318,
+          0.9166080442921207,
+          2.189039172620733
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "67baa321dd3fce24134f89a4c1e663a5def461810e479f75d304e5f4e53c3f56",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "files:0",
+      "aliases": [],
+      "sha256": "d8cb0d482d3eae0fdd801e6bd0550c7fd91f2943c6002cd6d5741ec51868639f",
+      "status": "approved",
+      "transform": [
+        [
+          0.997227168939245,
+          0.0075967966033091095,
+          6.8393587739240775
+        ],
+        [
+          -0.0075448964207279106,
+          0.9860822577494923,
+          -1.5615293961664551
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "d2e81ac56f54c0021e4de7129dfa159738f1f6e9fbe33e675e1c9979e3c2af3d",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "files:1",
+      "aliases": [],
+      "sha256": "071b5039c9faadb4f31e92947b629fcb963f6411ea73eab80f281df3e9a7313c",
+      "status": "approved",
+      "transform": [
+        [
+          1.0036292896719878,
+          0.004104926884337055,
+          -1.9665729667776248
+        ],
+        [
+          -0.003960230638913012,
+          0.9861032523012643,
+          -2.0257410699771605
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "44e658b390262796a3b4793d2a1120bbc2845f14277c02c6cec2b9fc3e4391d5",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "files:2",
+      "aliases": [],
+      "sha256": "a75103b9084423d012389989c1c2e885a17105417fff3f4641e70113da8dd8ac",
+      "status": "approved",
+      "transform": [
+        [
+          0.9603248733490471,
+          0.0005493227999047571,
+          -9.965587526408905
+        ],
+        [
+          -0.0013161444883016515,
+          1.0277751869059317,
+          -0.8359679509206279
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "662c2c6c092ed6a0c289c12acee6975717ca37e86dc2c30acd770ea843d8d9cf",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "files:3",
+      "aliases": [],
+      "sha256": "a31b9454b9fcc65ef14dde2188f3575fda0bfe0924b6cf88ba89815b99a7f738",
+      "status": "approved",
+      "transform": [
+        [
+          0.9839856283987053,
+          0.004634436924237874,
+          13.234242421635315
+        ],
+        [
+          -0.004964290223604053,
+          1.0277657494478576,
+          -5.6096244597991705
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "e2b48c8f9ab4f65cbe641a66c8a840f3deb48358555fb977c0d927e079e93bfa",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "files:4",
+      "aliases": [],
+      "sha256": "c8b3f0f7ec971a4978fc018d38fffe22836a0015bafba5601eb94448f3fd81c1",
+      "status": "approved",
+      "transform": [
+        [
+          1.0031258775985923,
+          0.007798500319089428,
+          -4.384629675706923
+        ],
+        [
+          -0.007721701563962445,
+          0.9860809580462189,
+          -5.703086630968974
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f94c90434bd40ea7a51b384e923c4bb145ee8909780948a4400f73f76915d839",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "files:5",
+      "aliases": [],
+      "sha256": "7398db4a394d6623f06ff1f33fddf4bb814037fc65bb211b9efc7a0cfe1b6dcd",
+      "status": "approved",
+      "transform": [
+        [
+          1.0002477759938417,
+          0.00011994121484694093,
+          -14.952963982029594
+        ],
+        [
+          5.3497877023242244e-05,
+          0.9861116540214641,
+          -6.502876073938106
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "0a6eeedc9dd2d402a94616708cfcdecb19d7b310bfd8149d93928216533d159a",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "leap:0",
+      "aliases": [],
+      "sha256": "5281a3451c4c1c0ec80af86554d110bd5c105bf34ee77dfa3f7f4e76b3026e18",
+      "status": "approved",
+      "transform": [
+        [
+          0.9607358246559504,
+          0.03332951647764772,
+          0.37705636890455585
+        ],
+        [
+          -0.03223010965328689,
+          1.013339027212423,
+          42.675720227267554
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "8b5a33fd1bb132a136e216020a36af67b19c20fbdf04882dd2c52cee048e8361",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "leap:1",
+      "aliases": [],
+      "sha256": "a2cc84319421f24184314a6f318a395d5fc7071793f0bea571cacec11e436a40",
+      "status": "approved",
+      "transform": [
+        [
+          0.9736838406858493,
+          0.060217046482009616,
+          -21.410435076733886
+        ],
+        [
+          -0.061088115057453325,
+          0.9564402699722737,
+          -3.2675629318445227
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "56f625f652a27f06b2b64f0aff7c1dbac2363abf5c64816566af9bc69932147e",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "leap:2",
+      "aliases": [],
+      "sha256": "1b2de09031ab26d394b57adc12cea622c0ab94979f306b91ffd1eaf59e806efd",
+      "status": "approved",
+      "transform": [
+        [
+          1.0024843670357773,
+          -0.00443310738328811,
+          -15.421874387933563
+        ],
+        [
+          0.005441870611940813,
+          0.9444363274045788,
+          -10.465577963160648
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ab0a869957627c24dc2ac79d55eefd8c4880ba614b50eb6d5dcd7acc580d3a12",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "leap:3",
+      "aliases": [],
+      "sha256": "1f8a4d210bb8f5f5f1a018e79da02ca5e94bf0e9c959c4e5301d51958423d0cc",
+      "status": "approved",
+      "transform": [
+        [
+          0.8980989135075809,
+          0.02305330103723833,
+          -0.2305955027715241
+        ],
+        [
+          -0.02141000059528813,
+          1.0552982828281712,
+          9.839269050003596
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "d282279701c755eef16262a9b20c893511c4b9033868bff79b780523e860811b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "leap:4",
+      "aliases": [],
+      "sha256": "62988cd717d976ecfc50c6961c9eace5dbe173f37808fc32452802a61f893e96",
+      "status": "approved",
+      "transform": [
+        [
+          0.9604216406978293,
+          0.021527547678212407,
+          -14.96148944171906
+        ],
+        [
+          -0.021551150425823527,
+          0.9580916032876294,
+          -2.9423857589423545
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "6abc08c7038ca8407e92363447180c648cb5cfc93ea6778f24938889732e2620",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "leap:5",
+      "aliases": [],
+      "sha256": "5f5bb2badf6d5581a691e894b28aced005fd960da5502d4a603faa7aeadb5997",
+      "status": "approved",
+      "transform": [
+        [
+          0.9967805995912167,
+          0.006490891971503808,
+          -16.130988368413558
+        ],
+        [
+          -0.0063488665117726615,
+          0.9722014973776056,
+          -7.663783728379716
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ab7d53698d68f5ee829f14c82f84f91d54907227dc74e6cf4856a6727165b05c",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "read:0",
+      "aliases": [],
+      "sha256": "d1a92e2d226bbb89f18ef6f1b01880e4545825636901578eab480d5d1bf09c82",
+      "status": "approved",
+      "transform": [
+        [
+          1.1837839553498055,
+          0.01807776852170422,
+          -21.94791369980658
+        ],
+        [
+          -0.0191258734976219,
+          0.9720630442358532,
+          1.4607872407380993
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "bd50042316a032e92fb164fe59d127a201ae408bcffe7f9269d6b57a906be67b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "read:1",
+      "aliases": [],
+      "sha256": "0a2f14735a466cf17208a3f96af68348bc1927e508c6d83e0f356e65725f4113",
+      "status": "approved",
+      "transform": [
+        [
+          1.1638663467156822,
+          0.009065384390912819,
+          -27.29437563199316
+        ],
+        [
+          -0.008261779576937947,
+          0.9721879799820777,
+          -0.24984617330598255
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "7d00a4fd5776d26f264c0df2dca03cd662a5d6460f7efa69193cafc8f0587821",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "read:2",
+      "aliases": [],
+      "sha256": "195cd7041ef5a5117770b87c018dfb18962737bc2d5a090bd8b4ffb96e0249d1",
+      "status": "approved",
+      "transform": [
+        [
+          0.9979596831220726,
+          0.08174028929379545,
+          -16.564661741406027
+        ],
+        [
+          -0.07731853064433238,
+          1.0663135835503315,
+          9.26184505051836
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "107a4112888a1bcb4999efd05f5a8b7d3dfd03fb038ddb8dab33c781fdfb7bbc",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "read:3",
+      "aliases": [],
+      "sha256": "7ee74abeb3d3b047e648b62dce03644858528458c4a9ddd44ea52f940a750e45",
+      "status": "approved",
+      "transform": [
+        [
+          1.167590525547864,
+          0.011898616450733372,
+          -18.39717433669518
+        ],
+        [
+          -0.011667660495639458,
+          1.0138253354401412,
+          -15.526221654552828
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "3d2e13990b8bffe0b8a8ceabb0577a84316433491e400b9165221452e27935d5",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "read:4",
+      "aliases": [],
+      "sha256": "4917f72b49a94111aec30b9ac29fde21beb2602fb7f5df02ca8a2183300cbbaf",
+      "status": "approved",
+      "transform": [
+        [
+          1.1524146978467358,
+          0.011168023601235165,
+          -25.932921982939636
+        ],
+        [
+          -0.010851591608605908,
+          0.9999438732527148,
+          -12.146182476445889
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "807aa469584148c9c674d718f47f1e15b15741cc85f3969fd83ccee3f6252191",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "read:5",
+      "aliases": [],
+      "sha256": "b0b92acfd108d4bc5d2453f533efad0b8a25977734b5b7cc75cd4eebc78a3b31",
+      "status": "approved",
+      "transform": [
+        [
+          1.1198246627051027,
+          0.0134803379405407,
+          -27.26062108116439
+        ],
+        [
+          -0.013551553319342062,
+          0.9860243742912275,
+          -11.43505798882379
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "1a3e2efd0cef433578cea1acb0ad68a4ec5d0679b9379fb3b05c827084b1aafe",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sad:0",
+      "aliases": [],
+      "sha256": "d682d9c94490753c2cb5ca7f763828abc5adc152c3747cfabaa02889bf975e2b",
+      "status": "approved",
+      "transform": [
+        [
+          1.0270799042882253,
+          -0.039708862168644866,
+          15.330840496346996
+        ],
+        [
+          0.04269053525925632,
+          0.97141313580144,
+          -7.3309280881942
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "c0757052a0d3fa338cc7e91120b61956ee1eb0900be23d3166ecc48443d9e35a",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sad:1",
+      "aliases": [],
+      "sha256": "cb2f2cbd3a59edc0c8ecd4e2952c1596bb81d53be42a3ad41e29e28e4cf3acaf",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sad:2",
+      "aliases": [],
+      "sha256": "f63263f142d21b26ccd187a85fc1be9e71917f3f5f17420b2fa1cba1dfa2b4c0",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sad:3",
+      "aliases": [],
+      "sha256": "7dc9f739f8e880f4925c37d7937614ade0b287ddbf8de0fee2f933503e03ebd5",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sad:4",
+      "aliases": [],
+      "sha256": "435af389ff2d8d47a27741c9c1ecae3b6bc73c0d9e747f245312cf884b6631f1",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "sad:5",
+      "aliases": [],
+      "sha256": "382197aea24dbbefbd12a17fcdf2ed651f918b2fa6abd0c3e5eeec9dd218c2ab",
+      "status": "approved",
+      "transform": [
+        [
+          0.9990902718035857,
+          0.006034242820932481,
+          -24.193685515607037
+        ],
+        [
+          -0.005865514755074899,
+          0.9722045506134821,
+          -15.477145152955954
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "dd90d728bac49ca3cdbf93ad895e1021488d46a055fe1e08b4f63092ce0dc40e",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "shy:0",
+      "aliases": [],
+      "sha256": "9d1d2dbbd248ee13a9a7f32c755acafe537fa17e16c5b719146fa532905d630c",
+      "status": "approved",
+      "transform": [
+        [
+          1.027772113997003,
+          0.008401547613705774,
+          10.495691392843543
+        ],
+        [
+          -0.008344485542371726,
+          1.0138546621206352,
+          -3.1415349709475255
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "fc1240f4ea8e1df7b5f21f30a36c6f7b1cc4ea2ec5dcc473b0b8695d97090447",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "shy:1",
+      "aliases": [],
+      "sha256": "ea9cb36d36ed946cf5cb1e8e6b0a0df52b7c218f15bf8de2384daea51c2f9d42",
+      "status": "approved",
+      "transform": [
+        [
+          0.9932734500804025,
+          0.01254094422716024,
+          0.044300422984691265
+        ],
+        [
+          -0.012543641154741646,
+          0.9860316350035467,
+          1.6740786020189133
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "a00682720e22aed95feba7c0440213ef8a1ac45312b33823c317eaa28f86eba5",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "shy:2",
+      "aliases": [],
+      "sha256": "1f9539bdff1691af3c67867477f2de5bb963bffd951560cafbb382c8c7ca937f",
+      "status": "approved",
+      "transform": [
+        [
+          0.9980253994234276,
+          -0.0004122224377777328,
+          -16.39241639019746
+        ],
+        [
+          0.00038703869885418354,
+          0.9999998645191869,
+          -1.597407313118382
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "9e7b6dd082ae9accfe7266d15f7dacba7197d2bc71d025fe83eb37bdd3920900",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "shy:3",
+      "aliases": [],
+      "sha256": "e44318389913eaf646038bcd0bdc97d2175ef7cfb6ed10ed3d2ebc62c7d92b60",
+      "status": "approved",
+      "transform": [
+        [
+          1.0230398449932867,
+          -0.021484178638100315,
+          7.80025563972141
+        ],
+        [
+          0.025598785620419093,
+          1.0348993146414878,
+          -6.879229504287932
+        ]
+      ],
+      "landmark_review": "Manual closed eyelids; rejected collar mistaken for eyes",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "e8800e4666d8041e916eb3214d4df7453b3dfd5294e3e944f0610446e0e44d7b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "shy:4",
+      "aliases": [],
+      "sha256": "4a473fa92f003727e6dbd7816da4c4aa7cd6be4557793d8ae11f010e3b730097",
+      "status": "approved",
+      "transform": [
+        [
+          0.9121678030166176,
+          0.05077325379713473,
+          2.6135016302297336
+        ],
+        [
+          -0.04691381634779927,
+          1.0126131840207302,
+          -6.44607504171076
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "3104bf8751dcb6a8b033dddbce9466f6a575e9e3c8fa194b1e928754eee7f931",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "shy:5",
+      "aliases": [],
+      "sha256": "a77a1be05d85381377c82cae4657076c3c3b4fa80e406cbaa56db244eb78d1db",
+      "status": "approved",
+      "transform": [
+        [
+          1.0033709630099967,
+          0.0030439972588083065,
+          -17.89104950527542
+        ],
+        [
+          -0.002883035570797444,
+          0.9861071112527736,
+          -11.035193096320096
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b6a76194b1988bf21bfb8edaf22799c38242de22507f37953a1dcf49c4490333",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "smile:0",
+      "aliases": [],
+      "sha256": "8e9785e8fa8f6d484e0a1b1851b1f931bd7485dae5ed5b3ea469fa521a0abc1d",
+      "status": "approved",
+      "transform": [
+        [
+          1.114273764040727,
+          0.0038779500244745316,
+          -0.676258435966611
+        ],
+        [
+          -0.0020202430710530993,
+          0.9166667523775398,
+          3.290428510543512
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "a30ac7d2280e343eb450bdaee99041a6586f2a4acae9087f633abe1cc4119e98",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "smile:1",
+      "aliases": [],
+      "sha256": "bffdba2cc9488ed04e837c6e31455fdc7ea125e0d5866b3af1eb2f39e1f86a3b",
+      "status": "approved",
+      "transform": [
+        [
+          1.162338434677267,
+          0.009184732573647773,
+          -19.556007279453933
+        ],
+        [
+          -0.00836240325819558,
+          0.9582978910461906,
+          3.6069596332449536
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "68da1be94e7b460c3d5e306be514ff41cffb169bf792574e543d80aba5e56893",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "smile:2",
+      "aliases": [],
+      "sha256": "ef1b7556e1345a16697c0ecfacdae6c34a2986d23dac97faddb907bb309e1da0",
+      "status": "approved",
+      "transform": [
+        [
+          1.1622536019427492,
+          0.017106639219978622,
+          -34.43811529327684
+        ],
+        [
+          -0.018063187538393376,
+          0.944298748941728,
+          5.091998623312839
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "53de9021a02471bbe34469cc22d51d7fcbeed765e82ebbd9fb54aba8609ce2e2",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "smile:3",
+      "aliases": [],
+      "sha256": "5707b5af4e6d4977aa725a546c04e55440de6763b644c174296bd93915c25fbf",
+      "status": "approved",
+      "transform": [
+        [
+          1.14039594076427,
+          0.010192840395079119,
+          -4.6833380656388615
+        ],
+        [
+          -0.009646271242782918,
+          0.9443976612698868,
+          -1.1959291528639915
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "18890497398cfcc98800af561d07de981d43fe77bd068b8edfb7adcdf376eca7",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "smile:4",
+      "aliases": [],
+      "sha256": "b5a977dcee9662d6d331528f4f7f088c1132c9f68917d0ece13cc95c7cea347f",
+      "status": "approved",
+      "transform": [
+        [
+          1.1136662542741125,
+          0.008754362272199993,
+          -15.74019196268329
+        ],
+        [
+          -0.00816081699888892,
+          0.9721886011417705,
+          -2.5264788282981256
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b486e538fef7d9c39c5f8c4f6f92a053e0bb716d561b8ba2b3b48cd39b9f2504",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "smile:5",
+      "aliases": [],
+      "sha256": "8e716f82b5548a6323bd8854b3f6d6a293e3f41c74c008b00d395d6f0a87e9e1",
+      "status": "approved",
+      "transform": [
+        [
+          0.9956423585628164,
+          0.0012272426507504753,
+          -12.41258948848346
+        ],
+        [
+          -0.0009650958700733864,
+          0.9722223813040459,
+          -3.4218817507586676
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b8c030840cbe7f5e5c0bae063100bf88123a99e8cc10c8602145957b95988dec",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "stretch:0",
+      "aliases": [],
+      "sha256": "d144c71599b8fc3f610920a374578becb2ed22de11ba1dbb194b215f76e0b16c",
+      "status": "approved",
+      "transform": [
+        [
+          1.1123404407858901,
+          0.004089961271561849,
+          -12.179922925884815
+        ],
+        [
+          -0.0024339460181789494,
+          0.9305541273376089,
+          -6.108437313341365
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "eea4e988b5fd823f857d3218f8d6e658bcdb516a7ec8cfc1faa4e147bd9fb4fc",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "stretch:1",
+      "aliases": [],
+      "sha256": "46f523006d8a3187e7054b56c6269f4fb87604d787596b919f2092bb47c68d69",
+      "status": "approved",
+      "transform": [
+        [
+          1.1299033186646066,
+          -0.053442358031784896,
+          -14.853881958062756
+        ],
+        [
+          0.07146428582884379,
+          0.8872914123296926,
+          -14.41816278364973
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "955cb712b73d9fea330395a1fad9d7e7b2ed293dc32c54d70b915686a9445502",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "stretch:2",
+      "aliases": [],
+      "sha256": "89fdf8c382eeaab378929dbc24754bb653648c9ac7f26064ae26735d21cb0c51",
+      "status": "approved",
+      "transform": [
+        [
+          1.0829865335907003,
+          -0.14349009733355023,
+          -17.992885737410315
+        ],
+        [
+          0.1800554947172118,
+          0.8772398979033398,
+          -22.246703756681427
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ac37a91c4f5df6e14a5ea617c34a32e11129bd416b7975ad35a689f75c1dd1f5",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "stretch:3",
+      "aliases": [],
+      "sha256": "7a25808ba57f073a85df571e51d4dc5083d61b5332cf64023004e51de8be6eae",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "stretch:4",
+      "aliases": [],
+      "sha256": "7e239b35c373db8fcbd4a459957991a7a07bf255c0c0442187b005f2ab400cb7",
+      "status": "approved",
+      "transform": [
+        [
+          1.0404490475122297,
+          -0.24070332357836097,
+          10.830136465744065
+        ],
+        [
+          0.29540685608405653,
+          0.8556866805880223,
+          -44.294488081471016
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "cb272acfe62c6d87230ec4620d2f19ca23c8bbd07e4ae8fd03acdfc0ea053a52",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "stretch:5",
+      "aliases": [],
+      "sha256": "22f0e66a1ca2be1fcbe8d166860c15ea77de9462a2b9b4cfc67232c21288d4d2",
+      "status": "approved",
+      "transform": [
+        [
+          0.9936486204861962,
+          0.013518508841078289,
+          -25.197160010094017
+        ],
+        [
+          -0.013601712371678183,
+          0.9443496160585161,
+          -10.280855244453566
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "800bb75344fbd19b578d4b2b66a627e64f26c414eef383ff621a4f51fbc4d3f1",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "tea:0",
+      "aliases": [],
+      "sha256": "cbf33566925fd3a31f2cca81d8f3c310f954008a62b78eef4209ac5bdd67ae22",
+      "status": "approved",
+      "transform": [
+        [
+          1.0209809629934743,
+          0.005002768723838413,
+          11.459537827842249
+        ],
+        [
+          -0.004743064737160407,
+          0.9860997870761342,
+          1.0040797410285407
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f9752747898a2c69db7a069d6cd8aa0dbf01ed66b95de5b8b325eb12f9b5d685",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "tea:1",
+      "aliases": [],
+      "sha256": "e1232e5abc59adfe3496b8ffed3cd54e7cfceb9c3e5e8ae8f64055081156ddf5",
+      "status": "approved",
+      "transform": [
+        [
+          1.1278047375972917,
+          0.011764255727726462,
+          -16.796332321795973
+        ],
+        [
+          -0.011573446050929137,
+          0.9304894469272742,
+          3.4395119425864555
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "e1f6af32ed4f2a750cd8c5febb3bca55c43bf8cf9ea46fd3acaec08f3176fda2",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "tea:2",
+      "aliases": [],
+      "sha256": "6a17365fc764882bab00045327121f80c4d02b3bf658906a7b4132140a4102ee",
+      "status": "approved",
+      "transform": [
+        [
+          1.093416547893845,
+          0.004051843117361363,
+          -26.760331683938496
+        ],
+        [
+          -0.003352681868187375,
+          1.0138839165412918,
+          0.12782962251491395
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ff2ea0653b53ca01c2d285f5d3cd8cabaee1505c2b41b9b7d30990da39d8032f",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "tea:3",
+      "aliases": [],
+      "sha256": "8097a812daa166a6671b4be1b1d133858742b3e25dd41933590e0cbf1b37cdf0",
+      "status": "approved",
+      "transform": [
+        [
+          1.038496149388411,
+          0.00937051364186644,
+          8.74085744394671
+        ],
+        [
+          -0.009206368256943182,
+          0.9860686183531585,
+          -3.7016001139399846
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "8c3d6aabb4c6bf8a80122348f446efb153c7bb15c49bbe12c235464f1fe9ed1d",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "tea:4",
+      "aliases": [],
+      "sha256": "dd96b77831065ccd96ac4df303c6c05b1fed1823c868fd5b5538f7c2b64614e1",
+      "status": "approved",
+      "transform": [
+        [
+          1.0243602758911128,
+          0.0027652159691483706,
+          -2.7931519794985578
+        ],
+        [
+          -0.002392602673864122,
+          0.9861087642701858,
+          -5.294829737277797
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "30cba661f4e226e2a9c41c7f2b806b8415e7819c7f50f9b9af9895f2520426b4",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "tea:5",
+      "aliases": [],
+      "sha256": "a3fa1be5fde58d783119bc6b2a4024a8d04b7bc98e19c7d83360cc66a384a02b",
+      "status": "approved",
+      "transform": [
+        [
+          1.1052791236472608,
+          0.008888042731454321,
+          -27.960846567394967
+        ],
+        [
+          -0.008406973587389836,
+          0.9860758677773881,
+          -3.2544523115464448
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "90f05b1cb01cdf8797fbc758b3043ab5776fe1a97094dcfb107aec7efadcb8d8",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "wait:0",
+      "aliases": [],
+      "sha256": "120efc2a155cf5c490b8d5bb86c4bdea939e20373e95bb02fa22e959a1ef3996",
+      "status": "approved",
+      "transform": [
+        [
+          0.9735471235294287,
+          0.00391195564844213,
+          42.57295298478604
+        ],
+        [
+          -0.003900876925193875,
+          0.9722144655038444,
+          1.2363865140509882
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f20d86f986b86d903d655301b8e226061d9145be4903fc55ce46a66350efa852",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "wait:1",
+      "aliases": [],
+      "sha256": "7e5ebb0a03a09ebfd753874ca33866c94bf63ca879551e30b99f083a2127f158",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "wait:2",
+      "aliases": [],
+      "sha256": "93a7f776030327d2ed2d6f66cac7e1ffdedf9bfb6713efea358c39f04adefac4",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "wait:3",
+      "aliases": [],
+      "sha256": "f03aca7fb2ccc25ea21c0310d732ecf8dad058a8d737fceedb422a6c03248c14",
+      "status": "approved",
+      "transform": [
+        [
+          0.8993782576528292,
+          0.2109952096974115,
+          34.5445458693058
+        ],
+        [
+          -0.21263227037253635,
+          0.8920534743140224,
+          20.912134048118062
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b0c03482f85a94e97fbd0635f4feccdd4fd4820f1267dc0c8c50dd3c3cdba9fa",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "wait:4",
+      "aliases": [],
+      "sha256": "6f752c05298d97338b9edce81450e56b850183ed5f2e5db0d9eae767a4902cf1",
+      "status": "approved",
+      "transform": [
+        [
+          1.04511378451095,
+          0.0020458615648967994,
+          -7.949448505612293
+        ],
+        [
+          -0.0009593138990900902,
+          0.9444462587572491,
+          -6.7417322141615665
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "fc0f3b5873beb4bcb1b6b0e79c436cb9269b04f3f93f5a7e9cd3f228c00975c1",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "wait:5",
+      "aliases": [],
+      "sha256": "939b51abe257d3a54cfe5b4b63bddccbaa5e879dcff1cc91774272bc916ce99d",
+      "status": "approved",
+      "transform": [
+        [
+          0.936207517995367,
+          0.002498696129771666,
+          -33.71973773732013
+        ],
+        [
+          -0.0024441785753555813,
+          0.9305524351585918,
+          -8.200678941944298
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "659f472c4aca4bfed4b3d18e5560a7933edb92fac2a48f31adcd1ef9695561b5",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "work:0",
+      "aliases": [],
+      "sha256": "1667fcb4eb3b6870f8e84ff553814baf5bcff9ae064b8d9719f16a6e6d80dd7c",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "work:1",
+      "aliases": [],
+      "sha256": "f9f4040cafb8db0934f245e4480498a74d4254dee6f93141e2def346de668377",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "work:2",
+      "aliases": [],
+      "sha256": "c3f0e4b63a57b3f4681542e72648aceb53f4c4fc65ed04e27764e3e685e8a0f3",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "work:3",
+      "aliases": [],
+      "sha256": "50bf64053ad61c35da1b3a9c102df7b1b3435b10dff87ac80aee084d280c05ce",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "work:4",
+      "aliases": [],
+      "sha256": "1d6ada5139287d8c5fcea1be89b81f0dcb76ea6387d9a99ce15e0093c0f5614e",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "work:5",
+      "aliases": [],
+      "sha256": "766a90da079346603951db88c822ba26ec3f8e96d56ca6d9abcfd15878292c77",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "yawn:0",
+      "aliases": [],
+      "sha256": "77d7ea4c08d6e8348ce9098c3591ba7643fe5a9a1a0daf6d2b83dec76ea60c40",
+      "status": "approved",
+      "transform": [
+        [
+          1.013674875471468,
+          -0.005315885220062388,
+          25.36208028108333
+        ],
+        [
+          0.006063611895732081,
+          0.9722092772287763,
+          1.4281113917331802
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f89b8ab65292f13e4299b599ca9d152997c1c72808dffdc9eea3b8472b412876",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "yawn:1",
+      "aliases": [],
+      "sha256": "015ed215c7549413a73fd6f4c87e1e2a35ae2f592b40fc409e38aa1382d62e14",
+      "status": "approved",
+      "transform": [
+        [
+          1.080666331569025,
+          0.005267029729680031,
+          -14.789532521387834
+        ],
+        [
+          -0.004552600375399165,
+          0.9861007734442243,
+          2.3622944647389406
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "61a1f79042306e862044e49f216de0a9c171405c673dc5bf1dd61a396ceb7c59",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "yawn:2",
+      "aliases": [],
+      "sha256": "51ac13a9fd12ff10cb9e4cf48a5803b1926f1c4ff68139f62610d52ae8feef55",
+      "status": "approved",
+      "transform": [
+        [
+          1.0871629232742615,
+          0.005566085631382128,
+          -38.24942727680928
+        ],
+        [
+          -0.0048291521644329895,
+          0.9860994163826848,
+          2.366604228666032
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "653010bae33b76b16625ee44bd072d856fd39eccb35427369bfb937d6236ff79",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "yawn:3",
+      "aliases": [],
+      "sha256": "8557ffda6dbb1573dafc46c1c479a51ba0a69ec170ef32a98e061c573669db2d",
+      "status": "approved",
+      "transform": [
+        [
+          1.092105856884417,
+          0.009971030380714166,
+          13.088298503985943
+        ],
+        [
+          -0.009703953443525112,
+          0.9999539539795285,
+          -13.071018432140583
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b9d69220190cf9d06087eebf1d9037e6102b7c6083d5f51547fc842cd92a3299",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "yawn:4",
+      "aliases": [],
+      "sha256": "9edca086d3edca60022af4a980a376241baffd00772d9e470181277a6a646aff",
+      "status": "approved",
+      "transform": [
+        [
+          1.0116819282621088,
+          0.0021693060682463784,
+          -4.814822138238153
+        ],
+        [
+          -0.0017618460961241352,
+          0.9722213471498978,
+          -12.605276332902275
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "4f5966671bb8fa5276221155eae8036d9dec9761555dfa537b36b5d14ab4067a",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "yawn:5",
+      "aliases": [],
+      "sha256": "b67dfb77ee9fe880af3e398c4ccb4f73f32908df0ac57d8c4618d3a7ab2f443d",
+      "status": "approved",
+      "transform": [
+        [
+          1.0122819906336165,
+          0.009721526050458281,
+          -28.855809405629323
+        ],
+        [
+          -0.009618894178548098,
+          0.9721751931847228,
+          -12.268113823170616
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b89dba303ba6ba49de5bfb7ad4aa64c19c94b22443c72f2f54790414867a4f2e",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "reading-pose-1:0",
+      "aliases": [],
+      "sha256": "b0e66f2c92b3f03c47883fd8cd4f04981c33332911734ad07250d952cec1b1c8",
+      "status": "approved",
+      "transform": [
+        [
+          0.8608404710341091,
+          -0.03127147802018649,
+          13.04327422351508
+        ],
+        [
+          0.02697097583019543,
+          0.9578194771966141,
+          36.49580169482897
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "18f39e7555a311c2a781858e2e755c4984f663f499256a81aab630d018f7d40e",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "reading-pose-2:0",
+      "aliases": [],
+      "sha256": "25be27744653c66c16eaba0b3e8bcacc2a3e73ed3d946b340c6d187ef8ff10d1",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "reading-pose-3:0",
+      "aliases": [],
+      "sha256": "5e149e69995f5e8ab1896af366bf2b7b0f61105d7cee427cafff1c53a908a855",
+      "status": "approved",
+      "transform": [
+        [
+          1.1142475727178238,
+          0.005558459774301442,
+          -15.856737404170035
+        ],
+        [
+          -0.004388290056038812,
+          0.95832363936423,
+          11.297497602032609
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "69f808a3e07bfc3b675b74e5be9d97e529ec431d38e32e8df81d34fc12d1c0cf",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:0",
+      "aliases": [],
+      "sha256": "fa91c336cd226b94c2e615e0a9cc5cf49213d50ac7d826082b777bf26224cd0b",
+      "status": "approved",
+      "transform": [
+        [
+          1.1835510740688646,
+          0.019381940617277833,
+          -26.267148232821626
+        ],
+        [
+          -0.02097558441613148,
+          0.944255796357515,
+          2.302224578527902
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "e1a380f15d4ceb14841ff237685c2fa6482b9b7c92485b60ebdc4505dad28489",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:1",
+      "aliases": [],
+      "sha256": "30b1f2ff45454afe9eb9466ababf58717b8a5db3b880312e1c22f4c514ed901c",
+      "status": "approved",
+      "transform": [
+        [
+          1.03015395030522,
+          0.03129687125634701,
+          -10.026545642962807
+        ],
+        [
+          -0.031100151037105995,
+          1.0411959689469057,
+          26.526722856609275
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "45a5b9443a0fc477b7fc967cd549139b8575c9d659d6745b3736a6c4ac9b6a70",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:2",
+      "aliases": [],
+      "sha256": "f2d283988d2ab7293da72493edc960b52250aa681e140e48756a105b20fe9e72",
+      "status": "approved",
+      "transform": [
+        [
+          1.0228378178145323,
+          0.06252846618924054,
+          -16.410602920163274
+        ],
+        [
+          -0.06450109241398502,
+          0.9841282081065327,
+          67.02665918681011
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "3931c8f20ed8c48431af93b768d839c78bba1e30a33a8cf9fa21358301da7d6d",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:3",
+      "aliases": [
+        "sit-neat:9",
+        "sit-neat:15",
+        "sit-neat:21",
+        "sit-neat:27"
+      ],
+      "sha256": "1b803d0d7e80d7a7b81aa9c40d06e1d93a79fa957ab82c467f8a3b12b1fb97e4",
+      "status": "approved",
+      "transform": [
+        [
+          1.052981048606,
+          0.10975882202482232,
+          -22.00287234802321
+        ],
+        [
+          -0.11699228507769198,
+          0.9799866782874144,
+          66.55353458398966
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "e74b00ff87580c1b222102f31a4bc49fa30a06be7abf26499265b97477c4ab0b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:4",
+      "aliases": [
+        "sit-neat:10",
+        "sit-neat:16",
+        "sit-neat:22",
+        "sit-neat:28"
+      ],
+      "sha256": "0b2a6cd437da548f408fcc7b262961c1e60744f38d86a1cec853a7bba08ebdfd",
+      "status": "approved",
+      "transform": [
+        [
+          1.0646409827980678,
+          0.1467790383460108,
+          -28.952364244818636
+        ],
+        [
+          -0.15497220386473273,
+          1.0032106651465107,
+          73.05673969640038
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "40da022bf4edc0d48af564d98706cb2ffc3c731936ce7987a069124231f2d8a4",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:5",
+      "aliases": [
+        "sit-neat:11",
+        "sit-neat:17",
+        "sit-neat:23",
+        "sit-neat:29"
+      ],
+      "sha256": "693f91bb20777b96b36b318d17afe39a0d2c6fd24d16f220860d7c3f82c96e3d",
+      "status": "approved",
+      "transform": [
+        [
+          1.022116536553278,
+          0.24643947147452122,
+          -36.606579899365485
+        ],
+        [
+          -0.2628968320077309,
+          0.9548235876983995,
+          85.95711700896011
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "36a1051e9b0698e982fd13cdf2dfe0d847baee89f40ba5afc931b493bab1b8f9",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:6",
+      "aliases": [
+        "sit-neat:12",
+        "sit-neat:18",
+        "sit-neat:24",
+        "sit-neat:30"
+      ],
+      "sha256": "dead9c0161d71f2a5361a7373511f9a759b17ad60f9484b428f09f0fcf6c88e7",
+      "status": "approved",
+      "transform": [
+        [
+          1.1448238138280202,
+          0.05740671497781074,
+          -30.482144026026926
+        ],
+        [
+          -0.061830529403479155,
+          1.0400878095795099,
+          57.96217752596292
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "785a3636c6b7a6a593d66e3669847067b2589f0a101745f99c762b81765bd1fd",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:7",
+      "aliases": [
+        "sit-neat:13",
+        "sit-neat:19",
+        "sit-neat:25",
+        "sit-neat:31"
+      ],
+      "sha256": "cbea0f800f4924b4aacb7d60fea0a3a5801d303d46229ccc416367c5fb7b3f9b",
+      "status": "approved",
+      "transform": [
+        [
+          1.0210652732692664,
+          0.09638487270800367,
+          -18.618976819221405
+        ],
+        [
+          -0.10234806796597891,
+          0.9534767050356251,
+          65.94507255589699
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b82cdb4d8d3ef73b018b45a5f50ba54c1ca3662be175a15e27716ac41a2bd54e",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:8",
+      "aliases": [
+        "sit-neat:14",
+        "sit-neat:20",
+        "sit-neat:26",
+        "sit-neat:32"
+      ],
+      "sha256": "f1f7589227387597cade7f9f2b35ef29513dd173ac4d7b66599db9b427aaa5a4",
+      "status": "approved",
+      "transform": [
+        [
+          1.021702411939249,
+          0.11467849316256266,
+          -21.820006853607747
+        ],
+        [
+          -0.12064047964544597,
+          0.965437272989944,
+          67.52652981114042
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "654ac50dec9f7954eded7a76182cb490bb84ff4cb9775b54b2be8a5ceb84ec23",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:33",
+      "aliases": [],
+      "sha256": "bac80861fdac30d55bf6709cfb05a5679f7fd645aac67526e5c7186a49eed0aa",
+      "status": "approved",
+      "transform": [
+        [
+          0.9623750301569898,
+          0.1072045068800734,
+          -42.8759650738094
+        ],
+        [
+          -0.09816248264179708,
+          1.06405405319212,
+          76.86698137855055
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "c683feabda06b917250a1ac61b79943382052dae0d77ab28bb332210b240722a",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:34",
+      "aliases": [],
+      "sha256": "550dea1ff2a59df8ba4ba2c53a5ce9d1d3b64115f72970e44cad9ce34a546a06",
+      "status": "approved",
+      "transform": [
+        [
+          0.9713133470740652,
+          0.07297759561287948,
+          -23.013837676577477
+        ],
+        [
+          -0.07309285891241124,
+          0.9694794573322447,
+          39.00747626666689
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "cc7fd4e95d6e76802d3f2097988600f819a987feca32a1be62188b5f4b1652bb",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-neat:35",
+      "aliases": [],
+      "sha256": "950972ab7ae331d327fbde6ebc46b7cce73beb6c8f553a641f17ab0b5e77bf09",
+      "status": "approved",
+      "transform": [
+        [
+          1.0412870734826465,
+          0.009337509639130619,
+          -7.50981624599919
+        ],
+        [
+          -0.009120676968321577,
+          0.9721800730687545,
+          -0.8165492305058412
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "88bdfda49aae30fc3ec8b8d934b9a72e92d7ae29d7a09abce8cfe08e6dcb8440",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:0",
+      "aliases": [],
+      "sha256": "482be64748ca0fc137d7dbae77593c4518884f6d2443b2e46caa2f742f92ddaf",
+      "status": "approved",
+      "transform": [
+        [
+          1.2154444309881554,
+          -0.0003862238326961836,
+          -29.33072169291135
+        ],
+        [
+          0.003626043125333242,
+          0.9861207058313183,
+          2.1491742029586742
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "98a1d69b46743142c225847845a499060d25b1b1d72bdff512cf768fe482824e",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:1",
+      "aliases": [],
+      "sha256": "cbb85402825a8bfe1bd1ebd33c11f2f03611fe82d10d9723bde92d40c9e2c0f7",
+      "status": "approved",
+      "transform": [
+        [
+          1.1745574845760585,
+          0.02802666741702663,
+          -38.43373340941707
+        ],
+        [
+          -0.030589715505731044,
+          0.9996144657350632,
+          46.100693008840175
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "bdbd5bbd661c1895cf4b80705b1e61c3d27e179851f0b3774ebe4b662ab56f46",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:2",
+      "aliases": [],
+      "sha256": "8fa28ee97211be5cfe8aecb7f458bcee98962c5c7aaede6b3ca33c949bc00740",
+      "status": "approved",
+      "transform": [
+        [
+          1.0527339554315285,
+          0.0570444456892035,
+          -23.658555425305114
+        ],
+        [
+          -0.056990797835246625,
+          1.054012989372628,
+          60.97222084769727
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "cf4bf8e63316ce2f53f627b2c55e2b249eb19c34bf58b0c1993f05ee4d02a684",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:3",
+      "aliases": [
+        "sit-relaxed:9",
+        "sit-relaxed:15",
+        "sit-relaxed:21",
+        "sit-relaxed:27",
+        "sit-relaxed:33"
+      ],
+      "sha256": "57d0c8f2c5ccd2bb5bc86620d459cc4c3af8ad28430abdc5d9f95042bb5491d1",
+      "status": "approved",
+      "transform": [
+        [
+          1.0573666943150306,
+          0.1143654879573083,
+          -32.00143501124689
+        ],
+        [
+          -0.11514016850753445,
+          1.0493421058355827,
+          77.91906817713777
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "2143d199c3c1cefe12237fd9a1aeb77f1d94360f4be93da544ac593eb6b93015",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:4",
+      "aliases": [
+        "sit-relaxed:10",
+        "sit-relaxed:16",
+        "sit-relaxed:22",
+        "sit-relaxed:28",
+        "sit-relaxed:34"
+      ],
+      "sha256": "248faf91f4eb74816401eb7fc41fb223648ae47e39f345bf7455c38c92d5beb8",
+      "status": "approved",
+      "transform": [
+        [
+          1.2495611048359925,
+          0.054232937694590956,
+          -54.78336813988871
+        ],
+        [
+          -0.05866916222116835,
+          1.1236971250430787,
+          68.91126474755981
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "01985881b77a43e605b3b81846b235eb92bf5f2dc609fc1388fb6b3c141b50be",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:5",
+      "aliases": [
+        "sit-relaxed:11",
+        "sit-relaxed:17",
+        "sit-relaxed:23",
+        "sit-relaxed:29",
+        "sit-relaxed:35"
+      ],
+      "sha256": "34dd669e7f83aab8165c1ca527862529707161339cf87c4bdf9b74014923649a",
+      "status": "approved",
+      "transform": [
+        [
+          0.8930340140341956,
+          0.014331777006781198,
+          -12.038222195067256
+        ],
+        [
+          -0.01402230936819674,
+          1.0137833572486443,
+          68.11885425031191
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "9d7d642843d9c650962ec7603f3f6dbaf7377e732b7955e7d1c73753586edaee",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:6",
+      "aliases": [
+        "sit-relaxed:12",
+        "sit-relaxed:18",
+        "sit-relaxed:24",
+        "sit-relaxed:30",
+        "sit-relaxed:36"
+      ],
+      "sha256": "7d78c21210aa7ff6ddcd797ede1e16d4a207830a6e50d56302646e9c27cae643",
+      "status": "approved",
+      "transform": [
+        [
+          1.135416480318743,
+          0.06369306415796541,
+          -42.606296617228374
+        ],
+        [
+          -0.06687805780154739,
+          1.0675486336053528,
+          72.83837677946705
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "2ef408fa2e6eafc79c9e6414f2b9bf995f0410c0ca298eb3497d3436d0d3aae3",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:7",
+      "aliases": [
+        "sit-relaxed:13",
+        "sit-relaxed:19",
+        "sit-relaxed:25",
+        "sit-relaxed:31",
+        "sit-relaxed:37"
+      ],
+      "sha256": "e4cd113159a2697390d61a08cd1b4b35e346b577208619e1b0e1d2e841e12fd5",
+      "status": "approved",
+      "transform": [
+        [
+          1.1835674210819438,
+          0.035633224265507066,
+          -33.398365071563
+        ],
+        [
+          -0.04051240105636513,
+          0.9715779113288794,
+          62.671693132534806
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "9a44078cc6065b13f9de59e311902b7fe5059260a1fa21742b1b44c621ab2edb",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:8",
+      "aliases": [
+        "sit-relaxed:14",
+        "sit-relaxed:20",
+        "sit-relaxed:26",
+        "sit-relaxed:32",
+        "sit-relaxed:38"
+      ],
+      "sha256": "70f141c31afca5e2224b32d8989566cbefaa497c3cbc7d4c9e912ad0e953e804",
+      "status": "approved",
+      "transform": [
+        [
+          1.0358630855938225,
+          0.1101175831972306,
+          -26.256882318317665
+        ],
+        [
+          -0.11145093552136272,
+          1.021862222518487,
+          73.45550045820276
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "443399e55fbf4c7523c0f479933d470807d1605b26e851c59909317175f85485",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:39",
+      "aliases": [],
+      "sha256": "61d5e738314fcda9ccb906cb2576221d5d3e8de4773d98da2899039e1825fecf",
+      "status": "approved",
+      "transform": [
+        [
+          1.0122817440970606,
+          0.041949333244492425,
+          -38.31497734305149
+        ],
+        [
+          -0.040064318307295434,
+          1.082518298448449,
+          81.1620410227397
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "5b7a08007dfb66fc235d5d706bd82a489e3aea6ef183bd31fd1de9d18b1b31f8",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:40",
+      "aliases": [],
+      "sha256": "393c2f238742ea1b05da787ef472aec8e64b8acb35b1d3fca94deec06cb33b1b",
+      "status": "approved",
+      "transform": [
+        [
+          1.169428107480246,
+          0.029864558560068866,
+          -35.32003950737734
+        ],
+        [
+          -0.03325815752409016,
+          0.9717716890508408,
+          38.6375402457014
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "efa8e3bb1fd4ec736fb7f4753aa215cbf8814c89173bbc7cf9e7563053e227c9",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-relaxed:41",
+      "aliases": [],
+      "sha256": "d8d036b9ccd01975beb962296f18306ec9e1da07edc9fdad5df9f7b67bcaaa2a",
+      "status": "approved",
+      "transform": [
+        [
+          1.0860678396700685,
+          0.010332896526813124,
+          -13.592339212633886
+        ],
+        [
+          -0.010148615208910325,
+          1.013839058890104,
+          8.333770984869462
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "928f573a7b83599a18df95245cb20f79b407d03e3b3710c8811e42c2e6b3e679",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:0",
+      "aliases": [],
+      "sha256": "cbc15a1e8e99b552078cbee556ef50aa16804c40db89c6f723098ec3be696bcd",
+      "status": "approved",
+      "transform": [
+        [
+          1.1079822869615006,
+          0.011108656698159908,
+          -15.330627117006472
+        ],
+        [
+          -0.010845601413811206,
+          0.9443858584673261,
+          -1.3340305765045242
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "04720fdcf98b9550e0b090a7fbd5031fb8a34c282277734bf7504af18a8adf46",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:1",
+      "aliases": [],
+      "sha256": "90c7f9da64080fbe144f5862407b6f03be0931b6e4fd6d5d89118885dfc62468",
+      "status": "approved",
+      "transform": [
+        [
+          0.9486988677093294,
+          0.0004292629019362365,
+          -1.5926810919971075
+        ],
+        [
+          -0.0008644547500678604,
+          0.9861096357615369,
+          30.886483520023052
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "b25a5d052d333a52220f8d7644715a27391772be77ef80597038046212ae4e2d",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:2",
+      "aliases": [],
+      "sha256": "1f7a920c639e1db23de76c07387c65bf7fcaf182a203eec3f9a1babc5cc92dbb",
+      "status": "approved",
+      "transform": [
+        [
+          0.9102815391506175,
+          0.019988273945602066,
+          17.716656955567235
+        ],
+        [
+          -0.019350294333048957,
+          0.9859057270219305,
+          58.6949023705432
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "d0ad6cfacd9ce3966bfb2cf61acf8e5511e59c899466207ea056d9baa51e62a6",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:3",
+      "aliases": [
+        "sit-swing:9",
+        "sit-swing:15",
+        "sit-swing:21"
+      ],
+      "sha256": "6aca04569b0ece49946557f7877e9a2370a85b0c4cd5ccf0c3c45a62f8129fc5",
+      "status": "approved",
+      "transform": [
+        [
+          0.9163191154760766,
+          -0.03976203278635014,
+          28.45619073640225
+        ],
+        [
+          0.03979076353425697,
+          0.9158040101472655,
+          62.802961487067556
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "d924e6ef5ccf5ba6b8ab48ec620978e5e977604248c48ce06f757a62f703da1d",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:4",
+      "aliases": [
+        "sit-swing:10",
+        "sit-swing:16",
+        "sit-swing:22"
+      ],
+      "sha256": "9ead0e0ae3b2902bdfb7038aa5cde16c1a58c0bb841b69fd1e29ca7624033d15",
+      "status": "approved",
+      "transform": [
+        [
+          0.9057326298940538,
+          -0.2032158627344571,
+          46.559205315194035
+        ],
+        [
+          0.20265650943313845,
+          0.9080952071037246,
+          42.49081838390086
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "d4abd1c63ab781c26cbaa7caf0e3f7feeaec22ac2004d5c86f4bd394b21066e6",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:5",
+      "aliases": [
+        "sit-swing:11",
+        "sit-swing:17",
+        "sit-swing:23"
+      ],
+      "sha256": "bc15822b63da295262093818be2acc46c2676c061635321e402f55226ef7203d",
+      "status": "approved",
+      "transform": [
+        [
+          0.8757809922937652,
+          -0.2058750741489123,
+          48.87476421970337
+        ],
+        [
+          0.20865358166480943,
+          0.8647194963626261,
+          48.80525154817544
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ca3f630d84c17acc8aa4ae2b4798be1e8c4f007966f2fa51de781a8cc629f561",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:6",
+      "aliases": [
+        "sit-swing:12",
+        "sit-swing:18",
+        "sit-swing:24"
+      ],
+      "sha256": "e7321b15a3fb83265bdffb4afec43a1e8209ca44645c5385b52246dba73693b0",
+      "status": "approved",
+      "transform": [
+        [
+          0.9803224628473259,
+          -0.17694288956839185,
+          32.47647322657519
+        ],
+        [
+          0.1876668624735207,
+          0.9277233302413618,
+          50.33283270537274
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f9b40920b7c05511d2b0f6bc93b59fd87e71e6da64f16b034ae7bc422e7245f0",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:7",
+      "aliases": [
+        "sit-swing:13",
+        "sit-swing:19",
+        "sit-swing:25"
+      ],
+      "sha256": "e2600fd9d165a4ffee158b763626fc4cd4fefedd58fc8731b5e784579bf11a50",
+      "status": "approved",
+      "transform": [
+        [
+          0.86986777060407,
+          -0.1952348683115045,
+          53.359392929078425
+        ],
+        [
+          0.19252843162350752,
+          0.8814137515436966,
+          49.06349374155394
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "910a135edb8c56cdb5bb6c638e758dabe85fabd635e99fe31b31b4285b6e73bf",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:8",
+      "aliases": [
+        "sit-swing:14",
+        "sit-swing:20",
+        "sit-swing:26"
+      ],
+      "sha256": "5d8ccd0eaea5d60c5c65c22985b33b87f001f9b1b2ab0995193a402a97be8b03",
+      "status": "approved",
+      "transform": [
+        [
+          0.9674174583561076,
+          -0.1663849601405959,
+          35.95729016693379
+        ],
+        [
+          0.18247449623365872,
+          0.8873159702068963,
+          43.43093406741334
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "25047a50634b67fc42fc224b4a0eda5d31ceac88fbf0aea4d904a1487f08e33b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:27",
+      "aliases": [],
+      "sha256": "d8eb7d46a4cd93cb55d37eee48b5ef544c187f5a968057661dc6bd6892e61be8",
+      "status": "approved",
+      "transform": [
+        [
+          0.9212824814563588,
+          -0.014220225121379907,
+          8.041183608707671
+        ],
+        [
+          0.013592716489703819,
+          0.944336572570985,
+          51.06460883930744
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ef033c870c3b1acee612718471ba7cef6b6870b9c57bd17b6ed8a234d0d0a585",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:28",
+      "aliases": [],
+      "sha256": "12911619acd5c8c03018d7013f27ea5d834545edabd2c1ffd89ee62bec26ccd3",
+      "status": "approved",
+      "transform": [
+        [
+          0.9007995162576329,
+          0.02509550579236118,
+          -18.50529724216542
+        ],
+        [
+          -0.02465813099680452,
+          0.9302160077652097,
+          37.11166607514821
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "ffd05828afbde3116098358e65cb23e428e3ec05e7bfeda70ae1587d6fac7878",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "sit-swing:29",
+      "aliases": [],
+      "sha256": "60756af68ca0fc9401d14617455438c324a91cb66b742cca6af150f79cc00cac",
+      "status": "approved",
+      "transform": [
+        [
+          1.0433208385654333,
+          0.015949573397462016,
+          -7.4608984196826045
+        ],
+        [
+          -0.01665617570124983,
+          0.8887521221246312,
+          13.869008141500995
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "dfeb2ae4760a735a930eb2248006b41e31d62e937a76263507d4ca3a35d778d6",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:0",
+      "aliases": [],
+      "sha256": "44dcafd7431f98004b970bbe612bd77b948423ffb65b297f689f4265858572e3",
+      "status": "approved",
+      "transform": [
+        [
+          1.0231173473907458,
+          0.028351758434118305,
+          -14.54651206340578
+        ],
+        [
+          -0.02872564367166337,
+          0.9995989394123123,
+          5.228885247928435
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f2e6079ff16dc88d6ab1bf44570ab804e945d92e726bc6c1d966ef6bed340e22",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:1",
+      "aliases": [],
+      "sha256": "eb2be5a5433bbe9c423ddb71c4687289af99e544786c09792b80d01ad447ff34",
+      "status": "approved",
+      "transform": [
+        [
+          1.0474767884446325,
+          0.16313517493667753,
+          -55.57408603080843
+        ],
+        [
+          -0.1508673028519453,
+          1.1411727936038198,
+          74.88555774888783
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "a2a435c65d4da5d29b748771d9fbf9fed7c487f3cce512a8e1f8bba6042d30d4",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:2",
+      "aliases": [],
+      "sha256": "ee77274fa7364504cf82e31528cdbcff50b916745ac7a949864723a29a3c1ee3",
+      "status": "approved",
+      "transform": [
+        [
+          1.0930090163707415,
+          0.03632011368124265,
+          -62.4778746523643
+        ],
+        [
+          -0.03568687939464126,
+          1.1244124315584487,
+          104.03853676103826
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "cf4a5a392174068ee24f901592239055e7b1fecb821fb4ba4640ed0ab6b67093",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:3",
+      "aliases": [
+        "prone-chin:9",
+        "prone-chin:15",
+        "prone-chin:21",
+        "prone-chin:27"
+      ],
+      "sha256": "6420085e393131c1ed8bdf84014e228367d2657b7386049206a5b85af2437ae9",
+      "status": "approved",
+      "transform": [
+        [
+          1.0937427825257957,
+          -0.08290594031899608,
+          -41.04854730854972
+        ],
+        [
+          0.07931947526640128,
+          1.1358657757167154,
+          62.11059208576769
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "1e91e53aaa3d796afc2f3c068d26c34f7e5de52f35202e65360976901e24e321",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:4",
+      "aliases": [
+        "prone-chin:10",
+        "prone-chin:16",
+        "prone-chin:22",
+        "prone-chin:28"
+      ],
+      "sha256": "53e43e6b20a4e043584de0013486afd1398ec5cc0453de37f660c65dd4e0b1d5",
+      "status": "approved",
+      "transform": [
+        [
+          1.1360253311937152,
+          -0.08866418393386956,
+          -42.3774503746191
+        ],
+        [
+          0.08625204510329484,
+          1.1632915848742056,
+          57.44264535910916
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "914cf5004b780e071dfa28d33d6322522f628379c8953628e55d645ecfd30a3f",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:5",
+      "aliases": [
+        "prone-chin:11",
+        "prone-chin:17",
+        "prone-chin:23",
+        "prone-chin:29"
+      ],
+      "sha256": "5996494cf2f015193f86da26dbc104c6a3bc1409a73bbde99ecb3894e4b44599",
+      "status": "approved",
+      "transform": [
+        [
+          1.1934032837446324,
+          -0.06678543549033078,
+          -54.06640678103726
+        ],
+        [
+          0.06497872834771146,
+          1.2203952800564424,
+          60.16616177082878
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "a9742720b777bb4660ff7a68bb049229e15d42a8f9fd781be3e443bb7ff3b770",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:6",
+      "aliases": [
+        "prone-chin:12",
+        "prone-chin:18",
+        "prone-chin:24",
+        "prone-chin:30"
+      ],
+      "sha256": "460e08025a0ec5885d5c29821195ad6507523f5a69c12d1be169782bd82857a9",
+      "status": "approved",
+      "transform": [
+        [
+          1.089041506323962,
+          -0.12869058752964369,
+          -42.71684683507237
+        ],
+        [
+          0.12333004245101933,
+          1.1315931547526379,
+          59.50808186279301
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "60a73d5815e63a365d921c5678ae81f80f29c73f26baf440e7d6d1c816d51673",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:7",
+      "aliases": [
+        "prone-chin:13",
+        "prone-chin:19",
+        "prone-chin:25",
+        "prone-chin:31"
+      ],
+      "sha256": "31ecf545db707f9af560d061db0057e5d7a39089e24cfe20dbb9cbe9b49aae47",
+      "status": "approved",
+      "transform": [
+        [
+          1.0620615779554123,
+          -0.35052446376289864,
+          -9.297285598826933
+        ],
+        [
+          0.34815516447479966,
+          1.0689981219253222,
+          33.25976155629016
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "8ba864fedd92035a3225ae170274004c9dcf1f6242963fe049f1b8af641544a8",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:8",
+      "aliases": [
+        "prone-chin:14",
+        "prone-chin:20",
+        "prone-chin:26",
+        "prone-chin:32"
+      ],
+      "sha256": "8aec2d5e7a74f3db3f5bdd600de623229adbd0fbd57b25f967b5d4a8bdf793bc",
+      "status": "approved",
+      "transform": [
+        [
+          1.2101776305990566,
+          -0.1891184798024161,
+          -44.3733972177389
+        ],
+        [
+          0.1969787872756573,
+          1.1653110597124257,
+          45.46701556501316
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "8be77e4888a1460ca34d05c4e5dd502845059d3993960ef4da8661241b5dcbe6",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:33",
+      "aliases": [],
+      "sha256": "189cbff42a148842a104149d12bdc69cecc4fe6b93efc83fa7d6cb0aadb221a4",
+      "status": "approved",
+      "transform": [
+        [
+          1.0663882411221788,
+          0.12222548051242764,
+          -55.54448645883219
+        ],
+        [
+          -0.1146654252590963,
+          1.146276942614762,
+          59.67249812590844
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "6c6aab3ed54393869189760caf53345a91d1853140fae3c808d6a00db1e3f432",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:34",
+      "aliases": [],
+      "sha256": "896b2cdad342a2da400cfec5039abe776d3567d7a7c87903d63bb13b239d06f3",
+      "status": "approved",
+      "transform": [
+        [
+          1.1252506300141887,
+          0.041605153454653696,
+          -51.69318714989338
+        ],
+        [
+          -0.04431902905380151,
+          1.026939169836017,
+          36.76305066704228
+        ]
+      ],
+      "landmark_review": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "9195fed77c676258e249b18eed58a29f20285719ea12d1df69a88b4d55ba732f",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-chin:35",
+      "aliases": [],
+      "sha256": "c36d1f01d84d2e253436d2c70a49bcceb8c66b1b0663730d28d139feeb920854",
+      "status": "approved",
+      "transform": [
+        [
+          1.0447007217346655,
+          0.012618338206807064,
+          -15.685039766164453
+        ],
+        [
+          -0.012620077244290751,
+          0.9999221711056266,
+          1.4836133688779922
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "9c5b4a045f7155d0003eda8254f1a68a79a3eb2dd3937e9d8f6837c22655d0ad",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:0",
+      "aliases": [],
+      "sha256": "8dc2516744795010bbcddd29389753ca7e052553ea2c0e2cb04ecea0e56b5921",
+      "status": "approved",
+      "transform": [
+        [
+          1.1092822269179365,
+          0.01193158455590088,
+          -15.890751584578295
+        ],
+        [
+          -0.011913547602831639,
+          1.0971578403462454,
+          13.360570610775927
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "524aa7ca697f03e09ca443e0dd31a8956873e32c45f8415edbccf20da42e4130",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:1",
+      "aliases": [],
+      "sha256": "2f24f7803b28345985f0604415ca13fc8d50caaf04ec184dc0f4ff05f1cde4e7",
+      "status": "approved",
+      "transform": [
+        [
+          1.0187259491293463,
+          0.16013022018891515,
+          -50.10362687469411
+        ],
+        [
+          -0.156658461638928,
+          1.0433378120370596,
+          92.18999501531059
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "897c4030e5d16ac3264dd95f9ee337fd2d38e5d24dddb9bef9c2ef0fdbcfa4a6",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:2",
+      "aliases": [],
+      "sha256": "fe1f3e1819b53a4a71b904898ae807c74adac2c0aa2bad88a51a32cab8a20957",
+      "status": "approved",
+      "transform": [
+        [
+          1.0159260331629012,
+          0.09566368159914257,
+          -47.523876055726056
+        ],
+        [
+          -0.0898357440727684,
+          1.0930411569601632,
+          109.73549394936751
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "36004481f656c8152c5879ce1e480a521a0dcb5e941141974be652e476a5946f",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:3",
+      "aliases": [
+        "prone-rest:9",
+        "prone-rest:15",
+        "prone-rest:21",
+        "prone-rest:27",
+        "prone-rest:33"
+      ],
+      "sha256": "94be4fc343e30d4bb6e232bc9258318fc7326e3316427280d879a4d4f0a4fcd0",
+      "status": "approved",
+      "transform": [
+        [
+          1.1490523140680373,
+          0.27937395471458376,
+          -92.54369238744619
+        ],
+        [
+          -0.2975059297580062,
+          1.0754183702206006,
+          158.51227561746603
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "07bcb13a7c2f59b7b66ce2b0e40df329fd4017f89ee2293c07aaba74b40a49ba",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:4",
+      "aliases": [
+        "prone-rest:10",
+        "prone-rest:16",
+        "prone-rest:22",
+        "prone-rest:28",
+        "prone-rest:34"
+      ],
+      "sha256": "44e1a79415c31188e7599c8e07bc9a42dff3b4a009ceb7f588dd6b66fc6004f7",
+      "status": "approved",
+      "transform": [
+        [
+          1.0117280766109482,
+          0.258433408429865,
+          -71.63705940575427
+        ],
+        [
+          -0.255629868934022,
+          1.0234299837662686,
+          152.75193136769064
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "1865a1a0195dc2f83b0e281351b0bd91228ffa5e070d03da26e75d7c42220a82",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:5",
+      "aliases": [
+        "prone-rest:11",
+        "prone-rest:17",
+        "prone-rest:23",
+        "prone-rest:29",
+        "prone-rest:35"
+      ],
+      "sha256": "a0f08b6139200238b330b95570a2f0a9c319644085e30911a15fd384d81d7f35",
+      "status": "approved",
+      "transform": [
+        [
+          1.1589344247911126,
+          0.23185146396981934,
+          -89.28954240844187
+        ],
+        [
+          -0.24332004593275935,
+          1.1008518659172244,
+          148.97948774042322
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "bc0dc0e86a83c2e32214b9dd94e82e6262cda692cc9113bccb03f08da3a11a54",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:6",
+      "aliases": [
+        "prone-rest:12",
+        "prone-rest:18",
+        "prone-rest:24",
+        "prone-rest:30",
+        "prone-rest:36"
+      ],
+      "sha256": "e56cde9834b1ff6c17249451cedf8c8eb67f3d8f9ef827959f416b979bbcae50",
+      "status": "approved",
+      "transform": [
+        [
+          0.9401860214302195,
+          0.45624460158101937,
+          -73.54855093872793
+        ],
+        [
+          -0.4438830509661293,
+          0.9672383248977112,
+          178.87039560828416
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "28c506d2f6db6e0b47cd5339f19524588cba2a9781aa5bc19b9bcf3bef96500b",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:7",
+      "aliases": [
+        "prone-rest:13",
+        "prone-rest:19",
+        "prone-rest:25",
+        "prone-rest:31",
+        "prone-rest:37"
+      ],
+      "sha256": "340043139de83e3ebef4065a13df4afdf039380b362c02681d545df07aa4724d",
+      "status": "approved",
+      "transform": [
+        [
+          0.9889106062971893,
+          0.3301487142652181,
+          -75.37457899912548
+        ],
+        [
+          -0.32582698082106726,
+          1.002595657716046,
+          162.11708169748337
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "3bb9996427d642f5abc3a8a8342f6b24cf2f5368d2b08b3ffcb2e6730af89501",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:8",
+      "aliases": [
+        "prone-rest:14",
+        "prone-rest:20",
+        "prone-rest:26",
+        "prone-rest:32",
+        "prone-rest:38"
+      ],
+      "sha256": "ea3dc07675bef84c4171a654c536bc87023cb2011661e1eb07cf8d5a878952f5",
+      "status": "approved",
+      "transform": [
+        [
+          1.0354403087908368,
+          0.04124466968251342,
+          -56.476023285455064
+        ],
+        [
+          -0.04148081936330142,
+          1.026950220635701,
+          100.90761191055651
+        ]
+      ],
+      "landmark_review": "Visually reviewed iris/lid pair; crown measured in local head direction",
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "39b75f5e32fb65035d48ac3d9d53a1f7d020f1b32843ddae3d80f567494a6c9d",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:39",
+      "aliases": [],
+      "sha256": "ce98ad1a2b3188497f021c4821b8e61bbba43447c91f7b68549f32a4f80e239c",
+      "status": "approved",
+      "transform": [
+        [
+          1.0471300842063653,
+          0.08867594650209822,
+          -46.595606924835316
+        ],
+        [
+          -0.0903934825651697,
+          1.0239459975294882,
+          75.0332693159876
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "53ba53e980a9f406079be74d8efbff6963ddb2338c32e8166f55a42aaae36c6f",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:40",
+      "aliases": [],
+      "sha256": "cdc976559efd87980c48fe7afedc923826511d9a4fbd9442d07e16a0e4988f69",
+      "status": "approved",
+      "transform": [
+        [
+          1.0611364384928914,
+          0.015132086698679858,
+          -24.46006671281607
+        ],
+        [
+          -0.015173340503225137,
+          1.0415574936604368,
+          28.60162961219508
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "c1676d63f40afa89f6bd9331a2c900f53486a0bb9a87272e5cddbcaf1d8fae34",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "prone-rest:41",
+      "aliases": [],
+      "sha256": "b53e17ed4e75713031e62eb48b5a6dfe189dc8cf1fd749643a7fd81decaaf132",
+      "status": "approved",
+      "transform": [
+        [
+          1.0586483566963627,
+          0.009149049015289071,
+          -11.428695691331056
+        ],
+        [
+          -0.009038139966865536,
+          1.0277383013635097,
+          15.107899823160995
+        ]
+      ],
+      "outside_mask_exact": true,
+      "alpha_exact": true,
+      "staged_sha256": "f86c2dca6ff118049d2db2c06221465f0484c39c4cf893b13f6b419b0659b434",
+      "review": "9 contact sheets visually reviewed; alpha, central expression and lower-body byte checks passed"
+    },
+    {
+      "ref": "lazy-roll-toward:0",
+      "aliases": [
+        "lazy-roll-toward:11",
+        "lazy-roll-away:0",
+        "lazy-roll-away:11"
+      ],
+      "sha256": "adee520117098a9dc707158e153017c1e2d87361633957105c4d16b50889c1c1",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "lazy-roll-toward:1",
+      "aliases": [
+        "lazy-roll-away:10"
+      ],
+      "sha256": "a79854da50794eab9b908793d3e83eca6cf7820b7a36b7bbe966de98c95eb55e",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "lazy-roll-toward:2",
+      "aliases": [
+        "lazy-roll-away:9"
+      ],
+      "sha256": "7f7ef57666223e881b4aeee57193098db8f7d28b5aeb910e1ae9c66c28dd1def",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "lazy-roll-toward:3",
+      "aliases": [
+        "lazy-roll-away:8"
+      ],
+      "sha256": "f10196ceff57401b2e843e96e594e94c9376419cd6b1f6e498eb102133763773",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "lazy-roll-toward:4",
+      "aliases": [
+        "lazy-roll-away:7"
+      ],
+      "sha256": "e9deffed8887f85e4f62d52b04800e111b3ddd9cb042758bbf08b48d89042d91",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "lazy-roll-toward:5",
+      "aliases": [
+        "lazy-roll-away:6"
+      ],
+      "sha256": "aaab032172736bc1f1a8fe7da441471cad83e2e6c9d4ff579e6b576d581513a8",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "lazy-roll-toward:6",
+      "aliases": [
+        "lazy-roll-away:5"
+      ],
+      "sha256": "6c00293c770f3d680d95c4c868b705882006e99f5e716cea53d5d98d13fd0e1d",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "lazy-roll-toward:7",
+      "aliases": [
+        "lazy-roll-away:4"
+      ],
+      "sha256": "9ec2280f5807f3ce742108cea3de2c02b45954be79f1330b3b3bbddedf729554",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "lazy-roll-toward:8",
+      "aliases": [
+        "lazy-roll-away:3"
+      ],
+      "sha256": "d31e7aaaff2a5e6b60dcf2d46a58feb52cd18b656ee113e9d854f83f2aa312e5",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "lazy-roll-toward:9",
+      "aliases": [
+        "lazy-roll-away:2"
+      ],
+      "sha256": "c8e42280d4f88b962a3897ec55d03664302694535f72658351af9fabe9039907",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "lazy-roll-toward:10",
+      "aliases": [
+        "lazy-roll-away:1"
+      ],
+      "sha256": "52d9b2fdf6c14e9a20b7a4ebdea1a70fddbd0f89629b10167d82844a0333e47b",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:0",
+      "aliases": [],
+      "sha256": "8124aa12b3ba362af408343146e2e8f822fdbe3e4d8fda6d7858816acac0f02f",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:1",
+      "aliases": [],
+      "sha256": "1a7341c8f9f32fcf9621b7600157dc2c1f67434192e76e3fdf7e24462390a506",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:2",
+      "aliases": [],
+      "sha256": "7517b4fd83e886d5d33d04815d2c1f610cfbadc8cf74287cd1610ac832967094",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:3",
+      "aliases": [],
+      "sha256": "3450ad8294b89f4e1a28be6aabbac917aa456f73e3ff9506f6d5c2843f904b53",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:4",
+      "aliases": [],
+      "sha256": "bc60fede712375c415673b2b60475611ed1d9513e87a7877b64b2783d25557af",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:5",
+      "aliases": [],
+      "sha256": "9eb39586ad80b70c88cd45a86ee8888ad888dfb5c6728de4f38a8a6897b5314e",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:6",
+      "aliases": [],
+      "sha256": "4abf6ad193340bbcd5707bf0a9b052a5fb8acfc1d58543f02e4405ad2a757260",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:7",
+      "aliases": [],
+      "sha256": "443d737162df1499ae9fbf332efb0c04d8a8a3ce4babdef7e726288c0e95035f",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:8",
+      "aliases": [],
+      "sha256": "aabe951fba00fa29c9e6dcfbcf968370c6f2a96cc1997a03094b922a92205acb",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:9",
+      "aliases": [],
+      "sha256": "641939de9ff73f409919448e4b065d190c5cf75308198216312e400c846743b2",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:10",
+      "aliases": [],
+      "sha256": "5c26c774028f63cef9d45260e0068e672e2b716dc9159ab1855a1d34beaacbf2",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "throw-flight:11",
+      "aliases": [],
+      "sha256": "8a3fa5f25c1d80fb71430a6176d25c73c8139e33ca5da7d7333f47fedf51a79c",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-left:0",
+      "aliases": [],
+      "sha256": "1f35a27709f36f0b00c46b8aebf165f1bd3f657d2dda491b27e3c4e5ac2f6559",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-left:1",
+      "aliases": [],
+      "sha256": "ec41373f0486ea7907966072f83fab47f566be01d9a256e079dfe06eabf44ffe",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-left:2",
+      "aliases": [],
+      "sha256": "d31afeb11a56c37dcc4a52cad3ee138ec1881173144e5c1bb882e159075a3de2",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-left:3",
+      "aliases": [],
+      "sha256": "95438fdd38cf0aa6df23454832d519ce0630856915272f068fec5a2fac5fd731",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-left:4",
+      "aliases": [],
+      "sha256": "2733695d0facde6606fecf727486f1b659b58d992fb5d3aca68536de00766976",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-left:5",
+      "aliases": [],
+      "sha256": "a3aa9f03efb7c8ac201ec9ff4ef9632a6ea948c818359431467edb8e3fbc3d37",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-left:6",
+      "aliases": [],
+      "sha256": "4c961297d66d6730b549b045681e485063a97b7a8b7918c1bda9f8be82515057",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-left:7",
+      "aliases": [],
+      "sha256": "1d473e1dfcdd759855db4c616d84e596418ca629657e1105659f94983092a6e8",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-right:0",
+      "aliases": [],
+      "sha256": "9ec6c6b20ec407cf29eaebc46decab3e43ce8dbd1613a04b67661ce435c9ceed",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-right:1",
+      "aliases": [],
+      "sha256": "5a77df4ff104bc497b7957ddb2f754705da828919a76be0a8c937f76717322b1",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-right:2",
+      "aliases": [],
+      "sha256": "3254043bf3ece0209bcec5a6af4ce52f5d948a269d62b569dac672750bd01305",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-right:3",
+      "aliases": [],
+      "sha256": "7baa664dc05d58ce89075af0d2ed549e010607fc3d2779c2f8e71dbca4374ccd",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-right:4",
+      "aliases": [],
+      "sha256": "1effb8b6a9d03175379e2868957d02040e36e3e2e14e222fd30aa93d80caed03",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-right:5",
+      "aliases": [],
+      "sha256": "aed22adb227681b8b73859c8a7da803f50e631f4936a69828a7d84bb9faa2297",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-right:6",
+      "aliases": [],
+      "sha256": "373b534cf5f24bc3e96830fecd257688b18c9e8adc3296ebd4fe8b97f574ef55",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-right:7",
+      "aliases": [],
+      "sha256": "5a8a522bcb252fc7bd848b77000644a5643c20b9cb9e898ab18740c2bad5b93f",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-ceiling:0",
+      "aliases": [],
+      "sha256": "d7363d86dd201ed84a5581b9ec1ce850163a56ca1dcc075384fd38d31ba38952",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-ceiling:1",
+      "aliases": [],
+      "sha256": "d05eeedf440e9e980e8f0e3b5c53f0f366ccb1c4e42bc95f13fbfe4cabe2d8bc",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-ceiling:2",
+      "aliases": [],
+      "sha256": "f7af0211985b729804e846f92c42fbc6008235999b66f6d744657ffcacf2cb6a",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-ceiling:3",
+      "aliases": [],
+      "sha256": "17a9e44bae5aaa147db435319afad61a39de6a98a623460947dcf9dd4406cf82",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-ceiling:4",
+      "aliases": [],
+      "sha256": "3be8b9947a56db44f9efa76797378093df5134855f82003241c4cb62f7388f17",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-ceiling:5",
+      "aliases": [],
+      "sha256": "b6df96b8f3d219b9bfdd27b665c93a42547999a51c92896abf253d021a6399d0",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-ceiling:6",
+      "aliases": [],
+      "sha256": "3efdc724d3e75bf043aecdc058a47c90eb2ae2b741a808c50e0d3165750aa73f",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-ceiling:7",
+      "aliases": [],
+      "sha256": "82f598f8a66be281110b4f0213151a1473ceb7eb6ffde7f01286ce03a35a13d3",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-floor:0",
+      "aliases": [],
+      "sha256": "2e56f15c145d84689935ac1f23317b3179a209dbc25509d5a950f4ecbc9fd29c",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-floor:1",
+      "aliases": [],
+      "sha256": "4186afceb1ab7346034142bb27e09f47cdf368cab027bd480fb66bbc9fa83514",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-floor:2",
+      "aliases": [],
+      "sha256": "a29abd8df2f82abd82a9b27ca411b515ae960799cefcbf12872d7315c3568c5a",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-floor:3",
+      "aliases": [],
+      "sha256": "bd857433a7e4633e413c41328abc3353095fca2ade236d7c2f4821b10c143715",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-floor:4",
+      "aliases": [],
+      "sha256": "22ad3cbc2e432fea222b9321d6319a43b2a851e3697c8c122fe47372ca1f10ad",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-floor:5",
+      "aliases": [],
+      "sha256": "b36d0803562c8ceddd213b3c7299b041cc81903a0d4d44ba2a690d70bda2d2bf",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-floor:6",
+      "aliases": [],
+      "sha256": "cb0487271a1f79aebe8dc51df1d91346f751b1ba635b3245c795555d2383783a",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    },
+    {
+      "ref": "impact-floor:7",
+      "aliases": [],
+      "sha256": "958b2c6bfedf8ba72ee1da34f2c4e285dc03f7d284bfb051be13dc202dd0733c",
+      "status": "preserve",
+      "reason": "view-specific hair or authored occlusion/deformation"
+    }
+  ],
+  "review_note": "Expanded user-approved canonical-artwork reuse; original silhouettes retained to prevent seams. View-specific families retained."
+}

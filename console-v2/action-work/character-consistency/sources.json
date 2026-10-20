@@ -1,0 +1,26 @@
+[
+  {
+    "cell": 0,
+    "name": "quiet-idle",
+    "source": "console-v2\\assets\\living-idle\\open.png",
+    "sha256": "7bd825dc50011433ee48da282300e14323b0aeab45d7175b8b3da34b32837992"
+  },
+  {
+    "cell": 1,
+    "name": "comb-5",
+    "source": "console-v2\\assets\\actions\\comb\\06.png",
+    "sha256": "2fe223a532d0c0b385e28caf38cfa4bf8cf9a832d64a635005a1a33f4ae3346e"
+  },
+  {
+    "cell": 2,
+    "name": "wait-5",
+    "source": "console-v2\\assets\\actions\\wait\\06.png",
+    "sha256": "939b51abe257d3a54cfe5b4b63bddccbaa5e879dcff1cc91774272bc916ce99d"
+  },
+  {
+    "cell": 3,
+    "name": "yawn-5",
+    "source": "console-v2\\assets\\actions\\yawn\\06.png",
+    "sha256": "b67dfb77ee9fe880af3e398c4ccb4f73f32908df0ac57d8c4618d3a7ab2f443d"
+  }
+]

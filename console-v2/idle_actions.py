@@ -1,10 +1,8 @@
 """Ambient actions use a shuffled bag so every available pose gets a turn."""
 import random
+from idle_states import AUTOMATIC_ACTIONS, STATES, posture_for
 
-IDLE_ACTIONS = ('eat', 'comb',
-                'dress', 'leap', 'read', 'stretch', 'tea', 'wait', 'yawn',
-                'sit-neat', 'sit-relaxed', 'sit-swing', 'prone-chin', 'prone-rest',
-                'lazy-roll-toward', 'lazy-roll-away')
+IDLE_ACTIONS = AUTOMATIC_ACTIONS
 
 
 class IdleActions:
@@ -15,30 +13,75 @@ class IdleActions:
         self.period_key = None
         self.period = None
         self.previous = None
+        self.state_bag = []
+
+    @property
+    def posture(self):
+        return posture_for(self.current[0]) if self.current else 'stand'
+
+    def eligible(self):
+        # Scheduled sleep has its own continuous state and wake cooldown.
+        # Never re-enter the legacy sleep lottery while recently awakened.
+        pool = self.period.get('only', IDLE_ACTIONS) if self.period else IDLE_ACTIONS
+        preferred = self.period['preferred'] if self.period else ()
+        return tuple(dict.fromkeys(key for key in (*pool, *preferred) if key in IDLE_ACTIONS))
+
+    def play(self, player, key, now):
+        player.play(key, now=now)
+        action = player.action
+        if action.get('ground_idle'):
+            # Lengthen neutral rests, never blinks or the entry/rise section.
+            base = 4 if key == 'prone-rest' else 3
+            durations = list(action['durations'])
+            slots = [i for i, frame in enumerate(player.frame_order) if frame == base and 3 <= i < len(durations)-3]
+            extra = max(0, random.uniform(24, 38)*1000-sum(durations))
+            for slot in slots:
+                durations[slot] += extra/max(1, len(slots))
+            player.action = dict(action, durations=durations)
+        elif action['frames'] == 1:
+            # Static reading poses still receive the continuous breathing warp.
+            player.action = dict(action, durations=[random.uniform(18, 28)*1000])
+        duration = sum(player.action['durations'])/1000
+        self.current = (key, now, 0., duration)
+        return duration
 
     def defer(self, now, activity='默认'):
         self.next_at = now + random.uniform(*{
-            '少动': (40, 65), '默认': (24, 40), '活跃': (18, 30)
+            '少动': (22, 34), '默认': (12, 22), '活跃': (9, 16)
         }[activity]) * (self.period['pace'] if self.period else 1)
 
     def set_period(self, period):
         if self.period_key != period['key']:
             self.bag = []
+            self.state_bag = []
             self.period_key = period['key']
         self.period = period
 
     def choose(self, available):
         self.bag = [key for key in self.bag if key in available]
         if not self.bag:
-            pool = self.period.get('only', IDLE_ACTIONS) if self.period else IDLE_ACTIONS
+            pool = self.eligible()
+            preferred = self.period['preferred'] if self.period else ()
+            # Weight the order, not the number of copies: every pose gets one
+            # turn before a new round, while time-of-day favourites appear early.
             self.bag = [key for key in pool if key in available]
-            if self.period:
-                self.bag += [key for key in self.period['preferred'] if key in available for _ in range(2)]
-            random.shuffle(self.bag)
+            self.bag.sort(key=lambda key: random.random() ** (1/(3 if key in preferred else 1)))
         if not self.bag:
             return None
+        # Choose posture first, then an unused action in that posture. This
+        # prevents the larger standing pool from hiding sitting/prone states.
+        self.state_bag = [state for state in self.state_bag
+                          if any(posture_for(key) == state for key in self.bag)]
+        if not self.state_bag:
+            preferred = self.period['preferred'] if self.period else ()
+            self.state_bag = [state for state in STATES
+                              if any(posture_for(key) == state for key in self.bag)]
+            self.state_bag.sort(key=lambda state: random.random() **
+                                (1/(3 if any(posture_for(key) == state for key in preferred) else 1)))
+        posture = self.state_bag.pop()
         # Do not repeat the same pose when another is available in this cycle.
-        index = next((i for i in range(len(self.bag)-1, -1, -1) if self.bag[i] != self.previous), -1)
+        candidates = [i for i, key in enumerate(self.bag) if posture_for(key) == posture]
+        index = next((i for i in reversed(candidates) if self.bag[i] != self.previous), candidates[-1])
         self.previous = self.bag.pop(index)
         return self.previous
 

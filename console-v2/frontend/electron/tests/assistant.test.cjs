@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {Assistant,validateMessages,visibleAnswer}=require('../main/assistant.cjs');
 test('trusted local-time context follows shared daily schedule',()=>{
   const {routineContext}=require('../main/assistant.cjs');
-  for(const [hour,name] of [[0,'夜间休息'],[6,'晨起梳洗'],[9,'日间阅读'],[12,'午餐与小憩'],[14,'午后茶与活动'],[18,'晚餐与放松'],[21,'睡前放松'],[23,'夜间休息']]){
+  for(const [hour,name] of [[0,'夜间休息'],[6,'夜间休息'],[7,'晨起梳洗'],[9,'日间阅读'],[12,'午餐与小憩'],[13,'午间熟睡'],[14,'午后茶与活动'],[18,'晚餐与放松'],[21,'睡前放松'],[23,'夜间休息']]){
     assert.ok(routineContext(new Date(2026,0,1,hour)).includes(name));
   }
   assert.match(routineContext(new Date(2026,0,1,23,15)),/23:15/);
@@ -36,6 +36,22 @@ test('cancellation releases the active request and permits a retry',async()=>{
   const a=new Assistant({fetchImpl:async(_url,{signal})=>new Promise((_,reject)=>signal.addEventListener('abort',()=>reject(Error('aborted'))))});
   const payload={id:'test-2',model:'qwen',messages:[{role:'user',content:'你好'}]};
   const pending=a.chat(payload,()=>{});await assert.rejects(a.chat(payload,()=>{}),/等待/);a.cancel();await assert.rejects(pending,/停止/);assert.equal(a.active,null);
+});
+
+test('cloud chat sends standard OpenAI fields and configured credentials',async()=>{
+  let request;
+  const a=new Assistant({fetchImpl:async(url,options)=>{
+    request={url,...options,body:JSON.parse(options.body)};
+    return new Response('data: '+JSON.stringify({choices:[{delta:{content:'你好'}}]})+'\n\ndata: [DONE]\n\n');
+  }});
+  a.configure({value:{endpoint:'https://models.example/v1',model:'cloud-model'},key:'test-only-key'});
+  assert.equal((await a.chat({id:'cloud-1',model:'cloud-model',messages:[{role:'user',content:'你好'}]},()=>{})).text,'你好');
+  assert.equal(request.url,'https://models.example/v1/chat/completions');
+  assert.equal(request.headers.Authorization,'Bearer test-only-key');
+  assert.equal(request.body.model,'cloud-model');
+  assert.equal(request.body.stream,true);
+  assert.ok(!('top_k' in request.body));
+  assert.ok(!('chat_template_kwargs' in request.body));
 });
 test('HTTP failures and thinking-only truncation are reported explicitly',async()=>{
   const payload={id:'test-3',model:'qwen',messages:[{role:'user',content:'你好'}]};

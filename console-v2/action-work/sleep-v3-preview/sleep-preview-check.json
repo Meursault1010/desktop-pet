@@ -1,0 +1,16 @@
+{
+  "selected_pose": "02-curled-right",
+  "sleep_windows": [
+    "00:00-07:00",
+    "13:00-14:00"
+  ],
+  "resleep_after_inactivity_seconds": 120,
+  "master_size": [
+    605,
+    585
+  ],
+  "transparent_border": true,
+  "preview_frames": 96,
+  "frame_duration_ms": 50,
+  "production_modified": false
+}

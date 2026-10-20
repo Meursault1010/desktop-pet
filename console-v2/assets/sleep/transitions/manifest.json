@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "fps": 60,
+  "size": [
+    340,
+    328
+  ],
+  "settle": {
+    "count": 97,
+    "seconds": 1.6
+  },
+  "wake": {
+    "count": 61,
+    "seconds": 1.0
+  },
+  "source": "Approved sleep-transitions-v2 eyes on sleep-right-02-master",
+  "pillow": "Unpatterned master; fixed throughout all sequences"
+}

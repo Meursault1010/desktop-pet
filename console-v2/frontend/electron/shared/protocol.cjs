@@ -5,9 +5,9 @@ const MAX_REQUEST = 65_536;
 const COMMANDS = new Set(['get_state', 'set_preference', 'set_visible', 'toggle_visibility',
   'toggle_pause', 'jump', 'go_home', 'reset_defaults', 'shutdown', 'play_action', 'stop_action',
   'refresh_desktop_icons', 'configure_icon_sleep', 'start_icon_sleep', 'stop_icon_sleep',
-  'configure_edge_attachment', 'stop_edge_attachment', 'speech_update']);
+  'configure_edge_attachment', 'stop_edge_attachment', 'speech_update', 'wake_sleep', 'desktop_event']);
 const empty = new Set([...COMMANDS].filter(c => !['set_preference','set_visible','play_action',
-  'configure_icon_sleep','start_icon_sleep','configure_edge_attachment','speech_update'].includes(c)));
+  'configure_icon_sleep','start_icon_sleep','configure_edge_attachment','speech_update','desktop_event'].includes(c)));
 function object(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
 function keys(v, allowed) { if (Object.keys(v).some(k => !allowed.includes(k))) throw new Error('未知参数'); }
 function integer(v, min, max) { return Number.isInteger(v) && v >= min && v <= max; }
@@ -22,6 +22,10 @@ function validate(name, payload = {}) {
   if (!COMMANDS.has(name) || !object(payload)) throw new Error('不支持的命令或参数');
   if (Buffer.byteLength(JSON.stringify(payload)) > MAX_REQUEST - 256) throw new Error('请求过大');
   if (empty.has(name)) keys(payload, []);
+  if(name==='desktop_event'){
+    keys(payload,['kind','text']);
+    if(!['usb','charging','download','success','failure'].includes(payload.kind)||typeof payload.text!=='string'||payload.text.length>180)throw new Error('桌面事件无效');
+  }
   if (name === 'speech_update') {
     keys(payload,['id','phase','text']);
     if (typeof payload.id !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(payload.id) ||

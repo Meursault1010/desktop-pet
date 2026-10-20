@@ -2,6 +2,11 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('yukiHost',Object.freeze({
   kind:'electron',
+  desktopSnapshot:()=>ipcRenderer.invoke('yuki:desktop-snapshot'),
+  desktopAction:input=>ipcRenderer.invoke('yuki:desktop-action',input),
+  modelConfig:()=>ipcRenderer.invoke('yuki:model-config'),
+  modelConfigSet:input=>ipcRenderer.invoke('yuki:model-config-set',input),
+  desktopSubscribe:listener=>{const update=(_event,value)=>listener(value);ipcRenderer.on('yuki:desktop-event',update);return ()=>ipcRenderer.removeListener('yuki:desktop-event',update);},
   aiModels:()=>ipcRenderer.invoke('yuki:ai-models'),
   aiChat:payload=>ipcRenderer.invoke('yuki:ai-chat',payload),
   aiCancel:()=>ipcRenderer.invoke('yuki:ai-cancel'),

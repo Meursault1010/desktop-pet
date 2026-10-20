@@ -32,16 +32,19 @@ function visibleAnswer(raw){
   return raw.replace(/<\|im_end\|>/g,'').trimStart();
 }
 class Assistant {
-  constructor({fetchImpl=fetch,endpoint=ENDPOINT}={}){this.fetch=fetchImpl;this.endpoint=endpoint;this.active=null;}
+  constructor({fetchImpl=fetch,endpoint=ENDPOINT}={}){this.fetch=fetchImpl;this.endpoint=endpoint;this.active=null;this.apiKey='';this.configured=false;}
+  configure(config){this.cancel();this.endpoint=config.value.endpoint;this.preferredModel=config.value.model;this.apiKey=config.key;this.configured=true;}
+  headers(){return this.apiKey?{Authorization:'Bearer '+this.apiKey}:{};}
   async models(){
     let response;
-    for(const endpoint of [...new Set([this.endpoint,ENDPOINT,'http://127.0.0.1:1234/v1'])]){
-      try{response=await this.fetch(endpoint+'/models',{signal:AbortSignal.timeout(3000),redirect:'error'});this.endpoint=endpoint;break;}catch{}
+    const localDefault=!this.apiKey&&[ENDPOINT,'http://127.0.0.1:1234/v1'].includes(this.endpoint);
+    for(const endpoint of [...new Set(localDefault?[this.endpoint,ENDPOINT,'http://127.0.0.1:1234/v1']:[this.endpoint])]){
+      try{response=await this.fetch(endpoint+'/models',{headers:this.headers(),signal:AbortSignal.timeout(8000),redirect:'error'});this.endpoint=endpoint;break;}catch{}
     }
-    if(!response)throw new Error('未连接 LM Studio。请在设置 → 本地模型 API 启动服务（Bionic 端口 1235，经典版 1234），再点击重新连接。');
-    if(!response.ok)throw new Error(`LM Studio 返回 ${response.status}，请检查本地服务与认证设置`);
+    if(!response)throw new Error('未连接模型服务，请检查 AI 助手中的模型服务设置，并确认服务已经启动。');
+    if(!response.ok)throw new Error(`模型服务返回 ${response.status}，请检查地址与 API 密钥`);
     const data=await response.json();
-    return {endpoint:this.endpoint,models:(data.data||[]).map(item=>item.id).filter(id=>typeof id==='string'&&id.length<=300&&!/embed/i.test(id))};
+    return {endpoint:this.endpoint,preferredModel:this.preferredModel||'',models:[...new Set([this.preferredModel,...(data.data||[]).map(item=>item.id)].filter(id=>typeof id==='string'&&id.length>0&&id.length<=300&&!/embed/i.test(id)))]};
   }
   cancel(){this.active?.abort();}
   async chat({id,model,messages},emit){
@@ -53,10 +56,13 @@ class Assistant {
     let raw='',reasoning=false,answer='';
     try{
       const response=await this.fetch(this.endpoint+'/chat/completions',{
-        method:'POST',redirect:'error',signal:controller.signal,headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({model,messages:[{role:'system',content:PERSONA+'\n'+routineContext()},...history],temperature:0.6,top_p:0.95,top_k:20,max_tokens:1536,stream:true,chat_template_kwargs:{enable_thinking:false}})
+        method:'POST',redirect:'error',signal:controller.signal,headers:{'Content-Type':'application/json',...this.headers()},
+        body:JSON.stringify({model,messages:[{role:'system',content:PERSONA+'\n'+routineContext()},...history],temperature:0.6,top_p:0.95,max_tokens:1536,stream:true,
+          // GGUF template options are local-runtime extensions. Cloud OpenAI
+          // compatible servers may reject unknown request fields.
+          ...(['localhost','127.0.0.1','[::1]'].includes(new URL(this.endpoint).hostname)?{top_k:20,chat_template_kwargs:{enable_thinking:false}}:{})})
       });
-      if(!response.ok)throw new Error(`本地推理失败（${response.status}），请检查模型是否已加载、上下文是否足够`);
+      if(!response.ok)throw new Error(`模型服务返回 ${response.status}，请检查模型名称、密钥、额度或本地模型是否已加载`);
       if(!response.body)throw new Error('模型没有返回响应');
       const reader=response.body.getReader(),decoder=new TextDecoder();let pending='',done=false;
       const line=value=>{

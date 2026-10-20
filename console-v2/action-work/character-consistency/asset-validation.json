@@ -1,0 +1,9 @@
+{
+  "unique_poses": 205,
+  "frames": 331,
+  "checks": {
+    "original_alpha_exact": true,
+    "central_expression_exact": true,
+    "lower_body_exact": true
+  }
+}

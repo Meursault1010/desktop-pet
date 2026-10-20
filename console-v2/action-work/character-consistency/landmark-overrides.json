@@ -1,0 +1,682 @@
+{
+  "blink:2": {
+    "points": [
+      [
+        108.92045773602605,
+        97.31818563586914
+      ],
+      [
+        140.65555194370887,
+        97.36666773113923
+      ],
+      [
+        124.89647333268327,
+        26.34250607612166
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "screen:6": {
+    "points": [
+      [
+        108.64615384615385,
+        110.38461538461539
+      ],
+      [
+        138.47142857142856,
+        107.51428571428572
+      ],
+      [
+        116.27832810330081,
+        33.29897231586901
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "angry:2": {
+    "points": [
+      [
+        82.77669737787733,
+        95.32039046844122
+      ],
+      [
+        119.63934771366672,
+        94.70491687108432
+      ],
+      [
+        100.03943999939708,
+        25.02240727523877
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "celebrate:3": {
+    "points": [
+      [
+        133.3829818942666,
+        78.53191555295747
+      ],
+      [
+        163.00000366741,
+        80.9999993677031
+      ],
+      [
+        153.8385741109417,
+        12.000845331211409
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "clicked:3": {
+    "points": [
+      [
+        109.7021274331974,
+        90.63829975186722
+      ],
+      [
+        142.92308447473965,
+        90.76923275732582
+      ],
+      [
+        126.58848214580388,
+        20.704307219326964
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "comb:0": {
+    "points": [
+      [
+        120.951219474814,
+        94.8414629140426
+      ],
+      [
+        152.96202475300092,
+        94.81012627859295
+      ],
+      [
+        136.88711203511735,
+        23.825828228261443
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "comb:4": {
+    "points": [
+      [
+        114.33783895614582,
+        83.77027298454993
+      ],
+      [
+        144.82278811769356,
+        83.73417568294792
+      ],
+      [
+        129.49860817086167,
+        14.75227133797042
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "dress:3": {
+    "points": [
+      [
+        110.06382919329567,
+        99.80851167760457
+      ],
+      [
+        138.9677464043066,
+        99.29032022907793
+      ],
+      [
+        123.13554833737163,
+        22.56178825973438
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "dress:5": {
+    "points": [
+      [
+        107.87500174927153,
+        88.75000160337297
+      ],
+      [
+        138.47127140416097,
+        88.5977011007345
+      ],
+      [
+        122.84460882913679,
+        22.67466707048144
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "sad:0": {
+    "points": [
+      [
+        125.2336443253089,
+        90.36448848882408
+      ],
+      [
+        157.35652554551336,
+        91.88695448467793
+      ],
+      [
+        144.60902060799825,
+        21.204209795232988
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "smile:0": {
+    "points": [
+      [
+        123.0508518931552,
+        90.79660958968697
+      ],
+      [
+        157.9098400435288,
+        90.90983492197414
+      ],
+      [
+        140.694713658787,
+        24.853570621631278
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "smile:3": {
+    "points": [
+      [
+        122.54000295153016,
+        88.12000440065381
+      ],
+      [
+        158.21739628897853,
+        87.9999990507853
+      ],
+      [
+        140.14997479918526,
+        20.060384449752274
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "yawn:5": {
+    "points": [
+      [
+        84.1395358050487,
+        79.70930651284374
+      ],
+      [
+        115.80899431361752,
+        79.5955037847898
+      ],
+      [
+        99.722729136423,
+        9.652855562605847
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "sit-relaxed:1": {
+    "points": [
+      [
+        94.27826140535377,
+        138.38261585046175
+      ],
+      [
+        131.0277754298064,
+        137.6180561688653
+      ],
+      [
+        111.1554220657131,
+        66.01590703793937
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "sit-relaxed:4": {
+    "points": [
+      [
+        88.74000017087312,
+        169.96000859846743
+      ],
+      [
+        127.84091655847547,
+        168.34091055657942
+      ],
+      [
+        104.93927342778551,
+        88.21981028684777
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "sit-relaxed:6": {
+    "points": [
+      [
+        89.18604490750562,
+        167.60464654610848
+      ],
+      [
+        124.71795316416956,
+        165.71793999860535
+      ],
+      [
+        102.86913678436824,
+        89.76962265114854
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "prone-chin:0": {
+    "points": [
+      [
+        101.43137545679886,
+        97.71568470138907
+      ],
+      [
+        133.44339375082942,
+        97.00943648601839
+      ],
+      [
+        115.84929311929385,
+        25.380075198790614
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "prone-chin:34": {
+    "points": [
+      [
+        76.85981194027556,
+        130.14018423389422
+      ],
+      [
+        112.06944698235404,
+        128.95138433738964
+      ],
+      [
+        91.96755601579659,
+        55.58793237354411
+      ]
+    ],
+    "reason": "Reviewed open-eye landmarks retained; stricter closed-eye detector has no candidate"
+  },
+  "shy:3": {
+    "points": [
+      [
+        119,
+        95
+      ],
+      [
+        151,
+        96
+      ],
+      [
+        137,
+        21
+      ]
+    ],
+    "reason": "Manual closed eyelids; rejected collar mistaken for eyes"
+  },
+  "celebrate:2": {
+    "points": [
+      [
+        71.1,
+        87.2
+      ],
+      [
+        106.5,
+        87.1
+      ],
+      [
+        88.61073521842542,
+        20.15026732260452
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "sit-neat:34": {
+    "points": [
+      [
+        91.5,
+        123.7
+      ],
+      [
+        121.9,
+        121.6
+      ],
+      [
+        101.87596988284903,
+        52.8164211612435
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "sit-relaxed:3": {
+    "points": [
+      [
+        96.0,
+        165.6
+      ],
+      [
+        129.1,
+        162.2
+      ],
+      [
+        104.78421514598344,
+        88.29780039178007
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-chin:1": {
+    "points": [
+      [
+        76.0,
+        167.4
+      ],
+      [
+        108.8,
+        162.9
+      ],
+      [
+        81.11848309851787,
+        82.92027680697464
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-chin:2": {
+    "points": [
+      [
+        62.0,
+        207.7
+      ],
+      [
+        96.2,
+        206.8
+      ],
+      [
+        76.96915875085318,
+        126.27803253241937
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-chin:3": {
+    "points": [
+      [
+        72.1,
+        179.6
+      ],
+      [
+        106.3,
+        182.3
+      ],
+      [
+        95.6536038044409,
+        99.20435181041557
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-rest:1": {
+    "points": [
+      [
+        78.0,
+        174.7
+      ],
+      [
+        109.9,
+        170.0
+      ],
+      [
+        82.87210031194954,
+        97.16170211727432
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-rest:2": {
+    "points": [
+      [
+        74.1,
+        204.4
+      ],
+      [
+        105.9,
+        201.8
+      ],
+      [
+        83.56236202390984,
+        124.36273552320478
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-rest:3": {
+    "points": [
+      [
+        61.4,
+        228.5
+      ],
+      [
+        97.4,
+        219.4
+      ],
+      [
+        59.79444382173917,
+        146.3895579761109
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-rest:4": {
+    "points": [
+      [
+        65.1,
+        222.4
+      ],
+      [
+        96.8,
+        214.6
+      ],
+      [
+        62.79130645354342,
+        144.70120699709327
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-rest:5": {
+    "points": [
+      [
+        61.2,
+        227.4
+      ],
+      [
+        97.5,
+        220.0
+      ],
+      [
+        63.17037420948884,
+        144.3323761897899
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-rest:6": {
+    "points": [
+      [
+        74.2,
+        222.3
+      ],
+      [
+        103.7,
+        208.6
+      ],
+      [
+        56.51747411213487,
+        145.61353914656786
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-rest:7": {
+    "points": [
+      [
+        65.7,
+        222.0
+      ],
+      [
+        96.7,
+        212.0
+      ],
+      [
+        57.86778872587037,
+        144.67014505019813
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "prone-rest:8": {
+    "points": [
+      [
+        62.1,
+        194.6
+      ],
+      [
+        94.5,
+        193.5
+      ],
+      [
+        75.78910099109198,
+        120.09261101034554
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "screen:4": {
+    "points": [
+      [
+        106.25,
+        111.0
+      ],
+      [
+        136.04545454545453,
+        107.87878787878788
+      ],
+      [
+        113.1255158880299,
+        32.858429434503876
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "screen:5": {
+    "points": [
+      [
+        102.77777777777777,
+        111.0
+      ],
+      [
+        132.6,
+        107.78461538461538
+      ],
+      [
+        109.54190638153747,
+        33.83023601593747
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "screen:7": {
+    "points": [
+      [
+        106.68656716417911,
+        110.31343283582089
+      ],
+      [
+        136.31428571428572,
+        107.4
+      ],
+      [
+        114.06286223172621,
+        33.2215219733979
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "screen:8": {
+    "points": [
+      [
+        102.90163934426229,
+        110.42622950819673
+      ],
+      [
+        132.57971014492753,
+        107.53623188405797
+      ],
+      [
+        110.37477148961109,
+        33.33902376614532
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "screen:9": {
+    "points": [
+      [
+        108.14285714285714,
+        109.58730158730158
+      ],
+      [
+        137.8709677419355,
+        106.90322580645162
+      ],
+      [
+        116.08294176816598,
+        31.55720315221035
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "screen:10": {
+    "points": [
+      [
+        104.31481481481481,
+        110.37037037037037
+      ],
+      [
+        134.20634920634922,
+        107.52380952380952
+      ],
+      [
+        112.05572294988806,
+        33.289373844133635
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  },
+  "screen:11": {
+    "points": [
+      [
+        96.50943396226415,
+        109.79245283018868
+      ],
+      [
+        126.48484848484848,
+        106.81818181818181
+      ],
+      [
+        103.89425251511788,
+        31.681586774915445
+      ]
+    ],
+    "reason": "Visually reviewed iris/lid pair; crown measured in local head direction"
+  }
+}

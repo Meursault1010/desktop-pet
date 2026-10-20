@@ -68,6 +68,10 @@ class SpeechBubble(QWidget):
 
     def say(self, text, kind='chat', streaming=False):
         state = self.pet.state
+        if kind == 'ambient' and state.sleep.active:
+            return
+        if kind in ('chat', 'error'):
+            state.sleep.wake(self.pet, '主动交流')
         if kind != 'ambient' and state.music:
             state.music.cancel()
         if kind != 'ambient' and state.patrol:
@@ -111,7 +115,7 @@ class SpeechBubble(QWidget):
 
     def available(self):
         pet = self.pet
-        return (pet.isVisible() and pet.desired_visible() and not pet.presence.active
+        return (not pet.state.sleep.active and pet.isVisible() and pet.desired_visible() and not pet.presence.active
                 and pet.drag_origin is None and not pet.state.physics.active)
 
     def position_near_pet(self):

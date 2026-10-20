@@ -1,27 +1,30 @@
 'use strict';
-const {app,BrowserWindow,Tray,Menu,ipcMain,protocol,session,dialog,nativeImage}=require('electron');
+const {app,BrowserWindow,Tray,Menu,ipcMain,protocol,session,dialog,nativeImage,clipboard,powerMonitor,safeStorage}=require('electron');
 const path=require('node:path');
 const fs=require('node:fs');
+const smoke=process.argv.includes('--smoke-test');
+const prototype=process.argv.includes('--pet-prototype');
+app.setName('yuki');
+if(process.env.YUKI_USER_DATA)app.setPath('userData',path.resolve(process.env.YUKI_USER_DATA));
+const {createMainLogger}=require('./logging.cjs');
+const logger=createMainLogger({file:path.join(app.getPath('logs'),'yuki.log'),mirror:smoke});
+global.console=logger.console;
+const log=logger.log;
 const {Sidecar}=require('./sidecar.cjs');
 const {CSP,resourcePath,trusted,webPreferences,harden,closeBehavior}=require('./security.cjs');
 const {validate}=require('../shared/protocol.cjs');
 const {Assistant}=require('./assistant.cjs');
 const assistant=new Assistant();
+const {DesktopServices}=require('./desktop-services.cjs');
+const {ModelConfig}=require('./model-config.cjs');
 const {QuickChat}=require('./quick-chat.cjs');
 const quickChat=new QuickChat(assistant, payload=>sidecar.request('speech_update',payload));
 
 protocol.registerSchemesAsPrivileged([{scheme:'yuki',privileges:{standard:true,secure:true,supportFetchAPI:true}}]);
-const smoke=process.argv.includes('--smoke-test');
-const prototype=process.argv.includes('--pet-prototype');
-app.setName('yuki');
-if(process.env.YUKI_USER_DATA)app.setPath('userData',path.resolve(process.env.YUKI_USER_DATA));
 const ownsLock=app.requestSingleInstanceLock();
 let window=null,tray=null,sidecar=null,quitting=false,exitWork=null;
 let runtimeRoot,uiRoot;
-const log=(message)=>{
-  try {const folder=app.getPath('logs');fs.mkdirSync(folder,{recursive:true});
-    fs.appendFileSync(path.join(folder,'yuki.log'),`${new Date().toISOString()} ${String(message).slice(0,8192)}\n`);}catch{}
-};
+let desktopServices,modelConfig;
 function showConsole(){if(window&&!window.isDestroyed()){if(window.isMinimized())window.restore();window.show();window.focus();}}
 function send(channel,value){if(window&&!window.isDestroyed())window.webContents.send(channel,value);}
 function guard(event){if(!trusted(event,window))throw new Error('拒绝未知页面的桌面请求');}
@@ -30,13 +33,18 @@ async function stopAndQuit(){
   quitting=true;
   assistant.cancel();
   quickChat.cancel();
-  exitWork=(async()=>{await sidecar?.stop();tray?.destroy();tray=null;app.quit();})();
+  exitWork=(async()=>{desktopServices?.stop();await sidecar?.stop();tray?.destroy();tray=null;app.quit();})();
   return exitWork;
 }
 function configureIpc(){
+  ipcMain.handle('yuki:desktop-snapshot',event=>{guard(event);return desktopServices.snapshot();});
+  ipcMain.handle('yuki:desktop-action',(event,input)=>{guard(event);return desktopServices.action(input);});
+  ipcMain.handle('yuki:model-config',event=>{guard(event);return modelConfig.snapshot();});
+  ipcMain.handle('yuki:model-config-set',(event,input)=>{guard(event);if(assistant.active||quickChat.busy)throw new Error('请等待当前对话结束后再更改模型');const result=modelConfig.set(input);assistant.configure(modelConfig);return result;});
   ipcMain.handle('yuki:ai-models',async event=>{guard(event);return assistant.models();});
   ipcMain.handle('yuki:ai-chat',async(event,payload)=>{guard(event);
     if(quickChat.busy)throw new Error('yuki 正在回复桌面快捷聊天，请稍等');
+    if(sidecar?.ready)await sidecar.request('wake_sleep',{});
     const result=await assistant.chat(payload,value=>send('yuki:ai-update',value));
     assistant.preferredModel=payload.model;
     if(sidecar?.ready)await sidecar.request('speech_update',{id:payload.id,phase:'done',text:result.text.slice(0,6000)}).catch(log);
@@ -120,6 +128,12 @@ else {
     await registerResources();
     if(prototype){await require('./prototype.cjs').launch({app,BrowserWindow,uiRoot,smoke});return;}
     sidecar=new Sidecar(backendOptions());
+    modelConfig=new ModelConfig(path.join(app.getPath('userData'),'model.json'),safeStorage);
+    assistant.configure(modelConfig);
+    desktopServices=new DesktopServices({app,clipboard,powerMonitor,react:async entry=>{
+      send('yuki:desktop-event',entry);
+      if(sidecar?.ready)await sidecar.request('desktop_event',{kind:entry.kind,text:entry.text});
+    }});
     sidecar.on('message',message=>{send('yuki:message',message);
       if(message.name==='quick_chat')void quickChat.run(message.id,message.text).catch(log);
       if(message.name==='open_console')showConsole();if(message.name==='exit_app')void stopAndQuit();});
@@ -129,6 +143,7 @@ else {
     createTray();
     await createConsole();
     await sidecar.start();
+    desktopServices.start();
     if(smoke)await require('./smoke.cjs').run({app,window,sidecar,tray,stopAndQuit,log});
   }).catch(async error=>{log(error.stack||error.message);
     if(smoke){console.error(error);process.exitCode=1;await sidecar?.stop();app.exit(1);}

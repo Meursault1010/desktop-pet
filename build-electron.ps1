@@ -9,7 +9,7 @@ if(-not(Test-Path -LiteralPath $buildPython)){
     if($LASTEXITCODE){throw 'Unable to create isolated build environment'}
 }
 if(-not $SkipInstall){
-    & $buildPython -m pip install 'PySide6==6.10.2' 'pyinstaller==6.19.0' 'PyAudioWPatch==0.2.12.8'
+    & $buildPython -m pip install 'PySide6==6.10.2' 'pyinstaller==6.19.0' 'PyAudioWPatch==0.2.12.8' 'opencv-python-headless==4.11.0.86'
     if($LASTEXITCODE){throw 'Build dependency installation failed'}
 }
 Push-Location $petRoot

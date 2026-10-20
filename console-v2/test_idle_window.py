@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QColor, QPixmap
 from pet import DesktopPet, PetRenderer
 from settings_model import Preferences
+from idle_animation import MOTION_SECONDS
 
 
 class IdleWindowTests(unittest.TestCase):
@@ -29,7 +30,7 @@ class IdleWindowTests(unittest.TestCase):
         renderer = PetRenderer()
         images = []
         for i in range(145):
-            image = renderer.motion_image(i/30, 1).toImage()
+            image = renderer.motion_image(i*MOTION_SECONDS/144, 1).toImage()
             images.append(bytes(image.constBits()))
         self.assertEqual(len(set(images[:144])), 144)
         self.assertEqual(images[0], images[144])

@@ -1,0 +1,3 @@
+# Offline transition generation only; the desktop renderer does not import these.
+opencv-python-headless==4.11.0.86
+Pillow>=11,<13

@@ -76,7 +76,7 @@ class Patrol:
 
     def blocked(self):
         p, s = self.pet, self.pet.state
-        return (not p.isVisible() or not p.desired_visible() or p.presence.active
+        return (s.sleep.transitioning or not p.isVisible() or not p.desired_visible() or p.presence.active
                 or p.drag_origin is not None or s.physics.active or p.preferences.quiet
                 or p.preferences.paused or not p.preferences.random_movement
                 or bool(s.music and s.music.active)
@@ -171,7 +171,7 @@ class Patrol:
                     return
             elif (self.phase == 'walking' or self.roll_origin) and now >= self.probe_at:
                 self.probe_at = now+1
-                destination = (self.roll_origin[0]+self.roll_origin[2],self.roll_origin[1]) if self.roll_origin else self.destination
+                destination = (self.roll_origin[0],self.roll_origin[1]+self.roll_origin[2]) if self.roll_origin else self.destination
                 if not self.route_exposed(destination, p.screen()):
                     self.cancel(now)
                     return
@@ -202,12 +202,8 @@ class Patrol:
                         self.play(random.choice(('curious','sit-swing','stretch')), now)
                 return
             if self.kind == 'roll' and self.roll_origin:
-                start_x, y, distance = self.roll_origin
-                progress = min(1., max(0., (now-self.owned_start)/(self.until-self.owned_start)))
-                # Smooth sideward travel accompanies the authored side roll.
-                x = round(start_x+distance*(progress*progress*(3-2*progress)))
-                p.move(x, y)
-                s.position_x = float(x)
+                # Use the same phase-locked movement as ambient/manual rolls.
+                p.animator.advance_roll(now)
             return
         if s.action_player.action is not None or s.ambient.current or s.walking:
             return
@@ -229,6 +225,12 @@ class Patrol:
             p.bubble.say('只吃一小口零食……真的就一小口。', 'ambient')
             return
         if now < self.next_at:
+            return
+        # Optional errands yield to an ambient action that is already due.
+        # Meals and snacks above keep their own rhythm.
+        if now >= s.ambient.next_at:
+            pace = {'少动': 1.6, '默认': 1., '活跃': .75}[p.preferences.activity]
+            self.next_at = now+random.uniform(80, 130)*pace
             return
         pace = {'少动': 1.6, '默认': 1., '活跃': .75}[p.preferences.activity]
         self.next_at = now+random.uniform(80, 170)*pace/max(.3, s.routine.period['walk'])
@@ -258,10 +260,15 @@ class Patrol:
         elif random.random() < .45:
             self.kind, self.label = 'roll', '懒懒地打个滚'
             area = p.screen_area()
-            direction = random.choice((-1,1))
-            distance = max(area.left()-p.x(), min(area.right()-p.width()+1-p.x(), direction*70*p.width()/180))
-            if self.route_exposed((p.x()+distance,p.y()), p.screen()):
-                self.play(random.choice(('lazy-roll-toward','lazy-roll-away')), now)
+            action_id = random.choice(('lazy-roll-toward','lazy-roll-away'))
+            direction = -1 if action_id == 'lazy-roll-toward' else 1
+            room = area.bottom()-p.y()-p.height()+1 if direction > 0 else p.y()-area.top()
+            if room < min(35,p.height()*.3):
+                direction *= -1
+                room = area.bottom()-p.y()-p.height()+1 if direction > 0 else p.y()-area.top()
+            distance = direction*min(70*p.height()/180, max(0,room))
+            if self.route_exposed((p.x(),p.y()+distance), p.screen()):
+                self.play(action_id, now)
                 self.roll_origin = (p.x(), p.y(), distance)
             else:
                 self.kind, self.label = '', ''

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "states": [
+    {
+      "id": "sleep",
+      "name": "睡觉",
+      "description": "闭眼入睡、熟睡呼吸与睁眼唤醒。每天 00:00–07:00、13:00–14:00 持续睡眠，被唤醒后安静两分钟再睡。",
+      "actions": ["sleep-enter", "sleep", "sleep-wake"],
+      "automatic": [],
+      "roles": {"sleep-enter": "入睡过渡", "sleep": "熟睡呼吸", "sleep-wake": "唤醒过渡"}
+    },
+    {
+      "id": "stand",
+      "name": "站立",
+      "description": "默认是轻微呼吸与随机眨眼，间隔穿插梳头、整理衣服、看书、喝茶和伸懒腰等日常小动作。",
+      "actions": ["blink", "comb", "dress", "read", "reading-pose-3", "tea", "stretch", "wait", "yawn", "screen", "files", "leap"],
+      "automatic": ["comb", "dress", "read", "tea", "stretch", "wait", "yawn", "screen", "files", "leap"],
+      "roles": {"blink": "基础待机", "reading-pose-3": "静态阅读姿势", "leap": "短暂活动后站立"}
+    },
+    {
+      "id": "sit",
+      "name": "坐下",
+      "description": "端坐、放松坐与轻晃双腿，穿插坐着进食、工作和两种坐姿阅读。坐姿休息保留较长的安静停顿。",
+      "actions": ["sit-neat", "sit-relaxed", "sit-swing", "eat", "work", "reading-pose-1", "reading-pose-2"],
+      "automatic": ["sit-neat", "sit-relaxed", "sit-swing", "eat", "work", "reading-pose-1", "reading-pose-2"],
+      "roles": {"sit-neat": "端坐待机", "sit-relaxed": "放松坐姿", "sit-swing": "晃腿待机", "eat": "坐着进食", "work": "坐着工作", "reading-pose-1": "坐姿阅读", "reading-pose-2": "坐姿阅读"}
+    },
+    {
+      "id": "prone",
+      "name": "趴着",
+      "description": "托腮或放松趴着，偶尔向前、向后慵懒侧滚；翻身时沿动作方向移动，滚完继续趴着休息。",
+      "actions": ["prone-chin", "prone-rest", "lazy-roll-toward", "lazy-roll-away"],
+      "automatic": ["prone-chin", "prone-rest", "lazy-roll-toward", "lazy-roll-away"],
+      "roles": {"prone-chin": "托腮待机", "prone-rest": "放松趴姿", "lazy-roll-toward": "侧滚后趴着", "lazy-roll-away": "侧滚后趴着"}
+    }
+  ]
+}

@@ -10,7 +10,7 @@ test('action catalog is bundled, not dependent on runtime fetch', () => {
 });
 test('all catalog posters and atlases are packaged and schedules match', () => {
   const catalog=JSON.parse(readFileSync('public/actions/catalog.json','utf8'));
-  assert.equal(catalog.filter(action=>!action.physics_only).length,34);
+  assert.equal(catalog.filter(action=>!action.physics_only).length,36);
   assert.equal(new Set(catalog.map(action=>action.id)).size,catalog.length);
   assert.deepEqual(catalog.filter(action=>action.id.includes('roll')).map(action=>action.id).sort(),['lazy-roll-away','lazy-roll-toward']);
   for(const action of catalog){

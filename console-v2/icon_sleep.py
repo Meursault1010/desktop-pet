@@ -270,12 +270,15 @@ class IconSleep(QObject):
             self.bounds[side]=pose_bounds(pixmap.toImage())
             if side in NEW_POSES:
                 matte=QImage(str(ASSET_ROOT/side/'skirt.png')).convertToFormat(QImage.Format.Format_RGBA8888)
+                source=pixmap.toImage()
                 # Grayscale mask files are opaque: turn their luminance into alpha.
                 region=QRegion()
                 for y in range(matte.height()):
                     start=None
                     for x in range(matte.width()+1):
-                        opaque=x<matte.width() and matte.pixelColor(x,y).red()>128
+                        color=source.pixelColor(x,y) if x<matte.width() else None
+                        opaque=(x<matte.width() and matte.pixelColor(x,y).red()>128
+                                and not (color.red()>210 and color.green()>210))
                         if opaque and start is None:start=x
                         elif not opaque and start is not None:
                             region=region.united(QRegion(start,y,x-start,1));start=None

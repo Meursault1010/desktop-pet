@@ -1,5 +1,19 @@
 # Yuki Flight and Impact Actions
 
+Runtime timing and the current restrained-motion revision are specified in
+[`../ACTION_OPTIMIZATION_PROMPTS.md`](../ACTION_OPTIMIZATION_PROMPTS.md).
+For any subsequent redraw, apply its short-contact constraints to every prompt below:
+anticipation only in the last ~55 ms before predicted contact; frame 2 is actual
+contact. Side/top contacts return to the continuous airborne sequence within
+40 ms. Floor contacts briefly show the approved seated pose C at the boundary
+for about 45 ms; immediately return to airborne art on liftoff. Rebound velocity
+is 60% (about 36% height retention). The airborne sequence includes A/B and
+slows progressively with successive contacts, without freezing on the last
+left-reaching cell. Secondary jelly motion ends within 220 ms. Only the final
+grounded landing plays the seated-to-standing recovery before idle. Do not hold
+the impact sprite throughout the remaining flight. Existing art is reused;
+no new image generation was requested for this runtime revision.
+
 Reference inputs for every generation: `图片/参考图.png` and `图片/三视图.png`.
 Use GPT Image 2 edit mode. Request a genuinely transparent background; inspect the resulting alpha channel before atlas preparation.
 

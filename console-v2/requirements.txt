@@ -1,2 +1,3 @@
 PySide6>=6.7,<7
 PyAudioWPatch==0.2.12.8
+opencv-python-headless==4.11.0.86

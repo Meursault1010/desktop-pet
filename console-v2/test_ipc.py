@@ -31,6 +31,11 @@ class ProtocolTests(unittest.TestCase):
         self.reader = threading.Thread(target=read, daemon=True)
         self.reader.start()
         self.wait_for(lambda message: message['type'] == 'ready')
+        # Protocol readiness precedes the visible arrival animation. Commands
+        # below assert the steady status, so wait for the arrival to finish.
+        self.wait_for(lambda message: message.get('name') == 'state_changed'
+                      and message['state']['visible']
+                      and not message['state']['status'].startswith('星光 ·'))
 
     def wait_for(self, predicate):
         for _ in range(100):
@@ -80,9 +85,11 @@ class ProtocolTests(unittest.TestCase):
         self.assertTrue(self.request('stop_edge_attachment')['ok'])
         self.assertTrue(self.request('configure_edge_attachment',{'enabled':False})['ok'])
         quiet = self.request('set_preference', {'key': 'quiet', 'value': True})
-        self.assertEqual(quiet['state']['status'], '安静模式')
+        self.assertIn(quiet['state']['status'], ('安静模式', '熟睡中 · z z z'))
         hidden = self.request('set_visible', {'visible': False})
         self.assertFalse(hidden['state']['visible'])
+        self.wait_for(lambda message: message.get('name') == 'state_changed'
+                      and message['state']['status'] == '已隐藏')
         self.assertFalse(self.request('jump')['ok'])
         self.request('set_visible', {'visible': True})
         self.assertTrue(self.request('jump')['ok'])
@@ -115,6 +122,8 @@ class ProtocolTests(unittest.TestCase):
         self.assertTrue(self.request('stop_action')['ok'])
         self.assertNotIn('动作',self.request('get_state')['state']['status'])
         self.request('set_visible',{'visible':False})
+        self.wait_for(lambda message: message.get('name') == 'state_changed'
+                      and message['state']['status'] == '已隐藏')
         self.assertFalse(self.request('play_action',{'action_id':'sleep'})['ok'])
 
     def test_icon_sleep_configuration_and_validation(self):

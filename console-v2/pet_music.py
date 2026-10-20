@@ -130,6 +130,8 @@ class MusicCompanion(QObject):
         if self.closed or not self.pet.preferences.music_reactions:
             return
         now = time.monotonic()
+        if self.pet.state.sleep.active and feature['level'] >= .75 and feature['sudden']:
+            self.pet.state.sleep.wake(self.pet, '较大播放声音', now)
         self.feature = feature
         self.last_feature = now
         self.pending_onset |= feature['onset']
@@ -169,7 +171,7 @@ class MusicCompanion(QObject):
 
     def blocked(self):
         p,s = self.pet,self.pet.state
-        return (not p.preferences.music_reactions or p.preferences.quiet or p.preferences.paused
+        return (s.sleep.transitioning or not p.preferences.music_reactions or p.preferences.quiet or p.preferences.paused
                 or not p.isVisible() or not p.desired_visible() or p.presence.active
                 or p.drag_origin is not None or s.physics.active or s.travel_target is not None
                 or bool(s.patrol and s.patrol.active) or QApplication.activePopupWidget() is not None

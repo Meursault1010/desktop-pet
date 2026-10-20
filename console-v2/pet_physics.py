@@ -37,6 +37,14 @@ class PointerVelocity:
 
 
 class PetPhysics:
+    # The last two authored flight cells are a directional brace, not a
+    # neutral airborne pose. Travel through A/B and the relaxed airborne
+    # sequence, then retrace it instead of freezing on the reaching arm.
+    FLIGHT_FRAMES = tuple(range(10)) + tuple(range(8, 0, -1))
+    FLOOR_RESTITUTION = .60  # About 36% of the previous bounce height.
+    FLOOR_CONTACT_TIME = .045
+    RECOVERY_TIME = .96
+
     def __init__(self):
         self.cancel()
 
@@ -50,6 +58,10 @@ class PetPhysics:
         self.strength = 0.
         self.collision_count = 0
         self.recovery = 0.
+        self.anticipation = None
+        self.flight_phase = 0.
+        self.animation_speed = 1.
+        self.contact_hold = 0.
 
     def launch(self, position, velocity, scale=1.):
         self.cancel()
@@ -60,11 +72,12 @@ class PetPhysics:
 
     def hit(self, kind, speed):
         self.impact, self.impact_age = kind, 0.
+        self.anticipation = None
         incoming = min(1., abs(speed)/(700*self.scale))
-        # A later fall may gain speed again; visual energy must still decay
-        # throughout this throw instead of restarting the full reaction.
-        self.strength = incoming if not self.collision_count else min(incoming, self.strength*.42)
+        # Keep small jelly feedback, without extinguishing it after two hits.
+        self.strength = incoming if not self.collision_count else min(incoming, self.strength*.85)
         self.collision_count += 1
+        self.contact_hold = self.FLOOR_CONTACT_TIME if kind == 'floor' else 0.
 
     def step(self, dt, bounds, on_segment=None):
         """bounds is (left, top, right, floor) for the window origin.
@@ -84,10 +97,22 @@ class PetPhysics:
             self.impact_age += h
             if not self.flying:
                 self.recovery += h
-                if self.recovery >= .85:
+                self.vx *= math.exp(-10*h)
+                self.x = max(left, min(right, self.x+self.vx*h))
+                if self.recovery >= self.RECOVERY_TIME:
+                    self.vx = 0.
                     self.active = False
                     return True
                 continue
+            # Slow the *animation* progressively; do not restart its sequence
+            # on a bounce or confuse pose playback with physical velocity.
+            target_speed = max(.35, .84**self.collision_count)
+            previous_speed = self.animation_speed
+            self.animation_speed += (target_speed-self.animation_speed)*(1-math.exp(-h/.14))
+            if self.contact_hold > 0:
+                self.contact_hold = max(0., self.contact_hold-h)
+                continue
+            self.flight_phase += h*(previous_speed+self.animation_speed)/(.18*2)
             self.vy += 1500*self.scale*h
             self.vx *= math.exp(-.22*h)
             previous = (self.x, self.y)
@@ -114,24 +139,43 @@ class PetPhysics:
                     speed = self.vy
                     if speed > 130*self.scale:
                         self.hit('floor', speed)
-                        self.vy *= -.38
+                        self.vy *= -self.FLOOR_RESTITUTION
                         self.vx *= .72
                     else:
+                        self.hit('floor', speed)
                         self.vy = 0.
-                if self.vy == 0:
-                    self.vx *= math.exp(-10*h)
-                    if abs(self.vx) < 18*self.scale:
-                        self.vx = 0.
                         self.flying = False
                         self.recovery = 0.
-                        # Settling is not a new collision: keep the last gentle
-                        # recovery rather than inventing another impact impulse.
+        self.anticipation = self._predict_impact(bounds) if self.flying else None
         return False
+
+    def _predict_impact(self, bounds):
+        """Predict a screen contact within 55 ms for a one-frame brace cue."""
+        if self.collision_count >= 2 or (self.collision_count and self.impact_age < .12):
+            return None
+        left, top, right, floor = bounds
+        x, y, vx, vy = self.x, self.y, self.vx, self.vy
+        h = 1/240
+        for index in range(1, 14):
+            vy += 1500*self.scale*h
+            vx *= math.exp(-.22*h)
+            x += vx*h
+            y += vy*h
+            if x <= left and vx < 0:
+                return ('left', index*h)
+            if x >= right and vx > 0:
+                return ('right', index*h)
+            if y <= top and vy < 0:
+                return ('ceiling', index*h)
+            if y >= floor and vy > 130*self.scale:
+                return ('floor', index*h)
+        return None
 
     def transform(self):
         """Small volume-preserving jelly deformations; never resize the sprite."""
         t = self.impact_age
-        spring = math.exp(-8*t)*math.cos(15*t)*self.strength if t < 1 else 0.
+        fade = max(0., 1-t/.22)
+        spring = math.exp(-10*t)*math.cos(22*t)*self.strength*fade
         # Authored impact poses already squash; add only a small elastic finish.
         squash = .025*spring
         if self.impact in ('left', 'right'):
@@ -146,33 +190,29 @@ class PetPhysics:
         return angle, sx, sy
 
     def animation_frame(self):
-        """Return the authored physics clip and frame for the current impact."""
+        """Contact poses stay at contact; every airborne leg uses flight art."""
         if not self.active:
             return None
+        if not self.flying:
+            # C: sit on contact, relax the knees, lower the feet and stand.
+            # Authored recovery avoids dissolving unrelated PNG silhouettes.
+            for frame, end in ((2, .10), (3, .18), (2, .26), (1, .38),
+                               (5, .54), (6, .72), (7, self.RECOVERY_TIME)):
+                if self.recovery < end:
+                    return 'impact-floor', frame
+            return 'impact-floor', 7
+        if self.contact_hold > 0:
+            return 'impact-floor', 2
+        if self.anticipation is not None and self.anticipation[0] != 'floor':
+            kind, time_to_hit = self.anticipation
+            clip = {'left': 'impact-left', 'right': 'impact-right',
+                    'ceiling': 'impact-ceiling', 'floor': 'impact-floor'}[kind]
+            return clip, 1 if self.collision_count == 0 and time_to_hit <= .028 else 0
         clips = {
             'left': 'impact-left', 'right': 'impact-right',
             'ceiling': 'impact-ceiling', 'floor': 'impact-floor',
         }
         impact_clip = clips.get(self.impact)
-        if impact_clip and self.collision_count:
-            # Do not replay large authored crouch/squash drawings on every
-            # bounce. Small contacts use only the mild recovery expressions;
-            # the final contacts retain one stable silhouette.
-            if self.collision_count >= 2 or self.strength < .12:
-                return impact_clip, 7
-            return impact_clip, 6 if self.impact_age < .18 else 7
-        # Frames 0-1 anticipate contact, which is already resolved by the time
-        # hit() fires. Start on the contact pose in the same rendered tick.
-        if impact_clip and (self.impact_age < .78 or not self.flying):
-            frame = 2
-            elapsed = self.impact_age
-            for duration in (.07, .10, .13, .16, .18):
-                if elapsed < duration:
-                    break
-                elapsed -= duration
-                frame += 1
-            return impact_clip, frame
-        # Play the launch once, then keep its settled airborne silhouette.
-        # Reversing distinct drawings made the body look like it was twitching.
-        frame = min(11, int(self.age / .15))
-        return 'throw-flight', frame
+        if impact_clip and self.impact != 'floor' and self.impact_age < .04:
+            return impact_clip, 2 if self.impact_age < .02 else 3
+        return 'throw-flight', self.FLIGHT_FRAMES[int(self.flight_phase) % len(self.FLIGHT_FRAMES)]

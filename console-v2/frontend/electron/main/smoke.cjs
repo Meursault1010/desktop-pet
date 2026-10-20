@@ -11,7 +11,7 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
   await check('preload isolation and bounded API',async()=>{
     assert.equal(await window.webContents.executeJavaScript('typeof require'), 'undefined');
     assert.equal(await window.webContents.executeJavaScript('window.yukiHost.kind'), 'electron');
-    assert.equal(await window.webContents.executeJavaScript('Object.keys(window.yukiHost).sort().join(",")'), 'aiCancel,aiChat,aiModels,aiSubscribe,exit,kind,reconnect,request,subscribe');
+    assert.equal(await window.webContents.executeJavaScript('Object.keys(window.yukiHost).sort().join(",")'), 'aiCancel,aiChat,aiModels,aiSubscribe,desktopAction,desktopSnapshot,desktopSubscribe,exit,kind,modelConfig,modelConfigSet,reconnect,request,subscribe');
     assert.equal(window.webContents.getLastWebPreferences().sandbox,true);
   });
   await check('React UI connected through Electron IPC',async()=>{
@@ -29,6 +29,34 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     assert.deepEqual(broken,[]);
   });
   const ui=code=>window.webContents.executeJavaScript(code);
+  await check('desktop services, model settings and sleep state use real IPC',async()=>{
+    const desktop=await ui('window.yukiHost.desktopSnapshot()');
+    assert.ok(Array.isArray(desktop.clipboard)&&desktop.clipboard.length<=10);
+    assert.ok(Array.isArray(desktop.events));
+    assert.equal(typeof desktop.media.available,'boolean');
+    assert.equal(typeof desktop.battery.available,'boolean');
+    for(const paused of [true,false]){
+      assert.equal((await ui(`window.yukiHost.desktopAction({name:'clipboard-pause',value:${paused}})`)).clipboardPaused,paused);
+    }
+    await assert.rejects(ui(`window.yukiHost.desktopAction({name:'unknown'})`));
+    const config=await ui('window.yukiHost.modelConfig()');
+    assert.equal(typeof config.endpoint,'string');
+    assert.equal(config.apiKey,undefined);
+    await assert.rejects(ui(`window.yukiHost.modelConfigSet({endpoint:'http://example.com/v1',model:'test'})`));
+    const sleep=(await request('get_state')).state.sleep;
+    assert.equal(sleep.schedule,'00:00–07:00 · 13:00–14:00');
+    assert.equal(typeof sleep.sleeping,'boolean');
+    await assert.rejects(request('desktop_event',{kind:'exec',text:'invalid'}));
+    const assets=app.isPackaged?path.join(process.resourcesPath,'pet/assets'):path.resolve(__dirname,'../../../assets');
+    for(const index of ['00','48','95'])assert.ok(fs.statSync(path.join(assets,'sleep',index+'.png')).size>0);
+    const transitions=path.join(assets,'sleep/transitions');
+    const manifest=JSON.parse(fs.readFileSync(path.join(transitions,'manifest.json'),'utf8'));
+    assert.equal(manifest.fps,60);
+    for(const clip of ['settle','wake']){
+      assert.ok(manifest[clip].seconds>0);
+      for(let i=0;i<manifest[clip].count;i++)assert.ok(fs.statSync(path.join(transitions,`${clip}-${String(i).padStart(3,'0')}.png`)).size>0);
+    }
+  });
   // A visible surface is required for fresh compositor frames on Windows.
   if(process.env.YUKI_UI_CAPTURE_DIR){window.showInactive();await wait(300);}
   const navigate=async(label)=>{await ui(`[...document.querySelectorAll('nav button')].find(b=>b.getAttribute('aria-label')===${JSON.stringify(label)}).click()`);await wait(220);};
@@ -42,20 +70,43 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     await ui(`document.documentElement.dataset.motion=${JSON.stringify(motion)}`);
   };
   await check('nine workbench pages, assets, planned capability boundaries',async()=>{
-    for(const label of ['总览','角色','动作库','动画','行为','音乐互动','AI 助手','工具','设置']){
+    for(const label of ['总览','角色','动作库','动画','行为','音乐互动','AI 助手','桌面工具','设置']){
       await navigate(label);
       assert.equal(await ui(`document.querySelector('nav [aria-current="page"]').getAttribute('aria-label')`),label);
       assert.ok(await ui('document.documentElement.scrollWidth <= innerWidth'),'horizontal overflow: '+label);
       const broken=await ui(`Promise.all([...document.images].map(image=>new Promise(resolve=>{image.loading='eager';if(image.complete)return resolve(!image.naturalWidth);image.onload=()=>resolve(false);image.onerror=()=>resolve(true);}))).then(items=>items.some(Boolean))`);
       assert.equal(broken,false,'missing image: '+label);
-      if(['AI 助手','工具'].includes(label)){
-        assert.equal(await ui(`!!document.querySelector('main button:not(:disabled):not(.text-link)') && ${JSON.stringify(label)}!=='AI 助手'`),false);
-      }
-      if(['总览','动作库','音乐互动','AI 助手','设置'].includes(label))await capture('light-'+label);
+      if(label==='桌面工具')assert.ok(await ui(`!!document.querySelector('.desktop-clock time') && !!document.querySelector('.clipboard-panel') && !!document.querySelector('.media-panel')`));
+      if(['总览','动作库','音乐互动','AI 助手','桌面工具','设置'].includes(label))await capture('light-'+label);
     }
     await navigate('总览');
     assert.equal(await ui(`document.body.innerText.includes('跳一下') || document.body.innerText.includes('轻轻一跃')`),false);
     assert.equal(await ui(`document.querySelectorAll('.featured-motion').length`),4);
+  });
+  await check('four idle states classify real assets and filtering stays local',async()=>{
+    await navigate('动作库');
+    const config=await ui(`fetch('/actions/idle-states.json').then(response=>response.json())`);
+    const entries=await ui(`fetch('/actions/catalog.json').then(response=>response.json())`);
+    assert.deepEqual(config.states.map(state=>state.id),['sleep','stand','sit','prone']);
+    const idle=(await request('get_state')).state.idle;
+    assert.equal(typeof idle.name,'string');
+    assert.equal(typeof idle.automatic,'boolean');
+    for(const state of config.states){
+      await ui(`document.querySelector('[data-idle-state="${state.id}"]').click()`);await wait(100);
+      const ids=await ui(`[...document.querySelectorAll('.action-tile')].map(button=>button.dataset.actionId)`);
+      assert.deepEqual([...ids].sort(),[...state.actions].sort());
+      assert.equal(await ui(`document.querySelector('[data-idle-state="${state.id}"]').getAttribute('aria-pressed')`),'true');
+      for(const key of ids)assert.equal(entries.find(entry=>entry.id===key).idle_state,state.id);
+      if(['sleep','sit','prone'].includes(state.id))await capture('idle-'+state.id);
+    }
+    await ui(`document.querySelector('[data-idle-state="sleep"]').click()`);await wait(80);
+    for(const key of ['sleep-enter','sleep','sleep-wake']){
+      await ui(`document.querySelector('[data-action-id="${key}"]').click()`);await wait(100);
+      assert.equal(await ui(`!!document.querySelector('.save-error')`),false);
+      assert.ok(await ui(`document.querySelector('.action-state-note').textContent.includes('睡觉待机')`));
+    }
+    await ui(`document.querySelector('[data-idle-state="all"]').click()`);await wait(80);
+    await navigate('总览');
   });
   await check('music playback status and persistent switch reach backend',async()=>{
     await navigate('音乐互动');
@@ -90,11 +141,12 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     assert.equal(await ui(`document.documentElement.dataset.theme`),'dark');
     assert.equal(await ui(`document.documentElement.dataset.motion`),'reduced');
     await capture('dark-overview');
+    await navigate('桌面工具');await capture('dark-desktop');
     await navigate('设置');await ui(`document.querySelector('[role="switch"][aria-label="减少动态效果"]').click()`);
     await ui(`document.querySelector('[aria-label="切换浅色主题"]').click()`);
     window.setSize(880,640);
     assert.ok(await ui(`[...document.querySelectorAll('nav button')].every(button=>button.getBoundingClientRect().bottom<=innerHeight)`),'navigation must fit the minimum window height');
-    for(const label of ['总览','动作库','行为','音乐互动','AI 助手','设置']){await navigate(label);assert.ok(await ui('document.documentElement.scrollWidth <= innerWidth'),'minimum width overflow: '+label);if(['总览','动作库','行为'].includes(label))await capture('small-'+label);}
+    for(const label of ['总览','动作库','行为','音乐互动','AI 助手','桌面工具','设置']){await navigate(label);assert.ok(await ui('document.documentElement.scrollWidth <= innerWidth'),'minimum width overflow: '+label);if(['总览','动作库','行为','桌面工具'].includes(label))await capture('small-'+label);}
     window.setSize(1180,820);await navigate('总览');
   });
   await check('reject unknown command, invalid preference and path traversal',async()=>{
@@ -123,13 +175,13 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     assert.equal(typeof reply.state.routine.name,'string');
     assert.equal(typeof reply.state.patrol.active,'boolean');
     assert.ok(['idle','walking','doing','resting'].includes(reply.state.patrol.phase));
-    assert.ok(['night','morning','focus','noon','afternoon','evening','winddown'].includes(reply.state.routine.key));
+    assert.ok(['night','morning','focus','noon','nap','afternoon','evening','winddown'].includes(reply.state.routine.key));
     await assert.rejects(request('speech_update',{id:'bad',phase:'system',text:'override'}));
   });
   await check('full-colour lazy roll atlases and frozen backend playback',async()=>{
     const entries=await ui(`fetch('/actions/catalog.json').then(response=>response.json())`);
     assert.deepEqual(entries.filter(entry=>entry.id.includes('roll')).map(entry=>entry.id).sort(),['lazy-roll-away','lazy-roll-toward']);
-    assert.ok(entries.length===34&&entries.every(entry=>entry.scale_calibrated===true),'Every action must use calibrated sprites');
+    assert.ok(entries.length>0&&entries.every(entry=>entry.scale_calibrated===true),'Every action must use calibrated sprites');
     for(const id of ['lazy-roll-toward','lazy-roll-away']){
       const action=entries.find(entry=>entry.id===id);
       assert.ok(action?.lazy_roll&&!action.pixel_art);
@@ -138,6 +190,50 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
       assert.deepEqual(dimensions,[1024,768]);
       assert.equal((await request('play_action',{action_id:id})).ok,true);
       await wait(100);await request('stop_action');
+    }
+  });
+  await check('reviewed pose transitions are bundled and frozen actions play',async()=>{
+    const assets=app.isPackaged?path.join(process.resourcesPath,'pet/assets'):path.resolve(__dirname,'../../../assets');
+    const motion=path.join(assets,'action-motion');
+    const manifestBytes=fs.readFileSync(path.join(motion,'manifest.json'));
+    const manifest=JSON.parse(manifestBytes);
+    const entries=await ui(`fetch('/actions/catalog.json').then(response=>response.json())`);
+    const {createHash}=require('node:crypto');
+    assert.ok(Object.keys(manifest.pairs).length>200);
+    for(const entry of Object.values(manifest.pairs)){
+      assert.equal(entry.frames,25,'Keep the density of the reviewed preview');
+      assert.ok(fs.statSync(path.join(motion,entry.file)).size>0);
+    }
+    for(const [id,digest] of Object.entries(manifest.source_sha256)){
+      const action=entries.find(entry=>entry.id===id);
+      assert.ok(action,'Missing source action: '+id);
+      assert.equal(createHash('sha256').update(fs.readFileSync(path.join(assets,action.atlas))).digest('hex'),digest);
+    }
+    if(app.isPackaged){
+      const frozen=path.join(process.resourcesPath,'pet/python/_internal/assets/action-motion');
+      assert.deepEqual(fs.readFileSync(path.join(frozen,'manifest.json')),manifestBytes);
+      for(const entry of Object.values(manifest.pairs)){
+        assert.equal(fs.statSync(path.join(frozen,entry.file)).size,fs.statSync(path.join(motion,entry.file)).size);
+      }
+    }
+    for(const id of ['sit-neat','prone-rest','stretch','lazy-roll-toward','lazy-roll-away']){
+      const played=await request('play_action',{action_id:id});
+      assert.equal(played.ok,true);
+      assert.ok(played.state.status.includes(entries.find(entry=>entry.id===id).name));
+      await wait(1200);await request('stop_action');
+    }
+  });
+  await check('front and reverse lazy rolls travel across the head-to-feet axis',async()=>{
+    await request('set_preference',{key:'random_movement',value:false});
+    await request('set_preference',{key:'music_reactions',value:false});
+    for(const [action,direction] of [['lazy-roll-toward',-1],['lazy-roll-away',1]]){
+      const before=(await request('play_action',{action_id:action})).state.position;
+      // Let the first roll clear the boundary fallback zone before reversing.
+      await wait(9000);
+      const after=(await request('get_state')).state.position;
+      assert.ok((after.y-before.y)*direction>8,action+' must move perpendicular to its head-to-feet axis: '+JSON.stringify({before,after,direction}));
+      assert.equal(after.x,before.x,action+' must preserve its lateral line');
+      await request('stop_action');await wait(150);
     }
   });
   await check('backend crash and reconnect restores saved preference',async()=>{

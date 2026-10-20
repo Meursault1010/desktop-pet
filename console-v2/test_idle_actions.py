@@ -11,6 +11,8 @@ from pet import DesktopPet
 from settings_model import Preferences
 from action_player import catalog
 from idle_actions import IdleActions, IDLE_ACTIONS
+from daily_routine import schedule
+from types import SimpleNamespace
 
 
 class AmbientTests(unittest.TestCase):
@@ -22,6 +24,44 @@ class AmbientTests(unittest.TestCase):
         scheduler = IdleActions()
         self.assertTrue(set(IDLE_ACTIONS).issubset(catalog()))
         self.assertEqual({scheduler.choose(catalog()) for _ in IDLE_ACTIONS}, set(IDLE_ACTIONS))
+
+    def test_period_favourites_do_not_crowd_out_other_actions(self):
+        for period in schedule():
+            scheduler = IdleActions()
+            scheduler.set_period(period)
+            expected = (set(period.get('only', IDLE_ACTIONS)) | set(period['preferred'])) & set(IDLE_ACTIONS)
+            choices = [scheduler.choose(catalog()) for _ in expected]
+            self.assertEqual(set(choices), expected)
+            self.assertEqual(len(choices), len(set(choices)))
+
+    def test_time_of_day_preference_moves_favourites_earlier(self):
+        scheduler = IdleActions()
+        period = schedule()[2]
+        scheduler.set_period(period)
+        with patch('idle_actions.random.random', return_value=.5):
+            first = scheduler.choose(catalog())
+        self.assertIn(first, period['preferred'])
+
+    def test_blocked_ticks_do_not_keep_rescheduling_and_resume_is_prompt(self):
+        pet = self.make_pet()
+        state = pet.state
+        state.routine.period = schedule()[2]
+        state.ambient.set_period(state.routine.period)
+        state.patrol = SimpleNamespace(active=True)
+        with patch.object(state.routine, 'update', return_value=False):
+            pet.animator.update_ambient(100)
+            deadline = state.ambient.next_at
+            for now in range(101, 161):
+                pet.animator.update_ambient(now)
+                self.assertEqual(state.ambient.next_at, deadline)
+            state.patrol.active = False
+            pet.animator.update_ambient(161)
+            self.assertTrue(164 <= state.ambient.next_at <= 167)
+            self.assertIsNone(state.action_player.action)
+            with patch.object(state.ambient, 'choose', return_value='tea'):
+                pet.animator.update_ambient(168)
+            self.assertEqual(state.action_player.action['id'], 'tea')
+        state.patrol = None
 
     def test_only_lazy_rolls_remain(self):
         root = Path(__file__).resolve().parent
@@ -118,6 +158,55 @@ class AmbientTests(unittest.TestCase):
             self.assertIsNone(pet.state.ambient.current)
             self.assertEqual(player.action['id'] if player.action else None,
                              'read' if interrupt == 'manual' else None)
+
+    def test_lazy_roll_moves_across_axis_and_finishes_at_its_target(self):
+        pet = self.make_pet()
+        pet.move(100,200)
+        player = pet.state.action_player
+        player.play('lazy-roll-toward', now=100)
+        total = sum(player.action['durations'])/1000
+        origin_x,origin_y = pet.x(),pet.y()
+        self.assertTrue(pet.animator.advance_roll(100))
+        target = pet.state.roll_path[3]
+        self.assertLess(target,origin_y-40)
+        self.assertTrue(pet.animator.advance_roll(100+total*.65))
+        self.assertLess(pet.y(),origin_y-20)
+        self.assertEqual(pet.x(),origin_x)
+        player.frame(100+total+1)
+        self.assertFalse(pet.animator.advance_roll(100+total+1))
+        self.assertEqual(pet.y(),round(target))
+        self.assertIsNone(pet.state.roll_path)
+
+    def test_front_and_reverse_roll_travel_in_opposite_directions(self):
+        for key,direction in (('lazy-roll-toward',-1),('lazy-roll-away',1)):
+            pet=self.make_pet()
+            pet.move(300,200)
+            pet.state.action_player.play(key,now=100)
+            pet.animator.advance_roll(100)
+            target=pet.state.roll_path[3]
+            self.assertGreater((target-pet.y())*direction,40)
+            self.assertEqual(pet.x(),300)
+
+    def test_roll_window_holds_during_side_lying_frames(self):
+        for key, stationary in (('lazy-roll-toward', (0, 8, 9, 10, 11)),
+                                ('lazy-roll-away', (0, 1, 2, 10, 11))):
+            pet = self.make_pet()
+            pet.move(300, 200)
+            player = pet.state.action_player
+            player.play(key, now=100)
+            elapsed = 0
+            moving_slots = 0
+            for frame, duration in zip(player.frame_order, player.action['durations']):
+                positions = []
+                for fraction in (.05, .5, .95):
+                    pet.animator.advance_roll(100+(elapsed+duration*fraction)/1000)
+                    positions.append((pet.x(), pet.y()))
+                if frame >= 12 or frame in stationary:
+                    self.assertEqual(len(set(positions)), 1, (key, frame, positions))
+                elif len(set(positions)) > 1:
+                    moving_slots += 1
+                elapsed += duration
+            self.assertGreater(moving_slots, 4)
 
     def test_removed_action_and_transition_lifecycle(self):
         self.assertNotIn('folder-sleep', catalog())

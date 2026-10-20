@@ -1,10 +1,194 @@
 [
-  {"start":0,"key":"night","name":"夜间休息","walk":0,"pace":2.4,"speech":3,"preferred":["sleep","prone-rest","yawn"],"only":["sleep","prone-rest","prone-chin","yawn","sit-relaxed"],"lines":["夜深了……我先在这里眯一会儿，你叫我就好。","有点困了。今晚的星星，就留到梦里数吧。","我把声音放轻一点，陪你待着。"]},
-  {"start":6,"key":"morning","name":"晨起梳洗","walk":0.8,"pace":1,"speech":1,"preferred":["stretch","comb","dress","eat"],"lines":["早呀，先慢慢伸个懒腰，再开始今天。","我想把头发梳好，再吃一点早餐。","新的一天，也给自己留一点从容吧。"]},
-  {"start":9,"key":"focus","name":"日间阅读","walk":1,"pace":1,"speech":1.3,"preferred":["read","wait","tea"],"lines":["我想读一会儿书，你忙你的就好。","这一页有点意思……让我再看一会儿。","我们各自认真一会儿，等休息时再聊。"]},
-  {"start":12,"key":"noon","name":"午餐与小憩","walk":0.35,"pace":1.5,"speech":1.5,"preferred":["eat","sit-relaxed","prone-rest","yawn"],"lines":["到午间了，我想吃点东西，再安静地歇一会儿。","午后的困意，好像比我还先坐下了。","先舒舒服服地待一会儿吧。"]},
-  {"start":14,"key":"afternoon","name":"午后茶与活动","walk":1,"pace":1,"speech":1,"preferred":["tea","stretch","read","sit-swing","lazy-roll-toward","lazy-roll-away"],"lines":["下午了，想喝一口茶，再活动活动。","坐久了，我要伸伸胳膊……你也可以歇一下。","现在适合读几页书，或者认真发呆。"]},
-  {"start":18,"key":"evening","name":"晚餐与放松","walk":0.8,"pace":1.1,"speech":1,"preferred":["eat","comb","sit-swing","lazy-roll-toward","lazy-roll-away"],"lines":["傍晚了，今天有什么小事想和我分享吗？","我想吃点东西，然后懒懒地待着。","忙完以后，我们一起放松一会儿吧。"]},
-  {"start":21,"key":"winddown","name":"睡前放松","walk":0.2,"pace":1.8,"speech":2,"preferred":["yawn","comb","dress","prone-chin","prone-rest"],"lines":["有一点困了，我想把头发理好，慢慢休息。","今天就先轻轻收尾吧。你想聊天的话，我还听着。","哈欠……我要找个舒服的姿势待着。"]},
-  {"start":23,"key":"night","name":"夜间休息","walk":0,"pace":2.4,"speech":3,"preferred":["sleep","prone-rest","yawn"],"only":["sleep","prone-rest","prone-chin","yawn","sit-relaxed"],"lines":["夜深了……我先在这里眯一会儿，你叫我就好。","有点困了。今晚的星星，就留到梦里数吧。","我把声音放轻一点，陪你待着。"]}
+  {
+    "start": 0,
+    "key": "night",
+    "name": "夜间休息",
+    "walk": 0,
+    "pace": 2.4,
+    "speech": 3,
+    "preferred": [
+      "sleep",
+      "prone-rest",
+      "yawn"
+    ],
+    "only": [
+      "sleep",
+      "prone-rest",
+      "prone-chin",
+      "yawn",
+      "sit-relaxed"
+    ],
+    "lines": [
+      "夜深了……我先在这里眯一会儿，你叫我就好。",
+      "有点困了。今晚的星星，就留到梦里数吧。",
+      "我把声音放轻一点，陪你待着。"
+    ]
+  },
+  {
+    "start": 7,
+    "key": "morning",
+    "name": "晨起梳洗",
+    "walk": 0.8,
+    "pace": 1,
+    "speech": 1,
+    "preferred": [
+      "stretch",
+      "comb",
+      "dress",
+      "eat"
+    ],
+    "lines": [
+      "早呀，先慢慢伸个懒腰，再开始今天。",
+      "我想把头发梳好，再吃一点早餐。",
+      "新的一天，也给自己留一点从容吧。"
+    ]
+  },
+  {
+    "start": 9,
+    "key": "focus",
+    "name": "日间阅读",
+    "walk": 1,
+    "pace": 1,
+    "speech": 1.3,
+    "preferred": [
+      "read",
+      "wait",
+      "tea"
+    ],
+    "lines": [
+      "我想读一会儿书，你忙你的就好。",
+      "这一页有点意思……让我再看一会儿。",
+      "我们各自认真一会儿，等休息时再聊。"
+    ]
+  },
+  {
+    "start": 12,
+    "key": "noon",
+    "name": "午餐与小憩",
+    "walk": 0.35,
+    "pace": 1.5,
+    "speech": 1.5,
+    "preferred": [
+      "eat",
+      "sit-relaxed",
+      "prone-rest",
+      "yawn"
+    ],
+    "lines": [
+      "到午间了，我想吃点东西，再安静地歇一会儿。",
+      "午后的困意，好像比我还先坐下了。",
+      "先舒舒服服地待一会儿吧。"
+    ]
+  },
+  {
+    "start": 13,
+    "key": "nap",
+    "name": "午间熟睡",
+    "walk": 0,
+    "pace": 2.4,
+    "speech": 3,
+    "preferred": [
+      "sleep",
+      "prone-rest",
+      "yawn"
+    ],
+    "only": [
+      "sleep",
+      "prone-rest",
+      "prone-chin",
+      "yawn",
+      "sit-relaxed"
+    ],
+    "lines": [
+      "夜深了……我先在这里眯一会儿，你叫我就好。",
+      "有点困了。今晚的星星，就留到梦里数吧。",
+      "我把声音放轻一点，陪你待着。"
+    ]
+  },
+  {
+    "start": 14,
+    "key": "afternoon",
+    "name": "午后茶与活动",
+    "walk": 1,
+    "pace": 1,
+    "speech": 1,
+    "preferred": [
+      "tea",
+      "stretch",
+      "read",
+      "sit-swing",
+      "lazy-roll-toward",
+      "lazy-roll-away"
+    ],
+    "lines": [
+      "下午了，想喝一口茶，再活动活动。",
+      "坐久了，我要伸伸胳膊……你也可以歇一下。",
+      "现在适合读几页书，或者认真发呆。"
+    ]
+  },
+  {
+    "start": 18,
+    "key": "evening",
+    "name": "晚餐与放松",
+    "walk": 0.8,
+    "pace": 1.1,
+    "speech": 1,
+    "preferred": [
+      "eat",
+      "comb",
+      "sit-swing",
+      "lazy-roll-toward",
+      "lazy-roll-away"
+    ],
+    "lines": [
+      "傍晚了，今天有什么小事想和我分享吗？",
+      "我想吃点东西，然后懒懒地待着。",
+      "忙完以后，我们一起放松一会儿吧。"
+    ]
+  },
+  {
+    "start": 21,
+    "key": "winddown",
+    "name": "睡前放松",
+    "walk": 0.2,
+    "pace": 1.8,
+    "speech": 2,
+    "preferred": [
+      "yawn",
+      "comb",
+      "dress",
+      "prone-chin",
+      "prone-rest"
+    ],
+    "lines": [
+      "有一点困了，我想把头发理好，慢慢休息。",
+      "今天就先轻轻收尾吧。你想聊天的话，我还听着。",
+      "哈欠……我要找个舒服的姿势待着。"
+    ]
+  },
+  {
+    "start": 23,
+    "key": "night",
+    "name": "夜间休息",
+    "walk": 0,
+    "pace": 2.4,
+    "speech": 3,
+    "preferred": [
+      "sleep",
+      "prone-rest",
+      "yawn"
+    ],
+    "only": [
+      "sleep",
+      "prone-rest",
+      "prone-chin",
+      "yawn",
+      "sit-relaxed"
+    ],
+    "lines": [
+      "夜深了……我先在这里眯一会儿，你叫我就好。",
+      "有点困了。今晚的星星，就留到梦里数吧。",
+      "我把声音放轻一点，陪你待着。"
+    ]
+  }
 ]

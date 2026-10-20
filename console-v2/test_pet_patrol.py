@@ -122,10 +122,22 @@ class PatrolTests(unittest.TestCase):
         with patch.object(self.life,'icon_destination',return_value=None), patch('pet_patrol.random.random',return_value=.1):
             self.life.tick(self.now,.03,self.at)
         self.assertEqual(self.life.kind,'roll')
-        origin = self.pet.x()
+        origin = self.pet.pos()
         self.life.tick((self.now+self.life.until)/2,.03,self.at)
-        self.assertNotEqual(origin,self.pet.x())
+        direction=-1 if self.pet.state.action_player.action['id']=='lazy-roll-toward' else 1
+        self.assertGreater((self.pet.y()-origin.y())*direction,0)
+        self.assertEqual(self.pet.x(),origin.x())
         self.assertTrue(self.pet.screen_area().contains(self.pet.geometry()))
+
+    def test_due_ambient_yields_no_slot_to_optional_patrol_but_meals_still_run(self):
+        self.pet.state.ambient.next_at = self.now-1
+        with patch.object(self.life, 'icon_destination') as choose_icon:
+            self.life.tick(self.now, .03, self.at)
+            choose_icon.assert_not_called()
+        self.assertFalse(self.life.active)
+        self.assertGreater(self.life.next_at, self.now+79)
+        self.life.tick(self.now, .03, datetime(2026, 1, 1, 12))
+        self.assertEqual(self.life.kind, 'meal')
 
     def icon(self):
         icon = dict(id='test-icon', name='Test folder',folder=True,rect=dict(x=320,y=230,width=48,height=48))

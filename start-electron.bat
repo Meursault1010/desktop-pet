@@ -1,6 +1,58 @@
 @echo off
 setlocal
 cd /d "%~dp0"
+if exist "releases\electron\yuki-win32-x64-idle-states\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-idle-states\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-sleep-transitions\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-sleep-transitions\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-desktop\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-desktop\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-safe-logging\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-safe-logging\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-hair-consistent\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-hair-consistent\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-frame-aligned\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-frame-aligned\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-roll-phase\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-roll-phase\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-opposite-roll\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-opposite-roll\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-depth-roll\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-depth-roll\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-roll-motion\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-roll-motion\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-continuity\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-continuity\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-rebound\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-rebound\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-motion\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-motion\yuki-win32-x64"
+  goto launch
+)
 if exist "releases\electron\yuki-win32-x64-breathing\yuki-win32-x64\yuki.exe" (
   set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-breathing\yuki-win32-x64"
   goto launch

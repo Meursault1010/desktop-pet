@@ -37,6 +37,9 @@ class ConsoleTests(unittest.TestCase):
         self.controller.pet.advance_presence(time.monotonic()+2)
         self.controller.pet.animator.timer.stop()
         self.app.processEvents()
+        self.sleep_patch = patch('pet_sleep.sleep_time', return_value=False)
+        self.sleep_patch.start()
+        self.controller.pet.state.sleep.phase = 'awake'
         from datetime import datetime
         from daily_routine import current_period
         self.controller.pet.state.routine.period = current_period(datetime(2026, 1, 1, 10))
@@ -45,6 +48,7 @@ class ConsoleTests(unittest.TestCase):
         self.routine_patch.start()
 
     def tearDown(self):
+        self.sleep_patch.stop()
         self.routine_patch.stop()
         self.controller.cleanup()
         self.controller.window.deleteLater()

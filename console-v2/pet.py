@@ -8,14 +8,19 @@ from functools import lru_cache
 
 from idle_animation import IdleAnimation, motion_phase
 from action_player import ActionPlayer, catalog
+from action_life_motion import ActionLifeMotion
+from action_inbetweens import prefetch, sample_pose
+from frame_alignment import offset_for as action_frame_offset
 from idle_actions import IdleActions
+from idle_states import STATES, posture_for
 from click_reaction import ClickReaction
 from pet_physics import PetPhysics, PointerVelocity
 from pet_presence import Presence
 from daily_routine import DailyRoutine
+from pet_sleep import SleepCycle
 from locomotion import frame as motion_frame, step_towards, metadata as motion_metadata
 
-from PySide6.QtCore import QPoint, QRectF, Qt, QTimer, Signal
+from PySide6.QtCore import QPoint, QRect, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QIcon, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import QApplication, QWidget
 
@@ -54,6 +59,8 @@ class PetState:
         self.pointer_velocity = PointerVelocity()
         self.patrol = None
         self.music = None
+        self.roll_path = None
+        self.sleep = SleepCycle()
 
 
 class PetAnimator:
@@ -63,7 +70,9 @@ class PetAnimator:
         self.pet = pet
         self.timer = QTimer(pet)
         self.timer.timeout.connect(self.tick)
-        self.timer.start(33)
+        self.timer.setTimerType(Qt.TimerType.PreciseTimer)
+        self.timer.start(16)
+        self.ambient_blocked = False
 
     def tick(self):
         state = self.pet.state
@@ -72,6 +81,9 @@ class PetAnimator:
         state.last_tick = now
         state.idle.update(now)
         state.action_player.frame(now)
+        if self.pet.drag_origin is None and not state.physics.active:
+            state.sleep.preload()
+        state.sleep.tick(self.pet, now)
         if state.music:
             state.music.tick(now)
         if state.patrol:
@@ -79,10 +91,14 @@ class PetAnimator:
         self.update_ambient(now)
 
         previous = self.pet.status_text()
-        if self.pet.presence.active:
+        if state.sleep.transitioning:
+            state.walking = False
+        elif self.pet.presence.active:
             state.walking = False
         elif state.physics.active:
             self.pet.advance_physics(dt)
+        elif self.advance_roll(now):
+            pass
         elif state.travel_target is not None:
             if self.pet.drag_origin is None and self.pet.isVisible():
                 if self.pet.advance_to(state.travel_target,dt):
@@ -121,9 +137,56 @@ class PetAnimator:
         if previous != self.pet.status_text():
             self.pet.state_changed.emit()
 
+    def advance_roll(self, now):
+        state = self.pet.state
+        player = state.action_player
+        action = player.action
+        if action and action.get('lazy_roll'):
+            if self.pet.drag_origin is not None or not self.pet.isVisible():
+                state.roll_path = None
+                return False
+            if not state.roll_path or state.roll_path[0] != player.started:
+                area = self.pet.screen_area()
+                top = area.top()
+                bottom = max(top, area.bottom()-self.pet.height()+1)
+                origin = max(top, min(bottom, float(self.pet.y())))
+                # The head-to-feet axis is horizontal in the approved sprites.
+                # Rolling across that axis means toward = up, away = down.
+                direction = -1. if action['id'] == 'lazy-roll-toward' else 1.
+                room = bottom-origin if direction > 0 else origin-top
+                if room < min(55., 150.*self.pet.height()/180):
+                    direction *= -1
+                    room = bottom-origin if direction > 0 else origin-top
+                distance = min(150.*self.pet.height()/180, room)
+                target = origin+direction*distance
+                patrol = state.patrol
+                if patrol and patrol.active and getattr(patrol, 'roll_origin', None):
+                    _, py, distance = patrol.roll_origin
+                    origin, target = float(py), max(top, min(bottom, py+distance))
+                total = sum(player.action['durations'])/1000/player.speed
+                state.roll_path = (player.started, float(self.pet.x()), origin, target, player.started+total)
+            started, fixed_x, origin, target, _ = state.roll_path
+            progress = player.roll_progress(now)
+            if progress is not None:
+                y = origin+(target-origin)*progress
+                state.position_x = fixed_x
+                self.pet.move(round(fixed_x), round(y))
+                state.walking = False
+                state.gait_until = 0
+                return True
+        elif state.roll_path:
+            started, fixed_x, _, target, end_at = state.roll_path
+            if player.action is None and player.started == started and now >= end_at:
+                state.position_x = fixed_x
+                self.pet.move(round(fixed_x), round(target))
+            state.roll_path = None
+        return False
+
     def update_ambient(self, now):
         pet = self.pet
         state = pet.state
+        if state.sleep.transitioning:
+            return
         ambient = state.ambient
         player = state.action_player
         changed = state.routine.update()
@@ -165,13 +228,21 @@ class PetAnimator:
                     seated = catalog().get(followup)
                     if seated:
                         seated_start = now-sum(seated['durations'][:3])/1000
-                        player.play(followup, now=seated_start)
+                        ambient.play(player, followup, seated_start)
                         ambient.current = (followup, seated_start, float(pet.x()),
                                            sum(player.action['durations'])/1000)
                         return
-        if blocked or player.action is not None:
-            if blocked:
+        if blocked:
+            if not self.ambient_blocked:
                 ambient.defer(now, pet.preferences.activity)
+            self.ambient_blocked = True
+            return
+        if self.ambient_blocked:
+            # Resume gently after an interaction, without waiting another full
+            # ambient interval or letting patrol repeatedly win the free slot.
+            ambient.next_at = now + random.uniform(3, 6)
+        self.ambient_blocked = False
+        if player.action is not None:
             return
         if now < ambient.next_at:
             return
@@ -182,9 +253,7 @@ class PetAnimator:
         ambient.defer(now, pet.preferences.activity)
         if key is None:
             return
-        sleeping = key == 'sleep' and state.routine.period['key'] == 'night'
-        player.play(key, now=now, loop=sleeping)
-        duration = random.uniform(70, 140) if sleeping else sum(player.action['durations'])/1000
+        duration = ambient.play(player, key, now)
         ambient.current = (key, now, float(pet.x()), duration)
         state.walking = False
         state.gait_until = 0
@@ -218,6 +287,7 @@ class PetRenderer:
     def __init__(self):
         self.atlases = self.load_atlases()
         self.interaction_atlases()
+        self.action_motion = ActionLifeMotion()
         self.last_pose = None
         self.last_image = None
         self.transition_image = None
@@ -241,7 +311,7 @@ class PetRenderer:
         now = time.monotonic()
         frame = state.action_player.frame(now)
         action = state.action_player.action
-        pose = ('physics',) if state.physics.active else ('action', action['id'], state.action_player.started) if action else (
+        pose = ('sleep',) if state.sleep.active or state.sleep.phase == 'waking' else ('physics',) if state.physics.active else ('action', action['id'], state.action_player.started) if action else (
             ('walk', state.direction) if now < state.gait_until else ('idle',))
         image = QImage(180, 190, QImage.Format.Format_RGBA32FPx4_Premultiplied)
         image.fill(Qt.GlobalColor.transparent)
@@ -338,6 +408,9 @@ class PetRenderer:
 
     def draw_pose(self, painter, state):
         now = time.monotonic()
+        if (state.sleep.active or state.sleep.phase == 'waking') and state.drag_feedback is None:
+            if state.sleep.paint(painter, now):
+                return
         elapsed = now - state.started
         jump = 0 if state.jump_started is None else 36 * math.sin(
             math.pi * max(0, min(1, (now - state.jump_started) / .65)))
@@ -356,17 +429,47 @@ class PetRenderer:
         frame = state.action_player.frame(now)
         if frame is not None:
             action = state.action_player.action
+            if not action.get('authored_motion'):
+                prefetch(state.action_player.upcoming_pairs(now))
             if action.get('pixel_art'):
                 painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, False)
-            atlas = self.action_atlas(action['id'])
-            painter.drawPixmap(QRectF(10, 25, 160, 160), atlas,
-                               QRectF((frame % action['columns'])*256,
-                                      (frame // action['columns'])*256, 256, 256))
+            before, after, progress = state.action_player.motion_sample(now)
+            visual_id, visual_frame = before
+            visual_action = catalog()[visual_id]
+            atlas = self.action_atlas(visual_id)
+            source = QRect((visual_frame % visual_action['columns'])*256,
+                           (visual_frame // visual_action['columns'])*256, 256, 256)
+            interpolated = None if action.get('authored_motion') else sample_pose(before, after, progress)
+            if interpolated is not None:
+                atlas, source = interpolated
+            # A late decoder leaves the authored source pose on screen. Its
+            # anchor must stay at that source too, rather than sliding toward
+            # an unseen destination pose and snapping back on the next tick.
+            offset_x, offset_y = ((0., 0.) if action.get('authored_motion') else action_frame_offset(
+                before, after, progress if interpolated is not None else 0.))
+            painter.save()
+            painter.translate(offset_x*160/256, offset_y*160/256)
+            # Breath has a global phase, so switching clips never resets a
+            # shoulder or hair movement halfway through its cycle.
+            lived = self.action_motion.render(atlas, source, visual_id, elapsed)
+            if lived is not None:
+                painter.drawImage(QRectF(10, 25, 160, 160), lived)
+            elif isinstance(atlas, QImage):
+                painter.drawImage(QRectF(10, 25, 160, 160), atlas, QRectF(source))
+            else:
+                painter.drawPixmap(QRectF(10, 25, 160, 160), atlas, QRectF(source))
+            painter.restore()
             return
         if now < state.gait_until:
             name='walk-right' if state.direction>0 else 'walk-left'
-            painter.drawPixmap(QRectF(10,181.875-160*motion_metadata()[name]['baseline'],160,160),
-                               motion_frame(name,state.gait_distance),QRectF(0,0,256,256))
+            source = QRect(0, 0, 256, 256)
+            atlas = motion_frame(name,state.gait_distance)
+            lived = self.action_motion.render(atlas, source, 'walk', elapsed)
+            target = QRectF(10,181.875-160*motion_metadata()[name]['baseline'],160,160)
+            if lived is not None:
+                painter.drawImage(target, lived)
+            else:
+                painter.drawPixmap(target, atlas, QRectF(source))
             return
         if now < state.message_until:
             painter.setPen(Qt.PenStyle.NoPen)
@@ -476,7 +579,7 @@ class DesktopPet(QWidget):
         return screen.availableGeometry()
 
     def movement_allowed(self):
-        return (self.isVisible() and self.drag_origin is None
+        return (not self.state.sleep.transitioning and self.isVisible() and self.drag_origin is None
                 and not self.presence.active
                 and not self.state.physics.active
                 and not (self.state.music and self.state.music.active)
@@ -521,6 +624,10 @@ class DesktopPet(QWidget):
                         'ceiling': '碰顶 · 弹回', 'floor': '落地 · 回弹'}.get(
                             self.state.physics.impact, '抛掷 · 下落中')
             return '抛掷 · 下落中' if self.state.physics.flying else '落地 · 缓一缓'
+        if self.state.sleep.active:
+            return '熟睡中 · z z z'
+        if self.state.sleep.phase == 'waking':
+            return '睡觉待机 · 正在醒来'
         if self.state.icon_sleep and self.state.icon_sleep.target:
             return self.state.icon_sleep.message
         if self.state.edge_attachment and self.state.edge_attachment.active:
@@ -530,6 +637,10 @@ class DesktopPet(QWidget):
                 return self.state.music.snapshot()['reaction']
             if self.state.patrol and self.state.patrol.active:
                 return self.state.patrol.label
+            if self.state.ambient.current and self.state.action_player.started == self.state.ambient.current[1]:
+                posture = posture_for(self.state.action_player.action['id'])
+                if posture:
+                    return STATES[posture]['name'] + '待机 · ' + self.state.action_player.action['name']
             return '动作 · ' + self.state.action_player.action['name']
         if self.state.jump_started is not None:
             return '跳跃中'
@@ -541,7 +652,7 @@ class DesktopPet(QWidget):
             return '待机（随机移动已关闭）'
         if self.state.patrol and self.state.patrol.active:
             return self.state.patrol.label
-        return '移动中' if self.state.walking else '待机 · ' + self.state.routine.period['name']
+        return '移动中' if self.state.walking else '站立待机 · ' + self.state.routine.period['name']
 
     def clamp_to_screen(self):
         self.state.physics.cancel()
@@ -712,6 +823,8 @@ class DesktopPet(QWidget):
             if not self.desired_visible():
                 event.ignore()
                 return
+            was_sleeping = self.state.sleep.transitioning
+            self.state.sleep.wake(self, '点击或拖拽')
             self.presence_timer.stop()
             self.presence.reset(True)
             self.caught_flight = self.state.physics.active and self.state.physics.flying
@@ -720,7 +833,7 @@ class DesktopPet(QWidget):
             self.state.pointer_velocity.reset(point.x(), point.y(), time.monotonic())
             self.click_timer.stop()
             self.double_click = False
-            self.renderer.pointer_hold_image = self.renderer.last_display_image
+            self.renderer.pointer_hold_image = None if was_sleeping else self.renderer.last_display_image
             self.snap_preview.request_surfaces()
             self.renderer.transition_image = None
             # A press may become a drag. Do not show click feedback until the
@@ -753,6 +866,11 @@ class DesktopPet(QWidget):
 
     def play_click_reaction(self, kind):
         self.renderer.pointer_hold_image = None
+        # A sleeping click already has its own approved wake-up response. Do
+        # not start a standing shy/headpat clip underneath and cut it mid-clip.
+        if self.state.sleep.phase == 'waking':
+            self.update()
+            return
         if self.state.music:
             self.state.music.cancel()
         if self.state.patrol:
@@ -784,6 +902,7 @@ class DesktopPet(QWidget):
             if (point - self.press_position).manhattanLength() > QApplication.startDragDistance():
                 if not self.dragged:
                     self.cancel_click()
+                    self.state.sleep.interrupt_for_drag()
                     self.state.action_player.stop()
                     from drag_feedback import DragFeedback
                     factor=self.preferences.size/100

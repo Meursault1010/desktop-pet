@@ -112,9 +112,15 @@ class PetService(PetApplication):
                 'routine': self.pet.state.routine.snapshot(),
                 'patrol': self.patrol.snapshot(),
                 'music': self.music.snapshot(),
+                'sleep': self.pet.state.sleep.snapshot(),
+                'idle': self.idle_snapshot(),
                 'speech': {'active': bool(self.pet.bubble.parts), 'kind': self.pet.bubble.kind,
                            'pages': len(self.pet.bubble.parts), 'pending': bool(self.quick_pending)},
                 'revision': self.revision, 'config_path': self.store.settings.fileName()}
+
+    def idle_snapshot(self):
+        from idle_states import snapshot
+        return snapshot(self.pet.state)
 
     def publish(self):
         if self.shutting_down:
@@ -156,6 +162,30 @@ class PetService(PetApplication):
                 raise ValueError('参数格式不正确')
             if command == 'speech_update':
                 self.speech_update(payload)
+            elif command == 'wake_sleep':
+                self.pet.state.sleep.wake(self.pet, '主动交流')
+            elif command == 'desktop_event':
+                kind = payload.get('kind')
+                if kind not in ('usb', 'charging', 'download', 'success', 'failure'):
+                    raise ValueError('未知桌面事件')
+                s = self.pet.state
+                now = time.monotonic()
+                if (not s.sleep.transitioning and self.pet.isVisible()
+                        and not self.pet.preferences.paused and not self.pet.preferences.quiet
+                        and not (s.icon_sleep and s.icon_sleep.target)
+                        and not (s.edge_attachment and s.edge_attachment.active)
+                        and not s.physics.active and self.pet.drag_origin is None
+                        and s.action_player.action is None and not self.pet.presence.active
+                        and now >= getattr(self, '_desktop_reaction_at', 0)):
+                    if s.patrol:
+                        s.patrol.cancel()
+                    if s.music:
+                        s.music.cancel()
+                    s.action_player.play('sad' if kind == 'failure' else 'celebrate', speed=.8)
+                    s.walking = False
+                    s.ambient.current = None
+                    s.ambient.next_at = now + 10
+                    self._desktop_reaction_at = now + 12
             elif command == 'set_preference':
                 key, value = payload.get('key'), payload.get('value')
                 defaults = asdict(Preferences())
@@ -188,6 +218,7 @@ class PetService(PetApplication):
             elif command == 'play_action':
                 if not self.pet.isVisible():
                     raise ValueError('请先显示宠物')
+                self.pet.state.sleep.wake(self.pet, '手动播放动作')
                 self.pet.wake_icon_sleep()
                 self.pet.state.action_player.play(payload.get('action_id'), payload.get('loop', False), payload.get('speed', 1))
                 self.pet.state.jump_started = None

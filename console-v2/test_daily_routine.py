@@ -14,7 +14,7 @@ from pet import DesktopPet
 
 class RoutineTests(unittest.TestCase):
     def test_boundaries_and_resume(self):
-        expected = {0:'night',5:'night',6:'morning',9:'focus',12:'noon',
+        expected = {0:'night',5:'night',6:'night',7:'morning',9:'focus',12:'noon',13:'nap',
                     14:'afternoon',18:'evening',21:'winddown',23:'night'}
         routine = DailyRoutine()
         for hour, key in expected.items():
@@ -33,7 +33,8 @@ class RoutineTests(unittest.TestCase):
         ambient.set_period(schedule()[0])
         choices = [ambient.choose(available) for _ in range(40)]
         self.assertTrue(set(choices).issubset(schedule()[0]['only']))
-        self.assertIn('sleep', choices)
+        # Persistent sleep owns its clock and two-minute wake cooldown.
+        self.assertNotIn('sleep', choices)
         ambient.set_period(schedule()[1])
         self.assertEqual(ambient.bag, [])
         self.assertNotIn('folder-sleep', [ambient.choose(available) for _ in range(40)])
