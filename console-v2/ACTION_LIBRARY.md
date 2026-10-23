@@ -11,7 +11,7 @@
 - 同目录 `atlas.png`：运行时图集；`poster.png`：控制台封面。
 - `action-work/<动作ID>/raw.png`：生成服务返回的原始六格图；`prompt.txt`：完整提示词，便于复现和精修。
 - `qa/actions/`：各动作的逐帧总览 JPG 与播放 GIF，用于检查动作含义、背景、跳变和角色一致性。
-- `frontend/public/actions/`：供控制台本地预览使用的资源副本。
+- `frontend/public/actions/`：供控制台预览的镜像。图集为无损 WebP（解码后逐像素一致），封面限制在 512px，不携带编号帧；重建素材后运行 `optimize_frontend_actions.py` 刷新镜像。
 
 原始“图片”目录不覆盖。向前/向右打滚的第一张原图是多角色总览，已排除出播放序列。阅读单图标为“静态姿势”，不冒充完整动作。“靠文件夹睡觉”的原图道具和姿势变化明显，保留转换结果并标记待精修。
 
@@ -31,5 +31,6 @@
 2. `--generate`：通过已安装的 shengtu-skill 生成缺失动作，已有 raw.png 会复用，不重复请求。
 3. `--generate --only stretch`：只处理某个动作。
 4. 前端资源发生变化后重新编译 Tauri EXE；仅 Python 播放逻辑变化不必重新编译 EXE。
+5. 若生成脚本改写了 `frontend/public/actions`，再运行 `optimize_frontend_actions.py` 把它转回 WebP 镜像；测试会拒绝回归的编号 PNG。
 
 生成输出和透明静帧均保留在项目内。API 密钥由技能私有配置解析，不复制到项目。

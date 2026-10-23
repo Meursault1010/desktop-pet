@@ -52,7 +52,7 @@ class DropTests(unittest.TestCase):
    self.assertTrue(self.edge.catch_flight(start,end,[item]),kind)
    self.assertTrue(self.edge.active);self.assertEqual(self.edge.kind,kind)
    self.assertFalse(self.pet.state.physics.active)
-   self.assertEqual(self.pet.animator.timer.interval(),33)
+   self.assertEqual(self.pet.animator.timer.interval(),16)
    self.assertAlmostEqual(self.pet.x(),px,delta=1)
    self.assertAlmostEqual(self.pet.y(),py,delta=1)
  def test_flight_misses_distant_reverse_and_covered_edges(self):

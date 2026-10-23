@@ -1,0 +1,94 @@
+{
+  "雪白": {
+    "C": {
+      "bg": "#E6ECF1",
+      "paper": "#FCFDFE",
+      "ink": "#243C50",
+      "secondary": "#53697A",
+      "muted": "#607587",
+      "line": "#D5DFE6",
+      "nav": "#EEF2F5",
+      "blue": "#276E94",
+      "deep": "#10283C"
+    },
+    "INK": "#243C50",
+    "SUB": "#53697A",
+    "BLUE": "#276E94",
+    "PAPER": "#FCFDFE",
+    "SOFT": "#F1F6F9",
+    "EDGE": "#D2DFE8",
+    "map": {}
+  },
+  "银雾": {
+    "C": {
+      "bg": "#CED8E1",
+      "paper": "#E8EEF3",
+      "ink": "#263D50",
+      "secondary": "#4C6477",
+      "muted": "#576C7D",
+      "line": "#BECDD9",
+      "nav": "#DAE4ED",
+      "blue": "#245F86",
+      "deep": "#234861"
+    },
+    "INK": "#263D50",
+    "SUB": "#4C6477",
+    "BLUE": "#245F86",
+    "PAPER": "#E8EEF3",
+    "SOFT": "#DDE8F0",
+    "EDGE": "#B8CBDA",
+    "map": {
+      "#E6ECF1": "#CED8E1",
+      "#B7C7D4": "#A1B5C5",
+      "#EAF0F4": "#DAE4ED",
+      "#CCD9E3": "#BBCDDA",
+      "#EEF2F5": "#DAE4ED",
+      "#E0EDF6": "#E8F4FC",
+      "#F0F7FC": "#F1F7FC",
+      "#6C91AA": "#557C99",
+      "#E9F1F6": "#CFDFEB",
+      "#FFFFFF": "#F0F6FA",
+      "#C7D8E5": "#ACBFCE",
+      "#DFEBF4": "#CBDDEB",
+      "#D3DFE8": "#B9CBD9",
+      "#5D87A3": "#3D7196",
+      "#3D806F": "#2E6E5E"
+    }
+  },
+  "星夜": {
+    "C": {
+      "bg": "#0A111B",
+      "paper": "#121C29",
+      "ink": "#E1EAF3",
+      "secondary": "#A6B8C9",
+      "muted": "#99ADBF",
+      "line": "#34485D",
+      "nav": "#101925",
+      "blue": "#A7CCE8",
+      "deep": "#C4DDEF"
+    },
+    "INK": "#E1EAF3",
+    "SUB": "#A6B8C9",
+    "BLUE": "#A7CCE8",
+    "PAPER": "#121C29",
+    "SOFT": "#192838",
+    "EDGE": "#34485D",
+    "map": {
+      "#E6ECF1": "#0A111B",
+      "#B7C7D4": "#3B5167",
+      "#EAF0F4": "#172331",
+      "#CCD9E3": "#34485D",
+      "#EEF2F5": "#101925",
+      "#E0EDF6": "#17344A",
+      "#F0F7FC": "#17344A",
+      "#6C91AA": "#8DAEC8",
+      "#E9F1F6": "#203347",
+      "#FFFFFF": "#344F68",
+      "#C7D8E5": "#53728C",
+      "#DFEBF4": "#2A4259",
+      "#D3DFE8": "#34485D",
+      "#5D87A3": "#91B8D5",
+      "#3D806F": "#95CABB"
+    }
+  }
+}

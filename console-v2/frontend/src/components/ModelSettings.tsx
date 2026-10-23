@@ -2,18 +2,20 @@ import {useEffect,useState} from 'react';
 import {host} from '../host';
 import type {ModelConfigSnapshot} from '../host/types';
 
-export function ModelSettings({onSaved}:{onSaved?:()=>void}){
+export function ModelSettings({onSaved,expanded=false}:{onSaved?:()=>void;expanded?:boolean}){
   const [config,setConfig]=useState<ModelConfigSnapshot|null>(null);
+  const [mode,setMode]=useState<'local'|'cloud'>('local');
   const [endpoint,setEndpoint]=useState('http://127.0.0.1:1235/v1'),[model,setModel]=useState(''),[key,setKey]=useState('');
   const [clearKey,setClearKey]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState('');
-  useEffect(()=>{let live=true;host?.modelConfig?.().then(v=>{if(live){setConfig(v);setEndpoint(v.endpoint);setModel(v.model);}}).catch(e=>{if(live)setError(String(e.message||e));});return()=>{live=false;};},[]);
+  useEffect(()=>{let live=true;host?.modelConfig?.().then(v=>{if(live){setConfig(v);setEndpoint(v.endpoint);setModel(v.model);setMode(v.endpoint.startsWith('https:')?'cloud':'local');}}).catch(e=>{if(live)setError(String(e.message||e));});return()=>{live=false;};},[]);
   async function save(){
     if(!host?.modelConfigSet)return;
     setBusy(true);setError('');setMessage('');
     try{const value=await host.modelConfigSet({endpoint:endpoint.trim(),model:model.trim(),apiKey:key||undefined,clearKey});setConfig(value);setKey('');setClearKey(false);setMessage('模型配置已保存');onSaved?.();}
     catch(e){setError(String(e instanceof Error?e.message:e));}finally{setBusy(false);}
   }
-  return <details className="model-settings"><summary>模型服务设置</summary><form onSubmit={e=>{e.preventDefault();void save();}}>
+  return <details className="model-settings" open={expanded||undefined}><summary>模型服务设置</summary><form onSubmit={e=>{e.preventDefault();void save();}}>
+    {expanded&&<div className="segmented" role="group" aria-label="模型连接方式">{(['local','cloud'] as const).map(m=><button type="button" key={m} aria-pressed={mode===m} className={mode===m?'selected':''} onClick={()=>{setMode(m);setEndpoint(m==='local'?'http://127.0.0.1:1235/v1':'');setKey('');setClearKey(false);}}>{m==='local'?'本地模型':'云端 API'}</button>)}</div>}
     <label>服务地址<input type="url" required value={endpoint} onChange={e=>setEndpoint(e.target.value)} placeholder="https://api.example.com/v1" maxLength={500}/></label>
     <label>模型名称<input value={model} onChange={e=>setModel(e.target.value)} placeholder="留空后从模型列表选择" maxLength={300}/></label>
     <label>API 密钥<input type="password" autoComplete="off" value={key} onChange={e=>setKey(e.target.value)} placeholder={config?.keyPresent?'已配置；留空保留':'本地无认证服务可留空'} maxLength={4096}/></label>

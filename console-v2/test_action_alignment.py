@@ -14,7 +14,9 @@ class FrameAlignmentTests(unittest.TestCase):
                      json.loads((ASSETS/'catalog.json').read_text(encoding='utf-8'))
                      if entry.get('origin') == 'generated' and entry['frames'] > 1
                      and not entry.get('ground_idle') and not entry.get('lazy_roll')
-                     and not entry.get('physics_only') and entry['id'] not in {'leap', 'dragged'}}
+                     and not entry.get('physics_only') and entry['id'] not in {'leap', 'dragged'}
+                     and all((ASSETS/entry['id']/f'{index+1:02d}.png').exists()
+                             for index in range(entry['frames']))}
         measured = build()['actions']
         shipped = profile()
         self.assertEqual(set(shipped), set(generated))

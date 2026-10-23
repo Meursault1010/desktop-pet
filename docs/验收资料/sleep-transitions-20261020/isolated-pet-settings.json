@@ -1,0 +1,25 @@
+[pet]
+position=@Point(589 560)
+
+[preferences]
+size=105
+opacity=100
+always_on_top=true
+speed=48
+activity=默认
+random_movement=false
+greeting=true
+quiet=false
+paused=false
+auto_snap=true
+music_reactions=false
+
+[routine]
+meals\breakfast=2026-10-20/breakfast
+
+[edge_attachment]
+enabled=false
+windows=true
+screens=true
+corner=right
+delay=2

@@ -8,7 +8,7 @@ from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QApplication
 from click_reaction import ClickReaction
-from pet import DesktopPet
+from pet import DesktopPet, FRAME_INTERVAL_MS
 from settings_model import Preferences
 
 
@@ -39,27 +39,28 @@ class ClickTests(unittest.TestCase):
         self.pet.mousePressEvent(self.event(QMouseEvent.Type.MouseButtonPress))
         self.pet.mouseReleaseEvent(self.event(QMouseEvent.Type.MouseButtonRelease))
 
-    def test_single_is_delayed_shy_and_never_jumps_or_moves_window(self):
+    def test_single_is_immediate_shy_and_never_jumps_or_moves_window(self):
         origin = self.pet.pos()
         self.click()
-        self.assertTrue(self.pet.click_timer.isActive())
-        self.assertIsNone(self.pet.state.action_player.action)
-        self.pet.click_timer.stop()
-        self.pet.click_timer.timeout.emit()
+        self.assertFalse(self.pet.click_timer.isActive())
         self.assertEqual(self.pet.state.action_player.action['id'], 'shy')
         self.assertEqual(self.pet.state.click_reaction.kind, 'shy')
+        player = self.pet.state.action_player
+        self.assertEqual(player.frame_order, [2])
+        self.assertEqual(player.frame(player.started+.5), 2)
+        self.assertEqual(player.motion_sample(player.started+.5), (('shy',2),('shy',2),0.))
         self.assertIsNone(self.pet.state.jump_started)
         self.assertEqual(self.pet.pos(), origin)
 
-    def test_qt_double_sequence_only_plays_headpat(self):
+    def test_qt_double_sequence_only_plays_shy_jelly_once(self):
         with patch.object(self.pet, 'play_click_reaction', wraps=self.pet.play_click_reaction) as play:
             self.click()
             self.pet.mouseDoubleClickEvent(self.event(QMouseEvent.Type.MouseButtonDblClick))
             self.pet.mouseReleaseEvent(self.event(QMouseEvent.Type.MouseButtonRelease))
             self.assertFalse(self.pet.click_timer.isActive())
-            self.assertEqual(play.call_args_list, [unittest.mock.call('headpat')])
-            self.assertEqual(self.pet.state.action_player.action['id'], 'affection')
-            self.assertEqual(self.pet.state.click_reaction.kind, 'headpat')
+            self.assertEqual(play.call_args_list, [unittest.mock.call('shy'), unittest.mock.call('shy')])
+            self.assertEqual(self.pet.state.action_player.action['id'], 'shy')
+            self.assertEqual(self.pet.state.click_reaction.kind, 'shy')
 
     def test_drag_and_hide_cancel_pending_reactions(self):
         self.click()
@@ -78,13 +79,13 @@ class ClickTests(unittest.TestCase):
         self.pet.state.click_reaction.trigger('shy', 120)
         self.pet.mousePressEvent(self.event(QMouseEvent.Type.MouseButtonPress))
         self.assertIsNone(self.pet.state.click_reaction.started)
-        self.assertEqual(self.pet.animator.timer.interval(), 33)
+        self.assertEqual(self.pet.animator.timer.interval(), FRAME_INTERVAL_MS)
         self.pet.mouseMoveEvent(self.event(QMouseEvent.Type.MouseMove, 155, 95))
         self.assertTrue(self.pet.dragged)
-        self.assertEqual(self.pet.animator.timer.interval(), 16)
+        self.assertEqual(self.pet.animator.timer.interval(), FRAME_INTERVAL_MS)
         self.assertIsNone(self.pet.state.click_reaction.started)
         self.pet.end_drag_feedback()
-        self.assertEqual(self.pet.animator.timer.interval(), 33)
+        self.assertEqual(self.pet.animator.timer.interval(), FRAME_INTERVAL_MS)
 
     def test_press_preserves_action_frame_until_drag_is_classified(self):
         from PySide6.QtGui import QImage, QPainter
@@ -125,8 +126,9 @@ class ClickTests(unittest.TestCase):
         self.click()
         self.pet.hide()
         self.assertFalse(self.pet.click_timer.isActive())
-        self.pet.finish_single_click()
-        self.assertIsNone(self.pet.state.action_player.action)
+        with patch.object(self.pet, 'play_click_reaction') as play:
+            self.pet.finish_single_click()
+            play.assert_not_called()
 
     def test_spring_is_bounded_directional_and_returns_to_rest(self):
         response = ClickReaction()
@@ -162,6 +164,14 @@ class ClickTests(unittest.TestCase):
         self.assertGreater(rebound[4], 1.)
         self.assertNotEqual(compressed[5], 0)
         self.assertEqual(response.transform(100), (0, 0, 0, 1, 1, 0))
+
+    def test_shy_expression_has_large_jelly_without_accumulation(self):
+        response = ClickReaction()
+        response.trigger('shy', 150, now=100)
+        _, _, _, sx, sy, _ = response.transform(100.09)
+        self.assertGreater(sx, 1.18)
+        self.assertLess(sy, .85)
+        self.assertAlmostEqual(sx*sy, 1.)
 
 
 if __name__ == '__main__':

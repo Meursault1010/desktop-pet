@@ -1,0 +1,50 @@
+[
+  {
+    "id": "c0001",
+    "host": "linear.app",
+    "path": "/",
+    "url": "https://linear.app/",
+    "title": "Linear",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0003",
+    "host": "asana.com",
+    "path": "/",
+    "url": "https://asana.com/",
+    "title": "Asana",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0004",
+    "host": "monday.com",
+    "path": "/",
+    "url": "https://monday.com/",
+    "title": "Monday",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0007",
+    "host": "basecamp.com",
+    "path": "/",
+    "url": "https://basecamp.com/",
+    "title": "Basecamp",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  }
+]

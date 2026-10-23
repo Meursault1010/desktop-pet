@@ -1,0 +1,704 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-20T11:52:16.500Z",
+  "title": "Design System: Yuki Workbench",
+  "extensions": {
+    "colorMeta": {
+      "light-canvas": {
+        "role": "neutral",
+        "displayName": "雪白 · canvas",
+        "tonalRamp": [
+          "oklch(15% 0.0093 242.84)",
+          "oklch(26% 0.0093 242.84)",
+          "oklch(38% 0.0093 242.84)",
+          "oklch(49% 0.0093 242.84)",
+          "oklch(61% 0.0093 242.84)",
+          "oklch(72% 0.0093 242.84)",
+          "oklch(84% 0.0093 242.84)",
+          "oklch(95% 0.0093 242.84)"
+        ]
+      },
+      "light-panel": {
+        "role": "neutral",
+        "displayName": "雪白 · panel",
+        "tonalRamp": [
+          "oklch(15% 0.0017 247.84)",
+          "oklch(26% 0.0017 247.84)",
+          "oklch(38% 0.0017 247.84)",
+          "oklch(49% 0.0017 247.84)",
+          "oklch(61% 0.0017 247.84)",
+          "oklch(72% 0.0017 247.84)",
+          "oklch(84% 0.0017 247.84)",
+          "oklch(95% 0.0017 247.84)"
+        ]
+      },
+      "light-sidebar": {
+        "role": "neutral",
+        "displayName": "雪白 · sidebar",
+        "tonalRamp": [
+          "oklch(15% 0.0059 239.82)",
+          "oklch(26% 0.0059 239.82)",
+          "oklch(38% 0.0059 239.82)",
+          "oklch(49% 0.0059 239.82)",
+          "oklch(61% 0.0059 239.82)",
+          "oklch(72% 0.0059 239.82)",
+          "oklch(84% 0.0059 239.82)",
+          "oklch(95% 0.0059 239.82)"
+        ]
+      },
+      "light-text": {
+        "role": "neutral",
+        "displayName": "雪白 · text",
+        "tonalRamp": [
+          "oklch(15% 0.0462 244.84)",
+          "oklch(26% 0.0462 244.84)",
+          "oklch(38% 0.0462 244.84)",
+          "oklch(49% 0.0462 244.84)",
+          "oklch(61% 0.0462 244.84)",
+          "oklch(72% 0.0462 244.84)",
+          "oklch(84% 0.0462 244.84)",
+          "oklch(95% 0.0462 244.84)"
+        ]
+      },
+      "light-muted": {
+        "role": "neutral",
+        "displayName": "雪白 · muted",
+        "tonalRamp": [
+          "oklch(15% 0.0378 241.69)",
+          "oklch(26% 0.0378 241.69)",
+          "oklch(38% 0.0378 241.69)",
+          "oklch(49% 0.0378 241.69)",
+          "oklch(61% 0.0378 241.69)",
+          "oklch(72% 0.0378 241.69)",
+          "oklch(84% 0.0378 241.69)",
+          "oklch(95% 0.0378 241.69)"
+        ]
+      },
+      "light-line": {
+        "role": "neutral",
+        "displayName": "雪白 · line",
+        "tonalRamp": [
+          "oklch(15% 0.0187 237.79)",
+          "oklch(26% 0.0187 237.79)",
+          "oklch(38% 0.0187 237.79)",
+          "oklch(49% 0.0187 237.79)",
+          "oklch(61% 0.0187 237.79)",
+          "oklch(72% 0.0187 237.79)",
+          "oklch(84% 0.0187 237.79)",
+          "oklch(95% 0.0187 237.79)"
+        ]
+      },
+      "light-blue": {
+        "role": "primary",
+        "displayName": "雪白 · blue",
+        "tonalRamp": [
+          "oklch(15% 0.0917 236.17)",
+          "oklch(26% 0.0917 236.17)",
+          "oklch(38% 0.0917 236.17)",
+          "oklch(49% 0.0917 236.17)",
+          "oklch(61% 0.0917 236.17)",
+          "oklch(72% 0.0917 236.17)",
+          "oklch(84% 0.0917 236.17)",
+          "oklch(95% 0.0917 236.17)"
+        ]
+      },
+      "light-blue-soft": {
+        "role": "primary",
+        "displayName": "雪白 · blue-soft",
+        "tonalRamp": [
+          "oklch(15% 0.0135 240.96)",
+          "oklch(26% 0.0135 240.96)",
+          "oklch(38% 0.0135 240.96)",
+          "oklch(49% 0.0135 240.96)",
+          "oklch(61% 0.0135 240.96)",
+          "oklch(72% 0.0135 240.96)",
+          "oklch(84% 0.0135 240.96)",
+          "oklch(95% 0.0135 240.96)"
+        ]
+      },
+      "light-soft": {
+        "role": "neutral",
+        "displayName": "雪白 · soft",
+        "tonalRamp": [
+          "oklch(15% 0.0067 233.64)",
+          "oklch(26% 0.0067 233.64)",
+          "oklch(38% 0.0067 233.64)",
+          "oklch(49% 0.0067 233.64)",
+          "oklch(61% 0.0067 233.64)",
+          "oklch(72% 0.0067 233.64)",
+          "oklch(84% 0.0067 233.64)",
+          "oklch(95% 0.0067 233.64)"
+        ]
+      },
+      "light-hover": {
+        "role": "neutral",
+        "displayName": "雪白 · hover",
+        "tonalRamp": [
+          "oklch(15% 0.0126 236.63)",
+          "oklch(26% 0.0126 236.63)",
+          "oklch(38% 0.0126 236.63)",
+          "oklch(49% 0.0126 236.63)",
+          "oklch(61% 0.0126 236.63)",
+          "oklch(72% 0.0126 236.63)",
+          "oklch(84% 0.0126 236.63)",
+          "oklch(95% 0.0126 236.63)"
+        ]
+      },
+      "light-deep": {
+        "role": "primary",
+        "displayName": "雪白 · deep",
+        "tonalRamp": [
+          "oklch(15% 0.0631 241.23)",
+          "oklch(26% 0.0631 241.23)",
+          "oklch(38% 0.0631 241.23)",
+          "oklch(49% 0.0631 241.23)",
+          "oklch(61% 0.0631 241.23)",
+          "oklch(72% 0.0631 241.23)",
+          "oklch(84% 0.0631 241.23)",
+          "oklch(95% 0.0631 241.23)"
+        ]
+      },
+      "light-on-deep": {
+        "role": "primary",
+        "displayName": "雪白 · on-deep",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "mist-canvas": {
+        "role": "neutral",
+        "displayName": "银雾 · canvas",
+        "tonalRamp": [
+          "oklch(15% 0.0165 245.11)",
+          "oklch(26% 0.0165 245.11)",
+          "oklch(38% 0.0165 245.11)",
+          "oklch(49% 0.0165 245.11)",
+          "oklch(61% 0.0165 245.11)",
+          "oklch(72% 0.0165 245.11)",
+          "oklch(84% 0.0165 245.11)",
+          "oklch(95% 0.0165 245.11)"
+        ]
+      },
+      "mist-panel": {
+        "role": "neutral",
+        "displayName": "银雾 · panel",
+        "tonalRamp": [
+          "oklch(15% 0.0093 242.84)",
+          "oklch(26% 0.0093 242.84)",
+          "oklch(38% 0.0093 242.84)",
+          "oklch(49% 0.0093 242.84)",
+          "oklch(61% 0.0093 242.84)",
+          "oklch(72% 0.0093 242.84)",
+          "oklch(84% 0.0093 242.84)",
+          "oklch(95% 0.0093 242.84)"
+        ]
+      },
+      "mist-sidebar": {
+        "role": "neutral",
+        "displayName": "银雾 · sidebar",
+        "tonalRamp": [
+          "oklch(15% 0.0163 245.10)",
+          "oklch(26% 0.0163 245.10)",
+          "oklch(38% 0.0163 245.10)",
+          "oklch(49% 0.0163 245.10)",
+          "oklch(61% 0.0163 245.10)",
+          "oklch(72% 0.0163 245.10)",
+          "oklch(84% 0.0163 245.10)",
+          "oklch(95% 0.0163 245.10)"
+        ]
+      },
+      "mist-text": {
+        "role": "neutral",
+        "displayName": "银雾 · text",
+        "tonalRamp": [
+          "oklch(15% 0.0441 244.45)",
+          "oklch(26% 0.0441 244.45)",
+          "oklch(38% 0.0441 244.45)",
+          "oklch(49% 0.0441 244.45)",
+          "oklch(61% 0.0441 244.45)",
+          "oklch(72% 0.0441 244.45)",
+          "oklch(84% 0.0441 244.45)",
+          "oklch(95% 0.0441 244.45)"
+        ]
+      },
+      "mist-muted": {
+        "role": "neutral",
+        "displayName": "银雾 · muted",
+        "tonalRamp": [
+          "oklch(15% 0.0419 242.54)",
+          "oklch(26% 0.0419 242.54)",
+          "oklch(38% 0.0419 242.54)",
+          "oklch(49% 0.0419 242.54)",
+          "oklch(61% 0.0419 242.54)",
+          "oklch(72% 0.0419 242.54)",
+          "oklch(84% 0.0419 242.54)",
+          "oklch(95% 0.0419 242.54)"
+        ]
+      },
+      "mist-line": {
+        "role": "neutral",
+        "displayName": "银雾 · line",
+        "tonalRamp": [
+          "oklch(15% 0.0295 241.67)",
+          "oklch(26% 0.0295 241.67)",
+          "oklch(38% 0.0295 241.67)",
+          "oklch(49% 0.0295 241.67)",
+          "oklch(61% 0.0295 241.67)",
+          "oklch(72% 0.0295 241.67)",
+          "oklch(84% 0.0295 241.67)",
+          "oklch(95% 0.0295 241.67)"
+        ]
+      },
+      "mist-blue": {
+        "role": "primary",
+        "displayName": "银雾 · blue",
+        "tonalRamp": [
+          "oklch(15% 0.0876 241.33)",
+          "oklch(26% 0.0876 241.33)",
+          "oklch(38% 0.0876 241.33)",
+          "oklch(49% 0.0876 241.33)",
+          "oklch(61% 0.0876 241.33)",
+          "oklch(72% 0.0876 241.33)",
+          "oklch(84% 0.0876 241.33)",
+          "oklch(95% 0.0876 241.33)"
+        ]
+      },
+      "mist-blue-soft": {
+        "role": "primary",
+        "displayName": "银雾 · blue-soft",
+        "tonalRamp": [
+          "oklch(15% 0.0238 240.11)",
+          "oklch(26% 0.0238 240.11)",
+          "oklch(38% 0.0238 240.11)",
+          "oklch(49% 0.0238 240.11)",
+          "oklch(61% 0.0238 240.11)",
+          "oklch(72% 0.0238 240.11)",
+          "oklch(84% 0.0238 240.11)",
+          "oklch(95% 0.0238 240.11)"
+        ]
+      },
+      "mist-soft": {
+        "role": "neutral",
+        "displayName": "银雾 · soft",
+        "tonalRamp": [
+          "oklch(15% 0.0161 239.12)",
+          "oklch(26% 0.0161 239.12)",
+          "oklch(38% 0.0161 239.12)",
+          "oklch(49% 0.0161 239.12)",
+          "oklch(61% 0.0161 239.12)",
+          "oklch(72% 0.0161 239.12)",
+          "oklch(84% 0.0161 239.12)",
+          "oklch(95% 0.0161 239.12)"
+        ]
+      },
+      "mist-hover": {
+        "role": "neutral",
+        "displayName": "银雾 · hover",
+        "tonalRamp": [
+          "oklch(15% 0.0213 241.37)",
+          "oklch(26% 0.0213 241.37)",
+          "oklch(38% 0.0213 241.37)",
+          "oklch(49% 0.0213 241.37)",
+          "oklch(61% 0.0213 241.37)",
+          "oklch(72% 0.0213 241.37)",
+          "oklch(84% 0.0213 241.37)",
+          "oklch(95% 0.0213 241.37)"
+        ]
+      },
+      "mist-deep": {
+        "role": "primary",
+        "displayName": "银雾 · deep",
+        "tonalRamp": [
+          "oklch(15% 0.0602 240.35)",
+          "oklch(26% 0.0602 240.35)",
+          "oklch(38% 0.0602 240.35)",
+          "oklch(49% 0.0602 240.35)",
+          "oklch(61% 0.0602 240.35)",
+          "oklch(72% 0.0602 240.35)",
+          "oklch(84% 0.0602 240.35)",
+          "oklch(95% 0.0602 240.35)"
+        ]
+      },
+      "mist-on-deep": {
+        "role": "primary",
+        "displayName": "银雾 · on-deep",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "dark-canvas": {
+        "role": "neutral",
+        "displayName": "星夜 · canvas",
+        "tonalRamp": [
+          "oklch(15% 0.0235 257.31)",
+          "oklch(26% 0.0235 257.31)",
+          "oklch(38% 0.0235 257.31)",
+          "oklch(49% 0.0235 257.31)",
+          "oklch(61% 0.0235 257.31)",
+          "oklch(72% 0.0235 257.31)",
+          "oklch(84% 0.0235 257.31)",
+          "oklch(95% 0.0235 257.31)"
+        ]
+      },
+      "dark-panel": {
+        "role": "neutral",
+        "displayName": "星夜 · panel",
+        "tonalRamp": [
+          "oklch(15% 0.0294 255.28)",
+          "oklch(26% 0.0294 255.28)",
+          "oklch(38% 0.0294 255.28)",
+          "oklch(49% 0.0294 255.28)",
+          "oklch(61% 0.0294 255.28)",
+          "oklch(72% 0.0294 255.28)",
+          "oklch(84% 0.0294 255.28)",
+          "oklch(95% 0.0294 255.28)"
+        ]
+      },
+      "dark-sidebar": {
+        "role": "neutral",
+        "displayName": "星夜 · sidebar",
+        "tonalRamp": [
+          "oklch(15% 0.0274 255.83)",
+          "oklch(26% 0.0274 255.83)",
+          "oklch(38% 0.0274 255.83)",
+          "oklch(49% 0.0274 255.83)",
+          "oklch(61% 0.0274 255.83)",
+          "oklch(72% 0.0274 255.83)",
+          "oklch(84% 0.0274 255.83)",
+          "oklch(95% 0.0274 255.83)"
+        ]
+      },
+      "dark-text": {
+        "role": "neutral",
+        "displayName": "星夜 · text",
+        "tonalRamp": [
+          "oklch(15% 0.0156 247.99)",
+          "oklch(26% 0.0156 247.99)",
+          "oklch(38% 0.0156 247.99)",
+          "oklch(49% 0.0156 247.99)",
+          "oklch(61% 0.0156 247.99)",
+          "oklch(72% 0.0156 247.99)",
+          "oklch(84% 0.0156 247.99)",
+          "oklch(95% 0.0156 247.99)"
+        ]
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "星夜 · muted",
+        "tonalRamp": [
+          "oklch(15% 0.0314 246.69)",
+          "oklch(26% 0.0314 246.69)",
+          "oklch(38% 0.0314 246.69)",
+          "oklch(49% 0.0314 246.69)",
+          "oklch(61% 0.0314 246.69)",
+          "oklch(72% 0.0314 246.69)",
+          "oklch(84% 0.0314 246.69)",
+          "oklch(95% 0.0314 246.69)"
+        ]
+      },
+      "dark-line": {
+        "role": "neutral",
+        "displayName": "星夜 · line",
+        "tonalRamp": [
+          "oklch(15% 0.0438 250.19)",
+          "oklch(26% 0.0438 250.19)",
+          "oklch(38% 0.0438 250.19)",
+          "oklch(49% 0.0438 250.19)",
+          "oklch(61% 0.0438 250.19)",
+          "oklch(72% 0.0438 250.19)",
+          "oklch(84% 0.0438 250.19)",
+          "oklch(95% 0.0438 250.19)"
+        ]
+      },
+      "dark-blue": {
+        "role": "primary",
+        "displayName": "星夜 · blue",
+        "tonalRamp": [
+          "oklch(15% 0.0558 241.00)",
+          "oklch(26% 0.0558 241.00)",
+          "oklch(38% 0.0558 241.00)",
+          "oklch(49% 0.0558 241.00)",
+          "oklch(61% 0.0558 241.00)",
+          "oklch(72% 0.0558 241.00)",
+          "oklch(84% 0.0558 241.00)",
+          "oklch(95% 0.0558 241.00)"
+        ]
+      },
+      "dark-blue-soft": {
+        "role": "primary",
+        "displayName": "星夜 · blue-soft",
+        "tonalRamp": [
+          "oklch(15% 0.0438 250.58)",
+          "oklch(26% 0.0438 250.58)",
+          "oklch(38% 0.0438 250.58)",
+          "oklch(49% 0.0438 250.58)",
+          "oklch(61% 0.0438 250.58)",
+          "oklch(72% 0.0438 250.58)",
+          "oklch(84% 0.0438 250.58)",
+          "oklch(95% 0.0438 250.58)"
+        ]
+      },
+      "dark-soft": {
+        "role": "neutral",
+        "displayName": "星夜 · soft",
+        "tonalRamp": [
+          "oklch(15% 0.0363 250.82)",
+          "oklch(26% 0.0363 250.82)",
+          "oklch(38% 0.0363 250.82)",
+          "oklch(49% 0.0363 250.82)",
+          "oklch(61% 0.0363 250.82)",
+          "oklch(72% 0.0363 250.82)",
+          "oklch(84% 0.0363 250.82)",
+          "oklch(95% 0.0363 250.82)"
+        ]
+      },
+      "dark-hover": {
+        "role": "neutral",
+        "displayName": "星夜 · hover",
+        "tonalRamp": [
+          "oklch(15% 0.0431 246.77)",
+          "oklch(26% 0.0431 246.77)",
+          "oklch(38% 0.0431 246.77)",
+          "oklch(49% 0.0431 246.77)",
+          "oklch(61% 0.0431 246.77)",
+          "oklch(72% 0.0431 246.77)",
+          "oklch(84% 0.0431 246.77)",
+          "oklch(95% 0.0431 246.77)"
+        ]
+      },
+      "dark-deep": {
+        "role": "primary",
+        "displayName": "星夜 · deep",
+        "tonalRamp": [
+          "oklch(15% 0.0365 239.20)",
+          "oklch(26% 0.0365 239.20)",
+          "oklch(38% 0.0365 239.20)",
+          "oklch(49% 0.0365 239.20)",
+          "oklch(61% 0.0365 239.20)",
+          "oklch(72% 0.0365 239.20)",
+          "oklch(84% 0.0365 239.20)",
+          "oklch(95% 0.0365 239.20)"
+        ]
+      },
+      "dark-on-deep": {
+        "role": "primary",
+        "displayName": "星夜 · on-deep",
+        "tonalRamp": [
+          "oklch(15% 0.0480 246.04)",
+          "oklch(26% 0.0480 246.04)",
+          "oklch(38% 0.0480 246.04)",
+          "oklch(49% 0.0480 246.04)",
+          "oklch(61% 0.0480 246.04)",
+          "oklch(72% 0.0480 246.04)",
+          "oklch(84% 0.0480 246.04)",
+          "oklch(95% 0.0480 246.04)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "页面标题",
+        "purpose": "五个一级栏目标题。"
+      },
+      "body": {
+        "displayName": "功能正文",
+        "purpose": "桌面操作、表单和状态文字。"
+      },
+      "poem": {
+        "displayName": "轻声题记",
+        "purpose": "少量陪伴诗句；斜体由组件样式实现。"
+      },
+      "time": {
+        "displayName": "时刻",
+        "purpose": "轻字重、等宽数字的时钟。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating-menu",
+        "value": "0 12px 35px #06162525",
+        "purpose": "区块设置菜单脱离平面。"
+      },
+      {
+        "name": "flat-content",
+        "value": "none",
+        "purpose": "工作区内容与普通段落默认无阴影。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "standard",
+        "value": "180ms",
+        "purpose": "页面/子页入场。"
+      },
+      {
+        "name": "slow",
+        "value": "320ms",
+        "purpose": "舒缓界面过渡。"
+      },
+      {
+        "name": "ease",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "界面响应和 FLIP。"
+      },
+      {
+        "name": "reorder",
+        "value": "320ms",
+        "purpose": "区块 FLIP 位置变更。"
+      },
+      {
+        "name": "control",
+        "value": "240ms",
+        "purpose": "标签线、开关和图标。"
+      },
+      {
+        "name": "theme",
+        "value": "300ms",
+        "purpose": "颜色切换。"
+      },
+      {
+        "name": "stars",
+        "value": "24s",
+        "purpose": "背景星尘轻移。"
+      },
+      {
+        "name": "companion",
+        "value": "7s",
+        "purpose": "现有角色预览 1px 微动。"
+      },
+      {
+        "name": "native-star-reveal",
+        "value": "900ms",
+        "purpose": "原生右键菜单星光显现。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1500px"
+      },
+      {
+        "name": "compact-nav",
+        "value": "1150px"
+      },
+      {
+        "name": "two-column",
+        "value": "950px"
+      },
+      {
+        "name": "browser-single-column",
+        "value": "700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "最需要完成的当前操作。",
+      "html": "<button class=\"ds-primary\">保存人设与记忆</button>",
+      "css": ".ds-primary{font-family:'Segoe UI Variable','Microsoft YaHei UI','Microsoft YaHei',sans-serif;font-size:12px;min-height:36px;padding:8px 13px;border:1px solid transparent;border-radius:6px;background:var(--deep,#234861);color:var(--on-deep,#fff);cursor:pointer;transition:background 180ms,transform 100ms}.ds-primary:hover{background:var(--blue,#245f86)}.ds-primary:active{transform:translateY(1px)}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav:focus-visible,.ds-chip:focus-visible,.ds-toggle:focus-visible{outline:2px solid var(--blue,#245f86);outline-offset:3px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "次要、可恢复的操作。",
+      "html": "<button class=\"ds-secondary\">自定义布局</button>",
+      "css": ".ds-secondary{font-family:'Segoe UI Variable','Microsoft YaHei UI','Microsoft YaHei',sans-serif;font-size:12px;min-height:36px;padding:8px 13px;border:1px solid var(--line,#b8cbda);border-radius:6px;background:var(--panel,#e8eef3);color:var(--text,#263d50);cursor:pointer;transition:background 180ms,transform 100ms}.ds-secondary:hover{border-color:var(--blue,#245f86);background:var(--hover,#d3e1ec)}.ds-secondary:active{transform:translateY(1px)}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav:focus-visible,.ds-chip:focus-visible,.ds-toggle:focus-visible{outline:2px solid var(--blue,#245f86);outline-offset:3px}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "清楚标签下的本机配置字段。",
+      "html": "<label class=\"ds-label\">页面名称<input class=\"ds-input\" value=\"我的工作区\"></label>",
+      "css": ".ds-label{font-family:'Segoe UI Variable','Microsoft YaHei UI','Microsoft YaHei',sans-serif;font-size:12px;display:grid;gap:8px;color:var(--text,#263d50)}.ds-input{font-family:'Segoe UI Variable','Microsoft YaHei UI','Microsoft YaHei',sans-serif;font-size:12px;padding:9px 11px;border:1px solid var(--line,#b8cbda);border-radius:6px;background:var(--panel,#e8eef3);color:var(--text,#263d50);caret-color:var(--blue,#245f86)}.ds-input:hover{border-color:var(--blue,#245f86)}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav:focus-visible,.ds-chip:focus-visible,.ds-toggle:focus-visible{outline:2px solid var(--blue,#245f86);outline-offset:3px}"
+    },
+    {
+      "name": "Active Navigation",
+      "kind": "nav",
+      "refersTo": "nav-active",
+      "description": "五项导航的当前页面。",
+      "html": "<button class=\"ds-nav\" aria-current=\"page\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg><span>总览</span></button>",
+      "css": ".ds-nav{font-family:'Segoe UI Variable','Microsoft YaHei UI','Microsoft YaHei',sans-serif;font-size:12px;display:flex;align-items:center;gap:15px;min-height:42px;padding:9px 15px;border:0;border-radius:7px;background:var(--deep,#234861);color:var(--on-deep,#fff);font-weight:600;cursor:pointer}.ds-nav:hover{filter:brightness(1.06)}.ds-nav:active svg{transform:scale(.9)}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav:focus-visible,.ds-chip:focus-visible,.ds-toggle:focus-visible{outline:2px solid var(--blue,#245f86);outline-offset:3px}"
+    },
+    {
+      "name": "Suggestion Chip",
+      "kind": "chip",
+      "description": "聊天空态的轻量建议入口。",
+      "html": "<button class=\"ds-chip\">聊聊今天</button>",
+      "css": ".ds-chip{font-family:'Segoe UI Variable','Microsoft YaHei UI','Microsoft YaHei',sans-serif;font-size:12px;font-size:11px;padding:7px 10px;border:1px solid var(--line,#b8cbda);border-radius:5px;background:transparent;color:var(--text,#263d50);cursor:pointer}.ds-chip:hover{background:var(--hover,#d3e1ec)}.ds-chip:active{transform:translateY(1px)}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav:focus-visible,.ds-chip:focus-visible,.ds-toggle:focus-visible{outline:2px solid var(--blue,#245f86);outline-offset:3px}"
+    },
+    {
+      "name": "Companion Surface",
+      "kind": "card",
+      "refersTo": "companion-strip",
+      "description": "共用时间、天气、角色状态区域的表面，简化预览只展示状态。",
+      "html": "<section class=\"ds-companion\"><time>19:45</time><div><strong>雪 · 站立待机</strong><p>下一步由生活系统自然安排</p></div></section>",
+      "css": ".ds-companion{font-family:'Segoe UI Variable','Microsoft YaHei UI','Microsoft YaHei',sans-serif;font-size:12px;display:flex;align-items:center;gap:24px;padding:12px 20px 18px;border:1px solid var(--line,#b8cbda);border-radius:10px;background:var(--soft,#dde8f0);color:var(--text,#263d50)}.ds-companion time{font-size:48px;font-weight:300;line-height:1.2;letter-spacing:-.04em;font-variant-numeric:tabular-nums}.ds-companion p{font-size:12px;color:var(--muted,#4c6477);margin:8px 0 5px}"
+    },
+    {
+      "name": "Toggle",
+      "kind": "custom",
+      "description": "陪伴与动态设置的可访问开关。",
+      "html": "<button class=\"ds-toggle\" role=\"switch\" aria-checked=\"true\" aria-label=\"星辰微光\"><span></span></button>",
+      "css": ".ds-toggle{display:block;width:36px;height:22px;padding:3px;border:0;border-radius:14px;background:var(--blue,#245f86);cursor:pointer}.ds-toggle span{display:block;width:16px;height:16px;border-radius:50%;background:#fff;transform:translateX(14px);transition:transform 240ms cubic-bezier(.16,1,.3,1)}.ds-toggle:hover{filter:brightness(1.08)}.ds-toggle:active{scale:.97}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav:focus-visible,.ds-chip:focus-visible,.ds-toggle:focus-visible{outline:2px solid var(--blue,#245f86);outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-toggle span{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "静夜工作室 / Quiet orbit",
+    "overview": "Yuki 的工作台是一间安静、精密而有生命的桌面工作室。蓝、白、银建立清楚的层级，雪的原有角色形象带来亲近感。未来感来自低饱和的冷色、细线和留白里的稀疏星尘，英文诗句只在小范围提供文学气息。\n\n当前实现以操作效率为先：五项主导航、清楚的子页、可调整的总览区块与简短原生右键菜单共用一套颜色语义。动效说明状态、位置和响应；专注、隐藏及减少动态设置约束环境动画。本文记录 2026-10-20 的源码和验收截图，不把规划中的能力视为已实现。",
+    "keyCharacteristics": [
+      "蓝白银三主题共用语义，默认银雾。",
+      "界面使用紧凑中文无衬线字体，品牌与少量诗句使用 Georgia。",
+      "内容以对齐和细分隔线组织，角色与主要操作获得有限的容器强调。",
+      "稀疏星尘与短促状态反馈服从阅读、专注和减少动态设置。"
+    ],
+    "rules": [
+      {
+        "name": "The Shared Theme Rule",
+        "body": "三主题共享相同信息结构与状态语义；切换主题改变光线，不改变功能。",
+        "section": "colors"
+      },
+      {
+        "name": "The Quiet Voice Rule",
+        "body": "文学文字留在陪伴语境，功能名称、状态、错误和操作继续用直接的中文。",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Workspace Rule",
+        "body": "通过对齐、留白、明度和细线建立秩序；浮层才需要脱离平面。",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do 使用当前主题的语义变量，保持文字、表面、边界和动作层级。",
+      "Do 保留原角色比例、现有素材和清楚的实时状态来源。",
+      "Do 给表单提供可见标签、键盘焦点、错误反馈与禁用状态。",
+      "Do 在缩放、重排和页面切换时保持上下文，并尊重减少动态。"
+    ],
+    "donts": [
+      "Don’t 用大面积强光、彩色粒子球或星座连线替代稀疏星尘。",
+      "Don’t 将有限事件摘要写成全天使用监测，或用虚构状态填补缺失数据。",
+      "Don’t 把一个已安装造型描述成可用换装库，也不要宣称 Live2D 已配置。",
+      "Don’t 用装饰性英文抢占功能文案，或让环境动态穿过正文与控件。"
+    ]
+  }
+}
+

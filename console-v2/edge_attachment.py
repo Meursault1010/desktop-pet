@@ -166,7 +166,7 @@ class EdgeAttachment(QObject):
         now=time.monotonic();self.active=True;self.phase='resting';self.started=now;self.last_tick=now
         self.distance=0.;self.crawl_target=None;self.next_move=now+random.uniform(2,5);self.until=0
         state=self.pet.state;state.physics.cancel();state.travel_target=None;state.travel_position=None;state.walking=False
-        self.pet.animator.timer.setInterval(33)
+        self.pet.animator.timer.setInterval(16)
         state.jump_started=None;state.action_player.stop();state.gait_until=0
         self.pet.move(*(round(v) for v in self.destination));state.position_x=float(self.pet.x())
         self.message={'top':'上沿 · 轻松休息','bottom':'下沿 · 抓紧晃晃','left':'侧边 · 抓框爬行','right':'侧边 · 抓框爬行','corner':'角落 · 自然休息'}[self.kind]

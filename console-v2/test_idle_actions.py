@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from dataclasses import replace
 from unittest.mock import patch
+from PIL import Image
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QImage, QPainter
 from pet import DesktopPet
@@ -63,6 +64,36 @@ class AmbientTests(unittest.TestCase):
             self.assertEqual(state.action_player.action['id'], 'tea')
         state.patrol = None
 
+    def test_new_standing_vignettes_are_complete_automatic_actions(self):
+        root = Path(__file__).resolve().parent
+        public = {a['id']: a for a in json.loads((root/'frontend/public/actions/catalog.json').read_text(encoding='utf-8'))}
+        vignettes = {'snow-catch', 'hum', 'hair-tuck', 'sneeze', 'gaze-far', 'listen',
+                     'warm-hands', 'curtsy', 'wave', 'star-wish'}
+        for key in vignettes:
+            action = catalog()[key]
+            self.assertIn(key, IDLE_ACTIONS)
+            self.assertEqual(action['idle_state'], 'stand')
+            self.assertTrue(action['idle_automatic'])
+            self.assertTrue(action['scale_calibrated'])
+            self.assertFalse(action.get('ground_idle'))
+            self.assertEqual(action['frames'], 6)
+            self.assertTrue(2200 <= sum(action['durations']) <= 3200, key)
+            self.assertEqual(public[key]['idle_role'], action['idle_role'])
+            with Image.open(root/'assets'/action['atlas']) as atlas:
+                for index in range(action['frames']):
+                    x, y = index%action['columns']*256, index//action['columns']*256
+                    box = atlas.crop((x, y, x+256, y+256)).getchannel('A')\
+                        .point(lambda value: 255 if value >= 16 else 0).getbbox()
+                    self.assertIsNotNone(box)
+                    self.assertTrue(box[0] >= 1 and box[1] >= 1 and box[2] <= 255 and box[3] <= 255, (key, index))
+                    if index == 0:
+                        self.assertLessEqual(abs((box[3]-box[1])-227), 3, key)
+                        self.assertTrue(245 <= box[3] <= 253, key)
+            with Image.open(root/'assets'/action['atlas']) as atlas, \
+                    Image.open(root/'frontend/public'/public[key]['atlas']) as mirror:
+                self.assertEqual(atlas.size, mirror.size)
+                self.assertEqual(atlas.convert('RGBA').tobytes(), mirror.convert('RGBA').tobytes())
+
     def test_only_lazy_rolls_remain(self):
         root = Path(__file__).resolve().parent
         public = json.loads((root/'frontend/public/actions/catalog.json').read_text(encoding='utf-8'))
@@ -77,13 +108,16 @@ class AmbientTests(unittest.TestCase):
         public = {a['id']: a for a in json.loads((root/'frontend/public/actions/catalog.json').read_text(encoding='utf-8'))}
         for key in ('lazy-roll-toward', 'lazy-roll-away', 'sit-neat', 'sit-relaxed', 'sit-swing', 'prone-chin', 'prone-rest'):
             action = catalog()[key]
-            self.assertEqual(action, public[key])
+            self.assertEqual({**action, 'atlas': action['atlas'].removesuffix('.png') + '.webp',
+                              'poster': action['poster'].removesuffix('.png') + '.webp'}, public[key])
             self.assertEqual(action['frames'], len(action['durations']))
             image = QImage(str(root/'assets'/action['atlas']))
             self.assertEqual(image.width(), 1024)
             self.assertGreaterEqual(image.height(), ((action['frames']+3)//4)*256)
-            self.assertEqual((root/'assets'/action['atlas']).read_bytes(),
-                             (root/'frontend/public'/action['atlas']).read_bytes())
+            with Image.open(root/'assets'/action['atlas']) as source, \
+                    Image.open(root/'frontend/public'/public[key]['atlas']) as mirror:
+                self.assertEqual(source.size, mirror.size)
+                self.assertEqual(source.convert('RGBA').tobytes(), mirror.convert('RGBA').tobytes())
             if action.get('ground_idle'):
                 self.assertGreater(sum(action['durations'][3:-3]), 10000)
 
@@ -207,6 +241,21 @@ class AmbientTests(unittest.TestCase):
                     moving_slots += 1
                 elapsed += duration
             self.assertGreater(moving_slots, 4)
+
+    def test_roll_near_edge_never_reverses_its_bound_direction(self):
+        for key,direction in (('lazy-roll-toward',-1),('lazy-roll-away',1)):
+            pet=self.make_pet()
+            area=pet.screen_area()
+            boundary=area.top() if direction < 0 else area.bottom()-pet.height()+1
+            for room in (0, 12):
+                origin=boundary-direction*room
+                pet.move(300,origin)
+                pet.state.roll_path=None
+                pet.state.action_player.play(key,now=100)
+                pet.animator.advance_roll(100)
+                target=pet.state.roll_path[3]
+                self.assertGreaterEqual((target-origin)*direction,0)
+                self.assertLessEqual(abs(target-origin),room)
 
     def test_removed_action_and_transition_lifecycle(self):
         self.assertNotIn('folder-sleep', catalog())

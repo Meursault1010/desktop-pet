@@ -1,0 +1,24 @@
+{
+  "fps": 60,
+  "settle": {
+    "count": 97,
+    "seconds": 1.6
+  },
+  "wake": {
+    "count": 61,
+    "seconds": 1.0
+  },
+  "rendered_preview_frames": 210,
+  "sequences": {
+    "settle": {
+      "max_whole_canvas_step_0_255": 0.062134,
+      "mean_whole_canvas_step_0_255": 0.033332,
+      "interior_pillow_unchanged": true
+    },
+    "wake": {
+      "max_whole_canvas_step_0_255": 0.114613,
+      "mean_whole_canvas_step_0_255": 0.066508,
+      "interior_pillow_unchanged": true
+    }
+  }
+}

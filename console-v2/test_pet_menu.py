@@ -3,6 +3,7 @@ import os
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 from pathlib import Path
 import tempfile
+import json
 import unittest
 from PySide6.QtCore import Qt
 from PySide6.QtTest import QTest
@@ -36,32 +37,88 @@ class MenuTests(unittest.TestCase):
         self.app.processEvents()
         self.directory.cleanup()
 
-    def test_shared_settings_and_visibility_refresh(self):
-        self.assertNotIn('jump', self.actions)
+    def test_compact_menu_exposes_only_authorized_commands(self):
+        self.assertEqual(set(self.actions), {'translation', 'console', 'exit'})
+        self.assertEqual(self.menu.width(), 328)
         self.assertEqual(self.menu.actions()[-1].objectName(), 'exit')
-        for key in ('quiet', 'auto_snap'):
-            before = getattr(self.controller.preferences, key)
-            self.actions[key].trigger()
-            self.assertEqual(getattr(self.controller.preferences, key), not before)
-            self.assertEqual(getattr(self.controller.store.load(), key), not before)
         self.controller.update_menu(self.menu)
-        self.assertFalse(self.actions['pause'].isEnabled())
-        self.actions['visibility'].trigger()
-        self.controller.update_menu(self.menu)
-        self.assertEqual(self.actions['visibility'].text(), '显示宠物')
-        self.assertFalse(self.actions['home'].isEnabled())
         self.assertEqual(self.menu.status.text(), self.controller.pet.status_text())
+        self.assertTrue(self.menu.chat_input.testAttribute(Qt.WidgetAttribute.WA_InputMethodEnabled))
+        for theme in ('light', 'mist', 'dark'):
+            self.menu.apply_theme(theme)
+            self.assertFalse(self.menu.grab().isNull())
 
-    def test_keyboard_select_and_escape(self):
+    def test_keyboard_escape_and_inline_reply(self):
+        self.controller.quick_reply = '雪在这里。'
+        self.controller.update_menu(self.menu)
+        self.assertEqual(self.menu.chat_reply.toPlainText(), 'yuki\n雪在这里。')
         self.menu.popup(self.controller.pet.pos())
         self.app.processEvents()
-        self.menu.setActiveAction(self.actions['auto_snap'])
-        before = self.controller.preferences.auto_snap
-        QTest.keyClick(self.menu, Qt.Key.Key_Return)
-        self.assertEqual(self.controller.preferences.auto_snap, not before)
-        self.menu.popup(self.controller.pet.pos())
         QTest.keyClick(self.menu, Qt.Key.Key_Escape)
         self.assertFalse(self.menu.isVisible())
+
+    def test_history_scroll_and_literal_markup(self):
+        self.controller.quick_history = [{'role':'user','text':'问题'}, {'role':'assistant','text':'<b>原文</b>\n'+'长回复。'*800}]
+        self.controller.update_menu(self.menu)
+        self.menu.popup(self.controller.pet.pos())
+        self.app.processEvents()
+        self.assertIn('<b>原文</b>',self.menu.chat_reply.toPlainText())
+        self.assertIn('长回复。'*800,self.menu.chat_reply.toPlainText())
+        scroll=self.menu.chat_reply.verticalScrollBar()
+        self.assertGreater(scroll.maximum(),0)
+        scroll.setValue(0)
+        self.controller.quick_history.append({'role':'assistant','text':'新回复'})
+        self.controller.update_menu(self.menu)
+        self.assertEqual(scroll.value(),0)
+        self.assertEqual(self.menu.composer.height(),300)
+
+    def test_native_tools_use_shared_controller(self):
+        sent=[]
+        # Connect signal directly to inspect the action contract without external services.
+        pane=self.menu.tool_panes[2]
+        pane.request.connect(lambda name,value:sent.append((name,value)))
+        state={'ready':True,'clipboard':[],'clipboardPaused':False,'todos':[{'id':'t1','text':'写总结','due':''}], 'todoCount':1,'focus':None,'error':''}
+        self.controller.quick_tools=state
+        pane.refresh(state)
+        pane.entry.setText('休息一下')
+        pane.due.setCurrentIndex(1)
+        pane.add_todo()
+        self.assertEqual(sent[-1],('todo-add',{'text':'休息一下','minutes':30}))
+        pane.items.item(0).setCheckState(Qt.CheckState.Checked)
+        self.assertEqual(sent[-1],('todo-done','t1'))
+        pane.refresh({**state,'todos':[],'todoCount':0})
+        self.assertFalse(pane.empty.isHidden())
+
+    def test_short_menu_scrolls_tools_and_recovers_height(self):
+        self.menu.fit_available_height(440)
+        self.menu.tabs.setCurrentIndex(3)
+        self.menu.show()
+        self.app.processEvents()
+        self.menu.fit_available_height(440)
+        self.app.processEvents()
+        area=self.menu.pages.widget(3)
+        self.assertGreater(area.verticalScrollBar().maximum(),0)
+        area.verticalScrollBar().setValue(area.verticalScrollBar().maximum())
+        self.assertGreater(area.verticalScrollBar().value(),0)
+        self.menu.fit_available_height(900)
+        self.assertEqual(self.menu.composer.height(),300)
+
+    def test_focus_is_temporary_and_preserves_saved_preferences(self):
+        service = PetService(self.app, self.controller.store)
+        try:
+            before = service.preferences.quiet
+            service.receive(json.dumps({'id':'focus-1','name':'set_focus','payload':{'enabled':True}}))
+            self.assertTrue(service.pet.preferences.quiet)
+            self.assertEqual(service.preferences.quiet, before)
+            self.assertEqual(service.store.load().quiet, before)
+            service.set_preference('size', 100)
+            self.assertTrue(service.pet.preferences.quiet)
+            service.receive(json.dumps({'id':'focus-2','name':'set_focus','payload':{'enabled':False}}))
+            self.assertEqual(service.pet.preferences.quiet, before)
+        finally:
+            service.cleanup()
+            service.pet.deleteLater()
+            service.deleteLater()
 
     def test_stars_are_mouse_transparent_and_stop_when_closed(self):
         header = self.menu.celestial_header

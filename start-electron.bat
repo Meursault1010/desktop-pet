@@ -1,6 +1,30 @@
 @echo off
 setlocal
 cd /d "%~dp0"
+if exist "releases\electron\yuki-win32-x64-music-sync\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-music-sync\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-music-dance\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-music-dance\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-workbench\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-workbench\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-translation\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-translation\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-ocr\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-ocr\yuki-win32-x64"
+  goto launch
+)
+if exist "releases\electron\yuki-win32-x64-attachments\yuki-win32-x64\yuki.exe" (
+  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-attachments\yuki-win32-x64"
+  goto launch
+)
 if exist "releases\electron\yuki-win32-x64-idle-states\yuki-win32-x64\yuki.exe" (
   set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-idle-states\yuki-win32-x64"
   goto launch

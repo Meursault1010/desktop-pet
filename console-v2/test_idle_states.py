@@ -20,7 +20,12 @@ class IdleStateTests(unittest.TestCase):
         public = json.loads((root/'frontend/public/actions/catalog.json').read_text(encoding='utf-8'))
         self.assertEqual(list(STATES), ['sleep', 'stand', 'sit', 'prone'])
         self.assertEqual(CONFIG, json.loads((root/'frontend/public/actions/idle-states.json').read_text(encoding='utf-8')))
-        self.assertEqual(list(catalog().values()), public)
+        for action in public:
+            self.assertTrue(action['atlas'].endswith('/atlas.webp'))
+            self.assertTrue(action['poster'].endswith('/poster.webp'))
+        mirror = [{**action, 'atlas': action['atlas'].removesuffix('.webp') + '.png',
+                   'poster': action['poster'].removesuffix('.webp') + '.png'} for action in public]
+        self.assertEqual(list(catalog().values()), mirror)
         seen = []
         for state in STATES.values():
             for key in state['actions']:

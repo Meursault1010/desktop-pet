@@ -7,29 +7,55 @@ from pet_presence import Presence
 
 
 class PresenceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from PySide6.QtWidgets import QApplication
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_nonzero_monitor_uses_width_not_right_coordinate(self):
+        p = Presence()
+        p.begin(True,10,(3300,500),(1920,0,1920,1080),(180,190))
+        self.assertEqual(p.origin[0],3840)
+        self.assertEqual(p.destination,(3300,500))
+
+    def test_peek_holds_before_walking(self):
+        p = Presence()
+        p.begin(True,10,(1500,500),(0,0,1920,1080),(180,190))
+        self.assertEqual(p.position(10.4),p.position(10.8))
+        self.assertNotEqual(p.position(11.7),p.position(10.8))
+
+    def test_reversal_preserves_pose_and_position(self):
+        p = Presence()
+        p.begin(False,10,(1500,500),(0,0,1920,1080),(180,190))
+        before = p.position(10.7)
+        pixels = p.frame(10.7).toImage()
+        p.begin(True,10.7,(1600,500),(0,0,1920,1080),(180,190))
+        self.assertEqual(p.position(10.7),before)
+        self.assertEqual(p.frame(10.7).toImage(),pixels)
+        self.assertEqual(p.home,(1500,500))
+        self.assertTrue(p.update(10.7+p.duration+.01))
+        self.assertEqual(p.position(10.7+p.duration+.01),p.home)
+
     def test_arrival_has_no_scale_collapse_and_finishes_once(self):
         effect = Presence()
         effect.reset(False)
-        effect.begin(True, 10)
-        for i in range(10):
-            effect.update(10+i*.08)
-            opacity, lift, sx, sy = effect.body()
-            self.assertTrue(0 <= opacity <= 1)
-            self.assertAlmostEqual(sx*sy, 1)
-            self.assertGreater(sy, .97)
-        self.assertTrue(effect.update(11))
+        effect.begin(True, 10, (1700, 800), (0, 0, 1920, 1080), (180, 190))
+        start = effect.position(10)
+        middle = effect.position(10+effect.duration/2)
+        end = effect.position(10+effect.duration)
+        self.assertGreater(start[0], middle[0])
+        self.assertEqual(end, effect.destination)
+        self.assertTrue(effect.update(10+effect.duration))
         self.assertFalse(effect.update(12))
         self.assertEqual(effect.value, 1)
 
-    def test_reverse_has_continuous_opacity(self):
+    def test_departure_travels_to_nearest_edge(self):
         effect = Presence()
-        effect.begin(False, 10)
-        effect.update(10.3)
-        before = effect.value
-        effect.begin(True, 10.3)
-        self.assertEqual(effect.value, before)
-        effect.update(11)
-        self.assertEqual(effect.value, 1)
+        effect.begin(False, 10, (30, 600), (0, 0, 1920, 1080), (180, 190))
+        self.assertEqual(effect.edge, 'left')
+        self.assertLess(effect.destination[0], 0)
+        self.assertTrue(effect.update(10+effect.duration))
+        self.assertEqual(effect.value, 0)
 
 
 class PresenceIntegration(unittest.TestCase):
@@ -50,7 +76,7 @@ class PresenceIntegration(unittest.TestCase):
         self.app.processEvents()
 
     def finish(self):
-        self.pet.advance_presence(time.monotonic()+2)
+        self.pet.advance_presence(self.pet.presence.started+self.pet.presence.duration+.01)
 
     def test_show_hide_and_idempotence(self):
         self.pet.present(True)
@@ -59,11 +85,13 @@ class PresenceIntegration(unittest.TestCase):
         self.assertTrue(self.pet.presence.active)
         self.assertFalse(self.pet.movement_allowed())
         self.finish()
+        home = self.pet.pos()
         self.pet.present(False)
         self.assertTrue(self.pet.isVisible())
         self.assertFalse(self.pet.desired_visible())
         self.finish()
         self.assertFalse(self.pet.isVisible())
+        self.assertEqual(self.pet.pos(),home)
         self.assertFalse(self.pet.presence_timer.isActive())
         self.pet.present(False)
         self.assertFalse(self.pet.presence_timer.isActive())

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 test('action catalog is bundled, not dependent on runtime fetch', () => {
@@ -10,12 +10,16 @@ test('action catalog is bundled, not dependent on runtime fetch', () => {
 });
 test('all catalog posters and atlases are packaged and schedules match', () => {
   const catalog=JSON.parse(readFileSync('public/actions/catalog.json','utf8'));
-  assert.equal(catalog.filter(action=>!action.physics_only).length,36);
+  assert.equal(catalog.filter(action=>!action.physics_only).length,47);
   assert.equal(new Set(catalog.map(action=>action.id)).size,catalog.length);
   assert.deepEqual(catalog.filter(action=>action.id.includes('roll')).map(action=>action.id).sort(),['lazy-roll-away','lazy-roll-toward']);
   for(const action of catalog){
+    assert.match(action.atlas,/^actions\/.+\/atlas\.webp$/,action.id);
+    assert.match(action.poster,/^actions\/.+\/poster\.webp$/,action.id);
     assert.ok(existsSync(resolve('public',action.atlas)),action.id);
     assert.ok(existsSync(resolve('public',action.poster)),action.id);
+    const files=readdirSync(resolve('public/actions',action.id));
+    assert.deepEqual(files.filter(name=>/^\d{2}\.png$/.test(name)),[],action.id);
     assert.equal(action.durations.length,action.frames);
     if(action.physics_only)assert.equal(action.category,'物理互动');
   }

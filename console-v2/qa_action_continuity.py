@@ -10,7 +10,7 @@ os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 from PySide6.QtGui import QColor, QImage, QPainter
 from PySide6.QtWidgets import QApplication
 from pet import PetRenderer, PetState
-from action_inbetweens import strip
+from action_inbetweens import MAX_PREPARED_PAIRS, _prepared
 
 
 def main():
@@ -54,7 +54,8 @@ def main():
         results.append({'action':key,'frames':round(seconds*50)})
     result={'clips':results,'render_ms_median':statistics.median(timings),
             'render_ms_p95':sorted(timings)[int(len(timings)*.95)],
-            'render_ms_max':max(timings),'strip_cache':str(strip.cache_info())}
+            'render_ms_max':max(timings),
+            'prepared_pairs':f'{len(_prepared)}/{MAX_PREPARED_PAIRS}'}
     (output/'render-report.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
     print(json.dumps(result,indent=2))
 

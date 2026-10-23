@@ -41,6 +41,54 @@ EXISTING = [
  ('screen','口袋电子屏幕','口袋电子屏幕动作','日常'),
  ('eat','进食','eating','日常'),
 ]
+# Ten self-contained standing idle vignettes. Every clip starts and ends in the
+# normal standing pose so the ambient scheduler can cut in and out without a
+# posture change.
+IDLE_NEW = [
+ ('snow-catch','接住雪花','待机动作',
+  'neutral stand; tilt her head up and smile; raise both arms above her head with palms open and her face fully visible; lower her open palms to chest height as she catches the snowflake; cup both hands and look down at it with a happy smile; hold her cupped hands closer; lower her arms and return to neutral',
+  'A single tiny stylized snowflake starts above her open palms and ends resting in her cupped hands at chest height. Her hands never cover her face or eyes. No other props, no falling-snow background, no sparkles.'),
+ ('hum','轻轻哼歌','待机动作',
+  'neutral stand; loosely clasp hands at waist height; sway gently to one side with eyes softly closed; sway to the other side; smile with eyes closed; open eyes and settle back to neutral',
+  'The sway is small and lyrical, never a dance, jump or wide step. Both feet remain planted.'),
+ ('hair-tuck','把发丝别到耳后','待机动作',
+  'neutral stand; lift one hand toward the ear on viewer LEFT; tuck a loose strand of hair behind that ear; glance down shyly; lower the hand with a small smile; return to neutral',
+  'Use the ear on viewer LEFT so the snowflake clip on viewer RIGHT stays fully visible and unchanged. Only one small strand of hair moves.'),
+ ('sneeze','打个喷嚏','待机动作',
+  'neutral stand; eyes flutter and nose crinkles while inhaling; turn her head slightly aside and sneeze with a tiny forward bounce; both hands come up to cover her nose; blink and rub her nose once; recover to neutral',
+  'The sneeze is small and cute with a tiny bounce. No spray, motion lines or exaggerated backward bend. Keep both feet on the floor.'),
+ ('gaze-far','眺望远方','待机动作',
+  'neutral stand; raise one hand to shade her eyes at forehead height; rise slightly on tiptoe; look into the distance off-canvas; lower her heels and hand while still looking away; turn back to the viewer with a soft smile; return to neutral',
+  'Only a slight tiptoe rise. The hand shades the eyes without covering the face. No binoculars, telescope or props.'),
+ ('listen','侧耳倾听','待机动作',
+  'neutral stand; both cat ears perk and angle toward one side; head tilts toward the sound; raise one hand near that ear; lean slightly to listen; nod once; lower the hand and return to neutral',
+  'The cat ears must visibly change angle. The hand cups near the ear without covering it. No sound-effect lines or props.'),
+ ('warm-hands','呵气暖手','待机动作',
+  'neutral stand; bring both palms together at chest height; rub them gently; cup both hands near her mouth as if blowing warm air; rub her palms once more; lower her hands and return to neutral',
+  'No visible breath cloud, steam, mittens or scarf. Hands stay close to the body; shoulders relax.'),
+ ('curtsy','浅鞠行礼','待机动作',
+  'neutral stand; lower her eyes; place one foot slightly behind the other; bend both knees in a small graceful bow with her head lightly bowed and her arms relaxed at her sides; hold the bow; rise smoothly; smile toward the viewer; return to neutral',
+  'Keep both arms relaxed at her sides instead of lifting the skirt. Face and body remain toward the viewer; never show the back. The bow is shallow and refined, not a deep bow. The skirt keeps an opaque underskirt.'),
+ ('wave','向你招手','待机动作',
+  'neutral stand; notice the viewer with a small surprised blink; raise one hand to shoulder height; wave once; wave again with a shy smile; lower the hand; return to neutral',
+  'Only one arm waves; the other stays relaxed at her side. Exactly two arms and two legs, no extra characters.'),
+ ('star-wish','对星许愿','待机动作',
+  'neutral stand; clasp both hands at chest height; tilt her head up toward the sky; close her eyes for a wish; smile softly; open her eyes and look toward the viewer; lower her hands and return to neutral',
+  'No stars, sparkles, glow or background elements. The wish is expressed only through her pose and expression.'),
+]
+# Slow, readable idle pacing: short entry, lingering gestures, calm recovery.
+IDLE_DURATIONS = {
+ 'snow-catch': (300, 360, 520, 620, 480, 400),
+ 'hum': (300, 420, 700, 700, 520, 400),
+ 'hair-tuck': (300, 420, 600, 520, 420, 380),
+ 'sneeze': (300, 280, 360, 520, 420, 380),
+ 'gaze-far': (300, 400, 700, 600, 480, 400),
+ 'listen': (300, 380, 620, 560, 440, 400),
+ 'warm-hands': (300, 420, 560, 680, 480, 400),
+ 'curtsy': (300, 420, 620, 700, 520, 400),
+ 'wave': (260, 300, 420, 480, 420, 380),
+ 'star-wish': (300, 420, 680, 760, 520, 400),
+}
 
 def extract(im, chroma=False):
     im = im.convert('RGBA')
@@ -68,7 +116,7 @@ def extract(im, chroma=False):
     a[a[:,:,3]==0]=0
     return Image.fromarray(a)
 
-def export(action_id,name,category,images,origin,paths):
+def export(action_id,name,category,images,origin,paths,durations=None):
     out=ROOT/'assets/actions'/action_id
     out.mkdir(parents=True,exist_ok=True)
     boxes=[im.getbbox() for im in images]
@@ -77,13 +125,32 @@ def export(action_id,name,category,images,origin,paths):
     left=min(b[0] for b in boxes);top=min(b[1] for b in boxes)
     right=max(b[2] for b in boxes);bottom=max(b[3] for b in boxes)
     width=right-left;height=bottom-top
-    factor=min(220/width,222/height)
+    idle=action_id in IDLE_DURATIONS
+    if idle:
+        # Match the calibrated standing reference so an ambient clip never
+        # changes character size or lifts her feet off the shared baseline.
+        bx=boxes[0]
+        factor=min(227/(bx[3]-bx[1]),248/width,248/height)
+        factor=round(256*factor)/256
+        dx=round(128-(bx[0]+bx[2])/2*factor)
+        dy=round(251-bx[3]*factor)
+        # A bow or a raised hand may exceed the neutral footprint. Keep the
+        # whole sequence inside the cell rather than cropping a foot or sleeve.
+        if left*factor+dx<3: dx=int(np.ceil(3-left*factor))
+        if right*factor+dx>253: dx=int(np.floor(253-right*factor))
+        if top*factor+dy<3: dy=int(np.ceil(3-top*factor))
+        if bottom*factor+dy>253: dy=int(np.floor(253-bottom*factor))
+    else:
+        factor=min(220/width,222/height)
     frames=[]
     for i,(im,b) in enumerate(zip(images,boxes)):
         sprite=im.crop(b)
         sprite=sprite.resize((max(1,round(sprite.width*factor)),max(1,round(sprite.height*factor))),Image.Resampling.LANCZOS)
         canvas=Image.new('RGBA',(256,256))
-        canvas.alpha_composite(sprite,(round((256-width*factor)/2+(b[0]-left)*factor),round(244-height*factor+(b[1]-top)*factor)))
+        if idle:
+            canvas.alpha_composite(sprite,(round(b[0]*factor+dx),round(b[1]*factor+dy)))
+        else:
+            canvas.alpha_composite(sprite,(round((256-width*factor)/2+(b[0]-left)*factor),round(244-height*factor+(b[1]-top)*factor)))
         canvas.save(out/f'{i+1:02d}.png')
         frames.append(canvas)
     columns=4; rows=(len(frames)+3)//4
@@ -91,9 +158,14 @@ def export(action_id,name,category,images,origin,paths):
     for i,frame in enumerate(frames): atlas.alpha_composite(frame,((i%4)*256,(i//4)*256))
     atlas.save(out/'atlas.png')
     frames[0].save(out/'poster.png')
-    duration=140 if 'roll' in action_id else 220 if origin=='generated' else 190
-    durations=[duration]*len(frames)
-    durations[0]=400;durations[-1]=450
+    if durations is None:
+        duration=140 if 'roll' in action_id else 220 if origin=='generated' else 190
+        durations=[duration]*len(frames)
+        durations[0]=400;durations[-1]=450
+    else:
+        durations=list(durations)
+    if len(durations)!=len(frames):
+        raise ValueError(f'Duration count does not match frames: {action_id}')
     if action_id in ('sleep','folder-sleep'): durations=[350]*len(frames)
     qa=ROOT/'qa/actions';qa.mkdir(parents=True,exist_ok=True)
     sheet=Image.new('RGB',atlas.size,'#48505e');sheet.paste(atlas,mask=atlas.getchannel('A'));sheet.save(qa/f'{action_id}.jpg')
@@ -102,33 +174,45 @@ def export(action_id,name,category,images,origin,paths):
         bg=Image.new('RGB',(256,256),'#48505e');bg.paste(frame,mask=frame.getchannel('A'));previews.append(bg)
     previews[0].save(qa/f'{action_id}.gif',save_all=True,append_images=previews[1:],duration=durations,loop=0)
     reviewed=(ROOT/'action-work'/action_id/'reviewed.txt').exists()
-    return dict(id=action_id,name=name,category=category,origin=origin,frames=len(frames),columns=4,cell=256,durations=durations,atlas=f'actions/{action_id}/atlas.png',poster=f'actions/{action_id}/poster.png',sources=paths,review=('首轮静帧检查通过 · 六关键帧' if reviewed else '待人工验收') if origin=='generated' else '已转换')
+    entry=dict(id=action_id,name=name,category=category,origin=origin,frames=len(frames),columns=4,cell=256,durations=durations,atlas=f'actions/{action_id}/atlas.png',poster=f'actions/{action_id}/poster.png',sources=paths,review=('首轮静帧检查通过 · 六关键帧' if reviewed else '待人工验收') if origin=='generated' else '已转换')
+    if idle:
+        entry.update(scale_calibrated=True,scale_profile='standing-reference-227-251')
+    return entry
 
 def generate(item):
-    action_id,name,category,motion=item
+    action_id,name,category,motion,*extra=item
+    extra=extra[0] if extra else ''
+    idle=item in IDLE_NEW
     raw=ROOT/'action-work'/action_id;raw.mkdir(parents=True,exist_ok=True)
     prompt=('Create exactly ONE sprite animation contact sheet, 3 columns by 2 rows, SIX equal square cells, reading left to right then top to bottom. '
       'Use the reference character exactly: white long hair, white cat ears, BLUE eyes, blue dress and blue Mary Jane shoes, snowflake clip on viewer RIGHT. '
       'Keep chibi proportions, face, costume, colors, lighting and linework IDENTICAL in all six frames. Full body in every cell, generous empty margin, same camera and scale. '
       'Flat pure bright green #00ff00 background in every cell, NO checkerboard, NO shadows, NO grid lines, NO text or numbers. '
       f'Action is {name}. Six consecutive KEY POSES including the beginning and return/recovery: {motion}. '
-      'Do not draw six identical poses. No duplicates of the character within a cell. Do not crop ears, hands, hair, props or feet. Reference turnaround is identity guidance, not a pose to copy.')
+      f'{extra} '
+      + ('Start and end in the same relaxed neutral standing pose, feet together on one ground line, so the clip can blend back into ordinary idle. '
+         'Exactly two arms and two legs, head and body facing the viewer, never a back view. ' if idle else '')
+      + 'Do not draw six identical poses. No duplicates of the character within a cell. Do not crop ears, hands, hair, props or feet. Reference turnaround is identity guidance, not a pose to copy.')
     (raw/'prompt.txt').write_text(prompt,encoding='utf-8')
     target=raw/'raw.png'
     if not target.exists():
         extra=['--image',str(SOURCE/'待机动作/看书/pose_08_blue_spellbook.png')] if action_id=='read' else []
-        result=subprocess.run([sys.executable,str(GENERATOR),'--provider','gpt','--mode','edit','--prompt',prompt,'--image',str(SOURCE/'参考图.png'),'--image',str(SOURCE/'三视图.png'),*extra,'--size','1536x1024','--out',str(target)],capture_output=True,text=True,encoding='utf-8',errors='replace')
+        args=[sys.executable,str(GENERATOR),'--provider','gpt','--mode','edit']
+        if idle: args+=['--quality','high']
+        args+=['--prompt',prompt,'--image',str(SOURCE/'参考图.png'),'--image',str(SOURCE/'三视图.png'),*extra,'--size','1536x1024','--out',str(target)]
+        result=subprocess.run(args,capture_output=True,text=True,encoding='utf-8',errors='replace')
         if result.returncode or not target.exists():
             print(f'FAILED {action_id}: {result.stdout[-500:]} {result.stderr[-500:]}',flush=True)
             return None
     im=Image.open(target)
     cells=[im.crop((round(c*im.width/3),round(r*im.height/2),round((c+1)*im.width/3),round((r+1)*im.height/2))) for r in range(2) for c in range(3)]
-    result=export(action_id,name,category,[extract(cell,True) for cell in cells],'generated',[str(target)])
+    result=export(action_id,name,category,[extract(cell,True) for cell in cells],'generated',
+                  [str(target)],IDLE_DURATIONS.get(action_id))
     print(f'GENERATED {name}',flush=True)
     return result
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--generate',action='store_true');parser.add_argument('--only');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--generate',action='store_true');parser.add_argument('--only');parser.add_argument('--no-publish',action='store_true');args=parser.parse_args()
     manifest=ROOT/'assets/actions/catalog.json'
     catalog=json.loads(manifest.read_text(encoding='utf-8')) if manifest.exists() else []
     if not args.generate:
@@ -149,7 +233,7 @@ def main():
             catalog=[a for a in catalog if a['id']!=action_id]+[result]
         manifest.write_text(json.dumps(catalog,ensure_ascii=False,indent=2),encoding='utf-8')
     else:
-        items=[item for item in NEW if not args.only or item[0]==args.only]
+        items=[item for item in NEW+IDLE_NEW if not args.only or item[0]==args.only]
         with ThreadPoolExecutor(max_workers=2) as pool:
             for result in pool.map(generate,items):
                 if result:
@@ -158,6 +242,8 @@ def main():
                     catalog=[a for a in catalog if a['id']!=result['id']]+[result]
                     manifest.parent.mkdir(parents=True,exist_ok=True)
                     manifest.write_text(json.dumps(catalog,ensure_ascii=False,indent=2),encoding='utf-8')
+    if args.no_publish:
+        return
     public=ROOT/'frontend/public/actions'
     import shutil
     shutil.copytree(ROOT/'assets/actions',public,dirs_exist_ok=True)

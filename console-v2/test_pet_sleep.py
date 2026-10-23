@@ -81,5 +81,38 @@ class SleepTests(unittest.TestCase):
         with patch('pet_sleep.sleep_time',return_value=False):s.tick(p,1000)
         self.assertEqual(s.phase,'waking');s.tick(p,1001);self.assertEqual(s.phase,'awake')
 
+    @patch('pet_sleep.sleep_time',return_value=True)
+    def test_optional_site_approach_has_ten_second_total_deadline(self,_):
+        p,s=self.pet()
+        patrol=p.state.patrol
+        patrol.begin_sleep_site.return_value=True
+        patrol.kind='sleep_site'
+        patrol.active=True
+        s.tick(p,100)
+        self.assertFalse(s.active)
+        s.tick(p,109.99)
+        self.assertFalse(s.active)
+        s.tick(p,110)
+        self.assertEqual(s.phase,'settling')
+        patrol.begin_sleep_site.assert_called_once_with(100)
+
+    @patch('pet_sleep.sleep_time',return_value=True)
+    def test_failed_site_approach_sleeps_in_place(self,_):
+        p,s=self.pet()
+        p.state.patrol.begin_sleep_site.return_value=False
+        s.tick(p,100)
+        self.assertEqual(s.phase,'settling')
+
+    @patch('pet_sleep.sleep_time',return_value=True)
+    def test_user_wake_resets_site_and_preserves_two_minute_rule(self,_):
+        p,s=self.pet()
+        s.site_attempted=True
+        s.wake(p,'消息',100)
+        self.assertFalse(s.site_attempted)
+        s.tick(p,219.9)
+        p.state.patrol.begin_sleep_site.assert_not_called()
+        s.tick(p,220)
+        p.state.patrol.begin_sleep_site.assert_called_once_with(220)
+
 
 if __name__=='__main__':unittest.main()

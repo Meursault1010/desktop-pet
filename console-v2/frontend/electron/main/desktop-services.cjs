@@ -2,6 +2,7 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
+const os=require('node:os');
 const {spawn}=require('node:child_process');
 
 class ClipboardHistory {
@@ -31,6 +32,7 @@ class DesktopServices {
   constructor({app,clipboard,powerMonitor,react,fetchImpl=fetch}){
     Object.assign(this,{app,clipboard,powerMonitor,react,fetchImpl});
     this.history=new ClipboardHistory();this.events=[];this.media={available:false,status:'未检测到播放会话'};
+    this.cpuPrevious=null;this.system={cpu:0,memoryUsed:os.totalmem()-os.freemem(),memoryTotal:os.totalmem()};this.sampleSystem();
     this.battery={available:false};this.drives=[];this.drivesInitialized=false;this.timers=[];this.pending=new Map();this.seen=new Map();this.weather=null;this.city='';this.weatherAt=0;this.weatherBusy=null;
     this.inbox=path.join(app.getPath('userData'),'events');fs.mkdirSync(this.inbox,{recursive:true});
     this.settingsPath=path.join(app.getPath('userData'),'desktop.json');
@@ -51,10 +53,11 @@ class DesktopServices {
   start(){
     if(this.started)return;this.started=true;
     const every=(ms,fn)=>{let busy=false;this.timers.push(setInterval(async()=>{if(busy)return;busy=true;try{await fn();}catch{}finally{busy=false;}},ms));};
+    every(3000,()=>this.sampleSystem());
     // Observe changes after launch; never ingest the pre-existing clipboard.
     let baselineReady=false;
     this.clipboardBaseline=Promise.resolve().then(()=>this.clipboard.readText()).then(text=>{this.history.last=crypto.createHash('sha256').update(text).digest('hex');baselineReady=true;}).catch(()=>{baselineReady=true;});
-    every(800,async()=>{if(baselineReady)this.history.capture(await this.clipboard.readText());});
+    every(800,async()=>{if(baselineReady&&Date.now()>(this.clipboardSuppressedUntil||0))this.history.capture(await this.clipboard.readText());});
     every(1500,()=>this.scanDownloads());every(1500,()=>this.scanInbox());
     this.onAC=()=>this.event('charging','接上电源了。');this.powerMonitor.on('on-ac',this.onAC);
     if(process.platform==='win32'){
@@ -89,12 +92,16 @@ class DesktopServices {
       try{const file=path.join(this.inbox,name);if(fs.statSync(file).size>4096){this.inboxSeen.add(name);continue;}const value=JSON.parse(fs.readFileSync(file,'utf8'));if(['success','failure','download'].includes(value.kind)&&typeof value.text==='string')this.event(value.kind,value.text);fs.unlinkSync(file);}catch{}
     }
   }
-  snapshot(){return {clipboard:this.history.entries,clipboardPaused:this.history.paused,media:this.media,battery:this.battery,drives:this.drives,events:this.events,weather:this.weather,city:this.city,inbox:this.inbox};}
+  sampleSystem(){const next=os.cpus().reduce((a,c)=>({idle:a.idle+c.times.idle,total:a.total+Object.values(c.times).reduce((x,y)=>x+y,0)}),{idle:0,total:0});const p=this.cpuPrevious,total=p?next.total-p.total:0;this.system={cpu:total>0?Math.max(0,Math.min(100,100*(1-(next.idle-p.idle)/total))):0,memoryUsed:os.totalmem()-os.freemem(),memoryTotal:os.totalmem()};this.cpuPrevious=next;}
+  snapshot(){let autostart;try{autostart=!!this.app.getLoginItemSettings?.().openAtLogin;}catch{}return {clipboard:this.history.entries,clipboardPaused:this.history.paused,media:this.media,battery:this.battery,drives:this.drives,events:this.events,weather:this.weather,city:this.city,inbox:this.inbox,system:this.system,autostart};}
   async action(input){
     if(!input||typeof input!=='object'||Array.isArray(input)||JSON.stringify(input).length>1024)throw new Error('桌面工具参数无效');
     const {name,value}=input;
     if(name==='snapshot')return this.snapshot();
-    if(name==='clipboard-pause'){if(typeof value!=='boolean')throw new Error('开关值无效');this.history.paused=value;this.save();}
+    if(name==='notify'){if(typeof value!=='string'||value.length>600)throw new Error('提醒内容无效');this.notify?.(value);}
+    else if(name==='autostart'){if(typeof value!=='boolean')throw new Error('开关值无效');if(!this.app.isPackaged)throw new Error('请在已安装的发布版中设置开机自启');this.app.setLoginItemSettings({openAtLogin:value,path:process.execPath});if(!!this.app.getLoginItemSettings().openAtLogin!==value)throw new Error('系统未能更新开机自启，请检查权限');}
+    else if(name==='clipboard-delete'){if(typeof value!=='string')throw new Error('记录编号无效');this.history.entries=this.history.entries.filter(e=>e.id!==value);}
+    else if(name==='clipboard-pause'){if(typeof value!=='boolean')throw new Error('开关值无效');this.history.paused=value;this.save();}
     else if(name==='clipboard-clear')this.history.clear();
     else if(name==='clipboard-copy'){const entry=this.history.entries.find(e=>e.id===value);if(!entry)throw new Error('记录已经移除');await this.clipboard.writeText(entry.text);this.history.last=entry.id;}
     else if(name==='weather'){

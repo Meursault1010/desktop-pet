@@ -108,7 +108,20 @@ def main():
     args = parser.parse_args()
     cv2.setNumThreads(1)
     OUTPUT.mkdir(parents=True, exist_ok=True)
-    atlases, hashes = {}, {}
+    manifest_path, report_path = OUTPUT/'manifest.json', OUTPUT/'quality-report.json'
+    selected = set(args.actions or ())
+    previous = json.loads(manifest_path.read_text(encoding='utf-8')) if selected and manifest_path.exists() else {}
+    report = json.loads(report_path.read_text(encoding='utf-8')) if selected and report_path.exists() else {}
+    # A partial rebuild must keep every untouched warp: `--actions` is how new
+    # atlases are added without discarding the reviewed manifest.
+    pairs = {key: value for key, value in previous.get('pairs', {}).items()
+             if key.split(':', 1)[0] not in selected}
+    for key in set(previous.get('pairs', {})) - set(pairs):
+        (OUTPUT/previous['pairs'][key]['file']).unlink(missing_ok=True)
+    hashes = {key: value for key, value in previous.get('source_sha256', {}).items()
+              if key not in selected}
+    report = {key: value for key, value in report.items() if key.split(':', 1)[0] not in selected}
+    atlases = {}
     def frame(ref):
         key, index = ref
         if key not in atlases:
@@ -118,9 +131,8 @@ def main():
         cols = catalog()[key]['columns']
         return atlases[key][index//cols*256:index//cols*256+256,
                             index%cols*256:index%cols*256+256].copy()
-    pairs, report = {}, {}
     for n, (a, b) in enumerate(graph()):
-        if args.actions and a[0] not in args.actions:
+        if selected and a[0] not in selected:
             continue
         key = f'{a[0]}:{a[1]}>{b[0]}:{b[1]}'
         frames, review = interpolate(frame(a), frame(b))
@@ -137,8 +149,14 @@ def main():
             print(f'{n}: {key}', flush=True)
     payload = {'version': 1, 'method': 'single-source-bidirectional-warp',
                'source_sha256': hashes, 'pairs': pairs}
-    (OUTPUT/'manifest.json').write_text(json.dumps(payload, indent=2), encoding='utf-8')
-    (OUTPUT/'quality-report.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
+    # Readers may hold the live manifest during a build on Windows. Publish a
+    # complete replacement instead of truncating a file used by the desktop.
+    temporary = manifest_path.with_suffix('.pending.json')
+    temporary.write_text(json.dumps(payload, indent=2), encoding='utf-8')
+    temporary.replace(manifest_path)
+    temporary = report_path.with_suffix('.pending.json')
+    temporary.write_text(json.dumps(report, indent=2), encoding='utf-8')
+    temporary.replace(report_path)
     print(f'Accepted {len(pairs)}/{len(report)} transitions', flush=True)
 
 

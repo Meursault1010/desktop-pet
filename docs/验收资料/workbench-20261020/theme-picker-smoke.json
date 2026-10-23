@@ -1,0 +1,17 @@
+{
+  "passed": 10,
+  "results": [
+    "Electron preload isolation, complete navigation, and backend connection",
+    "five sections and every subpage render without overflow or missing assets",
+    "header theme picker changes every page and persists to host",
+    "three themes persist to host and compact and expanded layouts fit",
+    "layout edit cancel, add remove, resizing and page persistence work",
+    "todo creation, completion and removal persist with Unicode text",
+    "focus preserves saved pet preferences and ends cleanly",
+    "memory, shortcuts and invalid IPC validation are real",
+    "navigation and timers survive renderer reload",
+    "backend exits cleanly"
+  ],
+  "errors": [],
+  "durationMs": 27654
+}

@@ -55,12 +55,18 @@ class PetService(PetApplication):
     def open_console(self):
         self.send({'type': 'event', 'name': 'open_console'})
 
+    def quick_tool_send(self, name, value=None):
+        self.send({'type': 'event', 'name': 'quick_tool', 'tool': name, 'value': value})
+
     def quick_chat_send(self, text):
         if (self.quick_pending or self.exit_requested or not isinstance(text, str)
                 or not text.strip() or len(text.encode('utf-16-le'))//2>2000):
             return False
         self.quick_pending = str(uuid.uuid4())
         self.quick_last_text = text.strip()
+        self.quick_history.append({'role': 'user', 'text': text.strip()})
+        self.quick_history = self.quick_history[-60:]
+        self.quick_reply = ''
         self.pet.bubble.say('让我想一想…', 'chat', streaming=True)
         self.send({'type': 'event', 'name': 'quick_chat', 'id': self.quick_pending, 'text': text.strip()})
         pending = self.quick_pending
@@ -80,11 +86,31 @@ class PetService(PetApplication):
             return
         self.pet.bubble.say(text or '…', 'error' if phase=='error' else 'chat',
                             streaming=phase in ('thinking','answer'))
+        self.quick_reply = text if phase in ('answer', 'done', 'error') else ''
+        if phase in ('done', 'error') and text:
+            self.quick_history.append({'role': 'error' if phase == 'error' else 'assistant', 'text': text})
+            self.quick_history = self.quick_history[-60:]
+        self.changed.emit()
         if phase in ('done','error') and key == self.quick_pending:
             if phase == 'error':
                 self.quick_draft = self.quick_last_text
             self.quick_pending = None
             self.changed.emit()
+
+    def set_preference(self, name, value):
+        super().set_preference(name, value)
+        if getattr(self, 'focus_active', False):
+            from dataclasses import replace
+            self.pet.apply_preferences(replace(self.preferences, quiet=True))
+
+    def toggle_translation(self, checked=False):
+        self.send({'type': 'event', 'name': 'translation_toggle'})
+
+    def reset_defaults(self):
+        super().reset_defaults()
+        if getattr(self, 'focus_active', False):
+            from dataclasses import replace
+            self.pet.apply_preferences(replace(self.preferences, quiet=True))
 
     def create_menu(self, parent):
         menu = super().create_menu(parent)
@@ -160,7 +186,25 @@ class PetService(PetApplication):
             payload = request.get('payload') or {}
             if not isinstance(payload, dict):
                 raise ValueError('参数格式不正确')
-            if command == 'speech_update':
+            if command == 'set_focus':
+                if set(payload) != {'enabled'} or type(payload.get('enabled')) is not bool:
+                    raise ValueError('专注状态无效')
+                from dataclasses import replace
+                self.focus_active = payload['enabled']
+                self.pet.apply_preferences(replace(self.preferences, quiet=True) if self.focus_active else self.preferences)
+            elif command == 'configure_ui':
+                if (set(payload)-{'theme','bubble','reduced','translation'} or payload.get('theme') not in ('light','mist','dark') or payload.get('bubble') not in ('light','mist','dark') or type(payload.get('reduced')) is not bool or type(payload.get('translation')) is not bool):
+                    raise ValueError('界面设置无效')
+                self.ui_theme = payload['theme']
+                self.ui_reduced = payload['reduced']
+                self.translation_enabled = payload['translation']
+                self.pet.bubble.apply_theme(payload['bubble'])
+                self.refresh_menus()
+            elif command == 'quick_tools_update':
+                from pet_quick_tools import validate_snapshot
+                self.quick_tools = validate_snapshot(payload)
+                self.changed.emit()
+            elif command == 'speech_update':
                 self.speech_update(payload)
             elif command == 'wake_sleep':
                 self.pet.state.sleep.wake(self.pet, '主动交流')
@@ -230,6 +274,10 @@ class PetService(PetApplication):
                 self.pet.update()
             elif command == 'go_home':
                 self.pet.go_home()
+            elif command == 'go_corner':
+                self.pet.go_home()
+                area = self.pet.screen_area()
+                self.pet.state.travel_target = (area.right()-self.pet.width()-30, area.bottom()-self.pet.height()+1)
             elif command == 'refresh_desktop_icons':
                 self.icon_sleep.refresh()
             elif command == 'configure_icon_sleep':

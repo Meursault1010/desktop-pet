@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "per_page": 100,
+  "columns": 10,
+  "pages": [
+    {
+      "file": "pages/00.png",
+      "first": 0,
+      "count": 100
+    },
+    {
+      "file": "pages/01.png",
+      "first": 100,
+      "count": 6
+    }
+  ]
+}

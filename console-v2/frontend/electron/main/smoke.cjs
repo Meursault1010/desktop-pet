@@ -3,7 +3,7 @@ const fs=require('node:fs');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
-async function run({app,window,sidecar,tray,stopAndQuit}) {
+async function run({app,window,sidecar,tray,stopAndQuit,translation,translationWindows}) {
   const results=[];const started=Date.now();
   const request=(name,payload={})=>window.webContents.executeJavaScript(`window.yukiHost.request(${JSON.stringify(name)},${JSON.stringify(payload)})`);
   async function check(name,task,timeout=30000){let timer;try{await Promise.race([task(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Timed out: '+name)),timeout);})]);results.push(name);console.log(`PASS ${name}`);}finally{clearTimeout(timer);}}
@@ -11,7 +11,7 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
   await check('preload isolation and bounded API',async()=>{
     assert.equal(await window.webContents.executeJavaScript('typeof require'), 'undefined');
     assert.equal(await window.webContents.executeJavaScript('window.yukiHost.kind'), 'electron');
-    assert.equal(await window.webContents.executeJavaScript('Object.keys(window.yukiHost).sort().join(",")'), 'aiCancel,aiChat,aiModels,aiSubscribe,desktopAction,desktopSnapshot,desktopSubscribe,exit,kind,modelConfig,modelConfigSet,reconnect,request,subscribe');
+    assert.equal(await window.webContents.executeJavaScript('Object.keys(window.yukiHost).sort().join(",")'), 'aiAttach,aiCancel,aiChat,aiModels,aiSubscribe,desktopAction,desktopSnapshot,desktopSubscribe,exit,kind,modelConfig,modelConfigSet,reconnect,request,subscribe,translationCapture,translationMode,translationSubscribe,windowMode,workbenchConfig,workbenchSet');
     assert.equal(window.webContents.getLastWebPreferences().sandbox,true);
   });
   await check('React UI connected through Electron IPC',async()=>{
@@ -47,7 +47,7 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     assert.equal(sleep.schedule,'00:00–07:00 · 13:00–14:00');
     assert.equal(typeof sleep.sleeping,'boolean');
     await assert.rejects(request('desktop_event',{kind:'exec',text:'invalid'}));
-    const assets=app.isPackaged?path.join(process.resourcesPath,'pet/assets'):path.resolve(__dirname,'../../../assets');
+    const assets=app.isPackaged?path.join(process.resourcesPath,'pet/python/_internal/assets'):path.resolve(__dirname,'../../../assets');
     for(const index of ['00','48','95'])assert.ok(fs.statSync(path.join(assets,'sleep',index+'.png')).size>0);
     const transitions=path.join(assets,'sleep/transitions');
     const manifest=JSON.parse(fs.readFileSync(path.join(transitions,'manifest.json'),'utf8'));
@@ -66,9 +66,82 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     // Freeze decoration for deterministic screenshots without persisting it.
     const motion=await ui(`document.documentElement.dataset.motion`);
     await ui(`document.documentElement.dataset.motion='reduced'`);
-    await wait(500);fs.writeFileSync(path.join(folder,name+'.png'),(await window.webContents.capturePage()).toPNG());
+    await wait(500);let frame;
+    for(let attempt=0;attempt<3;attempt++){try{frame=await window.webContents.capturePage();break;}catch(error){if(attempt===2)throw error;window.showInactive();await wait(350);}}
+    fs.writeFileSync(path.join(folder,name+'.png'),frame.toPNG());
     await ui(`document.documentElement.dataset.motion=${JSON.stringify(motion)}`);
   };
+  if(process.env.YUKI_TRANSLATION_SMOKE==='1'){
+    await check('translation mode UI starts off and controls native watcher',async()=>{
+      await navigate('桌面工具');
+      assert.equal((await ui('window.yukiHost.translationMode()')).enabled,false);
+      await ui(`document.querySelector('[aria-label="划线翻译模式"]').click()`);await wait(400);
+      assert.equal(translation.enabled,true);assert.ok(translation.watcher.child?.pid);
+      await ui(`document.querySelector('.translation-panel').scrollIntoView({block:'center'})`);await capture('translation-tools');
+      await ui(`document.documentElement.dataset.theme='dark'`);await capture('translation-tools-dark');await ui(`document.documentElement.dataset.theme='light'`);
+      window.setSize(880,640);await wait(300);await ui(`document.querySelector('.translation-panel').scrollIntoView({block:'center'})`);await capture('translation-tools-small');
+      assert.equal(await ui('document.documentElement.scrollWidth<=innerWidth'),true);window.setSize(1180,820);
+      await assert.rejects(ui(`window.yukiHost.translationMode('true')`));
+    });
+    await check('real local Qwen translation and isolated popup IPC',async()=>{
+      await translation.translate('Your download is complete.',{x:450,y:300});
+      assert.equal(translation.state.phase,'done',translation.state.error);assert.match(translation.state.text,/[\u4e00-\u9fff]/);
+      for(let i=0;i<50&&!translationWindows.popup?.isVisible();i++)await wait(100);
+      const popup=translationWindows.popup;assert.ok(popup.isVisible());
+      assert.equal(popup.isFocused(),false,'translation popup must not steal keyboard focus');
+      assert.equal(await popup.webContents.executeJavaScript('typeof require'),'undefined');
+      assert.equal(await popup.webContents.executeJavaScript('typeof window.yukiHost'),'undefined');
+      assert.equal(await ui(`typeof window.translation`),'undefined');
+      await wait(400);
+      if(process.env.YUKI_UI_CAPTURE_DIR)fs.writeFileSync(path.join(process.env.YUKI_UI_CAPTURE_DIR,'translation-popup.png'),(await popup.webContents.capturePage()).toPNG());
+      await translation.translate('请重新启动应用。',{x:450,y:300});
+      assert.equal(translation.state.phase,'done',translation.state.error);assert.equal(translation.state.target,'English');assert.match(translation.state.text,/[a-z]{3}/i);
+      const snapshot=translation.snapshot();
+      translation.update({text:'这是用于检查长译文滚动与布局的测试文字。'.repeat(50)});await wait(200);
+      assert.equal(await popup.webContents.executeJavaScript('document.documentElement.scrollWidth<=innerWidth'),true);
+      translation.update(snapshot);
+    },120000);
+    await check('OCR region IPC uses offline recognizer and local Qwen',async()=>{
+      const {nativeImage}=require('electron');const image=nativeImage.createFromPath(process.env.YUKI_OCR_FIXTURE);
+      const service=translationWindows.desktopCapturer,original=service.getSources;
+      const display=translationWindows.screen.getDisplayNearestPoint(translationWindows.screen.getCursorScreenPoint());
+      try{
+        // Use a public fixture instead of retaining a screenshot of the user's desktop.
+        service.getSources=async()=>[{display_id:String(display.id),thumbnail:image}];
+        await translationWindows.capture();const overlay=translationWindows.overlay;assert.ok(overlay.isVisible());
+        assert.equal(await overlay.webContents.executeJavaScript('typeof require'),'undefined');
+        await assert.rejects(overlay.webContents.executeJavaScript(`window.capture.region({x:-1,y:0,width:100,height:100})`));
+        await overlay.webContents.executeJavaScript(`void window.capture.region({x:0,y:0,width:${display.size.width},height:${display.size.height}})`);
+        for(let i=0;i<1200&&!['done','error'].includes(translation.state.phase);i++)await wait(100);
+        assert.equal(translation.state.phase,'done',translation.state.error);assert.equal(translation.state.method,'ocr');assert.ok(translation.state.source.length>5);
+      }finally{service.getSources=original;}
+      await ui('window.yukiHost.translationMode(false)');assert.equal(translation.watcher.child,null);
+      assert.equal(translationWindows.popup?.isVisible(),false);assert.equal(translationWindows.overlay,null);
+    },150000);
+  }
+  if(process.env.YUKI_ATTACHMENT_FIXTURES)await check('attachment dialog, local parsers, preview and removal',async()=>{
+    const fixture=path.resolve(process.env.YUKI_ATTACHMENT_FIXTURES);
+    const {Attachments}=require('./attachments.cjs');const store=new Attachments();
+    for(const name of ['fixture.pdf','fixture.docx']){
+      const metadata=await store.add(path.join(fixture,name));assert.match(store.resolve([metadata.id])[0].text,/Yuki/);
+    }
+    const {dialog}=require('electron');const original=dialog.showOpenDialog;
+    await navigate('AI 助手');
+    try{
+      const image=process.env.YUKI_OCR_FIXTURE;assert.ok(image,'YUKI_OCR_FIXTURE must be a text image');
+      dialog.showOpenDialog=async()=>({canceled:false,filePaths:[path.join(fixture,'fixture.docx'),path.resolve(image)]});
+      await ui(`document.querySelector('[aria-label="添加图片或文档"]').click()`);
+      for(let i=0;i<250;i++){if(await ui(`document.querySelectorAll('[aria-label="待发送附件"] .chat-file').length===2`))break;await wait(100);}
+      assert.equal(await ui(`document.querySelectorAll('[aria-label="待发送附件"] .chat-file').length`),2);
+      assert.equal(await ui(`document.querySelector('[aria-label="待发送附件"] img').naturalWidth>0`),true);
+      assert.ok(await ui(`document.querySelector('[aria-label="待发送附件"]').textContent.includes('OCR 已提取')`));
+      await capture('attachments-desktop');window.setSize(880,640);await wait(300);await capture('attachments-small');
+      assert.ok(await ui('document.documentElement.scrollWidth<=innerWidth'));
+      await ui(`document.querySelector('[aria-label="移除 fixture.docx"]').click()`);
+      assert.equal(await ui(`document.querySelectorAll('[aria-label="待发送附件"] .chat-file').length`),1);
+      await ui(`document.querySelector('[aria-label="待发送附件"] button').click()`);
+    }finally{dialog.showOpenDialog=original;window.setSize(1180,820);}
+  });
   await check('nine workbench pages, assets, planned capability boundaries',async()=>{
     for(const label of ['总览','角色','动作库','动画','行为','音乐互动','AI 助手','桌面工具','设置']){
       await navigate(label);
@@ -193,7 +266,7 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
     }
   });
   await check('reviewed pose transitions are bundled and frozen actions play',async()=>{
-    const assets=app.isPackaged?path.join(process.resourcesPath,'pet/assets'):path.resolve(__dirname,'../../../assets');
+    const assets=app.isPackaged?path.join(process.resourcesPath,'pet/python/_internal/assets'):path.resolve(__dirname,'../../../assets');
     const motion=path.join(assets,'action-motion');
     const manifestBytes=fs.readFileSync(path.join(motion,'manifest.json'));
     const manifest=JSON.parse(manifestBytes);
@@ -205,21 +278,19 @@ async function run({app,window,sidecar,tray,stopAndQuit}) {
       assert.ok(fs.statSync(path.join(motion,entry.file)).size>0);
     }
     for(const [id,digest] of Object.entries(manifest.source_sha256)){
-      const action=entries.find(entry=>entry.id===id);
-      assert.ok(action,'Missing source action: '+id);
-      assert.equal(createHash('sha256').update(fs.readFileSync(path.join(assets,action.atlas))).digest('hex'),digest);
+      assert.ok(entries.find(entry=>entry.id===id),'Missing source action: '+id);
+      // The console mirror is lossless WebP; the review digest covers the
+      // runtime PNG that the frozen backend ships.
+      assert.equal(createHash('sha256').update(fs.readFileSync(path.join(assets,'actions',id,'atlas.png'))).digest('hex'),digest);
     }
-    if(app.isPackaged){
-      const frozen=path.join(process.resourcesPath,'pet/python/_internal/assets/action-motion');
-      assert.deepEqual(fs.readFileSync(path.join(frozen,'manifest.json')),manifestBytes);
-      for(const entry of Object.values(manifest.pairs)){
-        assert.equal(fs.statSync(path.join(frozen,entry.file)).size,fs.statSync(path.join(motion,entry.file)).size);
-      }
-    }
+    if(app.isPackaged)assert.equal(fs.existsSync(path.join(process.resourcesPath,'pet/assets')),false,'Duplicate pet assets');
+    // At nap time, complete the real wake transition before checking action labels.
+    await request('wake_sleep');
+    for(let i=0;i<70;i++){if((await request('get_state')).state.sleep.phase!=='waking')break;await wait(100);}
     for(const id of ['sit-neat','prone-rest','stretch','lazy-roll-toward','lazy-roll-away']){
       const played=await request('play_action',{action_id:id});
       assert.equal(played.ok,true);
-      assert.ok(played.state.status.includes(entries.find(entry=>entry.id===id).name));
+      assert.ok(played.state.status.includes(entries.find(entry=>entry.id===id).name),id+': '+played.state.status);
       await wait(1200);await request('stop_action');
     }
   });

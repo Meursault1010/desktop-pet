@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "source_frames": 17,
+  "cell": 256,
+  "samples_per_pair": 25,
+  "method": "single-source-bidirectional-optical-flow",
+  "entry": "peek-observe-walk-settle-idle",
+  "exit": "turn-walk-look-back-withdraw",
+  "edges": [
+    "left",
+    "right"
+  ],
+  "runtime_tick_ms": 16,
+  "source_qa": "source-qa.json",
+  "motion_qa": "motion-report.json",
+  "notes": [
+    "Nearest horizontal edge on the current available desktop.",
+    "Partial animations reverse their existing path and poses.",
+    "No runtime optical flow or opacity fade."
+  ]
+}

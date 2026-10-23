@@ -53,6 +53,12 @@ class SleepCycle:
         self.last_frame = None
         self.interrupted_settle = None
         self.wake_seconds = WAKE_SECONDS
+        self.site_attempted = False
+        self.site_deadline = 0.
+        self.rest_site = None
+        self.rest_geometry = None
+        self.site_mask = False
+        self.site_probe_at = 0.
         # Decode one small frame per idle tick. Prioritize sequence endpoints
         # so a cold launch does not batch-decode an animation on pointer input.
         self.preload_keys = [('settle', 0), ('wake', 0), 0]
@@ -72,6 +78,9 @@ class SleepCycle:
         now = time.monotonic() if now is None else now
         was = self.active
         self.awake_until = now+120
+        self.site_attempted = False
+        self.site_deadline = 0.
+        self.clear_rest_site(pet)
         self.reason = reason
         if was:
             # Reverse an interrupted head-settle from its present pose, rather
@@ -90,8 +99,33 @@ class SleepCycle:
 
     def tick(self, pet, now):
         s = pet.state
+        if self.rest_site and now >= self.site_probe_at:
+            self.site_probe_at = now+1
+            icons = s.icon_sleep
+            current = next((i for i in icons.icons if i['id'] == self.rest_site['id']),None) if icons else None
+            if (not current or current['rect'] != self.rest_site['rect'] or icons.error
+                    or self.rest_geometry != (pet.screen(),pet.width(),pet.height(),pet.pos())
+                    or not s.patrol.route_exposed((pet.x(),pet.y()),pet.screen())):
+                self.clear_rest_site(pet)
+            elif now-icons.scanned_at > 3:
+                icons.refresh()
+        patrol = s.patrol
+        owns_action = bool(patrol and patrol.active is True and
+                           s.action_player.action and
+                           s.action_player.generation == patrol.owned_generation)
+        owns_icon = bool(patrol and patrol.active is True and patrol.kind == 'lean'
+                         and s.icon_sleep and s.icon_sleep.target is patrol.target)
+        owns_music = bool(s.music and isinstance(s.music.active,str) and s.music.active
+                          and s.action_player.action
+                          and s.action_player.started == s.music.owned_start
+                          and s.action_player.generation == s.music.owned_generation)
+        recovery = getattr(pet,'dance_recovery',None)
+        owns_recovery = bool(recovery and recovery.owned_start is not None
+                             and s.action_player.action
+                             and s.action_player.started == recovery.owned_start
+                             and s.action_player.generation == recovery.owned_generation)
         attached = (bool(s.edge_attachment and s.edge_attachment.active)
-                    or bool(s.icon_sleep and s.icon_sleep.target))
+                    or bool(s.icon_sleep and s.icon_sleep.target and not owns_icon))
         busy = (pet.drag_origin is not None or s.physics.active or pet.presence.active
                 or attached
                 or bool(getattr(pet.controller, 'quick_pending', None))
@@ -106,12 +140,30 @@ class SleepCycle:
             pet.state_changed.emit()
         if self.active and not sleep_time():
             self.wake(pet, '睡眠时段结束', now)
+        if not sleep_time():
+            self.site_attempted = False
+            if patrol and patrol.kind == 'sleep_site':
+                patrol.cancel(now, '睡眠时段结束，取消休息路线')
         if (not self.active and self.phase != 'waking' and sleep_time()
                 and now >= self.awake_until and not busy and pet.isVisible()
-                and not (s.action_player.action and not s.ambient.current)
+                and not (s.action_player.action and not s.ambient.current
+                         and not owns_action and not owns_music and not owns_recovery)
                 and not pet.preferences.paused):
+            if not self.site_attempted:
+                if owns_music:
+                    s.music.cancel(now)
+                if owns_recovery:
+                    s.action_player.stop()
+                    recovery.owned_start = recovery.watched = None
+                self.site_attempted = True
+                self.site_deadline = now+10
+                if patrol and patrol.begin_sleep_site(now) is True:
+                    return
+            if (patrol and patrol.kind == 'sleep_site' and patrol.active is True
+                    and now < self.site_deadline):
+                return
             if s.patrol:
-                s.patrol.cancel()
+                s.patrol.cancel(now, '进入正式睡眠')
             if s.music:
                 s.music.cancel()
             s.travel_target = s.travel_position = s.roll_path = None
@@ -134,6 +186,31 @@ class SleepCycle:
         return dict(phase=self.phase, sleeping=self.active, scheduled=sleep_time(),
                     resume_in=max(0, round(self.awake_until-time.monotonic())),
                     schedule='00:00–07:00 · 13:00–14:00', wake_reason=self.reason)
+
+    def set_rest_site(self, pet, target, icons):
+        """Optional icon occlusion; never attach a second position controller."""
+        self.clear_rest_site(pet)
+        if target is None:
+            return
+        image = icons.cache_images.get(target['id'])
+        if image is None:
+            return
+        from icon_sleep import logical_rect, alpha_region
+        from PySide6.QtGui import QRegion
+        x,y,w,h = logical_rect(target['rect'])[0]
+        glyph = alpha_region(image.scaled(max(1,round(w)),max(1,round(h))))
+        if glyph.isEmpty():
+            return
+        self.rest_site = dict(id=target['id'],rect=dict(target['rect']))
+        self.rest_geometry = (pet.screen(),pet.width(),pet.height(),pet.pos())
+        pet.setMask(QRegion(pet.rect()).subtracted(glyph.translated(round(x-pet.x()),round(y-pet.y()))))
+        self.site_mask = True
+
+    def clear_rest_site(self, pet):
+        if self.site_mask:
+            pet.clearMask()
+        self.site_mask = False
+        self.rest_site = self.rest_geometry = None
 
     def interrupt_for_drag(self):
         # Pointer/throw physics own the pose immediately after the gesture

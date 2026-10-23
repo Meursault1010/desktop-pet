@@ -1,0 +1,104 @@
+{
+  "date": "2026-10-19",
+  "project": "Yuki",
+  "release": "releases/electron/yuki-win32-x64-continuity/yuki-win32-x64",
+  "method": "single-source-bidirectional-warp",
+  "framesPerTransition": 25,
+  "acceptedTransitions": 256,
+  "rejectedTransitions": 10,
+  "verifiedReleaseAtlasHashes": 512,
+  "backendRegressionTests": 120,
+  "frontendTests": 33,
+  "electron": {
+    "passed": 17,
+    "results": [
+      "preload isolation and bounded API",
+      "React UI connected through Electron IPC",
+      "all preview image resources load",
+      "nine workbench pages, assets, planned capability boundaries",
+      "music playback status and persistent switch reach backend",
+      "real UI toggle reaches sidecar and action preview remains local",
+      "themes, reduced motion persistence and minimum window layout",
+      "reject unknown command, invalid preference and path traversal",
+      "visibility, preferences, action, edge configuration",
+      "desktop speech route and plain-text paged replies",
+      "full-colour lazy roll atlases and frozen backend playback",
+      "reviewed pose transitions are bundled and frozen actions play",
+      "backend crash and reconnect restores saved preference",
+      "console close keeps backend, reopen connects",
+      "second launch reuses existing instance and backend",
+      "renderer cannot create new windows or use external network",
+      "exit cleans up backend"
+    ],
+    "consoleErrors": [],
+    "durationMs": 20242,
+    "versions": {
+      "node": "24.22.0",
+      "acorn": "8.18.0",
+      "ada": "4.0.0",
+      "amaro": "1.1.11",
+      "ares": "1.34.8",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.2",
+      "llhttp": "9.4.3",
+      "merve": "1.2.2",
+      "modules": "149",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.70.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "0.0.0",
+      "simdjson": "4.6.11",
+      "simdutf": "7.7.0",
+      "sqlite": "3.53.4",
+      "tz": "2026d",
+      "undici": "7.29.1",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "15.2.124.43-electron.0",
+      "zlib": "1.3.2.1-motley",
+      "zstd": "1.6.0",
+      "electron": "44.9.0",
+      "chrome": "152.0.7977.167"
+    },
+    "renderer": "PySide6 compatibility",
+    "backendExited": true
+  },
+  "render": {
+    "clips": [
+      {
+        "action": "sit-neat",
+        "frames": 180
+      },
+      {
+        "action": "prone-rest",
+        "frames": 180
+      },
+      {
+        "action": "stretch",
+        "frames": 130
+      },
+      {
+        "action": "lazy-roll-toward",
+        "frames": 375
+      }
+    ],
+    "render_ms_median": 3.291299974080175,
+    "render_ms_p95": 6.479999981820583,
+    "render_ms_max": 8.99200001731515,
+    "strip_cache": "CacheInfo(hits=355, misses=35, maxsize=6, currsize=6)"
+  },
+  "legacyScaleAudit": {
+    "passed": 2,
+    "failures": 1,
+    "errors": 1,
+    "details": [
+      "Historical scale report lacks actions/throw-flight",
+      "impact-left height differs by 21px against a 19px standing-pose threshold"
+    ]
+  }
+}

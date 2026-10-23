@@ -1,0 +1,664 @@
+{
+  "generatedAt": "2026-10-22T18:45:48.593Z",
+  "corpus": {
+    "lines": 1365,
+    "analyzed": 1011,
+    "failed": 354,
+    "successRate": 0.741
+  },
+  "sources": {
+    "curated": 248,
+    "httpster": 644,
+    "httpster-extra": 119
+  },
+  "categories": {
+    "productivity": 29,
+    "devtools": 40,
+    "design": 28,
+    "ai": 22,
+    "fintech": 20,
+    "commerce": 19,
+    "communication": 19,
+    "social": 13,
+    "data": 19,
+    "health": 5,
+    "education": 5,
+    "travel": 6,
+    "editorial": 9,
+    "utility": 14,
+    "website": 763
+  },
+  "frameworks": {
+    "next": {
+      "pages": 197,
+      "share": 0.195
+    },
+    "wordpress": {
+      "pages": 167,
+      "share": 0.165
+    },
+    "shopify": {
+      "pages": 149,
+      "share": 0.147
+    },
+    "webflow": {
+      "pages": 62,
+      "share": 0.061
+    },
+    "nuxt": {
+      "pages": 45,
+      "share": 0.045
+    },
+    "vue": {
+      "pages": 37,
+      "share": 0.037
+    },
+    "squarespace": {
+      "pages": 34,
+      "share": 0.034
+    },
+    "tailwind": {
+      "pages": 33,
+      "share": 0.033
+    },
+    "framer": {
+      "pages": 21,
+      "share": 0.021
+    },
+    "astro": {
+      "pages": 13,
+      "share": 0.013
+    },
+    "svelte": {
+      "pages": 13,
+      "share": 0.013
+    },
+    "react": {
+      "pages": 11,
+      "share": 0.011
+    },
+    "wix": {
+      "pages": 9,
+      "share": 0.009
+    }
+  },
+  "cssBytes": {
+    "median": 119510,
+    "p75": 279554,
+    "p90": 550427
+  },
+  "fonts": {
+    "families": [
+      {
+        "name": "arial",
+        "pages": 115,
+        "share": 0.114,
+        "weight": 693
+      },
+      {
+        "name": "inter",
+        "pages": 104,
+        "share": 0.103,
+        "weight": 2029
+      },
+      {
+        "name": "helvetica neue",
+        "pages": 67,
+        "share": 0.066,
+        "weight": 905
+      },
+      {
+        "name": "swiper-icons",
+        "pages": 40,
+        "share": 0.04,
+        "weight": 46
+      },
+      {
+        "name": "helvetica",
+        "pages": 40,
+        "share": 0.04,
+        "weight": 171
+      },
+      {
+        "name": "roboto",
+        "pages": 29,
+        "share": 0.029,
+        "weight": 1636
+      },
+      {
+        "name": "georgia",
+        "pages": 23,
+        "share": 0.023,
+        "weight": 105
+      },
+      {
+        "name": "open sans",
+        "pages": 22,
+        "share": 0.022,
+        "weight": 323
+      },
+      {
+        "name": "sfmono-regular",
+        "pages": 21,
+        "share": 0.021,
+        "weight": 42
+      },
+      {
+        "name": "courier new",
+        "pages": 21,
+        "share": 0.021,
+        "weight": 29
+      },
+      {
+        "name": "monaco",
+        "pages": 16,
+        "share": 0.016,
+        "weight": 35
+      },
+      {
+        "name": "consolas",
+        "pages": 15,
+        "share": 0.015,
+        "weight": 21
+      },
+      {
+        "name": "montserrat",
+        "pages": 15,
+        "share": 0.015,
+        "weight": 155
+      },
+      {
+        "name": "ibm plex mono",
+        "pages": 15,
+        "share": 0.015,
+        "weight": 84
+      },
+      {
+        "name": "poppins",
+        "pages": 14,
+        "share": 0.014,
+        "weight": 452
+      },
+      {
+        "name": "jetbrains mono",
+        "pages": 14,
+        "share": 0.014,
+        "weight": 77
+      },
+      {
+        "name": "menlo",
+        "pages": 14,
+        "share": 0.014,
+        "weight": 22
+      },
+      {
+        "name": "times new roman",
+        "pages": 12,
+        "share": 0.012,
+        "weight": 46
+      },
+      {
+        "name": "lato",
+        "pages": 11,
+        "share": 0.011,
+        "weight": 23
+      },
+      {
+        "name": "fontawesome",
+        "pages": 11,
+        "share": 0.011,
+        "weight": 16
+      },
+      {
+        "name": "slick",
+        "pages": 10,
+        "share": 0.01,
+        "weight": 18
+      },
+      {
+        "name": "0/0 a",
+        "pages": 10,
+        "share": 0.01,
+        "weight": 23
+      },
+      {
+        "name": "icons",
+        "pages": 10,
+        "share": 0.01,
+        "weight": 49
+      },
+      {
+        "name": "sf mono",
+        "pages": 9,
+        "share": 0.009,
+        "weight": 68
+      },
+      {
+        "name": "dm sans",
+        "pages": 9,
+        "share": 0.009,
+        "weight": 241
+      }
+    ],
+    "pagePresence": {
+      "arial": 115,
+      "inter": 104,
+      "helvetica neue": 67,
+      "swiper-icons": 40,
+      "helvetica": 40,
+      "roboto": 29,
+      "georgia": 23,
+      "open sans": 22,
+      "sfmono-regular": 21,
+      "courier new": 21,
+      "monaco": 16,
+      "consolas": 15,
+      "montserrat": 15,
+      "ibm plex mono": 15,
+      "poppins": 14,
+      "jetbrains mono": 14,
+      "menlo": 14,
+      "times new roman": 12,
+      "lato": 11,
+      "fontawesome": 11,
+      "slick": 10,
+      "0/0 a": 10,
+      "icons": 10,
+      "sf mono": 9,
+      "dm sans": 9
+    },
+    "familyCountPerPage": {
+      "median": 4,
+      "p75": 5,
+      "p90": 6
+    },
+    "pagesWithSerif": 106,
+    "pagesWithMono": 591,
+    "serifShare": 0.105,
+    "monoShare": 0.585,
+    "googleFontPages": 23,
+    "googleShare": 0.023
+  },
+  "type": {
+    "pagesWithSizes": 920,
+    "uniqueSizesPerPage": {
+      "median": 10,
+      "p75": 10,
+      "p90": 10
+    },
+    "displaySizeBuckets": {
+      "<24": 100,
+      "24-31": 110,
+      "32-47": 300,
+      "48-63": 177,
+      "64-95": 137,
+      "96+": 96
+    },
+    "displayBucketShare": {
+      "<24": 0.109,
+      "24-31": 0.12,
+      "32-47": 0.326,
+      "48-63": 0.192,
+      "64-95": 0.149,
+      "96+": 0.104
+    },
+    "maxMinRatio": {
+      "median": 3.83974358974359,
+      "p75": 5.425595238095238,
+      "p90": 8.240000000000009
+    },
+    "commonSizes": {
+      "10": 261,
+      "11": 247,
+      "12": 556,
+      "13": 386,
+      "14": 696,
+      "15": 272,
+      "16": 810,
+      "18": 533,
+      "19": 144,
+      "20": 483,
+      "22": 233,
+      "24": 487,
+      "26": 177,
+      "30": 149,
+      "32": 388,
+      "36": 162,
+      "40": 194,
+      "48": 183
+    },
+    "negativeTrackingShare": 0.479,
+    "tightLeadingShare": 0.693,
+    "relaxedLeadingShare": 0.502,
+    "pxSizesInTokens": {
+      "medianMin": 12,
+      "medianMax": 42
+    }
+  },
+  "color": {
+    "neutralShare": {
+      "p25": 0.453,
+      "median": 0.637,
+      "p75": 0.8294999999999999,
+      "p90": 0.949
+    },
+    "accentsPerPage": {
+      "median": 8,
+      "p75": 8,
+      "p90": 8
+    },
+    "backgroundScheme": {
+      "light": 360,
+      "mid": 507,
+      "dark": 42
+    },
+    "backgroundSchemeShare": {
+      "light": 0.396,
+      "mid": 0.558,
+      "dark": 0.046
+    },
+    "accentHuePages": {
+      "blue": 746,
+      "red": 733,
+      "orange": 622,
+      "green": 603,
+      "yellow": 586,
+      "cyan": 554,
+      "magenta": 433,
+      "violet": 399
+    },
+    "topAccents": [
+      {
+        "hex": "#ff0000",
+        "pages": 249,
+        "share": 0.246
+      },
+      {
+        "hex": "#ff6900",
+        "pages": 96,
+        "share": 0.095
+      },
+      {
+        "hex": "#ffff00",
+        "pages": 94,
+        "share": 0.093
+      },
+      {
+        "hex": "#0693e3",
+        "pages": 88,
+        "share": 0.087
+      },
+      {
+        "hex": "#3b82f6",
+        "pages": 70,
+        "share": 0.069
+      },
+      {
+        "hex": "#cf2e2e",
+        "pages": 69,
+        "share": 0.068
+      },
+      {
+        "hex": "#00d084",
+        "pages": 61,
+        "share": 0.06
+      },
+      {
+        "hex": "#fcb900",
+        "pages": 60,
+        "share": 0.059
+      },
+      {
+        "hex": "#0000ff",
+        "pages": 59,
+        "share": 0.058
+      },
+      {
+        "hex": "#007aff",
+        "pages": 51,
+        "share": 0.05
+      },
+      {
+        "hex": "#020381",
+        "pages": 49,
+        "share": 0.048
+      },
+      {
+        "hex": "#2874fc",
+        "pages": 41,
+        "share": 0.041
+      },
+      {
+        "hex": "#3898ec",
+        "pages": 40,
+        "share": 0.04
+      },
+      {
+        "hex": "#9b51e0",
+        "pages": 39,
+        "share": 0.039
+      },
+      {
+        "hex": "#1990c6",
+        "pages": 34,
+        "share": 0.034
+      },
+      {
+        "hex": "#008000",
+        "pages": 33,
+        "share": 0.033
+      },
+      {
+        "hex": "#0082f3",
+        "pages": 29,
+        "share": 0.029
+      },
+      {
+        "hex": "#136f99",
+        "pages": 29,
+        "share": 0.029
+      },
+      {
+        "hex": "#800080",
+        "pages": 20,
+        "share": 0.02
+      },
+      {
+        "hex": "#0099ff",
+        "pages": 20,
+        "share": 0.02
+      }
+    ]
+  },
+  "shape": {
+    "dominantRadiusPages": {
+      "zero": 367,
+      "xs": 182,
+      "percent": 150,
+      "sm": 105,
+      "xl": 91,
+      "pill": 59,
+      "md": 44,
+      "lg": 13
+    },
+    "dominantRadiusShare": {
+      "sm": 0.104,
+      "xs": 0.18,
+      "xl": 0.09,
+      "percent": 0.148,
+      "zero": 0.363,
+      "md": 0.044,
+      "lg": 0.013,
+      "pill": 0.058
+    },
+    "zeroDominantShare": 0.363,
+    "pillAnyShare": 0.496,
+    "radiusTokensPerPage": {
+      "median": 14,
+      "p75": 46
+    },
+    "shadowAnyShare": 0.734,
+    "softShadowShare": 0.203,
+    "gradientShare": 0.681,
+    "backdropBlurShare": 0.385,
+    "blurFilterShare": 0.398,
+    "mixBlendShare": 0.32,
+    "borderTokensPerPage": {
+      "median": 40,
+      "p75": 114
+    }
+  },
+  "layout": {
+    "breakpointCountPerPage": {
+      "median": 6,
+      "p75": 10
+    },
+    "commonBreakpoints": {
+      "480": 157,
+      "600": 198,
+      "640": 201,
+      "767": 303,
+      "768": 521,
+      "992": 120,
+      "1023": 92,
+      "1024": 376,
+      "1200": 192,
+      "1280": 210,
+      "1440": 142,
+      "1536": 90
+    },
+    "dominantContentWidthPages": {
+      "1100": 21,
+      "1140": 20,
+      "1152": 15,
+      "1162": 13,
+      "1200": 73,
+      "1240": 11,
+      "1280": 119,
+      "1400": 34,
+      "1440": 59,
+      "none": 495
+    },
+    "fourPointGridShare": 0.199,
+    "gridOverFlexShare": 0.049,
+    "containerQueryShare": 0.177,
+    "clampTypographyShare": 0.313,
+    "stickyShare": 0.562,
+    "dvhShare": 0.314,
+    "textWrapBalanceShare": 0.253,
+    "commonSpacings": {
+      "2": 304,
+      "4": 427,
+      "5": 360,
+      "6": 359,
+      "8": 697,
+      "10": 608,
+      "12": 537,
+      "15": 294,
+      "16": 660,
+      "20": 602,
+      "24": 442,
+      "30": 246,
+      "32": 434,
+      "40": 369
+    }
+  },
+  "motion": {
+    "durationMs": {
+      "median": 300,
+      "p75": 600
+    },
+    "pageMedianDuration": {
+      "median": 325,
+      "p75": 400
+    },
+    "commonDurations": {
+      "100": 2957,
+      "150": 4351,
+      "200": 8812,
+      "250": 4158,
+      "300": 9445,
+      "400": 3110,
+      "500": 3751,
+      "600": 1479,
+      "800": 989,
+      "1000": 2104
+    },
+    "easings": {
+      "linear": 508,
+      "ease-in-out": 476,
+      "ease": 456,
+      "ease-out": 334,
+      "ease-in": 146,
+      "cubic-bezier(.4,0,.2,1)": 62,
+      "cubic-bezier(.25,.46,.45,.94)": 36,
+      "cubic-bezier(.19,1,.22,1)": 28,
+      "cubic-bezier(.215,.61,.355,1)": 27,
+      "cubic-bezier(.645,.045,.355,1)": 24
+    }
+  },
+  "a11y": {
+    "altCoverage": {
+      "median": 0.5256410256410257,
+      "p25": 0.03333333333333333
+    },
+    "skipLinkShare": 0.211,
+    "mainLandmarkShare": 0.575,
+    "reducedMotionShare": 0.381,
+    "focusVisibleShare": 0.435,
+    "colorSchemeShare": 0.146,
+    "darkSelectorShare": 0.199,
+    "langShare": 0.838,
+    "themeColorShare": 0.278
+  },
+  "chrome": {
+    "navLinks": {
+      "median": 3,
+      "p75": 8,
+      "p90": 26
+    },
+    "anchors": {
+      "median": 47,
+      "p75": 109.5
+    },
+    "buttons": {
+      "median": 2,
+      "p75": 12
+    },
+    "images": {
+      "median": 17,
+      "p75": 52
+    },
+    "ariaAttributes": {
+      "median": 5,
+      "p75": 52
+    },
+    "classTokens": {
+      "median": 586,
+      "p75": 1747.5
+    },
+    "h1Share": 0.641
+  },
+  "architecture": {
+    "cssVarDefsPerPage": {
+      "median": 77,
+      "p75": 415
+    },
+    "cssVarRefsPerPage": {
+      "median": 129,
+      "p75": 876
+    },
+    "cssVarPageShare": 0.8,
+    "tailwindPageShare": 0.088,
+    "generators": {
+      "WordPress 7.1.3": 33,
+      "Wix.com Website Builder": 8,
+      "SEOmatic": 8,
+      "Gatsby 5.16.1": 5,
+      "Readymag": 5,
+      "Site Kit by Google 1.190.0": 4,
+      "Gatsby 4.25.9": 3,
+      "WordPress 6.8.11": 3
+    }
+  }
+}

@@ -24,6 +24,7 @@ def image_bounds(image):
 
 def build():
     entries = json.loads((ASSETS/'catalog.json').read_text(encoding='utf-8'))
+    previous = json.loads(OUTPUT.read_text(encoding='utf-8')) if OUTPUT.exists() else {}
     actions = {}
     for entry in entries:
         if (entry.get('origin') != 'generated' or entry['frames'] < 2
@@ -31,8 +32,14 @@ def build():
                 or entry.get('physics_only') or entry['id'] in EXCLUDED):
             continue
         key = entry['id']
-        boxes = [frame_bounds(ASSETS/key/f'{index+1:02d}.png')
-                 for index in range(entry['frames'])]
+        paths = [ASSETS/key/f'{index+1:02d}.png' for index in range(entry['frames'])]
+        if not all(path.exists() for path in paths):
+            # Atlas-only clips such as music-waltz have no per-frame sources;
+            # retain any reviewed offsets rather than failing the whole pass.
+            if key in previous.get('actions', {}):
+                actions[key] = previous['actions'][key]
+            continue
+        boxes = [frame_bounds(path) for path in paths]
         if any(box is None for box in boxes):
             raise ValueError(f'Empty frame in {key}')
         centers = sorted((box[0]+box[2])/2 for box in boxes)

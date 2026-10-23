@@ -1,0 +1,308 @@
+[
+  {
+    "file": "enter-01.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      70,
+      24,
+      313,
+      364
+    ],
+    "method": "border-connected-neutral-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "enter-02.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      68,
+      24,
+      315,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "enter-03.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      78,
+      24,
+      306,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "enter-04.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      78,
+      24,
+      305,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "enter-05.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      91,
+      24,
+      292,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "enter-06.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      83,
+      24,
+      300,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "enter-07.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      86,
+      24,
+      298,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "enter-08.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      86,
+      24,
+      298,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "enter-09.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      94,
+      24,
+      289,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "enter-10.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      91,
+      24,
+      292,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "exit-01.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      89,
+      24,
+      294,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "exit-02.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      87,
+      24,
+      297,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "exit-03.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      84,
+      24,
+      300,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "exit-04.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      80,
+      24,
+      304,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "exit-05.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      88,
+      24,
+      295,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "exit-06.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      91,
+      24,
+      293,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "exit-07.png",
+    "size": [
+      384,
+      384
+    ],
+    "bounds": [
+      93,
+      24,
+      290,
+      364
+    ],
+    "method": "green-key",
+    "alpha_extrema": [
+      0,
+      255
+    ]
+  }
+]

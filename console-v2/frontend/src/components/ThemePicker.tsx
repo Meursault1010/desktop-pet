@@ -1,0 +1,9 @@
+import {useEffect,useRef,useState} from 'react';
+import {Check,ChevronDown,Palette} from 'lucide-react';
+const themes=[{id:'light',name:'雪白',description:'明亮、清晰'},{id:'mist',name:'银雾',description:'柔和的银蓝'},{id:'dark',name:'星夜',description:'安静的低亮度'}] as const;
+type Theme=typeof themes[number]['id'];
+export function ThemePicker({value,disabled,onChange}:{value:Theme;disabled:boolean;onChange:(theme:Theme)=>void}){
+ const [open,setOpen]=useState(false),root=useRef<HTMLDivElement>(null),trigger=useRef<HTMLButtonElement>(null);
+ useEffect(()=>{if(!open)return;const outside=(event:PointerEvent)=>{if(!root.current?.contains(event.target as Node))setOpen(false);};const escape=(event:KeyboardEvent)=>{if(event.key==='Escape'){setOpen(false);trigger.current?.focus();}};document.addEventListener('pointerdown',outside);document.addEventListener('keydown',escape);return()=>{document.removeEventListener('pointerdown',outside);document.removeEventListener('keydown',escape);};},[open]);
+ return <div className="theme-picker" ref={root}><button ref={trigger} className="theme-trigger" disabled={disabled} aria-expanded={open} aria-controls="workbench-theme-picker" onClick={()=>setOpen(!open)}><Palette size={15}/><span>{themes.find(t=>t.id===value)?.name}</span><ChevronDown size={12}/></button>{open&&<section className="theme-popover" id="workbench-theme-picker" aria-label="工作台主题"><div className="theme-popover-heading"><strong>工作台主题</strong><span>选择此刻的光线</span></div><div className="theme-options">{themes.map(theme=><button key={theme.id} aria-pressed={value===theme.id} onClick={()=>{onChange(theme.id);setOpen(false);trigger.current?.focus();}}><span className={'theme-swatch '+theme.id} aria-hidden="true"><i/><b/><em/></span><span className="theme-option-copy"><strong>{theme.name}</strong><small>{theme.description}</small></span>{value===theme.id&&<Check size={14}/>}</button>)}</div></section>}</div>;
+}

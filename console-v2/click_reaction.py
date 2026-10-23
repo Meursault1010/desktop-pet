@@ -28,14 +28,14 @@ class ClickReaction:
         # Compress and widen first, then stretch and narrow on the rebound.
         # Reciprocal axes preserve area; this never uniformly shrinks the art.
         strength = {'press': .85, 'shy': .9, 'headpat': 1.15}[self.kind]
-        spring = math.exp(-5.2*elapsed)*math.sin(13*elapsed)
-        squash = .09*strength*spring
+        spring = math.exp(-3.8*elapsed)*math.sin(15*elapsed)
+        squash = (.30 if self.kind == 'shy' else .09)*strength*spring
         scale_y = math.exp(-squash)
         scale_x = 1/scale_y
         # Lateral wobble peaks later than compression, like a soft body whose
         # head follows the torso. The foot pivot stays planted on the desktop.
         wobble = math.exp(-4.5*elapsed)*math.sin(14*elapsed)
-        shear = self.direction*.025*strength*wobble
+        shear = self.direction*(.065 if self.kind == 'shy' else .025)*strength*wobble
         dx, angle = 0., self.direction*.9*wobble
         if self.kind == 'shy':
             # Lean gently away, then settle back without moving the window.

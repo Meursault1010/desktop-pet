@@ -47,6 +47,16 @@ class ActionLifeMotionTests(unittest.TestCase):
         self.assertIsNone(motion.render(self.atlas, source, 'lazy-roll-away', .6))
         self.assertIsNone(motion.render(self.atlas, source, 'throw-flight', .6))
 
+    def test_display_scale_and_thirty_hz_reuse(self):
+        motion = ActionLifeMotion()
+        source = QRect(0, 0, 256, 256)
+        first = motion.render(self.atlas, source, 'read', .1, 160)
+        self.assertEqual((first.width(), first.height()), (160, 160))
+        cached = motion.render(self.atlas, source, 'read', .105, 160)
+        self.assertIs(cached, first)
+        later = motion.render(self.atlas, source, 'read', .2, 160)
+        self.assertIsNot(later, first)
+
 
 if __name__ == '__main__':
     unittest.main()

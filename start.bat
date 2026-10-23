@@ -1,2 +1,2 @@
 @echo off
-call "%~dp0start-electron.bat"
+call "%~dp0start-workbench.bat"

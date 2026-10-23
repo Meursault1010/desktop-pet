@@ -1,0 +1,135 @@
+{
+  "enter-01": {
+    "accepted": true,
+    "original_jump": 26.019,
+    "largest_step": 10.871,
+    "switch": 0.5,
+    "area_ok": true
+  },
+  "enter-02": {
+    "accepted": true,
+    "original_jump": 66.596,
+    "largest_step": 23.298,
+    "switch": 0.625,
+    "area_ok": true
+  },
+  "enter-03": {
+    "accepted": true,
+    "original_jump": 35.591,
+    "largest_step": 6.996,
+    "switch": 0.5,
+    "area_ok": true
+  },
+  "enter-04": {
+    "accepted": true,
+    "original_jump": 77.338,
+    "largest_step": 41.705,
+    "switch": 0.625,
+    "area_ok": true
+  },
+  "enter-05": {
+    "accepted": true,
+    "original_jump": 63.045,
+    "largest_step": 33.263,
+    "switch": 0.375,
+    "area_ok": true
+  },
+  "enter-06": {
+    "accepted": true,
+    "original_jump": 29.84,
+    "largest_step": 7.327,
+    "switch": 0.5,
+    "area_ok": true
+  },
+  "enter-07": {
+    "accepted": true,
+    "original_jump": 23.674,
+    "largest_step": 5.508,
+    "switch": 0.542,
+    "area_ok": true
+  },
+  "enter-08": {
+    "accepted": true,
+    "original_jump": 84.464,
+    "largest_step": 58.479,
+    "switch": 0.375,
+    "area_ok": true
+  },
+  "enter-09": {
+    "accepted": true,
+    "original_jump": 22.423,
+    "largest_step": 7.127,
+    "switch": 0.5,
+    "area_ok": true
+  },
+  "exit-01": {
+    "accepted": true,
+    "original_jump": 72.614,
+    "largest_step": 28.389,
+    "switch": 0.375,
+    "area_ok": true
+  },
+  "exit-02": {
+    "accepted": true,
+    "original_jump": 38.555,
+    "largest_step": 8.451,
+    "switch": 0.5,
+    "area_ok": true
+  },
+  "exit-03": {
+    "accepted": true,
+    "original_jump": 34.03,
+    "largest_step": 6.552,
+    "switch": 0.5,
+    "area_ok": true
+  },
+  "exit-04": {
+    "accepted": true,
+    "original_jump": 58.393,
+    "largest_step": 17.05,
+    "switch": 0.625,
+    "area_ok": true
+  },
+  "exit-05": {
+    "accepted": true,
+    "original_jump": 79.642,
+    "largest_step": 18.671,
+    "switch": 0.625,
+    "area_ok": true
+  },
+  "exit-06": {
+    "accepted": true,
+    "original_jump": 66.118,
+    "largest_step": 14.074,
+    "switch": 0.625,
+    "area_ok": true
+  },
+  "enter-10-bridge": {
+    "accepted": true,
+    "original_jump": 81.351,
+    "largest_step": 39.745,
+    "switch": 0.375,
+    "area_ok": true
+  },
+  "idle-bridge": {
+    "accepted": true,
+    "original_jump": 69.494,
+    "largest_step": 26.579,
+    "switch": 0.625,
+    "area_ok": true
+  },
+  "enter-10-left-bridge": {
+    "accepted": true,
+    "original_jump": 82.791,
+    "largest_step": 44.893,
+    "switch": 0.375,
+    "area_ok": true
+  },
+  "idle-left-bridge": {
+    "accepted": true,
+    "original_jump": 71.849,
+    "largest_step": 28.419,
+    "switch": 0.625,
+    "area_ok": true
+  }
+}

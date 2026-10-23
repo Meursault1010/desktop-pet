@@ -36,7 +36,17 @@ class ScaleTests(unittest.TestCase):
                 cell=atlas.crop((index%entry['columns']*256,index//entry['columns']*256,
                                  (index%entry['columns']+1)*256,(index//entry['columns']+1)*256))
                 self.assertEqual(image.tobytes(),cell.tobytes())
-                self.assertEqual(path.read_bytes(),(ROOT/'frontend/public/actions'/key/path.name).read_bytes())
+
+    def test_console_mirror_is_lossless_webp_without_frames(self):
+        for entry in self.entries:
+            key=entry['id']; folder=ROOT/'frontend/public/actions'/key
+            self.assertFalse(list(folder.glob('[0-9][0-9].png')),(key,'numbered frames shipped'))
+            with Image.open(ROOT/'assets/actions'/key/'atlas.png') as source, \
+                    Image.open(folder/'atlas.webp') as mirror:
+                self.assertEqual(source.size,mirror.size)
+                self.assertEqual(source.convert('RGBA').tobytes(),mirror.convert('RGBA').tobytes())
+            with Image.open(folder/'poster.webp') as poster:
+                self.assertLessEqual(max(poster.size),512)
 
     def test_support_coordinates_follow_the_art_and_masks_remain_binary(self):
         for group,filename in [('motion','motion-v2/clips.json'),('drag','drag-resist/poses.json'),('icon','icon-interactions/poses.json')]:

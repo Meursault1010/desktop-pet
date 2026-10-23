@@ -1,0 +1,35 @@
+{
+  "total": 1425,
+  "bySource": {
+    "curated": 275,
+    "httpster": 1150
+  },
+  "byCategory": {
+    "productivity": 30,
+    "devtools": 40,
+    "design": 28,
+    "ai": 29,
+    "fintech": 23,
+    "commerce": 19,
+    "communication": 21,
+    "social": 15,
+    "data": 20,
+    "health": 7,
+    "education": 8,
+    "travel": 10,
+    "editorial": 10,
+    "utility": 15,
+    "website": 1150
+  },
+  "galleryTagCounts": {
+    "Application / Software": 68,
+    "Product": 253,
+    "Minimal": 766,
+    "Typographic": 1101,
+    "Grid": 581,
+    "Dark": 233,
+    "Interactive": 245,
+    "Motion": 138
+  },
+  "uniqueGalleryHosts": 2870
+}

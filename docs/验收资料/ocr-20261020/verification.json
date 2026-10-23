@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "executable": "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\.electron-build\\ocr-dist\\yuki-ocr\\yuki-ocr.exe",
+  "ocrMs": 2966,
+  "extracted": "雪的本地文字识别测试\n错误代码403：访问被拒绝\nHello Yuki. Your download is complete.",
+  "endpoint": "http://127.0.0.1:1235/v1",
+  "model": "qwen3.8-4b-distill",
+  "answer": "你的下载已经完成啦。",
+  "blankRejected": true,
+  "packaged": false
+}

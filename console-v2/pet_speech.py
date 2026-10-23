@@ -68,14 +68,14 @@ class SpeechBubble(QWidget):
 
     def say(self, text, kind='chat', streaming=False):
         state = self.pet.state
-        if kind == 'ambient' and state.sleep.active:
+        if kind == 'ambient' and (state.sleep.active or not self.pet.preferences.autonomous_speech):
             return
         if kind in ('chat', 'error'):
             state.sleep.wake(self.pet, '主动交流')
         if kind != 'ambient' and state.music:
             state.music.cancel()
         if kind != 'ambient' and state.patrol:
-            state.patrol.cancel()
+            state.patrol.interrupt('chat')
         if kind != 'ambient' and state.ambient.current and state.ambient.current[0] == 'sleep':
             state.action_player.stop()
             state.ambient.current = None
@@ -141,6 +141,7 @@ class SpeechBubble(QWidget):
         if not self.parts:
             state = self.pet.state
             if (now >= self.next_ambient and not self.pet.preferences.quiet
+                    and self.pet.preferences.autonomous_speech
                     and not self.pet.preferences.paused and not state.walking
                     and state.action_player.action is None
                     and not bool(getattr(self.pet.controller, 'quick_pending', None))):
@@ -175,11 +176,20 @@ class SpeechBubble(QWidget):
             self.show()
         self.update()
 
+    def apply_theme(self, theme):
+        self.bubble_theme = theme
+        dark = theme == 'dark'
+        self.copy.setStyleSheet('color:' + ('#e1eaf3' if dark else '#2c485d') + '; background:transparent;')
+        for label in (self.heading, self.counter):
+            label.setStyleSheet('color:' + ('#a6b8c9' if dark else '#53697a') + ';font-size:10px;')
+        self.update()
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setPen(QPen(QColor('#c7dce9'), 1))
-        painter.setBrush(QColor(248, 252, 255, 249))
+        theme = getattr(self, 'bubble_theme', 'mist')
+        painter.setPen(QPen(QColor('#34485d' if theme == 'dark' else '#c7dce9'), 1))
+        painter.setBrush(QColor('#192838' if theme == 'dark' else '#fcfdfe' if theme == 'light' else '#e3eff7'))
         painter.drawRoundedRect(1, 1, self.width()-2, self.height()-12, 13, 13)
         painter.setPen(Qt.PenStyle.NoPen)
         if not self.below:

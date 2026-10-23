@@ -1,0 +1,111 @@
+[
+  {
+    "id": "c0001",
+    "host": "linear.app",
+    "path": "/",
+    "url": "https://linear.app/",
+    "title": "Linear",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0002",
+    "host": "notion.so",
+    "path": "/",
+    "url": "https://notion.so/",
+    "title": "Notion",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0071",
+    "host": "figma.com",
+    "path": "/",
+    "url": "https://figma.com/",
+    "title": "Figma",
+    "source": "curated",
+    "category": "design",
+    "tags": [
+      "design"
+    ]
+  },
+  {
+    "id": "c0128",
+    "host": "stripe.com",
+    "path": "/",
+    "url": "https://stripe.com/",
+    "title": "Stripe",
+    "source": "curated",
+    "category": "fintech",
+    "tags": [
+      "fintech"
+    ]
+  },
+  {
+    "id": "c0264",
+    "host": "raycast.com",
+    "path": "/",
+    "url": "https://raycast.com/",
+    "title": "Raycast",
+    "source": "curated",
+    "category": "utility",
+    "tags": [
+      "utility"
+    ]
+  },
+  {
+    "id": "g0969",
+    "host": "arawines.com",
+    "path": "/",
+    "url": "https://arawines.com/",
+    "title": "ARA Wines",
+    "source": "httpster",
+    "category": "website",
+    "tags": [
+      "Unusual Layout",
+      "Food & Drink"
+    ],
+    "tone": "#bec2c2",
+    "image": "https://httpster.net//assets/media/z4/ara-wines-2012-01-08T1653380000-Z4jDL.jpg"
+  },
+  {
+    "id": "g1424",
+    "host": "peteanicholson.com",
+    "path": "/",
+    "url": "https://peteanicholson.com/",
+    "title": "Pete Nicholson",
+    "source": "httpster",
+    "category": "website",
+    "tags": [
+      "Monotone",
+      "Responsive",
+      "Typographic",
+      "Light"
+    ],
+    "tone": "#fbfbfb",
+    "image": "https://httpster.net//assets/media/1i/pete-nicholson-2014-05-29T1100190000-1iUz6Y.jpg"
+  },
+  {
+    "id": "g0797",
+    "host": "maurele.com",
+    "path": "/",
+    "url": "https://maurele.com/",
+    "title": "Mauréle Paper Goods",
+    "source": "httpster",
+    "category": "website",
+    "tags": [
+      "Typographic",
+      "Photographic",
+      "Ecommerce",
+      "Product"
+    ],
+    "tone": "#bdb9b6",
+    "image": "https://httpster.net//assets/media/24/maurele.com-24vGQe.jpg"
+  }
+]

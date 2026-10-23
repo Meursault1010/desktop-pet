@@ -12,6 +12,9 @@ class Preferences:
     speed: int = 48
     activity: str = '默认'
     random_movement: bool = True
+    autonomous_play: bool = True
+    autonomous_icons: bool = True
+    autonomous_speech: bool = True
     greeting: bool = True
     quiet: bool = False
     paused: bool = False

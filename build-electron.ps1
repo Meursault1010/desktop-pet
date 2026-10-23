@@ -1,5 +1,8 @@
 param([string]$Python = 'python', [switch]$SkipInstall)
 $ErrorActionPreference='Stop'
+& (Join-Path $PSScriptRoot 'build-selection.ps1')
+& (Join-Path $PSScriptRoot 'build-ocr.ps1') -SkipInstall:$SkipInstall
+if($LASTEXITCODE){throw 'Offline OCR build failed'}
 $petRoot=Join-Path $PSScriptRoot 'console-v2'
 $buildRoot=Join-Path $PSScriptRoot '.electron-build'
 $buildPython=Join-Path $buildRoot 'venv\Scripts\python.exe'

@@ -1,17 +1,28 @@
-"""Read bounded, offline-built pose warps. No optical flow on the UI thread."""
+"""Read bounded, offline-built pose warps as display-ready frames.
+
+Decoding and scaling run on one worker thread. The paint path only samples an
+already prepared frame: no optical flow, QPixmap conversion or pixel blending
+on the GUI thread.
+"""
 import json
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from pathlib import Path
 
-import numpy as np
-from PySide6.QtCore import QRect
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtCore import QRect, Qt
+from PySide6.QtGui import QImage
 
 ROOT = Path(__file__).resolve().parent/'assets/action-motion'
+# draw_pose composites actions into a 160x160 box. Prepare the warps above
+# that box so the click jelly, which briefly enlarges the sprite, still
+# downscales them; a 160px strip would be upscaled and soften the transition.
+FRAME_SIZE = 256
+# Five 256px pairs take about as much memory as the earlier twelve 160px ones.
+MAX_PREPARED_PAIRS = 5
 _decoder = ThreadPoolExecutor(max_workers=1, thread_name_prefix='yuki-pose-decode')
 _pending = OrderedDict()
+_prepared = OrderedDict()
 
 
 def pair_key(before, after):
@@ -24,61 +35,73 @@ def manifest():
     return json.loads(path.read_text(encoding='utf-8'))['pairs'] if path.exists() else {}
 
 
-@lru_cache(maxsize=6)
-def strip(name):
-    # QImage decoding is safe on a worker; QPixmap construction stays on Qt's
-    # GUI thread. The renderer calls this only after the future is ready.
-    return QPixmap.fromImage(prepare(name).result())
+def _decode(entry):
+    atlas = QImage(str(ROOT/entry['file'])).convertToFormat(
+        QImage.Format.Format_RGBA8888_Premultiplied)
+    if atlas.isNull():
+        return ()
+    frames = entry['frames']
+    columns = entry['columns']
+    return tuple(
+        atlas.copy(index % columns*256, index//columns*256, 256, 256).scaled(
+            FRAME_SIZE, FRAME_SIZE, Qt.AspectRatioMode.IgnoreAspectRatio,
+            Qt.TransformationMode.SmoothTransformation)
+        for index in range(frames))
 
 
-def prepare(name):
+def prepare(entry):
+    name = entry['file']
     if name not in _pending:
-        _pending[name] = _decoder.submit(QImage, str(ROOT/name))
+        _pending[name] = _decoder.submit(_decode, entry)
     _pending.move_to_end(name)
-    while len(_pending) > 8:
+    while len(_pending) > MAX_PREPARED_PAIRS:
         _, expired = _pending.popitem(last=False)
         expired.cancel()
     return _pending[name]
 
 
+def frames(entry):
+    """Return prepared display frames, or None while the worker is still busy."""
+    name = entry['file']
+    cached = _prepared.get(name)
+    if cached is not None:
+        _prepared.move_to_end(name)
+        return cached
+    future = prepare(entry)
+    # Never wait for disk or scaling during a repaint: the authored pose stays
+    # on screen for this tick and the warp appears on the next ready frame.
+    if not future.done() or future.cancelled():
+        return None
+    decoded = future.result()
+    if not decoded:
+        return None
+    _prepared[name] = decoded
+    _prepared.move_to_end(name)
+    while len(_prepared) > MAX_PREPARED_PAIRS:
+        _prepared.popitem(last=False)
+    return decoded
+
+
 def sample_pose(before, after, progress):
-    """Subframe sampling between neighbouring, already warped poses."""
+    """Sample the nearest prepared warp frame instead of blending pixels.
+
+    Twenty-five frames cover at most a 340ms transition, so nearest sampling
+    still advances faster than a 60Hz display while removing the per-tick
+    numpy blend from the paint path.
+    """
     entry = manifest().get(pair_key(before, after))
-    if entry is None or before == after:
+    if entry is None or before == after or progress <= 0:
         return None
-    decoded = prepare(entry['file'])
-    # Start prefetch during the authored hold, never wait for disk on input or
-    # paint. If decoding is late, keep the approved original frame this tick.
-    if progress <= 0 or not decoded.done() or decoded.cancelled():
+    decoded = frames(entry)
+    if decoded is None:
         return None
-    atlas = strip(entry['file'])
-    if atlas.isNull():
-        return None
-    frame_position = min(entry['frames']-1, max(0., progress)*(entry['frames']-1))
-    index = int(frame_position)
-    columns = entry['columns']
-    source = QRect(index % columns*256, index//columns*256, 256, 256)
-    fraction = frame_position-index
-    if fraction < 1e-4 or index+1 >= entry['frames']:
-        return atlas, source
-    next_index = index+1
-    next_source = QRect(next_index % columns*256, next_index//columns*256, 256, 256)
-    source_image = atlas.toImage()
-    first = source_image.copy(source).convertToFormat(QImage.Format.Format_RGBA8888_Premultiplied)
-    second = source_image.copy(next_source).convertToFormat(QImage.Format.Format_RGBA8888_Premultiplied)
-    first_pixels = np.frombuffer(first.constBits(), dtype=np.uint8).reshape(256, 256, 4)
-    second_pixels = np.frombuffer(second.constBits(), dtype=np.uint8).reshape(256, 256, 4)
-    # Blend premultiplied colour and alpha directly; painter opacity with Plus
-    # also attenuates the destination and causes brightness/alpha pumping.
-    mixed = np.rint(first_pixels.astype(np.float32)*(1-fraction)
-                    + second_pixels.astype(np.float32)*fraction).astype(np.uint8)
-    image = QImage(mixed.data, 256, 256, 256*4,
-                   QImage.Format.Format_RGBA8888_Premultiplied).copy()
-    return image, QRect(0, 0, 256, 256)
+    index = round(min(1., max(0., progress))*(len(decoded)-1))
+    frame = decoded[index]
+    return frame, QRect(0, 0, frame.width(), frame.height())
 
 
 def prefetch(pairs):
     for before, after in pairs:
         entry = manifest().get(pair_key(before, after))
         if entry:
-            prepare(entry['file'])
+            prepare(entry)

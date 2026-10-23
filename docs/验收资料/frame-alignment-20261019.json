@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-19",
+  "actions": 19,
+  "transitions": 117,
+  "alignment_tests": 3,
+  "related_test_assertions_passed": 105,
+  "electron_smoke_checks": 18,
+  "render_samples": [
+    {
+      "action": "wait",
+      "original": {
+        "x_span": 51.0,
+        "floor_span": 9,
+        "max_x_step": 43.5
+      },
+      "aligned": {
+        "x_span": 0.5,
+        "floor_span": 0,
+        "max_x_step": 0.5
+      }
+    },
+    {
+      "action": "work",
+      "original": {
+        "x_span": 38.5,
+        "floor_span": 6,
+        "max_x_step": 16.0
+      },
+      "aligned": {
+        "x_span": 1.0,
+        "floor_span": 0,
+        "max_x_step": 1.0
+      }
+    },
+    {
+      "action": "yawn",
+      "original": {
+        "x_span": 32.0,
+        "floor_span": 9,
+        "max_x_step": 10.0
+      },
+      "aligned": {
+        "x_span": 1.0,
+        "floor_span": 0,
+        "max_x_step": 0.5
+      }
+    }
+  ],
+  "full_suite_passed": false,
+  "full_suite_notes": [
+    "Build environment has no offline Pillow dependency",
+    "Scale calibration report is missing throw-flight and old standing-height assertion rejects impact-left",
+    "Existing icon skirt matte check failed",
+    "Existing idle unique-sample-count check failed"
+  ],
+  "related_test_process_note": "unittest reported OK; Qt test process returned exit code 1 on teardown"
+}

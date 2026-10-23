@@ -234,6 +234,24 @@ def scan_desktop(image_id=None, image_ids=()):
             ole.CoUninitialize()
 
 
+def transparent_overlay(user, hwnd):
+    """Ignore invisible layered surfaces, not ordinary topmost app windows."""
+    get_style = user.GetWindowLongPtrW if C.sizeof(C.c_void_p) == 8 else user.GetWindowLongW
+    get_style.argtypes = [W.HWND, C.c_int]
+    get_style.restype = C.c_ssize_t
+    style = get_style(hwnd, -20)
+    if not style & 0x80000:  # WS_EX_LAYERED
+        return False
+    if style & 0x20:  # WS_EX_TRANSPARENT: non-interactive layered overlay
+        return True
+    color, alpha, flags = W.DWORD(), W.BYTE(), W.DWORD()
+    read = user.GetLayeredWindowAttributes
+    read.argtypes = [W.HWND, C.POINTER(W.DWORD), C.POINTER(W.BYTE), C.POINTER(W.DWORD)]
+    read.restype = W.BOOL
+    return bool(read(hwnd, C.byref(color), C.byref(alpha), C.byref(flags))
+                and flags.value & 2 and alpha.value == 0)
+
+
 def desktop_exposed(rect, ignore_hwnd, ignore_hwnds=()):
     """Conservative occlusion: never draw a resting pet over an ordinary app."""
     user = _api()
@@ -242,6 +260,8 @@ def desktop_exposed(rect, ignore_hwnd, ignore_hwnds=()):
     x, y, width, height = rect
     def inspect(hwnd, unused):
         if int(hwnd) in (ignore_hwnd, *ignore_hwnds) or not user.IsWindowVisible(hwnd) or user.IsIconic(hwnd):
+            return True
+        if transparent_overlay(user, hwnd):
             return True
         name = C.create_unicode_buffer(256); user.GetClassNameW(hwnd, name, 256)
         if name.value in ('Progman', 'WorkerW', 'Shell_TrayWnd', 'Shell_SecondaryTrayWnd', 'tooltips_class32'):

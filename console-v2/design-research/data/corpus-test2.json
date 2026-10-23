@@ -1,0 +1,290 @@
+[
+  {
+    "id": "c0001",
+    "host": "linear.app",
+    "path": "/",
+    "url": "https://linear.app/",
+    "title": "Linear",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0002",
+    "host": "notion.so",
+    "path": "/",
+    "url": "https://notion.so/",
+    "title": "Notion",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0003",
+    "host": "asana.com",
+    "path": "/",
+    "url": "https://asana.com/",
+    "title": "Asana",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0004",
+    "host": "monday.com",
+    "path": "/",
+    "url": "https://monday.com/",
+    "title": "Monday",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0005",
+    "host": "clickup.com",
+    "path": "/",
+    "url": "https://clickup.com/",
+    "title": "ClickUp",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0006",
+    "host": "height.app",
+    "path": "/",
+    "url": "https://height.app/",
+    "title": "Height",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0007",
+    "host": "basecamp.com",
+    "path": "/",
+    "url": "https://basecamp.com/",
+    "title": "Basecamp",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0008",
+    "host": "todoist.com",
+    "path": "/",
+    "url": "https://todoist.com/",
+    "title": "Todoist",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0009",
+    "host": "ticktick.com",
+    "path": "/",
+    "url": "https://ticktick.com/",
+    "title": "TickTick",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0010",
+    "host": "obsidian.md",
+    "path": "/",
+    "url": "https://obsidian.md/",
+    "title": "Obsidian",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0011",
+    "host": "roamresearch.com",
+    "path": "/",
+    "url": "https://roamresearch.com/",
+    "title": "Roam Research",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0012",
+    "host": "coda.io",
+    "path": "/",
+    "url": "https://coda.io/",
+    "title": "Coda",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0013",
+    "host": "airtable.com",
+    "path": "/",
+    "url": "https://airtable.com/",
+    "title": "Airtable",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0014",
+    "host": "craft.do",
+    "path": "/",
+    "url": "https://craft.do/",
+    "title": "Craft",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0015",
+    "host": "bear.app",
+    "path": "/",
+    "url": "https://bear.app/",
+    "title": "Bear",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0016",
+    "host": "anytype.io",
+    "path": "/",
+    "url": "https://anytype.io/",
+    "title": "Anytype",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0017",
+    "host": "capacities.io",
+    "path": "/",
+    "url": "https://capacities.io/",
+    "title": "Capacities",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0018",
+    "host": "tana.inc",
+    "path": "/",
+    "url": "https://tana.inc/",
+    "title": "Tana",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0019",
+    "host": "superhuman.com",
+    "path": "/",
+    "url": "https://superhuman.com/",
+    "title": "Superhuman",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0020",
+    "host": "shortcut.com",
+    "path": "/",
+    "url": "https://shortcut.com/",
+    "title": "Shortcut",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0021",
+    "host": "reclaim.ai",
+    "path": "/",
+    "url": "https://reclaim.ai/",
+    "title": "Reclaim",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0022",
+    "host": "getclockwise.com",
+    "path": "/",
+    "url": "https://getclockwise.com/",
+    "title": "Clockwise",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0023",
+    "host": "sunsama.com",
+    "path": "/",
+    "url": "https://sunsama.com/",
+    "title": "Sunsama",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  },
+  {
+    "id": "c0024",
+    "host": "akiflow.com",
+    "path": "/",
+    "url": "https://akiflow.com/",
+    "title": "Akiflow",
+    "source": "curated",
+    "category": "productivity",
+    "tags": [
+      "productivity"
+    ]
+  }
+]

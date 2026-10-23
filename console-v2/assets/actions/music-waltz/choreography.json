@@ -1,0 +1,893 @@
+{
+  "source_count": 52,
+  "originals_used": 52,
+  "used_count": 54,
+  "order": [
+    "mixed-pose-01.png",
+    "inbetween-17-18-2.png",
+    "inbetween-12-13-1.png",
+    "inbetween-17-18-1.png",
+    "mixed-pose-17.png",
+    "mixed-pose-21.png",
+    "mixed-pose-15.png",
+    "mixed-pose-23.png",
+    "mixed-pose-08.png",
+    "mixed-pose-04.png",
+    "mixed-pose-14.png",
+    "inbetween-22-23-2.png",
+    "mixed-pose-22.png",
+    "mixed-pose-24.png",
+    "mixed-pose-07.png",
+    "mixed-pose-05.png",
+    "mixed-pose-11.png",
+    "mixed-pose-13.png",
+    "mixed-pose-03.png",
+    "bridge-02.png",
+    "keyed-turn-08.png",
+    "keyed-turn-07.png",
+    "keyed-turn-06.png",
+    "keyed-turn-05.png",
+    "bridge-01.png",
+    "mixed-pose-19.png",
+    "keyed-turn-04.png",
+    "keyed-turn-03.png",
+    "keyed-turn-02.png",
+    "mixed-pose-10.png",
+    "inbetween-10-11-1.png",
+    "inbetween-10-11-2.png",
+    "keyed-turn-01.png",
+    "inbetween-16-17-2.png",
+    "mixed-pose-20.png",
+    "inbetween-20-21-1.png",
+    "inbetween-20-21-2.png",
+    "inbetween-21-22-2.png",
+    "inbetween-09-10-2.png",
+    "inbetween-04-05-2.png",
+    "inbetween-04-05-1.png",
+    "inbetween-22-23-1.png",
+    "inbetween-21-22-1.png",
+    "inbetween-13-14-1.png",
+    "inbetween-13-14-2.png",
+    "inbetween-12-13-2.png",
+    "inbetween-16-17-1.png",
+    "inbetween-09-10-1.png",
+    "mixed-pose-18.png",
+    "mixed-pose-16.png",
+    "mixed-pose-09.png",
+    "mixed-pose-12.png",
+    "mixed-pose-02.png",
+    "mixed-pose-06.png"
+  ],
+  "before": {
+    "maximum": 0.6682571344905429,
+    "mean": 0.28317728222817434,
+    "fourth_power_sum": 0.7470269331895908
+  },
+  "after": {
+    "maximum": 0.3339594470130073,
+    "mean": 0.22255980637031816,
+    "fourth_power_sum": 0.19589518506421344
+  },
+  "largest_pairs": [
+    [
+      0.3339594470130073,
+      "mixed-pose-10.png",
+      "inbetween-10-11-1.png"
+    ],
+    [
+      0.33179797828197477,
+      "keyed-turn-03.png",
+      "keyed-turn-02.png"
+    ],
+    [
+      0.3295285026232402,
+      "keyed-turn-05.png",
+      "bridge-01.png"
+    ],
+    [
+      0.3252473086118698,
+      "keyed-turn-08.png",
+      "keyed-turn-07.png"
+    ],
+    [
+      0.31508663594722747,
+      "mixed-pose-03.png",
+      "bridge-02.png"
+    ],
+    [
+      0.30764269563886854,
+      "keyed-turn-02.png",
+      "mixed-pose-10.png"
+    ],
+    [
+      0.30742579168743556,
+      "inbetween-21-22-2.png",
+      "inbetween-09-10-2.png"
+    ],
+    [
+      0.30504229134983485,
+      "inbetween-16-17-2.png",
+      "mixed-pose-20.png"
+    ],
+    [
+      0.3001415729522705,
+      "bridge-01.png",
+      "mixed-pose-19.png"
+    ],
+    [
+      0.29649673998355863,
+      "keyed-turn-07.png",
+      "keyed-turn-06.png"
+    ]
+  ],
+  "method": "deterministic multistart nearest-neighbor + fourth-power 2-opt closed cycle",
+  "frames": 106,
+  "columns": 10,
+  "durations": [
+    279,
+    124,
+    131,
+    120,
+    127,
+    125,
+    117,
+    119,
+    117,
+    118,
+    133,
+    131,
+    128,
+    124,
+    125,
+    126,
+    138,
+    139,
+    146,
+    132,
+    148,
+    143,
+    123,
+    149,
+    144,
+    129,
+    132,
+    149,
+    145,
+    150,
+    115,
+    134,
+    133,
+    144,
+    134,
+    141,
+    143,
+    145,
+    132,
+    127,
+    135,
+    135,
+    129,
+    114,
+    113,
+    116,
+    110,
+    120,
+    120,
+    124,
+    122,
+    126,
+    118,
+    255,
+    118,
+    126,
+    122,
+    124,
+    120,
+    120,
+    110,
+    116,
+    113,
+    114,
+    129,
+    135,
+    135,
+    127,
+    132,
+    145,
+    143,
+    141,
+    134,
+    144,
+    133,
+    134,
+    115,
+    150,
+    145,
+    149,
+    132,
+    129,
+    144,
+    149,
+    123,
+    143,
+    148,
+    132,
+    146,
+    139,
+    138,
+    126,
+    125,
+    124,
+    128,
+    131,
+    133,
+    118,
+    117,
+    119,
+    117,
+    125,
+    127,
+    120,
+    131,
+    124
+  ],
+  "duration_seconds": 14.058,
+  "transitions": [
+    {
+      "from": "mixed-pose-01.png",
+      "to": "inbetween-17-18-2.png",
+      "samples": 1,
+      "duration_ms": 129,
+      "score": 0.22136715054512024
+    },
+    {
+      "from": "inbetween-17-18-2.png",
+      "to": "inbetween-12-13-1.png",
+      "samples": 1,
+      "duration_ms": 124,
+      "score": 0.19015537202358246
+    },
+    {
+      "from": "inbetween-12-13-1.png",
+      "to": "inbetween-17-18-1.png",
+      "samples": 1,
+      "duration_ms": 131,
+      "score": 0.23254868388175964
+    },
+    {
+      "from": "inbetween-17-18-1.png",
+      "to": "mixed-pose-17.png",
+      "samples": 1,
+      "duration_ms": 120,
+      "score": 0.17135928571224213
+    },
+    {
+      "from": "mixed-pose-17.png",
+      "to": "mixed-pose-21.png",
+      "samples": 1,
+      "duration_ms": 127,
+      "score": 0.20686614513397217
+    },
+    {
+      "from": "mixed-pose-21.png",
+      "to": "mixed-pose-15.png",
+      "samples": 1,
+      "duration_ms": 125,
+      "score": 0.19728513062000275
+    },
+    {
+      "from": "mixed-pose-15.png",
+      "to": "mixed-pose-23.png",
+      "samples": 1,
+      "duration_ms": 117,
+      "score": 0.15206249058246613
+    },
+    {
+      "from": "mixed-pose-23.png",
+      "to": "mixed-pose-08.png",
+      "samples": 1,
+      "duration_ms": 119,
+      "score": 0.16438932716846466
+    },
+    {
+      "from": "mixed-pose-08.png",
+      "to": "mixed-pose-04.png",
+      "samples": 1,
+      "duration_ms": 117,
+      "score": 0.15354469418525696
+    },
+    {
+      "from": "mixed-pose-04.png",
+      "to": "mixed-pose-14.png",
+      "samples": 1,
+      "duration_ms": 118,
+      "score": 0.1572185903787613
+    },
+    {
+      "from": "mixed-pose-14.png",
+      "to": "inbetween-22-23-2.png",
+      "samples": 1,
+      "duration_ms": 133,
+      "score": 0.23979540169239044
+    },
+    {
+      "from": "inbetween-22-23-2.png",
+      "to": "mixed-pose-22.png",
+      "samples": 1,
+      "duration_ms": 131,
+      "score": 0.23076172173023224
+    },
+    {
+      "from": "mixed-pose-22.png",
+      "to": "mixed-pose-24.png",
+      "samples": 1,
+      "duration_ms": 128,
+      "score": 0.2120193988084793
+    },
+    {
+      "from": "mixed-pose-24.png",
+      "to": "mixed-pose-07.png",
+      "samples": 1,
+      "duration_ms": 124,
+      "score": 0.19190667569637299
+    },
+    {
+      "from": "mixed-pose-07.png",
+      "to": "mixed-pose-05.png",
+      "samples": 1,
+      "duration_ms": 125,
+      "score": 0.19758018851280212
+    },
+    {
+      "from": "mixed-pose-05.png",
+      "to": "mixed-pose-11.png",
+      "samples": 1,
+      "duration_ms": 126,
+      "score": 0.20002780854701996
+    },
+    {
+      "from": "mixed-pose-11.png",
+      "to": "mixed-pose-13.png",
+      "samples": 1,
+      "duration_ms": 138,
+      "score": 0.27210623025894165
+    },
+    {
+      "from": "mixed-pose-13.png",
+      "to": "mixed-pose-03.png",
+      "samples": 1,
+      "duration_ms": 139,
+      "score": 0.27594467997550964
+    },
+    {
+      "from": "mixed-pose-03.png",
+      "to": "bridge-02.png",
+      "samples": 1,
+      "duration_ms": 146,
+      "score": 0.31508663594722747
+    },
+    {
+      "from": "bridge-02.png",
+      "to": "keyed-turn-08.png",
+      "samples": 1,
+      "duration_ms": 132,
+      "score": 0.23383680284023284
+    },
+    {
+      "from": "keyed-turn-08.png",
+      "to": "keyed-turn-07.png",
+      "samples": 1,
+      "duration_ms": 148,
+      "score": 0.3252473086118698
+    },
+    {
+      "from": "keyed-turn-07.png",
+      "to": "keyed-turn-06.png",
+      "samples": 1,
+      "duration_ms": 143,
+      "score": 0.29649673998355863
+    },
+    {
+      "from": "keyed-turn-06.png",
+      "to": "keyed-turn-05.png",
+      "samples": 1,
+      "duration_ms": 123,
+      "score": 0.18868993123372396
+    },
+    {
+      "from": "keyed-turn-05.png",
+      "to": "bridge-01.png",
+      "samples": 1,
+      "duration_ms": 149,
+      "score": 0.3295285026232402
+    },
+    {
+      "from": "bridge-01.png",
+      "to": "mixed-pose-19.png",
+      "samples": 1,
+      "duration_ms": 144,
+      "score": 0.3001415729522705
+    },
+    {
+      "from": "mixed-pose-19.png",
+      "to": "keyed-turn-04.png",
+      "samples": 1,
+      "duration_ms": 129,
+      "score": 0.2218675954474343
+    },
+    {
+      "from": "keyed-turn-04.png",
+      "to": "keyed-turn-03.png",
+      "samples": 1,
+      "duration_ms": 132,
+      "score": 0.23373086916075814
+    },
+    {
+      "from": "keyed-turn-03.png",
+      "to": "keyed-turn-02.png",
+      "samples": 1,
+      "duration_ms": 149,
+      "score": 0.33179797828197477
+    },
+    {
+      "from": "keyed-turn-02.png",
+      "to": "mixed-pose-10.png",
+      "samples": 1,
+      "duration_ms": 145,
+      "score": 0.30764269563886854
+    },
+    {
+      "from": "mixed-pose-10.png",
+      "to": "inbetween-10-11-1.png",
+      "samples": 1,
+      "duration_ms": 150,
+      "score": 0.3339594470130073
+    },
+    {
+      "from": "inbetween-10-11-1.png",
+      "to": "inbetween-10-11-2.png",
+      "samples": 1,
+      "duration_ms": 115,
+      "score": 0.14298423594898646
+    },
+    {
+      "from": "inbetween-10-11-2.png",
+      "to": "keyed-turn-01.png",
+      "samples": 1,
+      "duration_ms": 134,
+      "score": 0.2457085672352049
+    },
+    {
+      "from": "keyed-turn-01.png",
+      "to": "inbetween-16-17-2.png",
+      "samples": 1,
+      "duration_ms": 133,
+      "score": 0.24348871409893036
+    },
+    {
+      "from": "inbetween-16-17-2.png",
+      "to": "mixed-pose-20.png",
+      "samples": 1,
+      "duration_ms": 144,
+      "score": 0.30504229134983485
+    },
+    {
+      "from": "mixed-pose-20.png",
+      "to": "inbetween-20-21-1.png",
+      "samples": 1,
+      "duration_ms": 134,
+      "score": 0.2481650087568495
+    },
+    {
+      "from": "inbetween-20-21-1.png",
+      "to": "inbetween-20-21-2.png",
+      "samples": 1,
+      "duration_ms": 141,
+      "score": 0.28416118986076777
+    },
+    {
+      "from": "inbetween-20-21-2.png",
+      "to": "inbetween-21-22-2.png",
+      "samples": 1,
+      "duration_ms": 143,
+      "score": 0.2962149653169844
+    },
+    {
+      "from": "inbetween-21-22-2.png",
+      "to": "inbetween-09-10-2.png",
+      "samples": 1,
+      "duration_ms": 145,
+      "score": 0.30742579168743556
+    },
+    {
+      "from": "inbetween-09-10-2.png",
+      "to": "inbetween-04-05-2.png",
+      "samples": 1,
+      "duration_ms": 132,
+      "score": 0.23867619037628174
+    },
+    {
+      "from": "inbetween-04-05-2.png",
+      "to": "inbetween-04-05-1.png",
+      "samples": 1,
+      "duration_ms": 127,
+      "score": 0.21069756315814125
+    },
+    {
+      "from": "inbetween-04-05-1.png",
+      "to": "inbetween-22-23-1.png",
+      "samples": 1,
+      "duration_ms": 135,
+      "score": 0.2554626166820526
+    },
+    {
+      "from": "inbetween-22-23-1.png",
+      "to": "inbetween-21-22-1.png",
+      "samples": 1,
+      "duration_ms": 135,
+      "score": 0.2548481523990631
+    },
+    {
+      "from": "inbetween-21-22-1.png",
+      "to": "inbetween-13-14-1.png",
+      "samples": 1,
+      "duration_ms": 129,
+      "score": 0.2207341343164444
+    },
+    {
+      "from": "inbetween-13-14-1.png",
+      "to": "inbetween-13-14-2.png",
+      "samples": 1,
+      "duration_ms": 114,
+      "score": 0.13346830010414124
+    },
+    {
+      "from": "inbetween-13-14-2.png",
+      "to": "inbetween-12-13-2.png",
+      "samples": 1,
+      "duration_ms": 113,
+      "score": 0.12958139181137085
+    },
+    {
+      "from": "inbetween-12-13-2.png",
+      "to": "inbetween-16-17-1.png",
+      "samples": 1,
+      "duration_ms": 116,
+      "score": 0.14676855504512787
+    },
+    {
+      "from": "inbetween-16-17-1.png",
+      "to": "inbetween-09-10-1.png",
+      "samples": 1,
+      "duration_ms": 110,
+      "score": 0.11134129762649536
+    },
+    {
+      "from": "inbetween-09-10-1.png",
+      "to": "mixed-pose-18.png",
+      "samples": 1,
+      "duration_ms": 120,
+      "score": 0.16666845977306366
+    },
+    {
+      "from": "mixed-pose-18.png",
+      "to": "mixed-pose-16.png",
+      "samples": 1,
+      "duration_ms": 120,
+      "score": 0.1706657111644745
+    },
+    {
+      "from": "mixed-pose-16.png",
+      "to": "mixed-pose-09.png",
+      "samples": 1,
+      "duration_ms": 124,
+      "score": 0.1903040111064911
+    },
+    {
+      "from": "mixed-pose-09.png",
+      "to": "mixed-pose-12.png",
+      "samples": 1,
+      "duration_ms": 122,
+      "score": 0.18192479014396667
+    },
+    {
+      "from": "mixed-pose-12.png",
+      "to": "mixed-pose-02.png",
+      "samples": 1,
+      "duration_ms": 126,
+      "score": 0.20039299130439758
+    },
+    {
+      "from": "mixed-pose-02.png",
+      "to": "mixed-pose-06.png",
+      "samples": 1,
+      "duration_ms": 118,
+      "score": 0.16096283495426178
+    },
+    {
+      "from": "mixed-pose-06.png",
+      "to": "mixed-pose-01.png",
+      "samples": 1,
+      "duration_ms": 105,
+      "score": 0.087576724588871
+    }
+  ],
+  "loop_closed": true,
+  "interpolation": "none",
+  "optical_flow": false,
+  "silhouette_morph": false,
+  "frame_checks": [
+    {
+      "frame": 0,
+      "source": "mixed-pose-01.png",
+      "cell_sha256": "ffc789093d7b326c9de0578f51df83415a5c7171bf95b04793cac299796ac109"
+    },
+    {
+      "frame": 1,
+      "source": "inbetween-17-18-2.png",
+      "cell_sha256": "1d8c1705f1158eb78d2fbed7717a793f7aafc2584b4e4428c9aa482745d16f36"
+    },
+    {
+      "frame": 2,
+      "source": "inbetween-12-13-1.png",
+      "cell_sha256": "4e3fcda1e9622aad2f4fad3bffdf08996b2fb182540338e3b097efcbc57f4b17"
+    },
+    {
+      "frame": 3,
+      "source": "inbetween-17-18-1.png",
+      "cell_sha256": "4eb52a6b6c2833c89b24f3b1377dd7f4fc34f6024c0b7c85fb1b18b050188d92"
+    },
+    {
+      "frame": 4,
+      "source": "mixed-pose-17.png",
+      "cell_sha256": "c4c120b423403db2bd4647c23b59901ad390efa99d59ffa25371273e9bee498a"
+    },
+    {
+      "frame": 5,
+      "source": "mixed-pose-21.png",
+      "cell_sha256": "47699a3e8ac19e4447327f582d3b82b3851f214322f5df6e5a70b02236e83b5c"
+    },
+    {
+      "frame": 6,
+      "source": "mixed-pose-15.png",
+      "cell_sha256": "567af043b3bb2e3aab15b8f7bd0db39ea501c1796a3421ca09704b0878b15fc5"
+    },
+    {
+      "frame": 7,
+      "source": "mixed-pose-23.png",
+      "cell_sha256": "bc6a05bb16e553ef1e68af7b4284ae0b7425f599d7b82cd6b9b943d758051b19"
+    },
+    {
+      "frame": 8,
+      "source": "mixed-pose-08.png",
+      "cell_sha256": "1b25dad981fc90d405ee17187d6b375051e442cfde2b20c167910699a0eb94dc"
+    },
+    {
+      "frame": 9,
+      "source": "mixed-pose-04.png",
+      "cell_sha256": "cb8900f40eec3438d1f7c52fc275204de0b2f43919242a21845a63f71beebd62"
+    },
+    {
+      "frame": 10,
+      "source": "mixed-pose-14.png",
+      "cell_sha256": "611f98fb9e885538dc905e58b8245673276d6e83da3bc27aae747105b74054d1"
+    },
+    {
+      "frame": 11,
+      "source": "inbetween-22-23-2.png",
+      "cell_sha256": "dcfc4b4805156c2398113f947bd5026ff7417008cc072fb46462f4ef9eb9d5d8"
+    },
+    {
+      "frame": 12,
+      "source": "mixed-pose-22.png",
+      "cell_sha256": "1c50ce67987981fc8cc81a9f6b53a4903f01e19cc6fe93120dd2e820f522c6ae"
+    },
+    {
+      "frame": 13,
+      "source": "mixed-pose-24.png",
+      "cell_sha256": "c04f868220226df1ca3f38ab9cbc0c874c907605a6a8d99336e430e56959ec7c"
+    },
+    {
+      "frame": 14,
+      "source": "mixed-pose-07.png",
+      "cell_sha256": "b207f80f3a13ab7620e3a63a16036a1e984555520dd938adb946b4df13dd571f"
+    },
+    {
+      "frame": 15,
+      "source": "mixed-pose-05.png",
+      "cell_sha256": "86dcaa4ecba331a61a6a3112988bc0e589df33a089247bde242a6c19e6bf9a23"
+    },
+    {
+      "frame": 16,
+      "source": "mixed-pose-11.png",
+      "cell_sha256": "7074cf512b6144a3749f8fa66e869431e0e202f29f02fdc8607ed8c4cf241807"
+    },
+    {
+      "frame": 17,
+      "source": "mixed-pose-13.png",
+      "cell_sha256": "2b9f7e96198f90b62e79c0be8a2ff87ec495b3ca86339a28d066d227c8c98723"
+    },
+    {
+      "frame": 18,
+      "source": "mixed-pose-03.png",
+      "cell_sha256": "651318f7e8146c157ea2c01d86bdbd7582123934dc4af5d549b68d315e311b1e"
+    },
+    {
+      "frame": 19,
+      "source": "bridge-02.png",
+      "cell_sha256": "4467bc9b7ce1eeb471b89143b5c5e11edb055d6fac66f518f8981c640e25b651"
+    },
+    {
+      "frame": 20,
+      "source": "keyed-turn-08.png",
+      "cell_sha256": "6fec0d6a132439155a2a164555fd5c88b90f61e75052d94dc21cf07f60daede6"
+    },
+    {
+      "frame": 21,
+      "source": "keyed-turn-07.png",
+      "cell_sha256": "649a5d73744aca8e8c2e70afcfa696605c19b7d42ee002f422815333b3d0dcf9"
+    },
+    {
+      "frame": 22,
+      "source": "keyed-turn-06.png",
+      "cell_sha256": "5382004326fd4a5ea9941c8d5ae0cd0e5e1ec511dcf7b17ec9f987d139288914"
+    },
+    {
+      "frame": 23,
+      "source": "keyed-turn-05.png",
+      "cell_sha256": "dd5123df401bd57e6622ef5cd09cae7f1868656990f1b7f5734d7c8b37a25839"
+    },
+    {
+      "frame": 24,
+      "source": "bridge-01.png",
+      "cell_sha256": "2b137bd1b186895c74f3070717ecd7046bca9f0f1c1ff7fce8bc4800763c9051"
+    },
+    {
+      "frame": 25,
+      "source": "mixed-pose-19.png",
+      "cell_sha256": "68b0c407c49d86f977fb4d3380dfb596af0079835ac7b16950ef3d8077a03118"
+    },
+    {
+      "frame": 26,
+      "source": "keyed-turn-04.png",
+      "cell_sha256": "468492f5a758d4a7e627e7389cf297aac4b5b458d28e45ecc9e067cd96b1fbca"
+    },
+    {
+      "frame": 27,
+      "source": "keyed-turn-03.png",
+      "cell_sha256": "2a97d161c0451b96dcaa346622d01dca0d64cabba3ca0880c527942830760ec2"
+    },
+    {
+      "frame": 28,
+      "source": "keyed-turn-02.png",
+      "cell_sha256": "e846dd0ffb073be2895ddb0fc205709fc7a144ccd315d295e217748b5f0d3084"
+    },
+    {
+      "frame": 29,
+      "source": "mixed-pose-10.png",
+      "cell_sha256": "f75c8f416d9e8eb83b3cf689f913c30147d6b6faa752897e32306939ac7e6fb8"
+    },
+    {
+      "frame": 30,
+      "source": "inbetween-10-11-1.png",
+      "cell_sha256": "17be4858049f4c372d8860567982e52ac804cda9c5aed528e546a200b56d0406"
+    },
+    {
+      "frame": 31,
+      "source": "inbetween-10-11-2.png",
+      "cell_sha256": "b7ca08f5d6549d63ed7c8504ed2eafc4c4db8db62612458b581925a329730b5b"
+    },
+    {
+      "frame": 32,
+      "source": "keyed-turn-01.png",
+      "cell_sha256": "d7dbb1d54498413a80a8fb861956018ce0150c69b8216cf531d674a71b23aa4f"
+    },
+    {
+      "frame": 33,
+      "source": "inbetween-16-17-2.png",
+      "cell_sha256": "375219723425cfcfce2145cfb93c27c4dafe4d44a60caa7b2b52462a0f60693a"
+    },
+    {
+      "frame": 34,
+      "source": "mixed-pose-20.png",
+      "cell_sha256": "f624a2866dc4447159d8913ab2f95e902a64fb62ea6aec82e65b665caf6f7175"
+    },
+    {
+      "frame": 35,
+      "source": "inbetween-20-21-1.png",
+      "cell_sha256": "82e7236d0ac304195a6062262ddf5188a2c3a9ffce42a5c7a690c166574b4d08"
+    },
+    {
+      "frame": 36,
+      "source": "inbetween-20-21-2.png",
+      "cell_sha256": "9e51b9cb582b96a06c5f3bf3304358198a5cd286d0cdb4f6177eb09bbc262d0f"
+    },
+    {
+      "frame": 37,
+      "source": "inbetween-21-22-2.png",
+      "cell_sha256": "594061bbbc77b51f32766dcab6aca1a94aea07f06fdb108e93eab29e789762cb"
+    },
+    {
+      "frame": 38,
+      "source": "inbetween-09-10-2.png",
+      "cell_sha256": "81ebb8556b70050d84015c6ff13cba42658ea7588f1620230e70b67d811065ca"
+    },
+    {
+      "frame": 39,
+      "source": "inbetween-04-05-2.png",
+      "cell_sha256": "696c6487ae98b2772f052c637cbeb852ae71f32572a7845d70ac709fe66fcc6d"
+    },
+    {
+      "frame": 40,
+      "source": "inbetween-04-05-1.png",
+      "cell_sha256": "9483297010bc65e606904d52d68478726d2b8d5503f6c5f14262ae53159ea015"
+    },
+    {
+      "frame": 41,
+      "source": "inbetween-22-23-1.png",
+      "cell_sha256": "9abac2ff18256071d6943b296b89440b6ee41610ed81c1ecb845d20e22bb1d2f"
+    },
+    {
+      "frame": 42,
+      "source": "inbetween-21-22-1.png",
+      "cell_sha256": "d31fdd30a9620540bb2c02ecd9cb0ba4007f2251baf2fe5a7896d2f3dd9def29"
+    },
+    {
+      "frame": 43,
+      "source": "inbetween-13-14-1.png",
+      "cell_sha256": "98a7aab47cbc4974edd698f9c8026f95e224796c4bd7e39f061ec83a1fd60520"
+    },
+    {
+      "frame": 44,
+      "source": "inbetween-13-14-2.png",
+      "cell_sha256": "91a6e425ebb12db6bd06147922413aa7df7bfb75de8cbdbd28e52fdbe9140933"
+    },
+    {
+      "frame": 45,
+      "source": "inbetween-12-13-2.png",
+      "cell_sha256": "294747c16d53f5535ea686169ee1dcce2df6e652edad134c3c585c2c6d3a49ab"
+    },
+    {
+      "frame": 46,
+      "source": "inbetween-16-17-1.png",
+      "cell_sha256": "74ab19dcbe6557b2b3decbb819c81bf778a1c1f47e015e7a8991bee473e5e298"
+    },
+    {
+      "frame": 47,
+      "source": "inbetween-09-10-1.png",
+      "cell_sha256": "1793980002cdc6a0a5d2d52e78dd64975aa1e96424d9f309e108da4ec6bde9a0"
+    },
+    {
+      "frame": 48,
+      "source": "mixed-pose-18.png",
+      "cell_sha256": "10c8972d7936bb00c694e522b6ce9846974fe20f0e2bdce3a21a94aa6c131dba"
+    },
+    {
+      "frame": 49,
+      "source": "mixed-pose-16.png",
+      "cell_sha256": "c74a7e0fa8562191360c0ca7d9bde02102432f719309599b3f5c1493996c0d08"
+    },
+    {
+      "frame": 50,
+      "source": "mixed-pose-09.png",
+      "cell_sha256": "29806b924d75ef350ad93af6f59f58d9ab46ea0bed8b2cd3d7398ce84e12c2b9"
+    },
+    {
+      "frame": 51,
+      "source": "mixed-pose-12.png",
+      "cell_sha256": "dadd920a534fefd43f771bbde5d5b81b4bae29886126f0ef6dd8d622e5819e91"
+    },
+    {
+      "frame": 52,
+      "source": "mixed-pose-02.png",
+      "cell_sha256": "fd4355f2060ce07af6199dc32c9155fd58bdfe289abf161deb22c0faa371d4a7"
+    },
+    {
+      "frame": 53,
+      "source": "mixed-pose-06.png",
+      "cell_sha256": "89cf36a88291a87700ef0fc78686f6e8b4a21dee887424137ce0b8949648806c"
+    }
+  ],
+  "footwork": "sole contact lock; forward-and-return; fixed scale",
+  "source_frames": 54
+}

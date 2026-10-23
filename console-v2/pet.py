@@ -27,6 +27,9 @@ from PySide6.QtWidgets import QApplication, QWidget
 from settings_model import Preferences
 
 
+FRAME_INTERVAL_MS = 16
+
+
 class PetState:
     """只保存宠物状态，不负责窗口、绘图或用户输入。"""
 
@@ -60,6 +63,7 @@ class PetState:
         self.patrol = None
         self.music = None
         self.roll_path = None
+        self.dance_depth_scale = 1.
         self.sleep = SleepCycle()
 
 
@@ -71,15 +75,18 @@ class PetAnimator:
         self.timer = QTimer(pet)
         self.timer.timeout.connect(self.tick)
         self.timer.setTimerType(Qt.TimerType.PreciseTimer)
-        self.timer.start(16)
+        self.timer.start(FRAME_INTERVAL_MS)
         self.ambient_blocked = False
 
     def tick(self):
         state = self.pet.state
         now = time.monotonic()
+        if now-state.last_tick > 2 and state.patrol and state.patrol.active:
+            state.patrol.cancel(now, '系统恢复，丢弃旧路线')
         dt = min(now - state.last_tick, 0.1)
         state.last_tick = now
         state.idle.update(now)
+        self.pet.dance_recovery.tick(now)
         state.action_player.frame(now)
         if self.pet.drag_origin is None and not state.physics.active:
             state.sleep.preload()
@@ -89,11 +96,14 @@ class PetAnimator:
         if state.patrol:
             state.patrol.tick(now, dt)
         self.update_ambient(now)
+        self.pet.dance_stage.advance(now)
 
         previous = self.pet.status_text()
         if state.sleep.transitioning:
             state.walking = False
         elif self.pet.presence.active:
+            state.walking = False
+        elif self.pet.dance_stage.active:
             state.walking = False
         elif state.physics.active:
             self.pet.advance_physics(dt)
@@ -152,17 +162,15 @@ class PetAnimator:
                 origin = max(top, min(bottom, float(self.pet.y())))
                 # The head-to-feet axis is horizontal in the approved sprites.
                 # Rolling across that axis means toward = up, away = down.
-                direction = -1. if action['id'] == 'lazy-roll-toward' else 1.
+                from action_player import ROLL_DIRECTION
+                direction = ROLL_DIRECTION[action['id']]
                 room = bottom-origin if direction > 0 else origin-top
-                if room < min(55., 150.*self.pet.height()/180):
-                    direction *= -1
-                    room = bottom-origin if direction > 0 else origin-top
                 distance = min(150.*self.pet.height()/180, room)
                 target = origin+direction*distance
                 patrol = state.patrol
                 if patrol and patrol.active and getattr(patrol, 'roll_origin', None):
                     _, py, distance = patrol.roll_origin
-                    origin, target = float(py), max(top, min(bottom, py+distance))
+                    origin, target = float(py), max(top, min(bottom, py+direction*abs(distance)))
                 total = sum(player.action['durations'])/1000/player.speed
                 state.roll_path = (player.started, float(self.pet.x()), origin, target, player.started+total)
             started, fixed_x, origin, target, _ = state.roll_path
@@ -311,8 +319,10 @@ class PetRenderer:
         now = time.monotonic()
         frame = state.action_player.frame(now)
         action = state.action_player.action
-        pose = ('sleep',) if state.sleep.active or state.sleep.phase == 'waking' else ('physics',) if state.physics.active else ('action', action['id'], state.action_player.started) if action else (
+        pose = ('sleep',) if state.sleep.active or state.sleep.phase == 'waking' else ('physics',) if state.physics.active else ('action', action['id'], None if action['id']=='music-waltz' else state.action_player.started) if action else (
             ('walk', state.direction) if now < state.gait_until else ('idle',))
+        if action and action.get('click_expression') and pose[0] == 'action':
+            pose = (*pose, 'click-expression')
         image = QImage(180, 190, QImage.Format.Format_RGBA32FPx4_Premultiplied)
         image.fill(Qt.GlobalColor.transparent)
         layer = QPainter(image)
@@ -324,6 +334,8 @@ class PetRenderer:
         if self.last_pose is not None and pose != self.last_pose and not state.physics.active:
             from motion_transition import handover_duration
             self.transition_duration = handover_duration(self.last_pose,pose,self.last_image,image)
+            if (pose[-1] == 'click-expression' or self.last_pose[-1] == 'click-expression') and pose[0] in ('idle','action'):
+                self.transition_duration = .18
             self.transition_image = self.last_image if self.transition_duration else None
             self.transition_started = now
         progress = min(1., max(0., (now-self.transition_started)/self.transition_duration)) if self.transition_duration else 1.
@@ -355,7 +367,7 @@ class PetRenderer:
         displayed = QImage(image.size(), image.format())
         displayed.fill(Qt.GlobalColor.transparent)
         display = QPainter(displayed)
-        dx, dy, angle, scale_x, scale_y, shear = state.click_reaction.transform(now)
+        dx, dy, angle, scale_x, scale_y, shear = 0., 0., 0., 1., 1., 0.
         if state.music:
             mx, my, tilt = state.music.transform(now)
             dx += mx
@@ -406,10 +418,32 @@ class PetRenderer:
             mix.end()
         return QPixmap.fromImage(image)
 
+    def apply_click_reaction(self, painter, state, reaction):
+        # Warping the sprite at its source keeps one resampling. Applying the
+        # same matrix to the composited canvas softened every click.
+        dx, dy, angle, scale_x, scale_y, shear = reaction
+        if reaction == (0., 0., 0., 1., 1., 0.):
+            return
+        pivot = 105 if state.physics.active and state.physics.flying else 178
+        painter.translate(90+dx, pivot+dy)
+        painter.rotate(angle)
+        painter.shear(shear, 0)
+        painter.scale(scale_x, scale_y)
+        painter.translate(-90, -pivot)
+
     def draw_pose(self, painter, state):
         now = time.monotonic()
+        # Actions composite their breathing warp at 160px. Scaling that raster
+        # up for the jelly (click) feedback re-blurs it, so keep the warp at
+        # source resolution for as long as a non-identity transform is applied.
+        reaction = state.click_reaction.transform(now)
+        warp_size = 160 if reaction == (0., 0., 0., 1., 1., 0.) else 256
         if (state.sleep.active or state.sleep.phase == 'waking') and state.drag_feedback is None:
-            if state.sleep.paint(painter, now):
+            painter.save()
+            self.apply_click_reaction(painter, state, reaction)
+            painted = state.sleep.paint(painter, now)
+            painter.restore()
+            if painted:
                 return
         elapsed = now - state.started
         jump = 0 if state.jump_started is None else 36 * math.sin(
@@ -423,8 +457,11 @@ class PetRenderer:
         if physics_frame is not None:
             action_id, frame = physics_frame
             atlas = self.action_atlas(action_id)
+            painter.save()
+            self.apply_click_reaction(painter, state, reaction)
             painter.drawPixmap(QRectF(10, 25, 160, 160), atlas,
                                QRectF((frame % 4)*256, (frame // 4)*256, 256, 256))
+            painter.restore()
             return
         frame = state.action_player.frame(now)
         if frame is not None:
@@ -436,9 +473,18 @@ class PetRenderer:
             before, after, progress = state.action_player.motion_sample(now)
             visual_id, visual_frame = before
             visual_action = catalog()[visual_id]
-            atlas = self.action_atlas(visual_id)
-            source = QRect((visual_frame % visual_action['columns'])*256,
-                           (visual_frame // visual_action['columns'])*256, 256, 256)
+            if visual_id == 'music-waltz':
+                from music_dance_asset import frame as dance_frame
+                sampled = dance_frame(visual_frame)
+                if sampled is None:
+                    # Retain a visible idle while the very first page is decoded.
+                    painter.drawPixmap(QRectF(10,25,160,160),self.motion_image(elapsed,state.idle.frame),QRectF(0,0,256,256))
+                    return
+                atlas, source = sampled
+            else:
+                atlas = self.action_atlas(visual_id)
+                source = QRect((visual_frame % visual_action['columns'])*256,
+                               (visual_frame // visual_action['columns'])*256, 256, 256)
             interpolated = None if action.get('authored_motion') else sample_pose(before, after, progress)
             if interpolated is not None:
                 atlas, source = interpolated
@@ -448,28 +494,42 @@ class PetRenderer:
             offset_x, offset_y = ((0., 0.) if action.get('authored_motion') else action_frame_offset(
                 before, after, progress if interpolated is not None else 0.))
             painter.save()
+            self.apply_click_reaction(painter, state, reaction)
             painter.translate(offset_x*160/256, offset_y*160/256)
-            # Breath has a global phase, so switching clips never resets a
-            # shoulder or hair movement halfway through its cycle.
-            lived = self.action_motion.render(atlas, source, visual_id, elapsed)
+            # The warp already carries the authored in-between motion; a remap
+            # on top would cost another 3.5ms and smear the interpolated edges.
+            lived = None if action.get('authored_motion') or interpolated is not None else self.action_motion.render(atlas, source, visual_id, elapsed, warp_size)
+            target = QRectF(10, 25, 160, 160)
+            if action.get('spatial_dance') or action.get('grounded_pose'):
+                depth = state.dance_depth_scale if action.get('spatial_dance') else 1.
+                painter.translate(90, 181.875)
+                painter.scale(depth, depth)
+                painter.translate(-90, -181.875)
+                painter.setPen(Qt.PenStyle.NoPen)
+                painter.setBrush(QColor(45, 73, 98, 36))
+                painter.drawEllipse(QRectF(57, 179.5, 66, 4))
+                target = QRectF(10, 181.875-160*action['baseline'], 160, 160)
             if lived is not None:
-                painter.drawImage(QRectF(10, 25, 160, 160), lived)
+                painter.drawImage(target, lived)
             elif isinstance(atlas, QImage):
-                painter.drawImage(QRectF(10, 25, 160, 160), atlas, QRectF(source))
+                painter.drawImage(target, atlas, QRectF(source))
             else:
-                painter.drawPixmap(QRectF(10, 25, 160, 160), atlas, QRectF(source))
+                painter.drawPixmap(target, atlas, QRectF(source))
             painter.restore()
             return
         if now < state.gait_until:
             name='walk-right' if state.direction>0 else 'walk-left'
             source = QRect(0, 0, 256, 256)
             atlas = motion_frame(name,state.gait_distance)
-            lived = self.action_motion.render(atlas, source, 'walk', elapsed)
+            lived = self.action_motion.render(atlas, source, 'walk', elapsed, warp_size)
             target = QRectF(10,181.875-160*motion_metadata()[name]['baseline'],160,160)
+            painter.save()
+            self.apply_click_reaction(painter, state, reaction)
             if lived is not None:
                 painter.drawImage(target, lived)
             else:
                 painter.drawPixmap(target, atlas, QRectF(source))
+            painter.restore()
             return
         if now < state.message_until:
             painter.setPen(Qt.PenStyle.NoPen)
@@ -479,6 +539,7 @@ class PetRenderer:
             painter.drawText(QRectF(43, 5, 94, 25), Qt.AlignmentFlag.AlignCenter, '喵～你好呀')
         # Keep the feet grounded and the asymmetric snowflake on its original side.
         painter.save()
+        self.apply_click_reaction(painter, state, reaction)
         painter.translate(90, 185 - jump)
         painter.drawPixmap(QRectF(-80, -160, 160, 160),
                            self.motion_image(elapsed, state.idle.frame), QRectF(0, 0, 256, 256))
@@ -496,6 +557,11 @@ class PetRenderer:
     @staticmethod
     @lru_cache(maxsize=6)
     def action_atlas(action_id):
+        if action_id == 'music-waltz':
+            from music_dance_asset import image
+            decoded = image()
+            if decoded is not None:
+                return decoded
         pinned=PetRenderer.interaction_atlases().get(action_id)
         if pinned is not None:return pinned
         return QPixmap(str(Path(__file__).resolve().parent / 'assets/actions' / action_id / 'atlas.png'))
@@ -512,10 +578,12 @@ class PetMenu:
             if self.pet.state.music:
                 self.pet.state.music.cancel()
             if self.pet.state.patrol:
-                self.pet.state.patrol.cancel()
+                self.pet.state.patrol.interrupt('menu')
             menu = self.pet.controller.create_menu(self.pet)
             menu.exec(event.globalPos())
             menu.deleteLater()
+            if self.pet.state.patrol:
+                self.pet.state.patrol.settle_interruption(time.monotonic())
 
 
 class DesktopPet(QWidget):
@@ -545,6 +613,10 @@ class DesktopPet(QWidget):
         self.caught_flight = False
         self.state = PetState()
         self.presence = Presence()
+        from dance_stage import DanceStage
+        self.dance_stage = DanceStage(self)
+        from dance_recovery import DanceRecovery
+        self.dance_recovery = DanceRecovery(self)
         self.presence_timer = QTimer(self)
         self.presence_timer.setInterval(16)
         self.presence_timer.timeout.connect(self.advance_presence)
@@ -615,7 +687,7 @@ class DesktopPet(QWidget):
         if not self.isVisible():
             return '已隐藏'
         if self.presence.active:
-            return '星光 · 正在出现' if self.presence.target else '星光 · 轻轻隐去'
+            return '探头 · 正在走来' if self.presence.target else '回望 · 正在离开'
         if self.drag_origin is not None and self.dragged:
             return '拖动中'
         if self.state.physics.active:
@@ -656,7 +728,7 @@ class DesktopPet(QWidget):
 
     def clamp_to_screen(self):
         self.state.physics.cancel()
-        self.animator.timer.setInterval(33)
+        self.animator.timer.setInterval(FRAME_INTERVAL_MS)
         area = self.screen_area()
         factor = min(self.preferences.size / 100,
                      area.width() / 180, area.height() / 190)
@@ -677,6 +749,8 @@ class DesktopPet(QWidget):
 
     def apply_preferences(self, preferences):
         if self.state.patrol and (preferences.paused or preferences.quiet or not preferences.random_movement
+                                 or not preferences.autonomous_play
+                                 or (not preferences.autonomous_icons and self.state.patrol.target is not None)
                                  or preferences.size != self.preferences.size):
             self.state.patrol.cancel()
         presence = copy(self.presence) if self.presence.active else None
@@ -732,8 +806,11 @@ class DesktopPet(QWidget):
     def hideEvent(self, event):
         if hasattr(self, 'bubble'):
             self.bubble.hide()
+        home = self.presence.home if self.presence.active else None
         self.presence_timer.stop()
         self.presence.reset(False)
+        if home is not None:
+            self.move(*(round(v) for v in home))
         self.wake_icon_sleep()
         super().hideEvent(event)
         self.animator.timer.stop()
@@ -749,21 +826,12 @@ class DesktopPet(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.save()
-        if self.presence.active:
-            opacity, lift, sx, sy = self.presence.body()
-            painter.setOpacity(opacity)
-            painter.translate(self.width()/2, self.height()*.94+lift*self.height()/190)
-            painter.scale(sx, sy)
-            painter.translate(-self.width()/2, -self.height()*.94)
         self.paint_body(painter)
-        painter.restore()
-        if self.presence.active:
-            painter.scale(self.width()/180, self.height()/190)
-            self.presence.paint_stars(painter)
         painter.end()
 
     def paint_body(self, painter):
+        if self.presence.active and self.presence.paint(painter):
+            return
         if self.state.edge_attachment and self.state.edge_attachment.paint(painter):
             return
         if self.state.icon_sleep and self.state.icon_sleep.paint(painter):
@@ -786,14 +854,31 @@ class DesktopPet(QWidget):
         self.state.physics.cancel()
         self.state.walking = False
         self.state.gait_until = 0
+        self.state.action_player.stop()
+        self.state.jump_started = None
+        self.state.message_until = 0
+        self.state.click_reaction.clear()
+        self.wake_icon_sleep()
+        if self.state.edge_attachment:
+            self.state.edge_attachment.release()
+        if self.state.patrol:
+            self.state.patrol.cancel()
+        if self.state.music:
+            self.state.music.cancel()
+        self.state.sleep.wake(self, '显隐切换')
+        self.clearMask()
         if visible and not self.isVisible():
             self.clamp_to_screen()
             self.presence.reset(False)
-            # Set zero opacity in paint before QWidget is first shown.
-            self.presence.begin(True)
+            area = self.screen_area()
+            self.presence.begin(True, position=(self.x(), self.y()),
+                                area=area.getRect(), size=(self.width(), self.height()))
+            self.move(*(round(v) for v in self.presence.origin))
             self.show()
         else:
-            self.presence.begin(visible)
+            area = self.screen_area()
+            self.presence.begin(visible, position=(self.x(), self.y()),
+                                area=area.getRect(), size=(self.width(), self.height()))
         if self.presence.active:
             self.presence_timer.start()
         else:
@@ -808,17 +893,27 @@ class DesktopPet(QWidget):
             self.presence_timer.stop()
             return
         complete = self.presence.update(now)
+        self.move(*(round(v) for v in self.presence.position(now)))
         self.update()
         if complete:
             self.presence_timer.stop()
             if not self.presence.target:
+                home = self.presence.home
                 self.hide()
+                self.move(*(round(v) for v in home))
             else:
                 self.state.last_tick = time.monotonic()
+                self.state.started = self.state.last_tick
+                self.state.idle.reset(self.state.last_tick)
+                self.renderer.last_pose = None
+                self.renderer.transition_image = None
+                self.renderer.pointer_hold_image = None
                 self.state.ambient.defer(self.state.last_tick, self.preferences.activity)
             self.state_changed.emit()
 
     def mousePressEvent(self, event):
+        if self.state.patrol and self.desired_visible():
+            self.state.patrol.record_pet_click()
         if event.button() == Qt.MouseButton.LeftButton:
             if not self.desired_visible():
                 event.ignore()
@@ -874,13 +969,17 @@ class DesktopPet(QWidget):
         if self.state.music:
             self.state.music.cancel()
         if self.state.patrol:
-            self.state.patrol.cancel()
+            self.state.patrol.interrupt('click')
         self.state.walking = False
         self.state.gait_until = 0
         self.state.jump_started = None
         self.state.ambient.current = None
         self.state.ambient.defer(time.monotonic(), self.preferences.activity)
-        self.state.action_player.play('affection' if kind == 'headpat' else 'shy')
+        # A brief expression hold, not the six-pose shy gesture sequence.
+        player = self.state.action_player
+        player.play('shy')
+        player.action = dict(player.action, durations=[1100], click_expression=True)
+        player.frame_order = [2]
         self.state.click_reaction.trigger(kind, self.click_x)
         self.update()
         self.state_changed.emit()
@@ -891,7 +990,7 @@ class DesktopPet(QWidget):
             # second-press drag while suppressing its trailing single click.
             self.mousePressEvent(event)
             self.double_click = True
-            self.play_click_reaction('headpat')
+            self.play_click_reaction('shy')
             event.accept()
 
     def mouseMoveEvent(self, event):
@@ -912,7 +1011,7 @@ class DesktopPet(QWidget):
                     # allowed Windows to present a stale resized buffer.
                     self.state.drag_feedback=DragFeedback(target,compact=True)
                     self.state.drag_feedback.image(0)
-                    self.animator.timer.setInterval(16)
+                    self.animator.timer.setInterval(FRAME_INTERVAL_MS)
                 self.dragged = True
             if self.dragged:
                 if not moved:
@@ -930,12 +1029,16 @@ class DesktopPet(QWidget):
             self.drag_origin = None
             if not self.dragged:
                 if not self.double_click:
-                    self.click_timer.start(QApplication.doubleClickInterval())
+                    # Single and double clicks share the same feedback now;
+                    # waiting for the OS double-click interval only adds lag.
+                    self.finish_single_click()
                 self.double_click = False
             elif self.state.action_player.action and self.state.action_player.action['id']=='dragged':
                 self.state.action_player.stop()
             self.clamp_to_screen()
             if self.dragged:
+                if self.state.patrol:
+                    self.state.patrol.interrupt('drag')
                 from drop_attachment import settle_drop
                 attached = settle_drop(self,self.drop_point,cached_only=True)
                 if not attached:
@@ -953,7 +1056,7 @@ class DesktopPet(QWidget):
             self.state_changed.emit()
 
     def end_drag_feedback(self):
-        self.animator.timer.setInterval(33)
+        self.animator.timer.setInterval(FRAME_INTERVAL_MS)
         self.snap_preview.timer.stop()
         self.snap_preview.hide()
         feedback=self.state.drag_feedback
@@ -988,7 +1091,7 @@ class DesktopPet(QWidget):
         self.state.last_tick = time.monotonic()
         self.state.physics.launch((self.x(), self.y()), velocity, self.width()/180)
         self.snap_preview.request_surfaces()
-        self.animator.timer.start(16)
+        self.animator.timer.start(FRAME_INTERVAL_MS)
 
     def advance_physics(self, dt):
         area = self.screen_area()
@@ -1010,7 +1113,7 @@ class DesktopPet(QWidget):
             now = time.monotonic()
             self.state.ambient.defer(now, self.preferences.activity)
             self.state.next_action = now+random.uniform(8, 14)
-            self.animator.timer.start(33)
+            self.animator.timer.start(FRAME_INTERVAL_MS)
             self.position_settled.emit()
 
     def wake_icon_sleep(self):
@@ -1019,7 +1122,7 @@ class DesktopPet(QWidget):
         if self.state.patrol:
             self.state.patrol.cancel()
         self.state.physics.cancel()
-        self.animator.timer.setInterval(33)
+        self.animator.timer.setInterval(FRAME_INTERVAL_MS)
         self.state.travel_target=None
         self.state.travel_position=None
         self.state.gait_until=0

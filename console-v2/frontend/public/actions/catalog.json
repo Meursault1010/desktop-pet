@@ -21,8 +21,8 @@
       190,
       450
     ],
-    "atlas": "actions/blink/atlas.png",
-    "poster": "actions/blink/poster.png",
+    "atlas": "actions/blink/atlas.webp",
+    "poster": "actions/blink/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_01_start.png",
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\眨眼\\idle_sequence_02_hair_left.png",
@@ -65,8 +65,8 @@
       300,
       380
     ],
-    "atlas": "actions/eat/atlas.png",
-    "poster": "actions/eat/poster.png",
+    "atlas": "actions/eat/atlas.webp",
+    "poster": "actions/eat/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_01_prepare.png",
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\eating\\eating_sequence_02_to_mouth.png",
@@ -110,8 +110,8 @@
       180,
       700
     ],
-    "atlas": "actions/screen/atlas.png",
-    "poster": "actions/screen/poster.png",
+    "atlas": "actions/screen/atlas.webp",
+    "poster": "actions/screen/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_01.png",
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\screen-v2\\透明静帧\\frame_02.png",
@@ -240,8 +240,8 @@
       50,
       50
     ],
-    "atlas": "actions/sleep/atlas.png",
-    "poster": "actions/sleep/poster.png",
+    "atlas": "actions/sleep/atlas.webp",
+    "poster": "actions/sleep/poster.webp",
     "sources": [
       "assets\\sleep\\00.png",
       "assets\\sleep\\01.png",
@@ -365,8 +365,8 @@
       340,
       300
     ],
-    "atlas": "actions/affection/atlas.png",
-    "poster": "actions/affection/poster.png",
+    "atlas": "actions/affection/atlas.webp",
+    "poster": "actions/affection/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\affection\\raw.png"
     ],
@@ -390,8 +390,8 @@
       230,
       260
     ],
-    "atlas": "actions/afraid/atlas.png",
-    "poster": "actions/afraid/poster.png",
+    "atlas": "actions/afraid/atlas.webp",
+    "poster": "actions/afraid/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\afraid\\raw.png"
     ],
@@ -415,8 +415,8 @@
       260,
       240
     ],
-    "atlas": "actions/angry/atlas.png",
-    "poster": "actions/angry/poster.png",
+    "atlas": "actions/angry/atlas.webp",
+    "poster": "actions/angry/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\angry\\raw.png"
     ],
@@ -440,8 +440,8 @@
       180,
       220
     ],
-    "atlas": "actions/celebrate/atlas.png",
-    "poster": "actions/celebrate/poster.png",
+    "atlas": "actions/celebrate/atlas.webp",
+    "poster": "actions/celebrate/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\celebrate\\raw.png"
     ],
@@ -465,8 +465,8 @@
       220,
       220
     ],
-    "atlas": "actions/clicked/atlas.png",
-    "poster": "actions/clicked/poster.png",
+    "atlas": "actions/clicked/atlas.webp",
+    "poster": "actions/clicked/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\clicked\\raw.png"
     ],
@@ -490,8 +490,8 @@
       340,
       240
     ],
-    "atlas": "actions/comb/atlas.png",
-    "poster": "actions/comb/poster.png",
+    "atlas": "actions/comb/atlas.webp",
+    "poster": "actions/comb/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\comb\\raw.png"
     ],
@@ -518,8 +518,8 @@
       360,
       280
     ],
-    "atlas": "actions/curious/atlas.png",
-    "poster": "actions/curious/poster.png",
+    "atlas": "actions/curious/atlas.webp",
+    "poster": "actions/curious/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\curious\\raw.png"
     ],
@@ -543,8 +543,8 @@
       220,
       450
     ],
-    "atlas": "actions/dragged/atlas.png",
-    "poster": "actions/dragged/poster.png",
+    "atlas": "actions/dragged/atlas.webp",
+    "poster": "actions/dragged/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\dragged\\raw.png"
     ],
@@ -567,8 +567,8 @@
       280,
       220
     ],
-    "atlas": "actions/dress/atlas.png",
-    "poster": "actions/dress/poster.png",
+    "atlas": "actions/dress/atlas.webp",
+    "poster": "actions/dress/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\dress\\raw.png"
     ],
@@ -595,8 +595,8 @@
       220,
       450
     ],
-    "atlas": "actions/files/atlas.png",
-    "poster": "actions/files/poster.png",
+    "atlas": "actions/files/atlas.webp",
+    "poster": "actions/files/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\files\\raw.png"
     ],
@@ -622,8 +622,8 @@
       150,
       250
     ],
-    "atlas": "actions/leap/atlas.png",
-    "poster": "actions/leap/poster.png",
+    "atlas": "actions/leap/atlas.webp",
+    "poster": "actions/leap/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\leap\\raw.png"
     ],
@@ -650,8 +650,8 @@
       620,
       420
     ],
-    "atlas": "actions/read/atlas.png",
-    "poster": "actions/read/poster.png",
+    "atlas": "actions/read/atlas.webp",
+    "poster": "actions/read/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\read\\raw.png"
     ],
@@ -678,8 +678,8 @@
       400,
       320
     ],
-    "atlas": "actions/sad/atlas.png",
-    "poster": "actions/sad/poster.png",
+    "atlas": "actions/sad/atlas.webp",
+    "poster": "actions/sad/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\sad\\raw.png"
     ],
@@ -703,8 +703,8 @@
       280,
       240
     ],
-    "atlas": "actions/shy/atlas.png",
-    "poster": "actions/shy/poster.png",
+    "atlas": "actions/shy/atlas.webp",
+    "poster": "actions/shy/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\shy\\raw.png"
     ],
@@ -728,8 +728,8 @@
       400,
       320
     ],
-    "atlas": "actions/smile/atlas.png",
-    "poster": "actions/smile/poster.png",
+    "atlas": "actions/smile/atlas.webp",
+    "poster": "actions/smile/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\smile\\raw.png"
     ],
@@ -753,8 +753,8 @@
       340,
       240
     ],
-    "atlas": "actions/stretch/atlas.png",
-    "poster": "actions/stretch/poster.png",
+    "atlas": "actions/stretch/atlas.webp",
+    "poster": "actions/stretch/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\stretch\\raw.png"
     ],
@@ -781,8 +781,8 @@
       480,
       350
     ],
-    "atlas": "actions/tea/atlas.png",
-    "poster": "actions/tea/poster.png",
+    "atlas": "actions/tea/atlas.webp",
+    "poster": "actions/tea/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\tea\\raw.png"
     ],
@@ -809,8 +809,8 @@
       500,
       400
     ],
-    "atlas": "actions/wait/atlas.png",
-    "poster": "actions/wait/poster.png",
+    "atlas": "actions/wait/atlas.webp",
+    "poster": "actions/wait/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\wait\\raw.png"
     ],
@@ -837,8 +837,8 @@
       420,
       320
     ],
-    "atlas": "actions/work/atlas.png",
-    "poster": "actions/work/poster.png",
+    "atlas": "actions/work/atlas.webp",
+    "poster": "actions/work/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\work\\raw.png"
     ],
@@ -865,8 +865,8 @@
       320,
       220
     ],
-    "atlas": "actions/yawn/atlas.png",
-    "poster": "actions/yawn/poster.png",
+    "atlas": "actions/yawn/atlas.webp",
+    "poster": "actions/yawn/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\yawn\\raw.png"
     ],
@@ -888,8 +888,8 @@
     "durations": [
       450
     ],
-    "atlas": "actions/reading-pose-1/atlas.png",
-    "poster": "actions/reading-pose-1/poster.png",
+    "atlas": "actions/reading-pose-1/atlas.webp",
+    "poster": "actions/reading-pose-1/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\sit\\ice_blue_catgirl_reading.png"
     ],
@@ -910,8 +910,8 @@
     "durations": [
       450
     ],
-    "atlas": "actions/reading-pose-2/atlas.png",
-    "poster": "actions/reading-pose-2/poster.png",
+    "atlas": "actions/reading-pose-2/atlas.webp",
+    "poster": "actions/reading-pose-2/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\sit\\ice_blue_catgirl_reading_side.png"
     ],
@@ -932,8 +932,8 @@
     "durations": [
       450
     ],
-    "atlas": "actions/reading-pose-3/atlas.png",
-    "poster": "actions/reading-pose-3/poster.png",
+    "atlas": "actions/reading-pose-3/atlas.webp",
+    "poster": "actions/reading-pose-3/poster.webp",
     "sources": [
       "C:\\Users\\meursault\\Desktop\\desktop-pet\\图片\\待机动作\\看书\\pose_08_blue_spellbook.png"
     ],
@@ -989,8 +989,8 @@
       240,
       300
     ],
-    "atlas": "actions/sit-neat/atlas.png",
-    "poster": "actions/sit-neat/poster.png",
+    "atlas": "actions/sit-neat/atlas.webp",
+    "poster": "actions/sit-neat/poster.webp",
     "sources": [
       "action-work\\ground-idle\\sit-neat\\raw.png"
     ],
@@ -1054,8 +1054,8 @@
       240,
       300
     ],
-    "atlas": "actions/sit-relaxed/atlas.png",
-    "poster": "actions/sit-relaxed/poster.png",
+    "atlas": "actions/sit-relaxed/atlas.webp",
+    "poster": "actions/sit-relaxed/poster.webp",
     "sources": [
       "action-work\\ground-idle\\sit-relaxed\\raw.png"
     ],
@@ -1107,8 +1107,8 @@
       240,
       300
     ],
-    "atlas": "actions/sit-swing/atlas.png",
-    "poster": "actions/sit-swing/poster.png",
+    "atlas": "actions/sit-swing/atlas.webp",
+    "poster": "actions/sit-swing/poster.webp",
     "sources": [
       "action-work\\ground-idle\\sit-swing\\raw.png"
     ],
@@ -1166,8 +1166,8 @@
       240,
       300
     ],
-    "atlas": "actions/prone-chin/atlas.png",
-    "poster": "actions/prone-chin/poster.png",
+    "atlas": "actions/prone-chin/atlas.webp",
+    "poster": "actions/prone-chin/poster.webp",
     "sources": [
       "action-work\\ground-idle\\prone-chin\\raw.png"
     ],
@@ -1231,8 +1231,8 @@
       240,
       300
     ],
-    "atlas": "actions/prone-rest/atlas.png",
-    "poster": "actions/prone-rest/poster.png",
+    "atlas": "actions/prone-rest/atlas.webp",
+    "poster": "actions/prone-rest/poster.webp",
     "sources": [
       "action-work\\ground-idle\\prone-rest\\raw.png"
     ],
@@ -1266,8 +1266,8 @@
       320,
       520
     ],
-    "atlas": "actions/lazy-roll-toward/atlas.png",
-    "poster": "actions/lazy-roll-toward/poster.png",
+    "atlas": "actions/lazy-roll-toward/atlas.webp",
+    "poster": "actions/lazy-roll-toward/poster.webp",
     "sources": [
       "action-work\\lazy-roll\\lazy-roll-toward\\raw.png"
     ],
@@ -1303,8 +1303,8 @@
       320,
       520
     ],
-    "atlas": "actions/lazy-roll-away/atlas.png",
-    "poster": "actions/lazy-roll-away/poster.png",
+    "atlas": "actions/lazy-roll-away/atlas.webp",
+    "poster": "actions/lazy-roll-away/poster.webp",
     "sources": [
       "action-work\\lazy-roll\\lazy-roll-toward\\raw.png"
     ],
@@ -1340,8 +1340,8 @@
       85,
       85
     ],
-    "atlas": "actions/throw-flight/atlas.png",
-    "poster": "actions/throw-flight/poster.png",
+    "atlas": "actions/throw-flight/atlas.webp",
+    "poster": "actions/throw-flight/poster.webp",
     "sources": [
       "action-work/physics-v1/throw-flight-raw.png"
     ],
@@ -1368,8 +1368,8 @@
       90,
       100
     ],
-    "atlas": "actions/impact-left/atlas.png",
-    "poster": "actions/impact-left/poster.png",
+    "atlas": "actions/impact-left/atlas.webp",
+    "poster": "actions/impact-left/poster.webp",
     "sources": [
       "action-work/physics-v1/impact-left-raw.png"
     ],
@@ -1396,8 +1396,8 @@
       90,
       100
     ],
-    "atlas": "actions/impact-right/atlas.png",
-    "poster": "actions/impact-right/poster.png",
+    "atlas": "actions/impact-right/atlas.webp",
+    "poster": "actions/impact-right/poster.webp",
     "sources": [
       "action-work/physics-v1/impact-right-raw.png"
     ],
@@ -1424,8 +1424,8 @@
       90,
       100
     ],
-    "atlas": "actions/impact-ceiling/atlas.png",
-    "poster": "actions/impact-ceiling/poster.png",
+    "atlas": "actions/impact-ceiling/atlas.webp",
+    "poster": "actions/impact-ceiling/poster.webp",
     "sources": [
       "action-work/physics-v1/impact-ceiling-raw.png"
     ],
@@ -1452,8 +1452,8 @@
       90,
       100
     ],
-    "atlas": "actions/impact-floor/atlas.png",
-    "poster": "actions/impact-floor/poster.png",
+    "atlas": "actions/impact-floor/atlas.webp",
+    "poster": "actions/impact-floor/poster.webp",
     "sources": [
       "action-work/physics-v1/impact-floor-raw.png"
     ],
@@ -1569,8 +1569,8 @@
       16.666666666666668,
       16.666666666666668
     ],
-    "atlas": "actions/sleep-enter/atlas.png",
-    "poster": "actions/sleep-enter/poster.png",
+    "atlas": "actions/sleep-enter/atlas.webp",
+    "poster": "actions/sleep-enter/poster.webp",
     "sources": [
       "assets\\sleep\\transitions\\settle-000.png",
       "assets\\sleep\\transitions\\settle-001.png",
@@ -1750,8 +1750,8 @@
       16.666666666666668,
       16.666666666666668
     ],
-    "atlas": "actions/sleep-wake/atlas.png",
-    "poster": "actions/sleep-wake/poster.png",
+    "atlas": "actions/sleep-wake/atlas.webp",
+    "poster": "actions/sleep-wake/poster.webp",
     "sources": [
       "assets\\sleep\\transitions\\wake-000.png",
       "assets\\sleep\\transitions\\wake-001.png",
@@ -1823,5 +1823,608 @@
     "idle_automatic": false,
     "scale_calibrated": true,
     "scale_profile": "approved-sleep-master-fixed-canvas"
+  },
+  {
+    "id": "music-waltz",
+    "name": "随音乐舞蹈",
+    "category": "音乐互动",
+    "origin": "generated",
+    "frames": 106,
+    "columns": 10,
+    "cell": 256,
+    "durations": [
+      279,
+      124,
+      131,
+      120,
+      127,
+      125,
+      117,
+      119,
+      117,
+      118,
+      133,
+      131,
+      128,
+      124,
+      125,
+      126,
+      138,
+      139,
+      146,
+      132,
+      148,
+      143,
+      123,
+      149,
+      144,
+      129,
+      132,
+      149,
+      145,
+      150,
+      115,
+      134,
+      133,
+      144,
+      134,
+      141,
+      143,
+      145,
+      132,
+      127,
+      135,
+      135,
+      129,
+      114,
+      113,
+      116,
+      110,
+      120,
+      120,
+      124,
+      122,
+      126,
+      118,
+      255,
+      118,
+      126,
+      122,
+      124,
+      120,
+      120,
+      110,
+      116,
+      113,
+      114,
+      129,
+      135,
+      135,
+      127,
+      132,
+      145,
+      143,
+      141,
+      134,
+      144,
+      133,
+      134,
+      115,
+      150,
+      145,
+      149,
+      132,
+      129,
+      144,
+      149,
+      123,
+      143,
+      148,
+      132,
+      146,
+      139,
+      138,
+      126,
+      125,
+      124,
+      128,
+      131,
+      133,
+      118,
+      117,
+      119,
+      117,
+      125,
+      127,
+      120,
+      131,
+      124
+    ],
+    "atlas": "actions/music-waltz/atlas.webp",
+    "poster": "actions/music-waltz/poster.webp",
+    "review": "Original drawings only; no optical flow or morphing; foot-driven forward and return",
+    "pixel_art": false,
+    "authored_motion": true,
+    "tempo_profile": "authored drawings with variable holds",
+    "music_reaction": true,
+    "baseline": 0.9111111111111111,
+    "spatial_dance": true,
+    "footwork": true,
+    "interpolation": "none",
+    "optical_flow": false
+  },
+  {
+    "id": "snow-catch",
+    "name": "接住雪花",
+    "category": "站立待机",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      300,
+      360,
+      520,
+      620,
+      480,
+      400
+    ],
+    "atlas": "actions/snow-catch/atlas.webp",
+    "poster": "actions/snow-catch/poster.webp",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\snow-catch\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true,
+    "scale_profile": "standing-reference-227-251",
+    "idle_state": "stand",
+    "idle_role": "接住雪花",
+    "idle_automatic": true
+  },
+  {
+    "id": "hum",
+    "name": "轻轻哼歌",
+    "category": "站立待机",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      300,
+      420,
+      700,
+      700,
+      520,
+      400
+    ],
+    "atlas": "actions/hum/atlas.webp",
+    "poster": "actions/hum/poster.webp",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\hum\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true,
+    "scale_profile": "standing-reference-227-251",
+    "idle_state": "stand",
+    "idle_role": "轻声哼唱",
+    "idle_automatic": true
+  },
+  {
+    "id": "hair-tuck",
+    "name": "把发丝别到耳后",
+    "category": "站立待机",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      300,
+      420,
+      600,
+      520,
+      420,
+      380
+    ],
+    "atlas": "actions/hair-tuck/atlas.webp",
+    "poster": "actions/hair-tuck/poster.webp",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\hair-tuck\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true,
+    "scale_profile": "standing-reference-227-251",
+    "idle_state": "stand",
+    "idle_role": "整理鬓发",
+    "idle_automatic": true
+  },
+  {
+    "id": "sneeze",
+    "name": "打个喷嚏",
+    "category": "站立待机",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      300,
+      280,
+      360,
+      520,
+      420,
+      380
+    ],
+    "atlas": "actions/sneeze/atlas.webp",
+    "poster": "actions/sneeze/poster.webp",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\sneeze\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true,
+    "scale_profile": "standing-reference-227-251",
+    "idle_state": "stand",
+    "idle_role": "小小喷嚏",
+    "idle_automatic": true
+  },
+  {
+    "id": "gaze-far",
+    "name": "眺望远方",
+    "category": "站立待机",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      300,
+      400,
+      700,
+      600,
+      480,
+      400
+    ],
+    "atlas": "actions/gaze-far/atlas.webp",
+    "poster": "actions/gaze-far/poster.webp",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\gaze-far\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true,
+    "scale_profile": "standing-reference-227-251",
+    "idle_state": "stand",
+    "idle_role": "眺望远方",
+    "idle_automatic": true
+  },
+  {
+    "id": "listen",
+    "name": "侧耳倾听",
+    "category": "站立待机",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      300,
+      380,
+      620,
+      560,
+      440,
+      400
+    ],
+    "atlas": "actions/listen/atlas.webp",
+    "poster": "actions/listen/poster.webp",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\listen\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true,
+    "scale_profile": "standing-reference-227-251",
+    "idle_state": "stand",
+    "idle_role": "侧耳倾听",
+    "idle_automatic": true
+  },
+  {
+    "id": "warm-hands",
+    "name": "呵气暖手",
+    "category": "站立待机",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      300,
+      420,
+      560,
+      680,
+      480,
+      400
+    ],
+    "atlas": "actions/warm-hands/atlas.webp",
+    "poster": "actions/warm-hands/poster.webp",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\warm-hands\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true,
+    "scale_profile": "standing-reference-227-251",
+    "idle_state": "stand",
+    "idle_role": "呵气暖手",
+    "idle_automatic": true
+  },
+  {
+    "id": "curtsy",
+    "name": "浅鞠行礼",
+    "category": "站立待机",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      300,
+      420,
+      620,
+      700,
+      520,
+      400
+    ],
+    "atlas": "actions/curtsy/atlas.webp",
+    "poster": "actions/curtsy/poster.webp",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\curtsy\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true,
+    "scale_profile": "standing-reference-227-251",
+    "idle_state": "stand",
+    "idle_role": "浅鞠行礼",
+    "idle_automatic": true
+  },
+  {
+    "id": "wave",
+    "name": "向你招手",
+    "category": "站立待机",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      260,
+      300,
+      420,
+      480,
+      420,
+      380
+    ],
+    "atlas": "actions/wave/atlas.webp",
+    "poster": "actions/wave/poster.webp",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\wave\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true,
+    "scale_profile": "standing-reference-227-251",
+    "idle_state": "stand",
+    "idle_role": "向观众招手",
+    "idle_automatic": true
+  },
+  {
+    "id": "star-wish",
+    "name": "对星许愿",
+    "category": "站立待机",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      300,
+      420,
+      680,
+      760,
+      520,
+      400
+    ],
+    "atlas": "actions/star-wish/atlas.webp",
+    "poster": "actions/star-wish/poster.webp",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\star-wish\\raw.png"
+    ],
+    "review": "首轮静帧检查通过 · 六关键帧",
+    "scale_calibrated": true,
+    "scale_profile": "standing-reference-227-251",
+    "idle_state": "stand",
+    "idle_role": "对星许愿",
+    "idle_automatic": true
+  },
+  {
+    "id": "play-peek",
+    "name": "探身看看你",
+    "category": "自主玩耍",
+    "origin": "generated",
+    "frames": 4,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      380,
+      650,
+      850,
+      420
+    ],
+    "atlas": "actions/play-peek/atlas.webp",
+    "poster": "actions/play-peek/poster.webp",
+    "sources": [
+      "action-work/autoplay/keyframes.png"
+    ],
+    "review": "本地抠图与尺寸检查；程序衔接",
+    "idle_automatic": false,
+    "autoplay_only": true,
+    "scale_calibrated": true
+  },
+  {
+    "id": "play-sit",
+    "name": "坐着晃晃腿",
+    "category": "自主玩耍",
+    "origin": "generated",
+    "frames": 4,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      600,
+      750,
+      850,
+      650
+    ],
+    "atlas": "actions/play-sit/atlas.webp",
+    "poster": "actions/play-sit/poster.webp",
+    "sources": [
+      "action-work/autoplay/keyframes.png"
+    ],
+    "review": "本地抠图与尺寸检查；程序衔接",
+    "idle_automatic": false,
+    "autoplay_only": true,
+    "scale_calibrated": true
+  },
+  {
+    "id": "play-lean",
+    "name": "靠近与站稳",
+    "category": "自主玩耍",
+    "origin": "generated",
+    "frames": 4,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      450,
+      650,
+      650,
+      450
+    ],
+    "atlas": "actions/play-lean/atlas.webp",
+    "poster": "actions/play-lean/poster.webp",
+    "sources": [
+      "action-work/autoplay/keyframes.png"
+    ],
+    "review": "本地抠图与尺寸检查；程序衔接",
+    "idle_automatic": false,
+    "autoplay_only": true,
+    "scale_calibrated": true
+  },
+  {
+    "id": "play-climb-up",
+    "name": "抓稳后爬上图标",
+    "category": "自主玩耍",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      400,
+      550,
+      650,
+      650,
+      550,
+      450
+    ],
+    "atlas": "actions/play-climb-up/atlas.webp",
+    "poster": "actions/play-climb-up/poster.webp",
+    "sources": [
+      "action-work/autoplay/keyframes.png"
+    ],
+    "review": "本地抠图与尺寸检查；程序衔接",
+    "idle_automatic": false,
+    "autoplay_only": true,
+    "scale_calibrated": true
+  },
+  {
+    "id": "play-climb-down",
+    "name": "扶稳后爬下图标",
+    "category": "自主玩耍",
+    "origin": "generated",
+    "frames": 6,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      450,
+      550,
+      650,
+      650,
+      550,
+      400
+    ],
+    "atlas": "actions/play-climb-down/atlas.webp",
+    "poster": "actions/play-climb-down/poster.webp",
+    "sources": [
+      "action-work/autoplay/keyframes.png"
+    ],
+    "review": "本地抠图与尺寸检查；程序衔接",
+    "idle_automatic": false,
+    "autoplay_only": true,
+    "scale_calibrated": true
+  },
+  {
+    "id": "play-top-rest",
+    "name": "图标上坐稳休息",
+    "category": "自主玩耍",
+    "origin": "generated",
+    "frames": 2,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      1800,
+      1800
+    ],
+    "atlas": "actions/play-top-rest/atlas.webp",
+    "poster": "actions/play-top-rest/poster.webp",
+    "sources": [
+      "action-work/autoplay/keyframes.png"
+    ],
+    "review": "本地抠图与尺寸检查；程序衔接",
+    "idle_automatic": false,
+    "autoplay_only": true,
+    "scale_calibrated": true,
+    "support_contact": [
+      0.54,
+      0.68
+    ]
+  },
+  {
+    "id": "dance-rest",
+    "name": "舞后坐下休息",
+    "category": "坐下待机",
+    "idle_state": "sit",
+    "idle_automatic": false,
+    "origin": "generated",
+    "frames": 10,
+    "columns": 5,
+    "cell": 256,
+    "durations": [
+      350,
+      500,
+      450,
+      280,
+      300,
+      300,
+      350,
+      650,
+      650,
+      130
+    ],
+    "atlas": "actions/dance-rest/atlas.webp",
+    "poster": "actions/dance-rest/poster.webp",
+    "authored_motion": true,
+    "grounded_pose": true,
+    "dance_rest": true,
+    "baseline": 0.9111111111111111,
+    "interpolation": "none",
+    "optical_flow": false,
+    "review": "Generated individual recovery drawings, fixed ground and scale",
+    "sources": [
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\01-runtime.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\02-raw.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\03-raw.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\04-raw.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\05-raw.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\06-raw.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\07-raw.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\08-raw.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\09-raw.png",
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\10-raw.png"
+    ]
   }
 ]

@@ -1,0 +1,24 @@
+export type WidgetType='companion'|'journal'|'rhythm'|'media'|'system'|'focus'|'todos'|'clipboard'|'translation';
+export type Widget={id:string;type:WidgetType;title:string;width:1|2|3;height:number};
+export type WorkspacePage={id:string;name:string;widgets:Widget[]};
+export type Todo={id:string;text:string;due:string;done:boolean;notified?:boolean};
+export type Focus={end:number|null;remaining:number;duration:number;completed:number;mode:'focus'|'break'};
+export const widgetNames:Record<WidgetType,string>={companion:'雪的此刻 · 时钟与天气',journal:'今日足迹',rhythm:'陪伴节奏',media:'正在聆听',system:'电脑状态',focus:'专注计时',todos:'待办摘要',clipboard:'剪贴板摘要',translation:'划词翻译'};
+export function makeWidget(type:WidgetType):Widget{return {id:crypto.randomUUID(),type,title:widgetNames[type],width:type==='companion'?3:type==='journal'?2:1,height:type==='companion'?210:260};}
+export function defaultPages():WorkspacePage[]{return [{id:'default',name:'默认总览',widgets:(['companion','journal','rhythm','media','system'] as WidgetType[]).map(makeWidget)}];}
+export function readStore<T>(key:string,fallback:T):T{try{return JSON.parse(localStorage.getItem('yuki-v2-'+key)||'null')??fallback;}catch{return fallback;}}
+export function saveStore(key:string,value:unknown){localStorage.setItem('yuki-v2-'+key,JSON.stringify(value));}
+export function validPages(value:unknown):WorkspacePage[]{
+ if(!Array.isArray(value)||!value.length)return defaultPages();
+ const pages=value.filter(p=>p&&p.id==='default'&&typeof p.name==='string'&&Array.isArray(p.widgets)).slice(0,1).map(p=>({id:'default',name:'默认总览',widgets:p.widgets.slice(0,20).filter((w:Widget)=>w&&Object.hasOwn(widgetNames,w.type)).map((w:Widget)=>({...w,id:String(w.id),title:String(w.title||widgetNames[w.type]).slice(0,40),width:([1,2,3].includes(w.width)?w.width:1) as 1|2|3,height:Math.min(640,Math.max(180,Number(w.height)||260))}))}));
+ return pages.length?pages:defaultPages();
+}
+
+export function validTodos(value:unknown):Todo[]{
+ return Array.isArray(value)?value.filter(t=>t&&typeof t.id==='string'&&typeof t.text==='string'&&t.text.trim()).slice(0,200).map(t=>({id:t.id,text:t.text.slice(0,200),done:t.done===true,notified:t.notified===true,due:typeof t.due==='string'&&Number.isFinite(Date.parse(t.due))?t.due:''})):[];
+}
+export function validFocus(value:unknown):Focus{
+ const f=(value&&typeof value==='object'?value:{}) as Partial<Focus>;const duration=[15,25,45,60].includes(f.duration||0)?f.duration!:25;
+ return {duration,end:typeof f.end==='number'&&Number.isFinite(f.end)&&f.end>0?Math.min(f.end,Date.now()+3600000):null,remaining:typeof f.remaining==='number'&&Number.isFinite(f.remaining)?Math.max(0,Math.min(3600,f.remaining)):duration*60,completed:typeof f.completed==='number'?Math.max(0,Math.floor(f.completed)):0,mode:f.mode==='break'?'break':'focus'};
+}
+export function validHealth(value:unknown){const v=(value&&typeof value==='object'?value:{}) as {enabled?:boolean;minutes?:number;next?:number};return {enabled:v.enabled===true,minutes:[25,40,50,60,90].includes(v.minutes||0)?v.minutes!:50,next:typeof v.next==='number'&&Number.isFinite(v.next)?v.next:0};}

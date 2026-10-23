@@ -41,3 +41,19 @@ class RhythmTests(unittest.TestCase):
         self.assertEqual(result['bpm'],0)
         self.assertIsNone(analyzer.feed(array('f',[float('nan')]).tobytes(),48000,1,1))
         self.assertIsNone(analyzer.feed(b'',48000,2,1))
+
+    def test_bass_beats_over_continuous_high_tone_keep_timestamp(self):
+        analyzer = RhythmAnalyzer()
+        found = []
+        rate = 48000
+        for block in range(400):
+            amplitude = .12 if block%25 < 3 else .001
+            data = array('f', (amplitude*math.sin(math.tau*80*i/rate)
+                              +.06*math.sin(math.tau*1800*i/rate)
+                              for i in range(960) for _ in range(2))).tobytes()
+            result = analyzer.feed(data, rate, 2, block*.02)
+            if result['kind'] == 'rhythm':
+                found.append(result)
+        self.assertTrue(found)
+        self.assertTrue(all(abs(r['bpm']-120) <= 2 for r in found))
+        self.assertTrue(all(r['beat_at'] is not None for r in found))

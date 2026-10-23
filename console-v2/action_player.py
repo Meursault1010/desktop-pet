@@ -11,6 +11,7 @@ from pathlib import Path
 # resolved only by the renderer; the catalog and original artwork stay intact.
 ROLL_ENTRY = (12, 13, 14, 15)
 ROLL_ENTRY_DURATIONS = (200, 280, 300, 260)
+ROLL_DIRECTION = {'lazy-roll-toward': -1, 'lazy-roll-away': 1}
 # Position at each authored pose, rather than elapsed time or frame number.
 # The away atlas reverses the turn, so its side-lying holds come first.
 ROLL_TRAVEL_PHASE = {
@@ -53,12 +54,14 @@ class ActionPlayer:
         self.loop=False
         self.speed=1.0
         self.frame_order=None
+        self.generation = 0
 
     def play(self, action_id, loop=False, speed=1.0, now=None):
         if not isinstance(action_id,str) or action_id not in catalog():
             raise ValueError('未知动作')
         if type(loop) is not bool or type(speed) not in (int,float) or not math.isfinite(speed) or not .25<=speed<=2:
             raise ValueError('动作播放参数不正确')
+        self.generation += 1
         self.action=catalog()[action_id]
         self.frame_order=None
         if self.action.get('lazy_roll'):
@@ -69,10 +72,14 @@ class ActionPlayer:
             # Own the playback schedule; never mutate the shared catalog.
             self.action = dict(self.action, durations=durations)
             self.frame_order = order
+        if self.action.get('dance_rest'):
+            self.frame_order,durations=dance_rest_timeline(self.action,random)
+            self.action=dict(self.action,durations=durations)
         self.loop=loop; self.speed=speed
         self.started=time.monotonic() if now is None else now
 
     def stop(self):
+        self.generation += 1
         self.action=None
 
     def frame(self, now=None):
@@ -183,9 +190,9 @@ class ActionPlayer:
         return pairs
 
 
-def lazy_roll_timeline(action, rng=random):
+def lazy_roll_timeline(action, rng=random, cycles=None):
     """Keep rotational continuity; vary complete cycles, never shuffle angles."""
-    cycles = rng.randint(2, 3)
+    cycles = rng.randint(2, 3) if cycles is None else cycles
     order = list(ROLL_ENTRY)
     durations = list(ROLL_ENTRY_DURATIONS)
     for cycle in range(cycles):
@@ -224,3 +231,18 @@ def ground_idle_timeline(action, rng=random):
     order.extend(range(action['frames']-3, action['frames']))
     durations.extend(action['durations'][-3:])
     return order, durations
+
+
+def dance_rest_timeline(action, rng=random):
+    """Lower once, breathe with sparse blinks, then rise using clean drawings."""
+    order=list(range(8));durations=list(action['durations'][:8])
+    # Only seated frames enter the rest loop; lowering is never replayed.
+    for cycle in range(rng.randint(4,6)):
+        order.extend((7,8,7))
+        durations.extend((rng.randint(1100,1700),650,rng.randint(700,1100)))
+        if cycle%2==1:
+            order.extend((9,7));durations.extend((130,750))
+    # Use the supported sit-down motion in reverse to stand up before idle.
+    order.extend((6,5,4,3,2,1,0))
+    durations.extend((350,400,420,380,300,250,350))
+    return order,durations

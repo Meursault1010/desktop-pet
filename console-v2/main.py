@@ -30,6 +30,8 @@ class PetApplication(QObject):
         self.quick_draft = ''
         self.quick_pending = None
         self.quick_last_text = ''
+        self.quick_history = []
+        self.quick_tools = {}
         self.saved_position = None
         self.pet = DesktopPet(self.preferences)
         self.pet.controller = self
@@ -124,16 +126,8 @@ class PetApplication(QObject):
     def create_menu(self, parent):
         menu = CompanionMenu(parent, self.icon)
         menu.quick_chat(self)
-        menu.addSeparator()
+        menu.command('translation', '划词翻译', self.toggle_translation, checkable=True)
         menu.command('console', '打开工作台', self.open_console, 'console')
-        menu.addSeparator()
-        menu.command('visibility', '隐藏宠物', self.toggle_visibility, 'visibility')
-        menu.command('pause', '暂停走动', self.toggle_pause, 'pause')
-        menu.command('quiet', '安静陪伴', lambda checked: self.set_preference('quiet', checked), checkable=True)
-        menu.command('auto_snap', '拖放即时吸附', lambda checked: self.set_preference('auto_snap', checked), checkable=True)
-        menu.addSeparator()
-        menu.command('home', '回到桌面底部', self.pet.go_home, 'home')
-        menu.command('detach', '离开停靠处', self.pet.wake_icon_sleep, 'detach')
         menu.addSeparator()
         # PetService redirects the last action through Electron's exit handler.
         menu.command('exit', '退出 yuki', self.quit, 'exit')
@@ -141,13 +135,19 @@ class PetApplication(QObject):
         menu.aboutToShow.connect(lambda: self.update_menu(menu))
         return menu
 
+    def toggle_translation(self, checked=False):
+        self.pet.bubble.say('请在 Electron 中开启划词翻译。', 'error')
+
     def update_menu(self, menu):
         if isinstance(menu, CompanionMenu):
             menu.status.setText(self.pet.status_text())
             menu.routine.setText(self.pet.state.routine.period['name'])
             menu.update_chat(self)
+            menu.apply_theme(getattr(self, 'ui_theme', 'mist'))
         for action in menu.actions():
-            if action.objectName() == 'visibility':
+            if action.objectName() == 'translation':
+                action.setChecked(getattr(self, 'translation_enabled', False))
+            elif action.objectName() == 'visibility':
                 action.setText('隐藏宠物' if self.pet.desired_visible() else '显示宠物')
             elif action.objectName() == 'pause':
                 action.setText('继续走动' if self.preferences.paused else '暂停走动')
@@ -160,6 +160,10 @@ class PetApplication(QObject):
     def refresh_menus(self):
         self.update_menu(self.tray_menu)
         self.tray.setToolTip('yuki · ' + self.pet.status_text())
+
+    def quick_tool_send(self, name, value=None):
+        self.quick_tools = {**self.quick_tools, 'error': '请通过 Electron 启动 Yuki 使用快捷工具。'}
+        self.changed.emit()
 
     def quick_chat_send(self, text):
         self.pet.bubble.say('请使用 Electron 版 yuki 连接本地模型聊天。', 'error')
@@ -185,7 +189,7 @@ class PetApplication(QObject):
             self.save_position()
 
     def save_position(self):
-        if self.pet.state.physics.active or self.pet.drag_origin is not None:
+        if self.pet.presence.active or self.pet.state.physics.active or self.pet.drag_origin is not None:
             return
         position = self.pet.pos()
         if position != self.saved_position:

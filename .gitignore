@@ -12,6 +12,8 @@
 **/dist/
 **/__pycache__/
 *.log
+/output/
+*.bak
 /.startup-smoke-userdata*/
 /.old-smoke-userdata*/
 /startup*.log
@@ -31,8 +33,11 @@ settings.ini
 /.electron-build/
 /releases/
 /work/
+/local-model/qwen/*.gguf
+/local-model/qwen/runtime/
 /docs/验收资料/**/isolated-profile/
 /docs/验收资料/**/final-isolated-profile/
+**/*isolated-profile/
 /tools/psd2live/v3.5.2/
 /tools/psd2live/PSD2Live-*-windows-x64-portable.zip
 /tools/psd2live/tmp/
