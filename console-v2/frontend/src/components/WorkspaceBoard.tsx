@@ -17,7 +17,7 @@ export function WorkspaceBoard({render}:{render:(type:WidgetType)=>ReactNode}){
  function update(widgets:Widget[]){setPages(ps=>ps.map(p=>p.id===page.id?{...p,widgets}:p));}
  function patch(id:string,value:Partial<Widget>){update(page.widgets.map(w=>w.id===id?{...w,...value}:w));}
  function move(id:string,to:number){const next=[...page.widgets],from=next.findIndex(w=>w.id===id);if(from<0)return;const [item]=next.splice(from,1);next.splice(Math.max(0,to),0,item);update(next);}
- const defaultShape=page.widgets.map(w=>w.type).join(',')==='companion,journal,rhythm,media,system'&&page.widgets.every((w,i)=>w.width===[3,2,1,1,1][i]);
+ const defaultShape=page.widgets.map(w=>w.type).join(',')==='companion,journal,rhythm,system'&&page.widgets.every((w,i)=>w.width===[3,2,1,1][i]);
  return <section className={'workspace-board '+(editing?'is-editing':'')} aria-label="总览工作区"><div className="board-toolbar"><div className="workspace-tabs"><span>默认总览</span></div><div className="board-tools">{editing?<><button className="button secondary" onClick={()=>setLibrary(!library)}><Plus size={15}/>添加区块</button><button className="button secondary" onClick={cancel}>取消</button><button className="button primary" onClick={()=>{setEditing(false);setLibrary(false);}}><Check size={15}/>完成</button></>:<button className="button secondary" onClick={edit}><Pencil size={14}/>自定义布局</button>}</div></div>
  {editing&&<div className="layout-instructions"><span>拖动标题调整顺序，右下角调整大小；区块菜单支持键盘操作。</span><button className="button secondary" onClick={()=>update(defaultPages()[0].widgets)}><RotateCcw size={14}/>恢复默认区块</button></div>}
  {error&&<p role="status" className="notice">{error}</p>}

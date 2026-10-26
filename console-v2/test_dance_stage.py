@@ -13,10 +13,34 @@ from music_timing import follow_tempo
 
 
 class RouteTests(unittest.TestCase):
+    def test_every_dance_frame_has_the_same_visible_height_and_baseline(self):
+        from PIL import Image
+        folder=Path(__file__).resolve().parent/'assets/actions/music-waltz'
+        report=json.loads((folder/'choreography.json').read_text())
+        with Image.open(folder/'atlas.png') as atlas:
+            for index in range(report['frames']):
+                x=index%report['columns']*256;y=index//report['columns']*256
+                cell=atlas.crop((x,y,x+256,y+256))
+                bbox=cell.getchannel('A').point(lambda a:255 if a>24 else 0).getbbox()
+                self.assertEqual((bbox[1],bbox[3]),(20,233),f'frame {index}')
+        # Both directions use the repaired skin; a dark desktop must not show
+        # through the palm or forearm again.
+        with Image.open(folder/'atlas.png') as atlas:
+            for row in footwork()['rows']:
+                source=report['frame_checks'][row['source_frame']]['source']
+                points={'mixed-pose-19.png':[(59,86)],
+                        'keyed-turn-03.png':[(72,94),(76,104),(80,111)]}.get(source,[])
+                for px,py in points:
+                    index=row['frame']
+                    rgba=atlas.getpixel((index%report['columns']*256+px,index//report['columns']*256+py))
+                    self.assertGreater(rgba[3],240,(index,px,py,rgba))
+                    self.assertGreater(min(rgba[:3]),180,(index,px,py,rgba))
+
     def test_every_frame_is_an_unwarped_source_drawing(self):
         import hashlib
         from PIL import Image
         from build_dance_25d import ROOT,BRIDGES,SOURCE,clean_cell
+        from dance_artwork_repair import repair_cell
         import numpy as np
         folder=ROOT/'assets/actions/music-waltz'
         report=json.loads((folder/'choreography.json').read_text())
@@ -29,7 +53,7 @@ class RouteTests(unittest.TestCase):
             source=SOURCE/'consistent-keys'/check['source']
             if not source.exists():source=BRIDGES/check['source']
             with Image.open(source) as image:
-                expected.append(clean_cell(np.array(image.convert('RGBA'))).tobytes())
+                expected.append(repair_cell(clean_cell(np.array(image.convert('RGBA'))), check['source']).tobytes())
             self.assertEqual(hashlib.sha256(expected[-1]).hexdigest(),check['cell_sha256'])
         with Image.open(folder/'atlas.png') as atlas:
             for row in track['rows']:
@@ -181,6 +205,11 @@ class LiveStageTests(unittest.TestCase):
             with patch('pet.time.monotonic',return_value=now):self.pet.renderer.draw(painter,self.pet.state)
             painter.end()
         render(self.now+.1)
+        # Native-resolution buffer keeps detail without changing logical size.
+        buffer=self.pet.renderer.last_display_image
+        self.assertEqual((buffer.width(),buffer.height()),(360,380))
+        self.assertEqual((buffer.deviceIndependentSize().width(),
+                          buffer.deviceIndependentSize().height()),(180.,190.))
         before=self.pet.renderer.last_pose
         follow_tempo(player,144,self.now+.2,.1)
         render(self.now+.2)

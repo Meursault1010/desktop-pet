@@ -12,6 +12,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import QImage
+from idle_states import motion_posture
 
 ROOT = Path(__file__).resolve().parent/'assets/action-motion'
 # draw_pose composites actions into a 160x160 box. Prepare the warps above
@@ -27,6 +28,12 @@ _prepared = OrderedDict()
 
 def pair_key(before, after):
     return f'{before[0]}:{before[1]}>{after[0]}:{after[1]}'
+
+
+def flow_allowed(before, after):
+    """Allow warps wherever both poses share a known body orientation."""
+    return all(motion_posture(ref[0]) in ('stand', 'sit', 'prone', 'sleep')
+               for ref in (before, after))
 
 
 @lru_cache(maxsize=1)
@@ -89,6 +96,8 @@ def sample_pose(before, after, progress):
     still advances faster than a 60Hz display while removing the per-tick
     numpy blend from the paint path.
     """
+    if not flow_allowed(before, after):
+        return None
     entry = manifest().get(pair_key(before, after))
     if entry is None or before == after or progress <= 0:
         return None
@@ -102,6 +111,8 @@ def sample_pose(before, after, progress):
 
 def prefetch(pairs):
     for before, after in pairs:
+        if not flow_allowed(before, after):
+            continue
         entry = manifest().get(pair_key(before, after))
         if entry:
             prepare(entry)

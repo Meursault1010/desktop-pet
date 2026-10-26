@@ -58,7 +58,27 @@ function configureIpc(){
   ipcMain.handle('yuki:translation-capture',event=>{guard(event);return startTranslationCapture();});
   ipcMain.handle('yuki:quick-tools-sync',async(event,value)=>{guard(event);await quickTools.sync(value);});
   ipcMain.handle('yuki:desktop-snapshot',event=>{guard(event);return desktopServices.snapshot();});
-  ipcMain.handle('yuki:desktop-action',(event,input)=>{guard(event);return desktopServices.action(input);});
+  ipcMain.handle('yuki:desktop-action',async(event,input)=>{
+    guard(event);
+    return desktopServices.action(input);
+  });
+  let builtinChanging=false;
+  ipcMain.handle('yuki:builtin-model-set',async(event,enabled)=>{
+    guard(event);
+    if(typeof enabled!=='boolean')throw Error('内置模型开关无效');
+    if(builtinChanging)throw Error('内置模型正在切换，请稍候');
+    builtinChanging=true;
+    try{
+      modelConfig.setBuiltinEnabled(enabled);
+      if(!enabled){
+        if(modelConfig.value.endpoint===LOCAL_ENDPOINT){assistant.cancel();quickChat.cancel();translation?.cancel();}
+        await localModel.stop();
+      }else{
+        try{await localModel.resume();}catch(error){modelConfig.setBuiltinEnabled(false);await localModel.stop();throw error;}
+      }
+      return modelConfig.snapshot();
+    }finally{builtinChanging=false;}
+  });
   ipcMain.handle('yuki:model-config',event=>{guard(event);return modelConfig.snapshot();});
   ipcMain.handle('yuki:model-config-set',(event,input)=>{guard(event);if(assistant.active||quickChat.busy)throw new Error('请等待当前对话结束后再更改模型');translation?.cancel();const result=modelConfig.set(input);assistant.configure(modelConfig);return result;});
   ipcMain.handle('yuki:ai-attach',async event=>{guard(event);
@@ -72,8 +92,15 @@ function configureIpc(){
   ipcMain.handle('yuki:ai-chat',async(event,payload)=>{guard(event);
     if(quickChat.busy)throw new Error('yuki 正在回复桌面快捷聊天，请稍等');
     if(sidecar?.ready)await sidecar.request('wake_sleep',{});
-    const result=await assistant.chat(payload,value=>send('yuki:ai-update',value));
+    if(sidecar?.ready)await sidecar.request('desktop_event',{kind:'thinking',text:'正在准备回复'}).catch(log);
+    let result;
+    try{result=await assistant.chat(payload,value=>send('yuki:ai-update',value));}
+    catch(error){
+      if(sidecar?.ready&&!/回复已停止|等待超时/.test(String(error?.message||error)))await sidecar.request('desktop_event',{kind:'error',text:'这次回复没有完成'}).catch(log);
+      throw error;
+    }
     assistant.preferredModel=payload.model;
+    if(sidecar?.ready)await sidecar.request('desktop_event',{kind:'done',text:'回复已准备好'}).catch(log);
     if(sidecar?.ready)await sidecar.request('speech_update',{id:payload.id,phase:'done',text:result.text.slice(0,6000)}).catch(log);
     return result;
   });
@@ -168,8 +195,8 @@ else {
     localModel=new LocalModel({root:app.isPackaged?path.join(process.resourcesPath,'local-model/qwen'):path.resolve(__dirname,'../../../../local-model/qwen'),log});
     // Adopt the bundled model for the old default local connection; retain explicitly selected services.
     if(localModel.available&&!modelConfig.key&&['http://127.0.0.1:1235/v1','http://127.0.0.1:1234/v1'].includes(modelConfig.value.endpoint)&&(!modelConfig.value.model||modelConfig.value.model===LOCAL_MODEL))modelConfig.set({endpoint:LOCAL_ENDPOINT,model:LOCAL_MODEL});
-    modelConfig.ensureReady=endpoint=>endpoint===LOCAL_ENDPOINT?localModel.ensure():Promise.resolve();
-    if(modelConfig.value.endpoint===LOCAL_ENDPOINT)void localModel.ensure().catch(error=>log('本地 Qwen：'+error.message));
+    modelConfig.ensureReady=endpoint=>endpoint===LOCAL_ENDPOINT?(modelConfig.builtinEnabled?localModel.ensure():Promise.reject(Error('内置模型已关闭，请在设置 → 通用中开启，或切换云端 API。'))):Promise.resolve();
+    if(modelConfig.builtinEnabled&&modelConfig.value.endpoint===LOCAL_ENDPOINT)void localModel.ensure().catch(error=>log('本地 Qwen：'+error.message));
     const {WorkbenchConfig}=require('./workbench-config.cjs');workbenchConfig=new WorkbenchConfig(path.join(app.getPath('userData'),'workbench.json'));
     assistant.configure(modelConfig);
     desktopServices=new DesktopServices({app,clipboard,powerMonitor,react:async entry=>{

@@ -18,6 +18,7 @@ function fixture(t){
   t.after(()=>{service.stop();fs.rmSync(root,{recursive:true,force:true});});
   return {root,downloads,events,service,powerMonitor,read:()=>copied};
 }
+
 test('clipboard keeps ten recent unique texts, pause and clear do not leak old content',()=>{
   const history=new ClipboardHistory();
   for(let i=0;i<12;i++)history.capture('内容 '+i);

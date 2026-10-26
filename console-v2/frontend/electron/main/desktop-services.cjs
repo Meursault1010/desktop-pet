@@ -31,7 +31,7 @@ async function weather(city,fetchImpl=fetch){
 class DesktopServices {
   constructor({app,clipboard,powerMonitor,react,fetchImpl=fetch}){
     Object.assign(this,{app,clipboard,powerMonitor,react,fetchImpl});
-    this.history=new ClipboardHistory();this.events=[];this.media={available:false,status:'未检测到播放会话'};
+    this.history=new ClipboardHistory();this.events=[];this.media={available:false};
     this.cpuPrevious=null;this.system={cpu:0,memoryUsed:os.totalmem()-os.freemem(),memoryTotal:os.totalmem()};this.sampleSystem();
     this.battery={available:false};this.drives=[];this.drivesInitialized=false;this.timers=[];this.pending=new Map();this.seen=new Map();this.weather=null;this.city='';this.weatherAt=0;this.weatherBusy=null;
     this.inbox=path.join(app.getPath('userData'),'events');fs.mkdirSync(this.inbox,{recursive:true});
@@ -45,7 +45,7 @@ class DesktopServices {
   }
   save(){fs.writeFileSync(this.settingsPath,JSON.stringify({city:this.city,clipboardPaused:this.history.paused}));}
   event(kind,text){
-    if(!['usb','charging','download','success','failure'].includes(kind))return;
+    if(!['usb','charging','download','success','failure','thinking','working','waiting','done','error'].includes(kind))return;
     const last=this.events[0];if(last&&last.kind===kind&&last.text===text&&Date.now()-last.at<10000)return;
     const entry={kind,text:String(text).slice(0,180),at:Date.now()};this.events=[entry,...this.events].slice(0,20);
     Promise.resolve(this.react(entry)).catch(()=>{});
@@ -64,10 +64,9 @@ class DesktopServices {
       this.worker=spawn('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'windows-status.ps1')],{windowsHide:true,stdio:['ignore','pipe','pipe']});
       let buffer='';this.worker.stdout.setEncoding('utf8');this.worker.stdout.on('data',chunk=>{
         buffer+=chunk;if(buffer.length>65536){buffer='';return;}
-        const lines=buffer.split('\n');buffer=lines.pop();for(const line of lines){try{const value=JSON.parse(line);this.media=value.media;this.battery=value.battery;if(this.drivesInitialized){for(const drive of value.drives||[])if(!this.drives.includes(drive))this.event('usb',`发现新的 U 盘：${drive}`);}this.drives=value.drives||[];this.drivesInitialized=true;}catch{}}
+        const lines=buffer.split('\n');buffer=lines.pop();for(const line of lines){try{const value=JSON.parse(line);this.battery=value.battery;if(this.drivesInitialized){for(const drive of value.drives||[])if(!this.drives.includes(drive))this.event('usb',`发现新的 U 盘：${drive}`);}this.drives=value.drives||[];this.drivesInitialized=true;}catch{}}
       });
-      this.worker.stderr.resume();this.worker.on('error',()=>{this.media={available:false,status:'Windows 媒体服务不可用'};});
-      this.worker.on('exit',()=>{this.media={available:false,status:'Windows 媒体服务已停止'};});
+      this.worker.stderr.resume();this.worker.on('error',()=>{});
     }
   }
   scanDownloads(){
@@ -89,7 +88,7 @@ class DesktopServices {
   scanInbox(){
     for(const name of fs.readdirSync(this.inbox)){
       if(!/^[a-zA-Z0-9-]+\.json$/.test(name)||this.inboxSeen.has(name))continue;
-      try{const file=path.join(this.inbox,name);if(fs.statSync(file).size>4096){this.inboxSeen.add(name);continue;}const value=JSON.parse(fs.readFileSync(file,'utf8'));if(['success','failure','download'].includes(value.kind)&&typeof value.text==='string')this.event(value.kind,value.text);fs.unlinkSync(file);}catch{}
+      try{const file=path.join(this.inbox,name);if(fs.statSync(file).size>4096){this.inboxSeen.add(name);continue;}const value=JSON.parse(fs.readFileSync(file,'utf8'));if(['success','failure','download','thinking','working','waiting','done','error'].includes(value.kind)&&typeof value.text==='string')this.event(value.kind,value.text);fs.unlinkSync(file);}catch{}
     }
   }
   sampleSystem(){const next=os.cpus().reduce((a,c)=>({idle:a.idle+c.times.idle,total:a.total+Object.values(c.times).reduce((x,y)=>x+y,0)}),{idle:0,total:0});const p=this.cpuPrevious,total=p?next.total-p.total:0;this.system={cpu:total>0?Math.max(0,Math.min(100,100*(1-(next.idle-p.idle)/total))):0,memoryUsed:os.totalmem()-os.freemem(),memoryTotal:os.totalmem()};this.cpuPrevious=next;}
@@ -114,6 +113,6 @@ class DesktopServices {
     }else throw new Error('未知桌面工具');
     return this.snapshot();
   }
-  stop(){for(const timer of this.timers)clearInterval(timer);this.timers=[];this.worker?.kill();if(this.onAC)this.powerMonitor.removeListener('on-ac',this.onAC);this.started=false;}
+  stop(){this.started=false;for(const timer of this.timers)clearInterval(timer);this.timers=[];this.worker?.kill();if(this.onAC)this.powerMonitor.removeListener('on-ac',this.onAC);}
 }
 module.exports={ClipboardHistory,DesktopServices,weather};

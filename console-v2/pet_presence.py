@@ -1,4 +1,4 @@
-"""Opaque, reversible edge travel with precomputed optical-flow pose samples."""
+"""Opaque, reversible edge travel sharing the approved ordinary walk model."""
 import time
 from pathlib import Path
 from PySide6.QtCore import QRectF
@@ -54,15 +54,17 @@ class Presence:
         self.home = (x,y)
         self.edge = 'left' if abs(x-left) < abs(right-width-x) else 'right'
         off = (left-width if self.edge == 'left' else right, y)
-        # Drawn head reaches ~35% into the logical canvas; expose that region.
-        peek = (left-width*.57 if self.edge == 'left' else right-width*.43, y)
+        # The approved short-limbed model has a narrower silhouette. Expose
+        # enough canvas for the actual head, rather than only empty padding.
+        peek = (left-width*.38 if self.edge == 'left' else right-width*.62, y)
         self.origin,self.destination = (off,self.home) if visible else (self.home,off)
         self.peek = peek
         self.entering = self.target = bool(visible)
         self.sequence = ENTER + ('idle.png',) if visible else ('idle.png',) + EXIT
         durations = list(ENTER_DURATIONS if visible else EXIT_DURATIONS)
         # Allow enough travel time on wide desktops, retaining observation holds.
-        travel = max(.48, min(2.4, abs(x-peek[0])/300))
+        from locomotion import walking_speed
+        travel = max(.6, abs(x-peek[0])/walking_speed(48))
         if visible:
             durations[5:8] = [travel/3]*3
             self.walk_start = sum(durations[:5])
@@ -84,9 +86,7 @@ class Presence:
         for i,key in enumerate(self.sequence):
             if key not in self.frames:
                 self.frames[key] = QPixmap(str(ASSETS/key))
-            motion = self.motion_key(key)
-            if i < len(self.sequence)-1 and motion not in self.frames:
-                self.frames[motion] = QPixmap(str(ASSETS/motion))
+        # Non-idle presence no longer loads the old optical-flow sheets.
 
     def motion_key(self, key):
         if key in ('enter-10.png','idle.png'):
@@ -122,16 +122,21 @@ class Presence:
         if not self.sequence:
             return None
         elapsed = self.clock(now)
+        if self.walk_start <= elapsed < self.walk_end:
+            from locomotion import frames, walk_stride
+            keys = frames('walk-left' if self.entering else 'walk-right')
+            # The same step geometry as normal walking, sampled by travel.
+            x, _ = self.position(now)
+            start = self.peek if self.entering else self.origin
+            distance = abs(x-start[0])
+            phase = distance / max(1., walk_stride('walk-right'))
+            return keys[int(phase*len(keys)) % len(keys)]
         for i,d in enumerate(self.durations):
             if elapsed < d or i == len(self.sequence)-1:
                 key = self.sequence[i]
-                # Observation frames hold briefly, then ease into the next pose.
-                p = ease((elapsed/d-.25)/.75)
-                sheet = self.frames.get(self.motion_key(key))
-                if i < len(self.sequence)-1 and sheet is not None and not sheet.isNull():
-                    n = min(24,max(0,round(p*24)))
-                    return sheet.copy(n%5*256,n//5*256,256,256)
                 frame = self.frames.get(key)
+                if key != 'idle.png' and self.entering and frame is not None:
+                    frame = frame.transformed(QTransform().scale(-1,1))
                 if key == 'idle.png' and self.edge == 'left' and frame is not None:
                     frame = frame.transformed(QTransform().scale(-1,1))
                 return frame
@@ -149,11 +154,20 @@ class Presence:
         left,top,w,h = self.area
         painter.setClipRect(QRectF(left-x,top-y,w,h))
         painter.scale(sx,sy)
-        if self.edge == 'left':
+        walking = self.walk_start <= self.clock(now) < self.walk_end
+        if self.edge == 'left' and not walking:
             painter.translate(180,0)
             painter.scale(-1,1)
         painter.setRenderHint(painter.RenderHint.SmoothPixmapTransform,True)
-        painter.drawPixmap(QRectF(0,10,180,180),frame,QRectF(frame.rect()))
+        if walking:
+            from walk_rig import paint as paint_walk
+            start=self.peek if self.entering else self.origin
+            end=self.destination if self.entering else self.peek
+            sign=1 if end[0]>=start[0] else -1
+            paint_walk(painter,QRectF(10,181.875-160*249/256,160,160),
+                       'walk-right' if sign>0 else 'walk-left',abs(x-start[0])/max(.01,sx),(sign,0.))
+        else:
+            painter.drawPixmap(QRectF(0,10,180,180),frame,QRectF(frame.rect()))
         painter.restore()
         return True
 

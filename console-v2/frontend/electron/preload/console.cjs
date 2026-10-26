@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('yukiHost',Object.freeze({
   translationSubscribe:listener=>{const update=(_event,value)=>listener(value);ipcRenderer.on('yuki:translation-state',update);return()=>ipcRenderer.removeListener('yuki:translation-state',update);},
   desktopSnapshot:()=>ipcRenderer.invoke('yuki:desktop-snapshot'),
   desktopAction:input=>ipcRenderer.invoke('yuki:desktop-action',input),
+  builtinModelSet:enabled=>ipcRenderer.invoke('yuki:builtin-model-set',enabled),
   modelConfig:()=>ipcRenderer.invoke('yuki:model-config'),
   modelConfigSet:input=>ipcRenderer.invoke('yuki:model-config-set',input),
   desktopSubscribe:listener=>{const update=(_event,value)=>listener(value);ipcRenderer.on('yuki:desktop-event',update);return ()=>ipcRenderer.removeListener('yuki:desktop-event',update);},

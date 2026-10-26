@@ -24,6 +24,8 @@ class ClickTests(unittest.TestCase):
         self.pet.animator.timer.stop()
 
     def tearDown(self):
+        # A press starts the surface scanner; join it before Qt tears down.
+        self.pet.snap_preview.shutdown()
         self.pet.close()
         self.pet.deleteLater()
         self.app.sendPostedEvents(None, 0)
@@ -42,7 +44,6 @@ class ClickTests(unittest.TestCase):
     def test_single_is_immediate_shy_and_never_jumps_or_moves_window(self):
         origin = self.pet.pos()
         self.click()
-        self.assertFalse(self.pet.click_timer.isActive())
         self.assertEqual(self.pet.state.action_player.action['id'], 'shy')
         self.assertEqual(self.pet.state.click_reaction.kind, 'shy')
         player = self.pet.state.action_player
@@ -57,7 +58,6 @@ class ClickTests(unittest.TestCase):
             self.click()
             self.pet.mouseDoubleClickEvent(self.event(QMouseEvent.Type.MouseButtonDblClick))
             self.pet.mouseReleaseEvent(self.event(QMouseEvent.Type.MouseButtonRelease))
-            self.assertFalse(self.pet.click_timer.isActive())
             self.assertEqual(play.call_args_list, [unittest.mock.call('shy'), unittest.mock.call('shy')])
             self.assertEqual(self.pet.state.action_player.action['id'], 'shy')
             self.assertEqual(self.pet.state.click_reaction.kind, 'shy')
@@ -67,11 +67,9 @@ class ClickTests(unittest.TestCase):
         self.pet.mousePressEvent(self.event(QMouseEvent.Type.MouseButtonPress))
         self.pet.mouseMoveEvent(self.event(QMouseEvent.Type.MouseMove, 155, 95))
         self.assertTrue(self.pet.dragged)
-        self.assertFalse(self.pet.click_timer.isActive())
         self.assertIsNone(self.pet.state.click_reaction.started)
         self.assertIsNone(self.pet.state.action_player.action)
         self.pet.hide()
-        self.assertFalse(self.pet.click_timer.isActive())
         self.assertIsNone(self.pet.drag_origin)
         self.assertIsNone(self.pet.state.drag_feedback)
 
@@ -122,13 +120,11 @@ class ClickTests(unittest.TestCase):
             self.pet.end_drag_feedback()
         self.assertEqual(self.pet.size(),size)
 
-    def test_hide_cancels_single_before_timeout(self):
+    def test_hide_stops_click_feedback(self):
         self.click()
         self.pet.hide()
-        self.assertFalse(self.pet.click_timer.isActive())
-        with patch.object(self.pet, 'play_click_reaction') as play:
-            self.pet.finish_single_click()
-            play.assert_not_called()
+        self.assertIsNone(self.pet.state.action_player.action)
+        self.assertIsNone(self.pet.state.click_reaction.started)
 
     def test_spring_is_bounded_directional_and_returns_to_rest(self):
         response = ClickReaction()

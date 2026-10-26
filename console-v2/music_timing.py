@@ -2,14 +2,17 @@
 
 120 BPM is a playback reference, not a claim of annotated foot contacts.
 Changing speed preserves the current animation position.
+Music dancing uses a relaxed 50% pace; other actions are unaffected.
 """
 import math
+
+DANCE_PACE = .5
 
 
 def dance_speed(bpm):
     if not isinstance(bpm, (int, float)) or not math.isfinite(bpm) or bpm <= 0:
-        return 1.
-    return max(.8, min(1.2, bpm/120.))
+        return DANCE_PACE
+    return DANCE_PACE * max(.8, min(1.2, bpm/120.))
 
 
 def follow_tempo(player, bpm, now, dt):

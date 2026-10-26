@@ -116,16 +116,40 @@ class InbetweenTests(unittest.TestCase):
         future = Future()
         future.set_result((colour,)*25)
         entry = {'file':'constant-test.png','frames':25,'columns':5}
-        key = 'constant:0>constant:1'
+        key = 'sit-neat:0>sit-neat:1'
         with patch('action_inbetweens.manifest',return_value={key:entry}),\
              patch('action_inbetweens.prepare',return_value=future):
-            samples = [sample_pose(('constant',0),('constant',1),p)[0]
+            samples = [sample_pose(('sit-neat',0),('sit-neat',1),p)[0]
                        for p in (.5,.51,.52,.53,.54)]
         pixels = [(image.pixelColor(80,80).red(), image.pixelColor(80,80).green(),
                    image.pixelColor(80,80).blue(), image.pixelColor(80,80).alpha())
                   for image in samples]
         self.assertEqual(len(set(pixels)),1)
         self.assertEqual(pixels[0][3],128)
+
+    def test_physical_and_music_clips_never_decode_or_sample_optical_flow(self):
+        for key in ('throw-flight','impact-left','impact-right','impact-ceiling',
+                    'impact-floor','music-waltz','dragged'):
+            pair=((key,0),(key,1))
+            with patch('action_inbetweens.prepare') as decode:
+                self.assertIsNone(sample_pose(*pair,.5),key)
+                inbetweens.prefetch([pair])
+                decode.assert_not_called()
+
+    def test_expressive_actions_use_their_shipped_inbetweens(self):
+        for key in ('curious','play-peek','celebrate','affection','play-climb-up'):
+            pair=((key,0),(key,1))
+            self.assertIn(inbetweens.pair_key(*pair), inbetweens.manifest(), key)
+            with patch('action_inbetweens.prepare') as decode:
+                inbetweens.prefetch([pair])
+                decode.assert_called_once()
+
+    def test_idle_families_keep_their_optical_flow_permission(self):
+        for key in ('comb','sit-neat','prone-rest','sleep','lazy-roll-toward','lazy-roll-away'):
+            self.assertTrue(inbetweens.flow_allowed((key,0),(key,1)),key)
+        self.assertTrue(inbetweens.flow_allowed(('sit-neat',0),('affection',0)))
+        self.assertFalse(inbetweens.flow_allowed(('sit-neat',0),('throw-flight',0)))
+        self.assertFalse(inbetweens.flow_allowed(('sit-neat',0),('music-waltz',0)))
 
     def test_real_render_advances_between_authored_poses_and_stops_immediately(self):
         state, renderer = PetState(), PetRenderer()

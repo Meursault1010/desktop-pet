@@ -18,7 +18,7 @@ class PlayPolicy:
     def remaining(self, now, activity):
         while self.motion and self.motion[0][0] <= now-600:
             self.motion.popleft()
-        limit = {'少动': 30., '默认': 60., '活跃': 90.}[activity]
+        limit = {'少动': 30., '默认': 60., '活跃': float('inf')}[activity]
         return max(0., limit-sum(seconds for _, seconds in self.motion))
 
     def advance(self, now, dt, moving=False, asleep=False):
@@ -33,17 +33,17 @@ class PlayPolicy:
         self.energy = max(0., min(100., self.energy + dt*(.12 if asleep else -.35 if moving else .025)))
         self.curiosity = min(100., self.curiosity + (0 if asleep else dt*.035))
 
-    def available(self, kind, now):
-        return (now >= self.quiet_until and now >= self.stories.get(kind, 0)
+    def available(self, kind, now, exploring=False, unrestricted=False):
+        return ((exploring or now >= self.quiet_until) and now >= self.stories.get(kind, 0)
                 and kind not in list(self.recent)[-2:]
-                and not (self.energy < 30 and kind == 'orbit')
-                and not (self.energy < 15 and kind != 'rest'))
+                and not (not unrestricted and self.energy < 30 and kind == 'orbit')
+                and not (not unrestricted and self.energy < 15 and kind != 'rest'))
 
-    def complete(self, kind, icon_id, now, rest_seconds):
+    def complete(self, kind, icon_id, now, rest_seconds, *, exploring=False):
         self.recent.append(kind)
-        self.stories[kind] = now+480
+        self.stories[kind] = now+(45 if exploring else 480)
         if icon_id is not None:
-            self.icons[icon_id] = now+300
+            self.icons[icon_id] = now+(60 if exploring else 300)
             count, _ = self.visits.get(icon_id, (0, now))
             self.visits[icon_id] = (min(10,count+1),now)
             if len(self.visits) > 64:

@@ -7,6 +7,7 @@ grid never renders them larger than ~130 CSS pixels.
 import argparse
 import io
 import json
+import os
 import shutil
 import time
 from pathlib import Path
@@ -17,6 +18,21 @@ ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / 'assets' / 'actions'
 PUBLIC = ROOT / 'frontend' / 'public' / 'actions'
 POSTER_EDGE = 512
+
+
+def atomic_write(target, payload):
+    """publish large mirrors without tripping Windows filter-driver EINVAL."""
+    for attempt in range(5):
+        temporary = target.with_name(f'{target.name}.{os.getpid()}.{attempt}.tmp')
+        try:
+            temporary.write_bytes(payload)
+            os.replace(temporary, target)
+            return
+        except OSError:
+            temporary.unlink(missing_ok=True)
+            if attempt == 4:
+                raise
+            time.sleep(.35*(attempt+1))
 
 
 def lossless_webp(image, method=6):
@@ -46,7 +62,7 @@ def convert_atlas(action, force):
         image = image.convert('RGBA')
         payload = lossless_webp(image)
         verify(image, payload, action['id'] + '/atlas')
-    target.write_bytes(payload)
+    atomic_write(target, payload)
     for stale in (target.with_suffix('.png'),):
         if stale.exists():
             stale.unlink()
@@ -65,7 +81,7 @@ def convert_poster(action, force):
         image.thumbnail((POSTER_EDGE, POSTER_EDGE), Image.Resampling.LANCZOS)
         payload = lossless_webp(image, method=6)
         verify(image, payload, action['id'] + '/poster')
-    target.write_bytes(payload)
+    atomic_write(target, payload)
     stale = target.with_suffix('.png')
     if stale.exists():
         stale.unlink()
@@ -94,7 +110,8 @@ def main():
         if folder.is_dir() and folder.name not in known:
             shutil.rmtree(folder)
             print(f'removed uncatalogued mirror {folder.name}')
-    (PUBLIC / 'catalog.json').write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    atomic_write(PUBLIC / 'catalog.json',
+                 (json.dumps(catalog, ensure_ascii=False, indent=2) + '\n').encode('utf-8'))
     if before:
         print(f'\n{len(catalog)} actions, {before/1048576:.1f} MB of source raster -> {after/1048576:.1f} MB WebP '
               f'({(1-after/before)*100:.1f}% smaller) in {time.time()-started:.1f}s')

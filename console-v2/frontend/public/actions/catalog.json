@@ -354,13 +354,14 @@
     "name": "撒娇",
     "category": "互动",
     "origin": "generated",
-    "frames": 6,
+    "frames": 7,
     "columns": 4,
     "cell": 256,
     "durations": [
       180,
       220,
-      460,
+      230,
+      230,
       520,
       340,
       300
@@ -368,9 +369,10 @@
     "atlas": "actions/affection/atlas.webp",
     "poster": "actions/affection/poster.webp",
     "sources": [
-      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\affection\\raw.png"
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\affection\\raw.png",
+      "action-work\\affection-bridge\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧",
+    "review": "已审查：姿态 2→3 之间补入双手离开下巴、于胸前将合未合的中帧",
     "scale_calibrated": true,
     "tempo_profile": "温柔回应"
   },
@@ -423,31 +425,6 @@
     "review": "首轮静帧检查通过 · 六关键帧",
     "scale_calibrated": true,
     "tempo_profile": "短促表达"
-  },
-  {
-    "id": "celebrate",
-    "name": "庆祝",
-    "category": "情绪",
-    "origin": "generated",
-    "frames": 6,
-    "columns": 4,
-    "cell": 256,
-    "durations": [
-      180,
-      160,
-      180,
-      160,
-      180,
-      220
-    ],
-    "atlas": "actions/celebrate/atlas.webp",
-    "poster": "actions/celebrate/poster.webp",
-    "sources": [
-      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\celebrate\\raw.png"
-    ],
-    "review": "首轮静帧检查通过 · 六关键帧",
-    "scale_calibrated": true,
-    "tempo_profile": "轻快节拍"
   },
   {
     "id": "clicked",
@@ -507,13 +484,14 @@
     "name": "好奇查看",
     "category": "互动",
     "origin": "generated",
-    "frames": 6,
+    "frames": 7,
     "columns": 4,
     "cell": 256,
     "durations": [
       180,
       240,
-      450,
+      225,
+      225,
       550,
       360,
       280
@@ -521,9 +499,10 @@
     "atlas": "actions/curious/atlas.webp",
     "poster": "actions/curious/poster.webp",
     "sources": [
-      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\curious\\raw.png"
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\curious\\raw.png",
+      "action-work\\curious-bridge\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧",
+    "review": "已审查：姿态 2→3 之间补入放大镜抬至胸前、另一手仍在颊边的中帧",
     "scale_calibrated": true,
     "tempo_profile": "观察与停顿"
   },
@@ -742,13 +721,14 @@
     "name": "伸懒腰",
     "category": "站立待机",
     "origin": "generated",
-    "frames": 6,
+    "frames": 7,
     "columns": 4,
     "cell": 256,
     "durations": [
       240,
       360,
-      540,
+      270,
+      270,
       600,
       340,
       240
@@ -756,9 +736,10 @@
     "atlas": "actions/stretch/atlas.webp",
     "poster": "actions/stretch/poster.webp",
     "sources": [
-      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\stretch\\raw.png"
+      "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\console-v2\\action-work\\stretch\\raw.png",
+      "action-work\\stretch-bridge\\raw.png"
     ],
-    "review": "首轮静帧检查通过 · 六关键帧",
+    "review": "已审查：姿态 2→3 之间补入身体初倾、双臂仍在头顶的中帧，流程连续",
     "scale_calibrated": true,
     "tempo_profile": "伸展与放松",
     "idle_state": "stand",
@@ -2426,5 +2407,31 @@
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\09-raw.png",
       "C:\\Users\\meursault\\Documents\\ChatGPT\\桌面宠物\\output\\dance-rest-20261023\\10-raw.png"
     ]
+  },
+  {
+    "id": "celebrate",
+    "name": "庆祝",
+    "category": "情绪",
+    "origin": "generated",
+    "frames": 7,
+    "columns": 4,
+    "cell": 256,
+    "durations": [
+      180,
+      160,
+      180,
+      170,
+      160,
+      180,
+      220
+    ],
+    "atlas": "actions/celebrate/atlas.webp",
+    "poster": "actions/celebrate/poster.webp",
+    "sources": [
+      "action-work\\celebrate-bridge\\raw.png"
+    ],
+    "review": "已审查：姿态 2→3 之间补入抬手中帧，流程连续",
+    "scale_calibrated": true,
+    "tempo_profile": "轻快节拍"
   }
 ]

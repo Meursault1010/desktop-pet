@@ -6,12 +6,12 @@ from PySide6.QtGui import QColor, QCursor, QGuiApplication, QFont, QIcon, QPaint
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMenu, QToolButton, QVBoxLayout, QWidget, QWidgetAction, QTextBrowser, QTabBar, QStackedWidget, QScrollArea, QFrame
 
 
-def menu_icon(kind):
+def menu_icon(kind, color='#527b97'):
     image = QPixmap(20, 20)
     image.fill(Qt.GlobalColor.transparent)
     painter = QPainter(image)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.setPen(QPen(QColor('#527b97'), 1.6, Qt.PenStyle.SolidLine,
+    painter.setPen(QPen(QColor(color), 1.6, Qt.PenStyle.SolidLine,
                         Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
     if kind == 'console':
         painter.drawRoundedRect(3, 3, 14, 14, 2, 2)
@@ -151,29 +151,33 @@ class CompanionMenu(QMenu):
             return
         self._theme_key = (theme, reduced, hasattr(self, 'chat_input'))
         palettes = {
-            'light': ('#f9fbfd', '#20394e', '#526a7d', '#eaf0f5', '#d3dfe8', '#2e6388'),
-            'mist': ('#e9eff4', '#243c50', '#50667a', '#dce6ee', '#bdcedc', '#295d84'),
-            'dark': ('#172431', '#e6eef5', '#a7bbc9', '#233849', '#3b5367', '#a6cbea'),
+            'light': ('#fcfdfd', '#111b22', '#5d6c75', '#e7edf0', '#d3dfe8', '#2f6f8f'),
+            'mist': ('#f7f9fa', '#15242c', '#546a76', '#dfe8ec', '#c5d2da', '#346f8b'),
+            'dark': ('#11171b', '#e9eef1', '#94a3ac', '#1b242a', '#3b4b56', '#9fc9dc'),
         }
         bg, fg, muted, hover, border, accent = palettes.get(theme, palettes['mist'])
         self.setStyleSheet(f'''
-            QMenu {{ background:{bg}; color:{fg}; border:1px solid {border}; border-radius:12px; padding:8px; }}
+            QMenu {{ background:{bg}; color:{fg}; border:1px solid {border}; border-radius:14px; padding:8px; font-size:13px; }}
             QMenu::item {{ padding:11px 24px 11px 14px; border-radius:6px; }}
-            QMenu::item:selected {{ background:{hover}; }}
+            QMenu::item:selected {{ background:{hover}; color:{fg}; }}
+            QMenu::item:disabled {{ color:{muted}; }}
             QMenu::separator {{ height:1px; background:{border}; margin:7px 12px; }}
             QMenu::indicator {{ width:13px; height:13px; margin-left:12px; border:1px solid {border}; border-radius:3px; }}
             QMenu::indicator:checked {{ background:{accent}; }}
             QWidget#menu-header, QLabel {{ background:transparent; color:{fg}; border:none; }}
             QLabel#wordmark {{ font:italic 26px 'Georgia'; color:{accent}; }}
-            QLineEdit {{ background:{hover}; color:{fg}; border:1px solid {border}; border-radius:8px; padding:10px; selection-background-color:{accent}; }}
+            QLineEdit {{ background:{bg}; color:{fg}; border:1px solid {border}; border-radius:8px; padding:10px; selection-background-color:{accent}; }}
             QLineEdit:focus {{ border-color:{accent}; }}
             QToolButton {{ background:{hover}; color:{accent}; border:1px solid {border}; border-radius:8px; padding:7px 10px; font-size:12px; }}
             QToolButton:hover {{ background:{border}; }}
+            QToolButton:focus {{ border-color:{accent}; }}
+            QToolButton:pressed {{ background:{border}; border-color:{accent}; }}
             QToolButton:disabled {{ color:{muted}; }}
         ''')
         self.setStyleSheet(self.styleSheet()+f"""
-            QTabBar::tab {{ color:{muted}; padding:8px 10px; border-bottom:2px solid transparent; }}
-            QTabBar::tab:selected {{ color:{accent}; border-bottom-color:{accent}; }}
+            QTabBar::tab {{ color:{muted}; padding:8px 10px; border:1px solid transparent; border-radius:6px; font-size:12px; }}
+            QTabBar::tab:hover {{ background:{hover}; color:{fg}; }}
+            QTabBar::tab:selected {{ color:{accent}; background:{hover}; border-color:{border}; }}
             QScrollArea, QScrollArea > QWidget > QWidget {{ background:transparent; border:none; }}
             QTextBrowser, QListWidget {{ background:transparent; color:{fg}; border:none; font-size:12px; }}
             QListWidget::item {{ padding:9px 5px; border-bottom:1px solid {border}; }}
@@ -188,6 +192,10 @@ class CompanionMenu(QMenu):
             QScrollBar::handle:vertical {{ background:{border}; border-radius:2px; min-height:24px; }}
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height:0; }}
         """)
+        self._icon_color = accent
+        for action in self.actions():
+            if action.objectName() in ('console', 'exit'):
+                action.setIcon(menu_icon(action.objectName(), accent))
         self.status.setStyleSheet(f'font-size:12px;color:{muted};')
         self.routine.setStyleSheet(f'font-size:11px;color:{muted};')
         self.celestial_header.reveal.setDuration(900)
@@ -195,11 +203,12 @@ class CompanionMenu(QMenu):
         if hasattr(self, 'chat_input'):
             self.chat_input.setStyleSheet('')
             self.chat_send.setStyleSheet('')
-            self.chat_hint.setStyleSheet(f'font-size:10px;color:{muted};')
+            self.chat_send.setIcon(menu_icon('send', accent))
+            self.chat_hint.setStyleSheet(f'font-size:11px;color:{muted};')
             self.chat_reply.setStyleSheet(f'font-size:12px;color:{fg};padding:8px 2px;')
 
     def command(self, name, label, callback, icon=None, checkable=False):
-        action = self.addAction(menu_icon(icon), label) if icon else self.addAction(label)
+        action = self.addAction(menu_icon(icon, getattr(self, '_icon_color', '#527b97')), label) if icon else self.addAction(label)
         action.setObjectName(name)
         action.setCheckable(checkable)
         action.triggered.connect(callback)
@@ -218,6 +227,7 @@ class CompanionMenu(QMenu):
         layout.setSpacing(7)
         composer.setFixedHeight(300)
         self.tabs = QTabBar()
+        self.tabs.setDrawBase(False)
         self.tabs.setExpanding(True)
         for title in ('对话', '剪贴板', '时间', '待办'): self.tabs.addTab(title)
         layout.addWidget(self.tabs)

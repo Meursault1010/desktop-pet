@@ -19,10 +19,23 @@ app.whenReady().then(async()=>{
  const click=async selector=>{await ui(`document.querySelector(${JSON.stringify(selector)})?.click()`);await ui(`new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);await delay(340);};
  const results=[];
  const flush=()=>fs.writeFileSync(path.join(out,'results.json'),JSON.stringify({results,errors},null,2));
+ // Legacy saved boards must discard the retired player without losing other widgets.
+ await ui(`localStorage.setItem('yuki-v2-pages',JSON.stringify([{id:'default',name:'默认总览',widgets:[{id:'old-player',type:'media',title:'正在聆听',width:1,height:260},{id:'kept',type:'system',title:'保留我的电脑状态',width:2,height:300}]}]))`);
+ await win.reload();await delay(350);
+ assert.equal(await ui(`!!document.querySelector('.widget-media,.media-v2')`),false);
+ assert.ok(await ui(`document.querySelector('.widget-system').textContent.includes('保留我的电脑状态')`));
+ assert.equal(await ui(`JSON.parse(localStorage.getItem('yuki-v2-pages'))[0].widgets.some(w=>w.type==='media')`),false);
+ await ui(`localStorage.removeItem('yuki-v2-pages')`);await win.reload();await delay(350);
+ assert.equal(await ui(`document.querySelectorAll('[data-widget]').length`),4);
  for(const [width,height] of (process.argv.includes('--interaction-only')?[]:[[1600,950],[1180,820],[900,740],[780,600],[520,420]])){
   win.setSize(width,height);await delay(180);if((width>=1180)!==await ui(`document.querySelector('.observatory').classList.contains('is-wide')`))await click('.window-size');
   for(const section of ['总览','角色','AI 助手','工具','设置']){
    await click(`nav button[aria-label="${section}"]`);
+   if(section==='character'){
+    assert.ok(await ui(`document.querySelector('.subtabs').textContent.includes('随音乐舞动')`));
+    assert.ok(await ui(`!!document.querySelector('.music-listening')`));
+    assert.equal(await ui(`!!document.querySelector('.media-v2,.media-seek,.lyrics-section')`),false);
+   }
    const count=await ui(`document.querySelectorAll('.subtabs [role=tab]').length`);
    for(let tab=0;tab<Math.max(count,1);tab++){
     if(count)await click(`.subtabs .sortable-item:nth-child(${tab+1}) button`);

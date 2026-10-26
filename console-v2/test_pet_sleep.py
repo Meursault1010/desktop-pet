@@ -18,6 +18,16 @@ class SleepTests(unittest.TestCase):
                preferences=NS(paused=False),isVisible=lambda:True,state_changed=Mock())
         return pet,cycle
 
+    @patch('pet_sleep.sleep_time',return_value=True)
+    def test_explicit_patrol_stays_awake_until_stopped(self,_):
+        p,s=self.pet()
+        p.state.patrol.exploring=True
+        s.tick(p,1000)
+        self.assertFalse(s.active)
+        p.state.patrol.exploring=False
+        s.tick(p,1001)
+        self.assertTrue(s.active)
+
     def test_boundaries(self):
         for hour,minute,expected in [(0,0,True),(6,59,True),(7,0,False),(12,59,False),
                                      (13,0,True),(13,59,True),(14,0,False),(23,59,False)]:

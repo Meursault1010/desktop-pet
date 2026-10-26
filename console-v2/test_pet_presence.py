@@ -115,18 +115,23 @@ class PresenceIntegration(unittest.TestCase):
         self.pet.present(False)
         self.assertFalse(self.pet.state.physics.active)
         self.assertIsNone(self.pet.drag_origin)
-        self.assertFalse(self.pet.click_timer.isActive())
+        self.assertIsNone(self.pet.state.click_reaction.started)
         self.finish()
 
     def test_render_mid_transition_and_preferences(self):
         from PySide6.QtGui import QImage, QPainter
         from PySide6.QtCore import Qt
         self.pet.present(True)
-        self.pet.advance_presence(self.pet.presence.started+.4)
+        sample_time = self.pet.presence.started+.4
+        self.pet.advance_presence(sample_time)
         image = QImage(self.pet.size(), QImage.Format.Format_ARGB32_Premultiplied)
         image.fill(Qt.GlobalColor.transparent)
         painter = QPainter(image)
-        self.pet.render(painter, self.pet.rect().topLeft())
+        # Paint the same sampled instant as the window position, rather than
+        # combining a future position with the real-clock offscreen start.
+        from unittest.mock import patch
+        with patch('pet_presence.time.monotonic', return_value=sample_time):
+            self.pet.render(painter, self.pet.rect().topLeft())
         painter.end()
         self.assertTrue(any(image.pixelColor(x,y).alpha() for x in range(0,180,10) for y in range(0,190,10)))
         self.assertEqual(self.pet.preferences.opacity, 100)

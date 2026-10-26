@@ -8,8 +8,14 @@ function endpoint(value){
   return u.href.replace(/\/$/,'');
 }
 class ModelConfig {
-  constructor(file,safeStorage){this.file=file;this.storage=safeStorage;this.value={endpoint:'http://127.0.0.1:1235/v1',model:''};this.key='';try{const saved=JSON.parse(fs.readFileSync(file,'utf8'));this.value={endpoint:endpoint(saved.endpoint),model:String(saved.model||'').slice(0,300)};if(saved.secret&&safeStorage.isEncryptionAvailable())this.key=safeStorage.decryptString(Buffer.from(saved.secret,'base64'));}catch{}}
-  snapshot(){return {...this.value,keyPresent:!!this.key,keyPersistent:this.storage.isEncryptionAvailable()};}
+  constructor(file,safeStorage){this.file=file;this.storage=safeStorage;this.value={endpoint:'http://127.0.0.1:1235/v1',model:''};this.builtinEnabled=false;this.key='';try{const saved=JSON.parse(fs.readFileSync(file,'utf8'));this.builtinEnabled=saved.builtinEnabled===true;this.value={endpoint:endpoint(saved.endpoint),model:String(saved.model||'').slice(0,300)};if(saved.secret&&safeStorage.isEncryptionAvailable())this.key=safeStorage.decryptString(Buffer.from(saved.secret,'base64'));}catch{}}
+  snapshot(){return {...this.value,builtinEnabled:this.builtinEnabled,keyPresent:!!this.key,keyPersistent:this.storage.isEncryptionAvailable()};}
+  setBuiltinEnabled(enabled){
+    if(typeof enabled!=='boolean')throw Error('内置模型开关无效');
+    const secret=this.key&&this.storage.isEncryptionAvailable()?this.storage.encryptString(this.key).toString('base64'):undefined;
+    fs.writeFileSync(this.file,JSON.stringify({...this.value,secret,builtinEnabled:enabled}));
+    this.builtinEnabled=enabled;return this.snapshot();
+  }
   set(input){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['endpoint','model','apiKey','clearKey'].includes(k)))throw new Error('模型配置无效');
     const value={endpoint:endpoint(input.endpoint),model:input.model||''};
@@ -18,7 +24,7 @@ class ModelConfig {
     let key=value.endpoint===this.value.endpoint?this.key:'';
     if(input.clearKey)key='';if(input.apiKey)key=input.apiKey.trim();
     const secret=key&&this.storage.isEncryptionAvailable()?this.storage.encryptString(key).toString('base64'):undefined;
-    fs.writeFileSync(this.file,JSON.stringify({...value,secret}));this.value=value;this.key=key;return this.snapshot();
+    fs.writeFileSync(this.file,JSON.stringify({...value,secret,builtinEnabled:this.builtinEnabled}));this.value=value;this.key=key;return this.snapshot();
   }
 }
 module.exports={ModelConfig,endpoint};

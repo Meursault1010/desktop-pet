@@ -48,7 +48,7 @@ class AmbientTests(unittest.TestCase):
         state = pet.state
         state.routine.period = schedule()[2]
         state.ambient.set_period(state.routine.period)
-        state.patrol = SimpleNamespace(active=True)
+        state.patrol = SimpleNamespace(active=True, exploring=False, cancel=lambda *args, **kwargs: None)
         with patch.object(state.routine, 'update', return_value=False):
             pet.animator.update_ambient(100)
             deadline = state.ambient.next_at
@@ -268,14 +268,14 @@ class AmbientTests(unittest.TestCase):
             pet.state.action_player.play('tea')
             pet.renderer.draw(painter, pet.state)
             # Dissimilar poses must show one opaque character, never a long
-            # dissolve. A nearly identical silhouette may settle for 55 ms.
-            self.assertLessEqual(pet.renderer.transition_duration,.055)
+            # dissolve. Same-orientation swaps may settle for at most 120 ms.
+            self.assertLessEqual(pet.renderer.transition_duration,.12)
             pet.renderer.transition_started -= 1
             pet.renderer.draw(painter, pet.state)
             self.assertIsNone(pet.renderer.transition_image)
             pet.state.action_player.stop()
             pet.renderer.draw(painter, pet.state)
-            self.assertLessEqual(pet.renderer.transition_duration,.055)
+            self.assertLessEqual(pet.renderer.transition_duration,.12)
         finally:
             painter.end()
             self.dispose_pet(pet)

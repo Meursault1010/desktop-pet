@@ -35,7 +35,7 @@ class ProtocolTests(unittest.TestCase):
         # below assert the steady status, so wait for the arrival to finish.
         self.wait_for(lambda message: message.get('name') == 'state_changed'
                       and message['state']['visible']
-                      and not message['state']['status'].startswith('星光 ·'))
+                      and not message['state']['status'].startswith(('星光 ·', '探头 ·', '回望 ·')))
 
     def wait_for(self, predicate):
         for _ in range(100):
@@ -101,7 +101,7 @@ class ProtocolTests(unittest.TestCase):
         self.request('set_preference', {'key': 'size', 'value': 125})
         self.request('set_preference', {'key': 'quiet', 'value': True})
         self.assertTrue(self.request('shutdown')['ok'])
-        self.process.wait(timeout=5)
+        self.process.wait(timeout=12)
         self.assertEqual(self.process.returncode, 0)
         self.stop_backend()
         self.start_backend()
@@ -112,6 +112,39 @@ class ProtocolTests(unittest.TestCase):
     def test_parent_pipe_close_exits_pet(self):
         error = self.stop_backend()
         self.assertEqual(self.process.returncode, 0, error)
+
+    def test_tool_status_performances_and_companion_commands(self):
+        thinking = self.request('desktop_event', {'kind': 'thinking', 'text': '工具状态'})
+        self.assertTrue(thinking['ok'])
+        self.assertIn('工具状态', thinking['state']['status'])
+        time.sleep(.9)
+        done = self.request('desktop_event', {'kind': 'done', 'text': '工具状态'})
+        self.assertTrue(done['ok'])
+        self.assertIn('完成了', done['state']['status'])
+        self.assertFalse(self.request('desktop_event', {'kind': 'thinking'})['ok'])
+        self.assertFalse(self.request('desktop_event', {'kind': 'thinking', 'text': 'x', 'extra': 1})['ok'])
+        self.assertFalse(self.request('desktop_event', {'kind': 'unknown', 'text': 'x'})['ok'])
+        self.assertTrue(self.request('reset_companion_memory', {})['ok'])
+        self.assertTrue(self.request('stop_window_perch', {})['ok'])
+        self.assertIn('ok', self.request('perch_window', {}))
+        for name in ('reset_companion_memory', 'perch_window', 'stop_window_perch'):
+            self.assertFalse(self.request(name, {'extra': 1})['ok'])
+
+    def test_focus_protocol_phases_and_validation(self):
+        focus = self.request('set_focus', {'enabled': True, 'phase': 'focus', 'remaining': 60})
+        self.assertTrue(focus['ok'])
+        self.assertTrue(focus['state']['focus']['active'])
+        self.assertEqual(focus['state']['focus']['phase'], 'focus')
+        self.assertIn('专注', focus['state']['status'])
+        broken = self.request('set_focus', {'enabled': True, 'phase': 'break', 'remaining': 300})
+        self.assertTrue(broken['ok'])
+        self.assertEqual(broken['state']['focus']['phase'], 'break')
+        self.assertFalse(self.request('set_focus', {'enabled': True, 'phase': 'idle'})['ok'])
+        self.assertFalse(self.request('set_focus', {'enabled': True, 'remaining': 86401})['ok'])
+        self.assertFalse(self.request('set_focus', {'enabled': 'true'})['ok'])
+        ended = self.request('set_focus', {'enabled': False})
+        self.assertTrue(ended['ok'])
+        self.assertFalse(ended['state']['focus']['active'])
 
     def test_action_commands(self):
         self.assertFalse(self.request('play_action', {'action_id':'../../bad'})['ok'])

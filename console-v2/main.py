@@ -14,6 +14,10 @@ from edge_attachment import EdgeAttachment
 from pet_menu import CompanionMenu
 from pet_patrol import Patrol
 from pet_music import MusicCompanion
+from companion_memory import CompanionMemory
+from companion_awareness import CompanionAwareness
+from focus_companion import FocusCompanion
+from window_perch import WindowPerch
 
 
 class PetApplication(QObject):
@@ -35,6 +39,10 @@ class PetApplication(QObject):
         self.saved_position = None
         self.pet = DesktopPet(self.preferences)
         self.pet.controller = self
+        self.memory = CompanionMemory(self.store, self.preferences.relationship_memory)
+        self.focus = FocusCompanion(self.pet, lambda: self.preferences, self.memory)
+        self.awareness = CompanionAwareness(self.pet, self.memory)
+        self.pet.awareness = self.awareness
         self.icon_sleep = IconSleep(self.pet, self.store)
         self.edge_attachment = EdgeAttachment(self.pet, self.store, self.icon_sleep)
         # Warm bounds and static pose pixmaps before the first drag, not inside
@@ -47,6 +55,7 @@ class PetApplication(QObject):
         self.pet.snap_preview.request_surfaces()
         self.patrol = Patrol(self.pet, self.icon_sleep, self.store)
         self.pet.state.patrol = self.patrol
+        self.window_perch = WindowPerch(self.pet, self.edge_attachment)
         self.music = MusicCompanion(self.pet)
         self.pet.state.music = self.music
         self.icon = make_pet_icon()
@@ -98,7 +107,13 @@ class PetApplication(QObject):
             raise ValueError('Unknown preference: ' + name)
         values[name] = value
         self.preferences = normalize(values)
-        self.pet.apply_preferences(self.preferences)
+        self.memory.set_enabled(self.preferences.relationship_memory)
+        if name == 'focus_companion' and not value and self.focus.active:
+            self.focus.end()
+        elif self.focus.active:
+            self.focus.sync()
+        else:
+            self.pet.apply_preferences(self.preferences)
         self.storage_error = not self.store.save(self.preferences)
         self.save_position()
         self.changed.emit()
@@ -114,7 +129,11 @@ class PetApplication(QObject):
 
     def reset_defaults(self):
         self.preferences = Preferences()
-        self.pet.apply_preferences(self.preferences)
+        self.memory.set_enabled(self.preferences.relationship_memory)
+        if self.focus.active:
+            self.focus.sync()
+        else:
+            self.pet.apply_preferences(self.preferences)
         self.pet.state.jump_started = None
         self.pet.state.message_until = 0
         self.pet.state.walking = False
@@ -127,6 +146,7 @@ class PetApplication(QObject):
         menu = CompanionMenu(parent, self.icon)
         menu.quick_chat(self)
         menu.command('translation', '划词翻译', self.toggle_translation, checkable=True)
+        menu.command('demo_climb', '演示边缘攀爬', self.demo_climb)
         menu.command('console', '打开工作台', self.open_console, 'console')
         menu.addSeparator()
         # PetService redirects the last action through Electron's exit handler.
@@ -137,6 +157,15 @@ class PetApplication(QObject):
 
     def toggle_translation(self, checked=False):
         self.pet.bubble.say('请在 Electron 中开启划词翻译。', 'error')
+
+    def demo_climb(self):
+        try:
+            self.patrol.demo_edge()
+        except ValueError as error:
+            self.pet.bubble.say(str(error), 'error')
+            return
+        self.pet.bubble.say('去最近的屏幕边缘爬给你看。', 'ambient')
+        self.changed.emit()
 
     def update_menu(self, menu):
         if isinstance(menu, CompanionMenu):
@@ -205,6 +234,7 @@ class PetApplication(QObject):
             return
         self.shutting_down = True
         self.save_timer.stop()
+        self.focus.save_session()
         self.pet.snap_preview.shutdown()
         self.music.cleanup()
         self.edge_attachment.cleanup()

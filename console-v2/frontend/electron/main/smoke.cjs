@@ -11,7 +11,7 @@ async function run({app,window,sidecar,tray,stopAndQuit,translation,translationW
   await check('preload isolation and bounded API',async()=>{
     assert.equal(await window.webContents.executeJavaScript('typeof require'), 'undefined');
     assert.equal(await window.webContents.executeJavaScript('window.yukiHost.kind'), 'electron');
-    assert.equal(await window.webContents.executeJavaScript('Object.keys(window.yukiHost).sort().join(",")'), 'aiAttach,aiCancel,aiChat,aiModels,aiSubscribe,desktopAction,desktopSnapshot,desktopSubscribe,exit,kind,modelConfig,modelConfigSet,reconnect,request,subscribe,translationCapture,translationMode,translationSubscribe,windowMode,workbenchConfig,workbenchSet');
+    assert.equal(await window.webContents.executeJavaScript('Object.keys(window.yukiHost).sort().join(",")'), 'aiAttach,aiCancel,aiChat,aiModels,aiSubscribe,builtinModelSet,desktopAction,desktopSnapshot,desktopSubscribe,exit,kind,modelConfig,modelConfigSet,reconnect,request,subscribe,translationCapture,translationMode,translationSubscribe,windowMode,workbenchConfig,workbenchSet');
     assert.equal(window.webContents.getLastWebPreferences().sandbox,true);
   });
   await check('React UI connected through Electron IPC',async()=>{

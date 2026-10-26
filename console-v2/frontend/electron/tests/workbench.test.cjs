@@ -18,8 +18,30 @@ test('workbench config persists allowed appearance and memory without exposing a
 });
 test('UI, corner placement and temporary focus use bounded sidecar commands',()=>{
  assert.doesNotThrow(()=>validate('set_focus',{enabled:true}));
+ assert.doesNotThrow(()=>validate('set_focus',{enabled:true,phase:'break',remaining:300}));
  assert.throws(()=>validate('set_focus',{enabled:'true'}));assert.throws(()=>validate('set_focus',{enabled:true,quiet:true}));
+ assert.throws(()=>validate('set_focus',{enabled:true,phase:'idle'}));
+ assert.throws(()=>validate('set_focus',{enabled:true,remaining:86401}));
+ assert.throws(()=>validate('set_focus',{enabled:true,remaining:1.5}));
  assert.doesNotThrow(()=>validate('go_corner',{}));assert.throws(()=>validate('go_corner',{x:10}));
  assert.doesNotThrow(()=>validate('configure_ui',{theme:'mist',bubble:'light',reduced:true,translation:false}));
  assert.throws(()=>validate('configure_ui',{theme:'mist',bubble:'light',reduced:true,translation:'false'}));
+});
+test('companion preferences and window commands stay bounded',()=>{
+ for(const key of ['focus_companion','focus_click_through','autonomous_windows','relationship_memory'])
+  assert.doesNotThrow(()=>validate('set_preference',{key,value:true}));
+ assert.throws(()=>validate('set_preference',{key:'relationship_memory',value:'yes'}));
+ for(const name of ['reset_companion_memory','perch_window','stop_window_perch']){
+  assert.doesNotThrow(()=>validate(name,{}));
+  assert.throws(()=>validate(name,{x:10}));
+ }
+ for(const kind of ['thinking','working','waiting','done','error'])
+  assert.doesNotThrow(()=>validate('desktop_event',{kind,text:'工具状态'}));
+ assert.throws(()=>validate('desktop_event',{kind:'unknown',text:'工具状态'}));
+});
+
+test('persistent patrol has bounded start and stop commands',()=>{
+ assert.doesNotThrow(()=>validate('patrol_once',{}));
+ assert.doesNotThrow(()=>validate('stop_patrol',{}));
+ assert.throws(()=>validate('stop_patrol',{x:10}));
 });

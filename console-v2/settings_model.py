@@ -1,5 +1,6 @@
 """本地偏好与位置存储；配置独立于安装目录，方便以后打包。"""
 from dataclasses import asdict, dataclass, fields
+from pathlib import Path
 
 from PySide6.QtCore import QPoint, QSettings, QStandardPaths
 
@@ -20,6 +21,10 @@ class Preferences:
     paused: bool = False
     auto_snap: bool = True
     music_reactions: bool = True
+    focus_companion: bool = True
+    focus_click_through: bool = False
+    autonomous_windows: bool = True
+    relationship_memory: bool = True
 
 
 LIMITS = {'size': (50, 200), 'opacity': (30, 100), 'speed': (10, 150)}
@@ -58,6 +63,9 @@ class SettingsStore:
                 QStandardPaths.StandardLocation.AppLocalDataLocation)
             path = directory + '/settings.ini'
         self.settings = QSettings(str(path), QSettings.Format.IniFormat)
+
+    def directory(self):
+        return Path(self.settings.fileName()).parent
 
     def load(self):
         return normalize({field.name: self.settings.value('preferences/' + field.name)

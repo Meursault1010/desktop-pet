@@ -1,12 +1,13 @@
 """Extract reviewed gait keys and articulate grip poses without alpha fading."""
 from pathlib import Path
-import json,math
+import argparse,json,math
 import cv2
 import numpy as np
 from PIL import Image,ImageDraw
 from prepare_icon_interactions import chroma_cutout
 ROOT=Path(__file__).resolve().parent
 OUT=ROOT/'assets/motion-v2'
+CLIMB_FRAMES=24
 
 def master(kind):
     image=Image.open(ROOT/f'action-work/locomotion/{kind}/raw.png').convert('RGBA')
@@ -50,8 +51,42 @@ def save_clip(name,frames,**extra):
     for index,image in enumerate(frames):image.save(folder/f'{index:02}.png')
     return dict(frames=len(frames),bounds=bounds(frames),**extra)
 
-def main():
-    OUT.mkdir(parents=True,exist_ok=True);meta={};clips={}
+def authored_cycle(name,spec,grips):
+    """Cycle the two authored climbing phases through one offline flow pass.
+
+    The old sine field displaced neighbouring columns by different amounts,
+    which sheared hair and dress trim. Flow between the two authored poses
+    moves real limbs and leaves every source pixel on its own body.
+    """
+    from build_action_inbetweens import interpolate
+    cx,cy=spec['hands'][0]
+    ends=[]
+    for index,(hx,hy) in zip(spec['indices'],spec['hands']):
+        canvas=Image.new('RGBA',(512,512));canvas.alpha_composite(grips[index],(cx-hx,cy-hy))
+        ends.append(canvas.resize((256,256),Image.Resampling.LANCZOS))
+    samples,report=interpolate(np.asarray(ends[0]),np.asarray(ends[1]),(name,0),(name,1),{})
+    if not report['accepted']:raise ValueError(f'{name} 攀爬相位插值不合格：{report}')
+    forward=[Image.fromarray(sample) for sample in samples]
+    cycle=forward+forward[-2:0:-1]
+    return [cycle[i] for i in range(0,len(cycle),max(1,len(cycle)//CLIMB_FRAMES))][:CLIMB_FRAMES]
+
+
+def hang_cycle(spec,grips):
+    yy,xx=np.mgrid[:512,:512].astype('float32')
+    cx,cy=spec['hands'][0]
+    canvas=Image.new('RGBA',(512,512));canvas.alpha_composite(grips[spec['indices'][0]],(cx-spec['hands'][0][0],cy-spec['hands'][0][1]))
+    frames=[]
+    for frame in range(24):
+        phase=frame*math.tau/24
+        # Both grip points remain fixed; displacement grows BELOW arms.
+        depth=np.clip((yy-100)/360,0,1)
+        dx=np.sin(phase)*15*depth**1.6
+        dy=(1-math.cos(phase*2))*2.2*depth
+        frames.append(warp(canvas,dx,dy))
+    return frames
+
+
+def build_walks(meta,clips):
     for direction in ('left','right'):
         frames=master('walk-'+direction)
         # Ground each original key at the same baseline, retaining stride shape.
@@ -60,6 +95,9 @@ def main():
             bottom=image.getbbox()[3];canvas=Image.new('RGBA',(512,512));canvas.alpha_composite(image,(0,474-bottom));grounded.append(canvas)
         name='walk-'+direction;clips[name]=grounded
         meta[name]=save_clip(name,grounded,stride=72,baseline=474/512)
+
+
+def build_grips(meta,clips):
     grips=master('grips')
     # Measured hand rail coordinates on the normalized sheet. Align phases at
     # the same upper hand; phase differences never move the rail horizontally.
@@ -68,53 +106,50 @@ def main():
       'climb-right':dict(indices=[2,3],hands=[(164,84),(166,82)],contact=[164/512,84/512],rail=164,support_bottom=.92),
       'hang':dict(indices=[4,5],hands=[(247,34),(225,33)],contact=[247/512,34/512],rail=247,support_bottom=.92),
     }
-    yy,xx=np.mgrid[:512,:512].astype('float32')
     for name,spec in specs.items():
-        bases=[];cx,cy=spec['hands'][0]
-        for index,(hx,hy) in zip(spec['indices'],spec['hands']):
-            canvas=Image.new('RGBA',(512,512));canvas.alpha_composite(grips[index],(cx-hx,cy-hy));bases.append(canvas)
-        frames=[]
-        for frame in range(24):
-            phase=frame*math.tau/24
-            if name=='hang':
-                # Both grip points remain fixed; displacement grows BELOW arms.
-                depth=np.clip((yy-100)/360,0,1)
-                dx=np.sin(phase)*15*depth**1.6
-                dy=(1-math.cos(phase*2))*2.2*depth
-                image=warp(bases[0],dx,dy)
-            else:
-                # Reach/regrip: hands and feet stay on the rail (x invariant),
-                # opposite limbs bend and step vertically; torso stays stable.
-                rail=spec['rail'];near=np.exp(-((xx-rail)/68)**2)
-                upper=np.exp(-((yy-84)/48)**2);lower=np.exp(-((yy-180)/48)**2)
-                foot1=np.exp(-((yy-377)/42)**2);foot2=np.exp(-((yy-460)/38)**2)
-                dy=near*(np.sin(phase)*15*upper-np.sin(phase)*15*lower+np.sin(phase+1)*19*foot1-np.sin(phase+1)*19*foot2)
-                # A bent knee changes too; fingers/soles remain on same x rail.
-                dx=np.sin(phase)*4*np.exp(-((yy-310)/70)**2)*np.exp(-((xx-(rail-55 if name=='climb-left' else rail+55))/65)**2)
-                image=warp(bases[0],dx,dy)
-            frames.append(image)
+        if name=='hang':frames=hang_cycle(spec,grips)
+        else:frames=authored_cycle(name,spec,grips)
         clips[name]=frames
         meta[name]=save_clip(name,frames,contact=spec['contact'],support_bottom=spec['support_bottom'],stride=44,cycle=2.4 if name=='hang' else 1.8)
-    (OUT/'clips.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding='utf-8')
+    return grips
+
+
+def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--grips-only',action='store_true',
+                        help='rebuild climbing clips only; walk clips stay as calibrated')
+    args=parser.parse_args()
+    OUT.mkdir(parents=True,exist_ok=True)
+    meta={};clips={};grip_frames=None
+    if args.grips_only:
+        # Calibration rewrites clips.json from its own metadata backup, so a
+        # grips-only pass must not publish walk entries or contacts.
+        build_grips(meta,clips)
+    else:
+        build_walks(meta,clips)
+        grip_frames=build_grips(meta,clips)
+        (OUT/'clips.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding='utf-8')
     qa=ROOT/'qa/locomotion';qa.mkdir(parents=True,exist_ok=True)
-    review=Image.new('RGB',(1536,1024),'#202b40')
-    for i,image in enumerate(grips):review.paste(image,(i%3*512,i//3*512),image)
-    review.save(qa/'grips-cutout.png')
+    if grip_frames is not None:
+        review=Image.new('RGB',(1536,1024),'#202b40')
+        for i,image in enumerate(grip_frames):review.paste(image,(i%3*512,i//3*512),image)
+        review.save(qa/'grips-cutout.png')
     animation=[]
     for tick in range(72):
         canvas=Image.new('RGBA',(1100,300),'#202b40');draw=ImageDraw.Draw(canvas)
         for col,(name,images) in enumerate(clips.items()):
             draw.text((col*220+8,12),name,fill='#eff5ff')
             if name.startswith('climb'):
-                rx=specs[name]['rail']/512*180+col*220+20;draw.line((rx,35,rx,280),fill='#85b6ef',width=3)
+                rx=meta[name]['contact'][0]*180+col*220+20;draw.line((rx,35,rx,280),fill='#85b6ef',width=3)
             if name=='hang':draw.line((col*220+10,42,col*220+210,42),fill='#85b6ef',width=3)
-            index=int(tick/2)%6 if name.startswith('walk') else tick%24
+            index=tick%meta[name]['frames']
             image=images[index].resize((180,180),Image.Resampling.LANCZOS)
             y=42-round(180*meta[name]['contact'][1]) if name=='hang' else 60
             canvas.alpha_composite(image,(col*220+20,y))
         animation.append(canvas.convert('RGB'))
-    animation[0].save(qa/'motion-review.gif',save_all=True,append_images=animation[1:],duration=75,loop=0,disposal=2)
-    animation[0].save(qa/'motion-review.png')
+    if animation:
+        animation[0].save(qa/'motion-review.gif',save_all=True,append_images=animation[1:],duration=75,loop=0,disposal=2)
+        animation[0].save(qa/'motion-review.png')
     print('Published two authored walk cycles and three articulated grip clips.')
 
 if __name__=='__main__':main()

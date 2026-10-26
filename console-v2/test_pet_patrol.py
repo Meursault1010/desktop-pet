@@ -4,14 +4,18 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
+import math
+import random
 import tempfile
 import time
 import unittest
 from unittest.mock import patch
 from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QRegion
 from main import PetApplication
 from settings_model import Preferences, SettingsStore
 from daily_routine import current_period
+from locomotion import walking_speed
 from pet_patrol import Patrol, due_meal
 
 
@@ -70,10 +74,455 @@ class PatrolTests(unittest.TestCase):
         self.app.processEvents()
         self.tmp.cleanup()
 
+    def test_patrol_is_persistent_and_stop_restores_daily_schedule(self):
+        preferences=self.pet.preferences
+        self.life.start_once(self.now)
+        self.assertTrue(self.life.exploring)
+        self.assertFalse(self.life.active)
+        self.life.cancel(self.now+1)
+        self.assertTrue(self.life.exploring)
+        self.assertLessEqual(self.life.next_at,self.now+9)
+        self.life.stop(self.now+2)
+        self.assertFalse(self.life.exploring)
+        self.assertFalse(self.life.active)
+        self.assertEqual(self.pet.preferences,preferences)
+
+    def engage_back_layer(self):
+        self.life.depth.mode='back'
+        self.life.depth.override=True
+        self.life.depth.region=QRegion()
+        self.pet.masker.set('depth',QRegion(0,0,1,1))
+
+    def assert_depth_released(self):
+        self.assertEqual(self.life.depth.mode,'front')
+        self.assertIsNone(self.life.depth.region)
+        self.assertFalse(self.life.depth.override)
+        self.assertTrue(self.pet.mask().isEmpty())
+
+    def test_user_wake_releases_stale_back_layer(self):
+        self.life.start_once(self.now)
+        self.engage_back_layer()
+        self.pet.wake_icon_sleep()
+        self.assert_depth_released()
+
+    def test_user_interrupt_releases_stale_back_layer(self):
+        self.life.start_once(self.now)
+        self.engage_back_layer()
+        self.life.interrupt('click',self.now+1)
+        self.assert_depth_released()
+
+    def test_blocked_tick_releases_stale_back_layer(self):
+        self.life.start_once(self.now)
+        self.engage_back_layer()
+        self.pet.preferences=replace(self.pet.preferences,quiet=True)
+        self.life.tick(self.now+1,.03,self.at)
+        self.assert_depth_released()
+
+    def test_quiet_preference_releases_stale_back_layer(self):
+        self.life.start_once(self.now)
+        self.engage_back_layer()
+        self.pet.apply_preferences(replace(self.pet.preferences,quiet=True))
+        self.assert_depth_released()
+
+    def test_restarting_patrol_releases_stale_back_layer(self):
+        self.life.start_once(self.now)
+        self.engage_back_layer()
+        self.life.start_once(self.now+1)
+        self.assert_depth_released()
+
+    def test_stop_schedules_a_follow_up_icon_errand(self):
+        self.icon()
+        self.life.policy.quiet_until=self.now+300
+        self.life.start_once(self.now)
+        self.life.stop(self.now)
+        self.assertLessEqual(self.life.next_at-self.now,8)
+        self.assertTrue(self.life.icon_followup)
+        self.assertLessEqual(self.life.policy.quiet_until,self.now)
+        self.assertIn('图标',self.life.next_intent)
+
+    def test_stop_follow_up_goes_to_an_icon_even_when_idle_recently(self):
+        icon=self.icon()
+        self.life.start_once(self.now)
+        self.life.stop(self.now)
+        due=self.life.next_at+.01
+        with patch.object(self.life,'icon_destination',return_value=(0,icon,(self.pet.x(),self.pet.y()),self.pet.screen())), \
+                patch.object(self.life,'beside_icon',return_value=(self.pet.x(),self.pet.y())), \
+                patch('pet_patrol.random.choice',return_value='observe'), \
+                patch('pet_patrol.random.random',return_value=.99), \
+                patch('pet_patrol.idle_seconds',return_value=0):
+            self.life.tick(due,.03,self.at)
+        self.assertEqual(self.life.kind,'observe')
+        self.assertIs(self.life.target,icon)
+        self.assertTrue(self.life.active)
+
+    def test_patrol_randomly_selects_walks_and_all_existing_icon_stories(self):
+        self.life.start_once(self.now)
+        self.life.first_walk=False
+        kinds=set()
+        from PySide6.QtCore import QRect
+        icon={'id':'sample','rect':(400,200,48,48)}
+        for chosen in ('observe','read','lean','orbit','peek','perch'):
+            self.life.cancel(self.now)
+            self.life.next_at=0
+            with patch.object(self.life,'icon_destination',return_value=(30,icon,(310,220),self.pet.screen())), \
+                 patch.object(self.life,'route_exposed',return_value=True), \
+                 patch.object(self.life,'beside_icon',return_value=(310,220)), \
+                 patch('pet_patrol.random.random',return_value=0), \
+                 patch('pet_patrol.random.choice',side_effect=lambda values: chosen if chosen in values else values[0]), \
+                 patch('pet_patrol.logical_rect',return_value=((400,200,48,48),self.pet.screen())):
+                self.life.tick(self.now,.03,self.at)
+                # Perch may safely fall back when no usable support image exists.
+                self.assertIn(self.life.kind,(chosen,'observe',''))
+                self.assertTrue(self.life.exploring)
+                kinds.add(chosen)
+        self.assertEqual(len(kinds),6)
+
+    def test_patrol_samples_new_destinations_and_preserves_safety(self):
+        self.life.start_once(self.now)
+        samples={self.life.random_destination() for _ in range(40)}
+        self.assertGreater(len(samples-{None}),5)
+        with patch.object(self.life,'route_exposed',return_value=False):
+            self.assertIsNone(self.life.random_destination())
+        self.pet.preferences=replace(self.pet.preferences,paused=True)
+        self.life.tick(self.now,.03,self.at)
+        self.assertFalse(self.life.active)
+        self.assertTrue(self.life.exploring)
+        self.life.stop(self.now)
+        with self.assertRaises(ValueError):
+            self.life.start_once(self.now)
+
+    def test_explicit_patrol_walks_before_ambient_can_take_the_slot(self):
+        self.life.start_once(self.now)
+        self.pet.state.ambient.next_at = 0
+        with patch.object(self.pet.state.routine,'update',return_value=False):
+            self.pet.animator.update_ambient(self.now+.1)
+        self.assertIsNone(self.pet.state.action_player.action)
+        with patch.object(self.life,'icon_destination',return_value=None), \
+             patch.object(self.life,'random_destination',return_value=(370,200)):
+            self.life.tick(self.now+.3,.03,self.at)
+        self.assertEqual(self.life.kind,'stroll')
+        self.life.tick(self.life.until+.01,.03,self.at)
+        self.assertEqual(self.life.phase,'walking')
+        origin=self.pet.pos()
+        for index in range(12):
+            self.life.tick(self.now+3+index*.03,.03,self.at)
+        self.assertNotEqual(self.pet.pos(),origin)
+        self.assertGreater(self.pet.state.gait_clock,0)
+        self.assertIsNone(self.pet.state.action_player.action)
+
+    def test_invalid_icon_falls_back_to_walk_but_never_crosses_obstacles(self):
+        self.life.start_once(self.now)
+        self.life.first_walk=False
+        icon={'id':'sample','rect':(400,200,48,48)}
+        with patch.object(self.life,'icon_destination',return_value=(30,icon,(310,220),self.pet.screen())), \
+             patch.object(self.life,'beside_icon',return_value=None), \
+             patch.object(self.life,'random_destination',return_value=(370,200)), \
+             patch('pet_patrol.random.random',return_value=0), \
+             patch('pet_patrol.random.choice',return_value='observe'):
+            self.life.tick(self.now+.3,.03,self.at)
+        self.assertEqual(self.life.kind,'stroll')
+        self.assertEqual(self.life.phase,'observing')
+        self.assertIsNone(self.life.target)
+        with patch.object(self.life,'route_exposed',return_value=False):
+            self.life.fallback_stroll(self.now+1,'no icon space')
+        self.assertFalse(self.life.active)
+        self.assertTrue(self.life.exploring)
+
+    def test_free_patrol_crosses_windows_but_icon_interactions_stay_exposed(self):
+        destination=(self.pet.x()+80,self.pet.y())
+        with patch.object(self.life,'exposed',return_value=False):
+            self.assertFalse(self.life.route_exposed(destination,self.pet.screen()))
+            self.life.start_once(self.now)
+            self.life.kind='stroll'
+            self.assertTrue(self.life.route_exposed(destination,self.pet.screen()))
+            self.assertFalse(self.life.route_exposed((-10000,0),self.pet.screen()))
+            self.life.kind='observe'
+            self.assertFalse(self.life.route_exposed(destination,self.pet.screen()))
+            self.assertTrue(self.life.route_exposed(destination,self.pet.screen(),through_windows=True))
+
+    def test_start_patrol_wakes_sleep_before_waiting_for_wake_transition(self):
+        self.pet.state.sleep.phase='asleep'
+        self.pet.state.sleep.started=self.now-10
+        self.life.start_once(self.now)
+        self.assertTrue(self.life.exploring)
+        self.assertEqual(self.pet.state.sleep.phase,'waking')
+        self.life.tick(self.now+.1,.03,self.at)
+        self.assertFalse(self.life.active)
+        self.pet.state.sleep.phase='awake'
+        self.life.next_at=0
+        self.pet.state.routine.period=dict(self.pet.state.routine.period,walk=0)
+        self.life.completed['lunch']='2026-01-01/lunch'
+        with patch.object(self.life,'icon_destination',return_value=None), \
+             patch.object(self.life,'random_destination',return_value=(370,200)):
+            self.life.tick(self.now+2,.03,datetime(2026,1,1,13))
+        self.assertEqual(self.life.kind,'stroll')
+        self.assertTrue(self.life.active)
+
     def finish_action(self):
         until = self.life.until
         self.pet.state.action_player.frame(until+.1)
         self.life.tick(until+.1,.03,self.at)
+
+    def test_free_walks_never_move_up_without_support(self):
+        self.life.start_once(self.now)
+        origin_y=self.pet.y()
+        positions=[self.life.random_destination() for _ in range(100)]
+        self.assertTrue(any(p is not None for p in positions))
+        self.assertTrue(all(p is None or p[1]>=origin_y for p in positions))
+        self.life.phase='walking'
+        self.life.kind='stroll'
+        self.life.destination=(self.pet.x(),origin_y-40)
+        self.life.screen=self.pet.screen()
+        self.life.until=self.now+10
+        self.life.probe_at=self.now+10
+        self.life.tick(self.now,.03,self.at)
+        self.assertEqual(self.pet.y(),origin_y)
+        self.assertFalse(self.life.active)
+
+    def test_explicit_start_leaves_existing_manual_icon_hold(self):
+        self.life.icons.target=self.icon()
+        self.life.icons.phase='sleeping'
+        self.life.start_once(self.now)
+        self.assertIsNone(self.life.icons.target)
+        self.assertTrue(self.life.exploring)
+
+    def test_all_six_icon_poses_are_used_and_top_poses_climb_then_descend(self):
+        from PySide6.QtGui import QImage,QColor
+        from icon_sleep import NEW_POSES
+        icon=self.icon()
+        image=QImage(48,48,QImage.Format.Format_RGBA8888)
+        image.fill(QColor('#78abc8'))
+        self.life.icons.cache_images[icon['id']]=image
+        for pose in NEW_POSES:
+            with self.subTest(pose=pose):
+                self.life.stop(self.now)
+                self.life.policy.recent.clear()
+                self.life.policy.stories.clear()
+                self.life.policy.icons.clear()
+                self.pet.move(250,200)
+                self.life.start_once(self.now)
+                self.life.first_walk=False
+                self.life.next_at=0
+                self.life.next_passage=self.now+10000
+                self.life.record_pet_click(self.now)
+                with patch.object(self.life,'icon_destination',return_value=(0,icon,(250,200),self.pet.screen())), \
+                     patch('pet_patrol.random.random',return_value=.4), \
+                     patch('pet_patrol.random.choice',side_effect=lambda values:'lean' if 'lean' in values else pose):
+                    self.life.tick(self.now+.3,.03,self.at)
+                self.assertEqual(self.life.kind,'lean')
+                self.assertGreaterEqual(self.life.destination[1],200)
+                self.pet.move(*self.life.destination)
+                ground=(self.pet.x(),self.pet.y())
+                self.life.arrived(self.now+1)
+                climbed=self.life.climb is not None
+                if climbed:
+                    self.assertEqual(self.pet.state.action_player.action['id'],'play-climb-up')
+                    self.finish_action()
+                self.assertEqual(self.life.phase,'resting')
+                self.assertEqual(self.life.icons.side,pose)
+                self.assertFalse(self.life.blocked())
+                if climbed:
+                    self.life.tick(self.life.until+.1,.03,self.at)
+                    self.assertEqual(self.pet.state.action_player.action['id'],'play-climb-down')
+                    self.finish_action()
+                    self.assertEqual((self.pet.x(),self.pet.y()),ground)
+                    self.assertFalse(self.life.active)
+                self.now+=100
+
+    def test_autonomous_edge_grip_approaches_at_same_height_and_releases_on_stop(self):
+        from edge_geometry import Landing
+        from unittest.mock import Mock
+        edge=self.pet.state.edge_attachment
+        landing=Landing('climb-left',(400,200),'left',(450,260),100,(180,700),260)
+        candidate=(landing,None,self.pet.screen(),self.pet.screen_area().getRect())
+        self.life.start_once(self.now)
+        self.pet.snap_preview.surfaces_at=self.now
+        with patch.object(self.pet.snap_preview,'request_surfaces'),patch.object(edge,'choices',return_value=[candidate]):
+            self.assertTrue(self.life.begin_edge(self.now))
+        self.assertEqual(self.life.destination[1],self.pet.y())
+        self.pet.move(*self.life.destination)
+        self.life.arrived(self.now+1)
+        self.assertTrue(edge.active)
+        self.assertEqual(self.life.phase,'edge_hold')
+        self.assertFalse(self.life.blocked())
+        self.assertLessEqual(edge.crawl_target,edge.parameter)
+        self.life.stop(self.now+2)
+        self.assertFalse(edge.active)
+
+    def test_back_layer_can_interact_with_hidden_icon_without_front_layer_teleport(self):
+        icon=self.icon()
+        self.life.start_once(self.now)
+        self.life.target=icon
+        self.life.kind='lean'
+        with patch.object(self.life,'exposed',return_value=False):
+            self.assertFalse(self.life.route_exposed((300,200),self.pet.screen()))
+            self.life.depth.mode='back'
+            self.assertTrue(self.life.route_exposed((300,200),self.pet.screen()))
+        self.life.cancel(self.now+1)
+        self.assertEqual(self.life.depth.mode,'back')
+
+    def test_hidden_visits_choose_icons_behind_the_top_window(self):
+        exposed=self.icon()
+        hidden=dict(id='hidden-icon',name='Hidden folder',folder=True,
+                    rect=dict(x=500,y=300,width=48,height=48))
+        self.life.icons.icons=[exposed,hidden]
+        self.life.start_once(self.now)
+        self.life.depth.mode='back'
+        self.life.depth.surfaces=[(1,((430,250,200,200),None,self.pet.screen()))]
+        candidate=self.life.icon_destination(hidden=True)
+        self.assertEqual(candidate[1]['id'],'hidden-icon')
+        self.assertIsNotNone(self.life.icon_destination())
+
+    def test_back_layer_errand_ignores_the_normal_icon_chance(self):
+        from PySide6.QtGui import QColor,QImage
+        exposed=self.icon()
+        hidden=dict(id='hidden-icon',name='Hidden folder',folder=True,
+                    rect=dict(x=500,y=300,width=48,height=48))
+        self.life.icons.icons=[exposed,hidden]
+        image=QImage(48,48,QImage.Format.Format_RGBA8888)
+        image.fill(QColor('#78abc8'))
+        self.life.icons.cache_images[hidden['id']]=image
+        self.life.start_once(self.now)
+        self.life.first_walk=False
+        self.life.next_at=0
+        self.life.next_passage=self.now+10000
+        self.life.depth.mode='back'
+        self.life.last_depth='front'
+        self.life.depth.surfaces=[(1,((430,250,200,200),None,self.pet.screen()))]
+        with patch.object(self.life.depth,'update'), \
+                patch('pet_patrol.random.random',return_value=.99):
+            self.life.tick(self.now,.03,self.at)
+        self.assertEqual(self.life.kind,'perch')
+        self.assertEqual(self.life.target['id'],'hidden-icon')
+        self.assertIsNotNone(self.life.backstage)
+        self.assertTrue(self.life.active)
+        self.assertEqual(self.life.phase,'observing')
+        self.assertIn('窗口',self.life.reason)
+
+    def test_reveal_extends_a_hidden_perch_but_covered_windows_do_not(self):
+        icon=self.icon()
+        self.life.start_once(self.now)
+        self.life.kind=self.life.story='perch'
+        self.life.target=icon
+        self.life.screen=self.pet.screen()
+        self.life.phase='perched'
+        self.life.until=self.now+2
+        self.life.probe_at=self.now+100
+        self.life.depth.mode='back'
+        self.life.last_depth='back'
+        self.life.backstage={'revealed_at':None,'probe_at':0.,'planned_at':self.now}
+        self.life.backstage_next=self.now+100
+        self.life.depth.surfaces=[(1,((300,200,200,200),None,self.pet.screen()))]
+        with patch.object(self.life.depth,'update'):
+            self.life.tick(self.now,.03,self.at)
+        self.assertIsNone(self.life.backstage['revealed_at'])
+        self.assertEqual(self.life.until,self.now+2)
+        self.life.depth.surfaces=[]
+        with patch.object(self.life.depth,'update'):
+            self.life.tick(self.now+1,.03,self.at)
+        self.assertEqual(self.life.backstage['revealed_at'],self.now+1)
+        self.assertEqual(self.life.until,self.now+1+12)
+        self.assertIn('窗口',self.life.reason)
+
+    def test_stepping_behind_windows_queues_a_hidden_visit(self):
+        self.life.start_once(self.now)
+        self.life.next_at=self.now+1000
+        self.life.depth.mode='back'
+        self.life.last_depth='front'
+        with patch.object(self.life.depth,'update'):
+            self.life.tick(self.now,.03,self.at)
+        self.assertEqual(self.life.backstage_next,self.now)
+
+    def test_screen_passage_changes_depth_only_after_full_exit_and_returns(self):
+        self.life.start_once(self.now)
+        passage=self.life.passage
+        with patch('patrol_depth.visible_surfaces',return_value=[]):
+            for expected in ('back','front'):
+                old=self.life.depth.mode
+                self.assertTrue(passage.begin(self.now))
+                for index in range(1500):
+                    done=passage.tick(self.now+index*.1,.1)
+                    if passage.phase=='leaving':
+                        self.assertEqual(self.life.depth.mode,old)
+                    elif passage.phase=='returning':
+                        self.assertEqual(self.life.depth.mode,expected)
+                    if done:
+                        break
+                self.assertFalse(passage.active)
+                self.assertEqual(self.life.depth.mode,expected)
+                self.assertTrue(self.pet.screen().geometry().contains(self.pet.geometry()))
+                self.now+=160
+
+    def test_interrupted_exit_recovers_pet_without_switching_layer(self):
+        self.life.start_once(self.now)
+        self.life.passage.begin(self.now)
+        self.pet.move(*self.life.passage.destination)
+        self.life.cancel(self.now+.1)
+        self.assertFalse(self.life.passage.active)
+        self.assertTrue(self.pet.screen_area().contains(self.pet.geometry()))
+        self.assertEqual(self.life.depth.mode,'front')
+
+    def test_real_screen_side_support_moves_up_only_after_grasp(self):
+        self.pet.move(80,200)
+        self.life.start_once(self.now)
+        edge=self.pet.state.edge_attachment
+        edge.options.update(windows=False,screens=True)
+        self.pet.snap_preview.surfaces=[]
+        self.pet.snap_preview.surfaces_at=self.now
+        with patch.object(self.pet.snap_preview,'request_surfaces'):
+            self.assertTrue(self.life.begin_edge(self.now))
+        self.assertEqual(self.life.destination[1],200)
+        self.pet.move(*self.life.destination)
+        self.life.arrived(self.now+1)
+        y=self.pet.y()
+        edge.timer.stop();edge.animation.stop()
+        edge.last_tick=edge.started
+        with patch('edge_attachment.time.monotonic',return_value=edge.started+.1):
+            edge.animate()
+        self.assertLess(self.pet.y(),y)
+        self.assertTrue(edge.side.startswith('climb'))
+
+    def test_demo_edge_retries_a_pending_scan_then_grips_at_pet_height(self):
+        from dataclasses import replace
+        self.pet.preferences = replace(self.pet.preferences, auto_snap=False)
+        self.pet.move(80,200)
+        edge = self.pet.state.edge_attachment
+        edge.options.update(windows=False, screens=True)
+        preview = self.pet.snap_preview
+        preview.surfaces, preview.surfaces_at = [], 0.
+        self.life.demo_edge(self.now)
+        self.assertTrue(self.life.demo)
+        self.assertTrue(self.life.exploring)
+        with patch.object(preview, 'request_surfaces'):
+            self.life.tick(self.now+.06,.03,self.at)
+        # No scan has reported yet: wait and retry instead of giving up.
+        self.assertFalse(self.life.active)
+        self.assertGreater(self.life.edge_retry_at, 0)
+        preview.surfaces_at = self.now+1.5
+        with patch.object(preview, 'request_surfaces'):
+            self.life.tick(self.now+.9,.03,self.at)
+        self.assertEqual(self.life.kind, 'edge')
+        self.assertEqual(self.life.destination[1], 200)
+        self.assertFalse(self.life.edge_retry_at)
+
+    def test_window_grip_is_invalidated_when_support_moves_before_arrival(self):
+        from window_edges import WindowSurface
+        from dataclasses import replace
+        self.life.start_once(self.now)
+        edge=self.pet.state.edge_attachment
+        edge.options.update(windows=True,screens=False)
+        screen=self.pet.screen()
+        surface=WindowSurface(1234,999,(400,100,300,500),screen.geometry().getRect(),screen.availableGeometry().getRect(),False,False)
+        self.pet.snap_preview.surfaces=[surface]
+        self.pet.snap_preview.surfaces_at=self.now
+        with patch.object(self.pet.snap_preview,'request_surfaces'),patch('edge_attachment.inspect_foreground',return_value=None):
+            self.assertTrue(self.life.begin_edge(self.now))
+            self.assertTrue(self.life.edge_valid())
+            self.pet.snap_preview.surfaces=[replace(surface,rect=(420,100,300,500))]
+            self.assertFalse(self.life.edge_valid())
+            self.pet.move(*self.life.destination)
+            self.life.arrived(self.now+1)
+        self.assertFalse(edge.active)
 
     def test_affection_after_five_minutes_uses_existing_action_without_motion(self):
         self.life.record_pet_click(self.now-301)
@@ -135,7 +584,9 @@ class PatrolTests(unittest.TestCase):
         self.assertFalse(self.life.active)
 
     def test_walk_uses_gait_and_cancels_for_chat(self):
-        with patch.object(self.life,'icon_destination',return_value=None), patch('pet_patrol.random.choice',side_effect=['stroll', 1]):
+        with patch.object(self.life,'icon_destination',return_value=None), \
+                patch.object(self.life,'random_destination',return_value=(370,200)), \
+                patch('pet_patrol.random.choice',side_effect=['stroll', 1]):
             self.life.tick(self.now,.03,self.at)
         self.assertEqual(self.life.phase,'observing')
         self.now = self.life.until+.01
@@ -149,7 +600,76 @@ class PatrolTests(unittest.TestCase):
         self.assertFalse(self.life.active)
         self.assertIsNone(self.life.destination)
 
-    def test_quiet_pause_and_disable_cancel_automatic_plans(self):
+    def test_walk_starts_without_an_authored_glance(self):
+        with patch.object(self.life,'icon_destination',return_value=None), \
+                patch.object(self.life,'random_destination',return_value=(370,200)), \
+                patch('pet_patrol.random.choice',return_value='stroll'):
+            self.life.tick(self.now,.03,self.at)
+        self.assertEqual(self.life.phase,'observing')
+        self.assertIsNone(self.pet.state.action_player.action)
+        self.life.tick(self.life.until+.01,.03,self.at)
+        self.assertEqual(self.life.phase,'walking')
+        self.assertIsNone(self.pet.state.action_player.action)
+
+    def test_random_stroll_destinations_fit_the_travel_budget(self):
+        state = random.getstate()
+        self.addCleanup(random.setstate, state)
+        random.seed(7)
+        for _ in range(40):
+            destination = self.life.random_destination()
+            if destination is None:
+                continue
+            seconds = math.dist((self.pet.x(), self.pet.y()), destination)/max(
+                1, walking_speed(self.pet.preferences.speed))
+            self.assertTrue(self.life.allows_travel(seconds))
+
+    def test_walk_runs_continuously_without_a_look_pause(self):
+        with patch.object(self.life,'icon_destination',return_value=None), \
+                patch.object(self.life,'random_destination',return_value=(370,200)), \
+                patch('pet_patrol.random.choice',return_value='stroll'):
+            self.life.tick(self.now,.03,self.at)
+        start = self.life.until+.01
+        self.life.tick(start,.03,self.at)
+        self.assertEqual(self.life.phase,'walking')
+        before = self.pet.pos()
+        for step in range(1, 11):
+            self.life.tick(start+step*.3,.3,self.at)
+        self.assertNotEqual(self.pet.pos(),before)
+        self.assertEqual(self.life.phase,'walking')
+        self.assertFalse(hasattr(self.life,'pause_until'))
+        self.assertIsNone(self.pet.state.action_player.action)
+
+    def test_pointer_near_gets_a_short_notice_then_idle(self):
+        from PySide6.QtCore import QPoint
+        near = QPoint(self.pet.x()+self.pet.width()//2+20,
+                      self.pet.y()+self.pet.height()//2)
+        self.life.next_at = 0
+        self.life.next_pointer_reaction = 0
+        with patch('pet_patrol.QCursor.pos', return_value=near):
+            self.life.tick(self.now,.03,self.at)
+        self.assertEqual(self.life.phase,'reacting')
+        self.assertIn(self.pet.state.action_player.action['id'],('curious','listen'))
+        self.assertGreater(self.life.next_pointer_reaction,self.now)
+        end = self.life.until+.01
+        self.life.tick(end,.03,self.at)
+        self.assertEqual(self.life.phase,'idle')
+        self.assertIsNone(self.pet.state.action_player.action)
+        self.assertGreaterEqual(self.life.next_at,end+4)
+
+    def test_target_change_gets_notice_and_cooldown(self):
+        self.life.cancel(self.now)
+        self.life.next_environment_reaction = 0
+        self.assertTrue(self.life.react_change(self.now,'curious','目标变了'))
+        self.assertEqual(self.life.phase,'reacting')
+        self.life.cancel(self.now+1)
+        self.assertFalse(self.life.react_change(self.now+2,'listen','又变了'))
+
+    def test_notice_never_overwrites_user_action(self):
+        self.pet.state.action_player.play('read', now=self.now)
+        self.assertFalse(self.life.react(self.now,'curious','注意到你','鼠标靠近'))
+        self.assertEqual(self.pet.state.action_player.action['id'],'read')
+
+
         for field in ('quiet','paused','random_movement'):
             self.life.kind = 'roll'
             self.life.play('lazy-roll-toward',self.now)
@@ -185,6 +705,7 @@ class PatrolTests(unittest.TestCase):
         return icon
 
     def test_observe_arrives_without_private_sleep_and_cancels_on_icon_move(self):
+        self.pet.move(self.pet.x(),100)
         icon = self.icon()
         target = (self.pet.x(),self.pet.y())
         with patch.object(self.life,'icon_destination',return_value=(0,icon,target,self.pet.screen())), \
@@ -195,7 +716,10 @@ class PatrolTests(unittest.TestCase):
         self.life.tick(self.now,.1,self.at)
         self.pet.move(*self.life.destination)
         self.life.tick(self.now+.1,.1,self.at)
-        self.assertEqual(self.pet.state.action_player.action['id'],'curious')
+        self.assertIsNotNone(self.life.arrive_at)
+        self.now = self.life.arrive_at+.01
+        self.life.tick(self.now,.1,self.at)
+        self.assertEqual(self.pet.state.action_player.action['id'],'sit-relaxed')
         self.assertFalse(self.pet.state.action_player.loop)
         self.controller.icon_sleep.icons = [dict(icon,rect=dict(x=400,y=230,width=48,height=48))]
         self.life.tick(self.now+2,.1,self.at)
@@ -221,6 +745,13 @@ class PatrolTests(unittest.TestCase):
         self.life.tick(self.now,.1,self.at)
         self.pet.move(*destination)
         self.life.tick(self.now+.1,.1,self.at)
+        if self.life.arrive_at:
+            self.now = self.life.arrive_at+.01
+            self.life.tick(self.now,.1,self.at)
+        if self.life.climb:
+            self.assertEqual(self.pet.state.action_player.action['id'],'play-climb-up')
+            self.finish_action()
+            destination=self.life.destination
         self.assertEqual(self.life.phase,'resting')
         self.assertEqual((self.pet.x(),self.pet.y()),destination)
         self.assertIsNotNone(self.controller.icon_sleep.target)
@@ -235,6 +766,21 @@ class PatrolTests(unittest.TestCase):
         self.assertEqual(self.life.kind,'rest')
         self.assertEqual(self.pet.state.action_player.action['id'],'prone-rest')
         self.assertGreaterEqual(self.pet.state.action_player.frame(self.pet.state.action_player.started+.01),0)
+
+    def test_chain_step_waits_for_a_short_beat(self):
+        self.life.kind='tea'
+        self.life.steps=['sit-neat']
+        self.life.play('tea',self.now)
+        until=self.life.until
+        self.pet.state.action_player.frame(until+.1)
+        self.life.tick(until+.1,.03,self.at)
+        self.assertIsNone(self.pet.state.action_player.action)
+        self.assertIsNotNone(self.life.step_at)
+        self.assertTrue(.10 <= self.life.step_at-(until+.1) <= .22)
+        self.life.tick(self.life.step_at-.001,.03,self.at)
+        self.assertIsNone(self.pet.state.action_player.action)
+        self.life.tick(self.life.step_at+.001,.03,self.at)
+        self.assertEqual(self.pet.state.action_player.action['id'],'sit-neat')
 
     def test_covered_route_never_starts_walking(self):
         with patch.object(self.life,'exposed',return_value=False), \
@@ -259,6 +805,33 @@ class PatrolTests(unittest.TestCase):
         self.controller.set_preference('autonomous_play',False)
         self.assertFalse(self.life.active)
         self.assertTrue(self.life.blocked())
+
+    def test_icons_across_the_desktop_become_errand_candidates(self):
+        # The old speed*7 radius (about 280px) excluded every icon once the pet
+        # wandered to the far side of the desktop.
+        icon=dict(id='far-icon',name='Far folder',folder=True,
+                  rect=dict(x=700,y=500,width=48,height=48))
+        self.life.icons.icons=[icon]
+        self.assertEqual(self.pet.x(),250)
+        self.assertIsNotNone(self.life.icon_destination())
+
+    def test_icon_errand_may_walk_toward_an_icon_above_the_pet(self):
+        for kind in ('observe','perch','peek'):
+            with self.subTest(kind=kind):
+                self.life.cancel(self.now)
+                self.pet.move(250,400)
+                self.life.target=self.icon()
+                self.life.kind=self.life.story=kind
+                self.life.phase='walking'
+                self.life.screen=self.pet.screen()
+                self.life.destination=(self.pet.x(),self.pet.y()-60)
+                self.life.until=self.now+10
+                self.life.probe_at=self.now+10
+                with patch.object(self.life,'route_exposed',return_value=True):
+                    self.life.tick(self.now,.03,self.at)
+                self.assertTrue(self.life.active)
+                self.assertEqual(self.life.phase,'walking')
+                self.assertLess(self.pet.y(),400)
 
     def test_completed_story_gets_history_and_cooldown(self):
         self.life.kind = self.life.story = 'tea'
@@ -398,6 +971,7 @@ class PatrolTests(unittest.TestCase):
         self.assertFalse(self.life.active)
 
     def test_missing_icon_glyph_falls_back_from_climb_to_observe(self):
+        self.pet.move(self.pet.x(),100)
         icon=self.icon()
         with patch.object(self.life,'icon_destination',return_value=(0,icon,(self.pet.x(),self.pet.y()),self.pet.screen())), \
                 patch('pet_patrol.random.random',return_value=.1),patch('pet_patrol.random.choice',return_value='perch'):

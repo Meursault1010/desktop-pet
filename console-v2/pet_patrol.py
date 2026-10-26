@@ -2,13 +2,17 @@
 import math
 import random
 import time
+from dataclasses import replace
 from datetime import datetime
 from play_policy import PlayPolicy
+from locomotion import walking_speed
+from patrol_depth import PatrolDepth
+from patrol_passage import ScreenPassage
 from input_activity import idle_seconds
 
 from desktop_icons import desktop_exposed
 from action_player import catalog, lazy_roll_timeline
-from icon_sleep import logical_rect, alpha_region, placement
+from icon_sleep import logical_rect, alpha_region, placement, NEW_POSES
 from icon_pose_geometry import icon_surface
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QCursor
@@ -18,6 +22,19 @@ from PySide6.QtCore import QRectF
 MEALS = ((7, 9, 'breakfast', '早餐时间，慢慢吃一点。'),
          (12, 14, 'lunch', '午饭时间到了，先填饱小肚子。'),
          (18, 20, 'dinner', '吃过晚饭，再懒懒地待一会儿。'))
+
+# At the slowest desktop tempos a cross-desktop icon visit can take most of a
+# minute. It still fits the activity budget, and it is what "go to the icons"
+# means on a wide screen.
+ICON_ERRAND_SECONDS = 40.
+
+# Behind an app window the pet is invisible, so a visit needs to be long enough
+# that minimising the window reveals an interaction in progress. Prefer poses
+# that read as contact with the icon from a single glance.
+BACKSTAGE_KINDS = ('perch', 'lean', 'read', 'observe')
+BACKSTAGE_HOLD = (30., 50.)
+BACKSTAGE_WAIT = (45., 90.)
+BACKSTAGE_REVEAL_HOLD = 12.
 
 
 def due_meal(at, completed):
@@ -31,6 +48,20 @@ def due_meal(at, completed):
 class Patrol:
     def __init__(self, pet, icons, store):
         self.pet, self.icons, self.store = pet, icons, store
+        self.exploring = False
+        self.depth = PatrolDepth(pet)
+        self.passage = ScreenPassage(pet, self.depth)
+        self.next_passage = time.monotonic()+random.uniform(45,90)
+        self.edge_candidate = None
+        self.edge_started = None
+        self.edge_retry_at = 0.
+        self.edge_retry_until = 0.
+        self.demo = False
+        self.demo_at = None
+        self.demo_until = 0.
+        self.demo_restore_idle = False
+        self.support_position = None
+        self.support_stage = ''
         self.phase = 'idle'
         self.kind = ''
         self.label = ''
@@ -70,11 +101,127 @@ class Patrol:
         self.probe_ms = 0.
         self.last_position = None
         self.replans = 0
+        self.arrive_at = None
+        self.step_at = None
+        self.icon_followup = False
+        self.backstage = None
+        self.backstage_next = 0.
+        self.last_depth = 'front'
+        self.next_pointer_reaction = time.monotonic()+random.uniform(12, 25)
+        self.next_environment_reaction = time.monotonic()+random.uniform(8, 18)
         self.completed = {key: store.settings.value('routine/meals/'+key, '') for _, _, key, _ in MEALS}
 
     @property
     def active(self):
         return self.phase != 'idle'
+
+    def start_once(self, now=None):
+        """Compatibility command: enter ongoing exploration, never a fixed route."""
+        now = time.monotonic() if now is None else now
+        if self.blocked(ignore_sleep=True,ignore_support=True):
+            raise ValueError('请先结束拖动、音乐动作、安静或暂停状态，再巡逻')
+        self.cancel(now)
+        self.release_depth()
+        if self.icons.target:
+            self.icons.wake('开始巡逻，离开当前图标')
+        if self.pet.state.edge_attachment and self.pet.state.edge_attachment.active:
+            self.pet.state.edge_attachment.release(cooldown=0)
+        self.exploring = True
+        self.pet.state.sleep.wake(self.pet, '开始巡逻', now)
+        self.pet.state.action_player.stop()
+        self.pet.state.ambient.current = None
+        self.pet.state.ambient.next_at = now+8
+        self.next_at = now+.25
+        self.first_walk = True
+        self.reason = '进入巡逻状态，根据附近空间随机选择走动或互动'
+        self.next_intent = '观察桌面，随机选择下一件小事'
+        self.pet.state_changed.emit()
+
+    def stop(self, now=None):
+        self.exploring = False
+        self.edge_retry_at = self.edge_retry_until = 0.
+        self.cancel(now, '巡逻已结束，恢复日常陪伴')
+        # Ending a patrol should flow into a nearby icon errand rather than a
+        # long stretch of canned idling while icons remain available.
+        if (self.pet.preferences.autonomous_icons and self.icons.icons
+                and not self.icons.error):
+            now = time.monotonic() if now is None else now
+            self.next_at = min(self.next_at, now+random.uniform(4, 8))
+            self.icon_followup = True
+            # The patrol's own rest bookkeeping must not swallow the follow-up:
+            # the user just ended patrol and expects a calm icon visit.
+            self.policy.quiet_until = min(self.policy.quiet_until, now)
+            # Keep the idle bag from claiming the gap first; otherwise a long
+            # ambient clip chains straight into the next one and the icon
+            # errand never gets a free slot.
+            self.pet.state.ambient.next_at = max(self.pet.state.ambient.next_at,
+                                                 self.next_at+1.)
+            self.reason = '巡逻结束，准备去桌面图标那里看看'
+            self.next_intent = '去附近的图标旁待着，而不是原地摆固定姿势'
+        self.pet.state_changed.emit()
+
+    def suspend(self, now=None, reason=None):
+        """Interrupt an errand and give up the back layer immediately.
+
+        Click, menu, drag, hide/show, quiet/pause, screen changes and tool
+        reactions all take over the pet. A mask or z-order override from an
+        abandoned backstage route must never outlive that plan.
+        """
+        self.cancel(now, reason)
+        self.release_depth()
+
+    def release_depth(self):
+        if not self.depth.engaged and not self.passage.active:
+            return
+        self.passage.cancel()
+        self.depth.release()
+        self.last_depth = 'front'
+        self.pet.state_changed.emit()
+
+    def random_destination(self):
+        p = self.pet
+        area = p.screen_area()
+        pointer = QCursor.pos()
+        # Sample fresh nearby goals, not an ordered list or a return route.
+        for _ in range(16):
+            angle = random.uniform(0, math.tau)
+            radius = random.uniform(80, min(300, max(65,p.preferences.speed)*3))
+            destination = (round(max(area.left(), min(area.right()-p.width()+1,p.x()+math.cos(angle)*radius))),
+                           round(max(p.y(), min(area.bottom()-p.height()+1,p.y()+max(0,math.sin(angle))*radius))))
+            distance = math.dist((p.x(), p.y()), destination)
+            # Never hand the caller a stroll its own travel budget will reject.
+            if (distance >= 60
+                    and self.allows_travel(distance/max(1, walking_speed(p.preferences.speed)))
+                    and self.route_exposed(destination,p.screen(),through_windows=self.exploring)
+                    and math.hypot(pointer.x()-destination[0]-p.width()/2,
+                                   pointer.y()-destination[1]-p.height()/2) >= max(120,p.height()*.65)):
+                return destination
+        return None
+
+    def fallback_stroll(self, now, reason):
+        """An unusable icon must not strand explicit exploration in idle."""
+        self.cancel(now, reason, failed=True)
+        if not self.exploring or self.blocked():
+            return
+        p, s = self.pet, self.pet.state
+        destination = self.random_destination()
+        if destination is None:
+            self.reason = reason+'；附近也没有安全走动空间'
+            return
+        seconds = math.dist((p.x(),p.y()),destination)/max(1,walking_speed(p.preferences.speed))
+        if seconds*1.5+2 > 12 or seconds > self.policy.remaining(now,p.preferences.activity):
+            self.reason = '走动预算不足，稍后继续巡逻'
+            return
+        self.kind = self.story = 'stroll'
+        self.label = '小步看看桌面'
+        self.destination, self.screen = destination, p.screen()
+        self.phase, self.until = 'observing', now+.3
+        self.probe_at = now
+        self.geometry = self.capture_geometry()
+        self.reason = reason+'；改走附近安全空位'
+        self.next_intent = '先观察，再走向新的随机位置'
+        s.walking, s.travel_position = False, None
+        p.state_changed.emit()
 
     def record_pet_click(self, now=None):
         now = time.monotonic() if now is None else now
@@ -82,16 +229,34 @@ class Patrol:
         self.next_affection = now+300
 
     def snapshot(self):
-        return dict(active=self.active, phase=self.phase, activity=self.label,
+        return dict(active=self.active, exploring=self.exploring, phase=self.phase, activity=self.label,
+                    window_depth=self.depth.mode,
                     task_id=self.task_id, target_id=self.target['id'] if self.target else None,
                     next_intent=self.next_intent, reason=self.reason,
-                    target='附近的图标' if self.target else '原地' if self.active else '尚未选择',
+                    target=('窗口或屏幕侧边' if self.kind == 'edge' else '屏幕外的返回入口' if self.passage.active else
+                            '窗口后面的图标' if self.backstage else '附近的图标' if self.target else
+                            '随机桌面位置' if self.destination is not None else '原地' if self.active else '尚未选择'),
                     path_probe_ms=round(self.probe_ms, 2),
                     energy=round(self.policy.energy), curiosity=round(self.policy.curiosity))
 
     def cancel(self, now=None, reason=None, *, failed=False):
+        """End one errand; external interruptions must call suspend()."""
         now = time.monotonic() if now is None else now
+        if self.demo:
+            self.finish_demo()
+        if self.backstage:
+            # Space out hidden visits; while windows keep covering the icons
+            # the pet should not chain one staged interaction into the next.
+            self.backstage_next = now+random.uniform(*BACKSTAGE_WAIT)
+        self.backstage = None
         was = self.active
+        self.passage.cancel()
+        edge = self.pet.state.edge_attachment
+        if self.edge_started is not None and edge.active and edge.started == self.edge_started:
+            edge.release(cooldown=0)
+        if not self.exploring:
+            self.depth.release()
+            self.last_depth = 'front'
         if failed:
             self.no_target_streak += 1
             self.policy.fail(self.target['id'] if self.target else None,now)
@@ -102,13 +267,12 @@ class Patrol:
         owned_icon = self.kind == 'lean' and self.icon_started == self.icons.started and self.icons.target is self.target
         if owned_icon:
             self.icons.wake('休息好了')
+        if self.owns_mask:
+            self.pet.masker.clear('peek')
         if was:
-            if self.owns_mask or owned_icon:
-                self.pet.clearMask()
             self.pet.state.travel_position = None
             self.pet.state.walking = False
             self.pet.state.gait_until = 0
-            self.pet.state.next_action = now+random.uniform(15, 25)
             self.pet.state.ambient.defer(now, self.pet.preferences.activity)
         self.phase, self.kind, self.label = 'idle', '', ''
         self.target = self.destination = self.owned_start = None
@@ -118,10 +282,14 @@ class Patrol:
         self.waypoints = []
         self.owns_mask = False
         self.climb = self.ground = self.perch = None
+        self.support_position = None
+        self.support_stage = ''
+        self.edge_candidate = self.edge_started = None
         self.geometry = None
         self.replans = 0
         self.story = ''
         self.moving_since = None
+        self.arrive_at = self.step_at = None
         self.next_intent = '安静待机，稍后重新观察'
         self.reason = reason or ('活动完成，歇一会儿' if self.finished else '先陪伴用户，稍后重新选择')
         self.finished = False
@@ -130,13 +298,17 @@ class Patrol:
         self.next_at = now+random.uniform(60, 120)*pace
         if failed:
             self.next_at = now+min(120,random.uniform(30,60)*2**min(2,max(0,self.no_target_streak-2)))
+        if self.exploring:
+            self.next_at = now+random.uniform(3,8) if not failed else now+random.uniform(8,15)
+            self.next_intent = '巡逻中，稍作停留后随机选择新目标'
         if was:
             self.pet.state_changed.emit()
 
     def interrupt(self, kind, now=None):
         """Cooldown starts after the interaction ends, never from mouse-down."""
         now = time.monotonic() if now is None else now
-        self.cancel(now)
+        self.suspend(now)
+        self.edge_retry_at = self.edge_retry_until = 0.
         self.interruption = kind
         self.reason = {'menu':'菜单交互中，暂不移动', 'chat':'正在和你说话',
                        'drag':'刚被拖动，先陪你一会儿', 'click':'回应你的互动'}[kind]
@@ -158,9 +330,9 @@ class Patrol:
         return (screen, screen.geometry().getRect(), screen.availableGeometry().getRect(),
                 screen.devicePixelRatio(), p.width(), p.height())
 
-    def blocked(self):
+    def blocked(self, *, ignore_sleep=False, ignore_support=False):
         p, s = self.pet, self.pet.state
-        return (s.sleep.transitioning or not p.isVisible() or not p.desired_visible() or p.presence.active
+        return ((s.sleep.transitioning and not ignore_sleep) or not p.isVisible() or not p.desired_visible() or p.presence.active
                 or p.drag_origin is not None or s.physics.active or p.preferences.quiet
                 or p.preferences.paused or not p.preferences.random_movement
                 or not p.preferences.autonomous_play
@@ -169,9 +341,10 @@ class Patrol:
                 or s.travel_target is not None
                 or bool(getattr(p.controller, 'quick_pending', None))
                 or bool(p.bubble.parts and p.bubble.kind != 'ambient')
-                or bool(s.edge_attachment and s.edge_attachment.active)
+                or bool(not ignore_support and s.edge_attachment and s.edge_attachment.active
+                        and not (self.edge_started is not None and s.edge_attachment.started == self.edge_started))
                 or QApplication.activePopupWidget() is not None
-                or bool(self.icons.target and not (self.kind == 'lean' and self.icons.target is self.target
+                or bool(not ignore_support and self.icons.target and not (self.kind == 'lean' and self.icons.target is self.target
                                                    and self.icon_started == self.icons.started)))
 
     def exposed(self, position, screen, size=None):
@@ -190,25 +363,80 @@ class Patrol:
         finally:
             self.probe_ms = (time.perf_counter()-started)*1000
 
-    def route_exposed(self, destination, screen):
+    def route_exposed(self, destination, screen, *, through_windows=False):
         if screen is None or destination is None or screen != self.pet.screen():
             return False
+        if self.exploring and self.kind == 'edge' and self.edge_candidate is not None:
+            return destination[1] >= self.pet.y()-1 and self.edge_valid()
         area = screen.availableGeometry()
         if not (area.contains(round(destination[0]), round(destination[1])) and
                 area.contains(round(destination[0]+self.pet.width()-1), round(destination[1]+self.pet.height()-1))):
             return False
+        # Only the real icon/contact area must be exposed. A window under
+        # the approach route must not make every desktop icon unreachable.
+        if self.exploring:
+            if through_windows or (self.kind == 'stroll' and self.target is None):
+                return True
+            if self.target is not None:
+                rect, icon_screen = logical_rect(self.target['rect'])
+                return icon_screen == screen and (self.depth.mode == 'back' or self.exposed(rect[:2],screen,rect[2:]))
+        if self.target is not None and self.icon_walk():
+            # Check the icon itself, not the whole route: an always-on-top pet
+            # may cross a window, but it must only settle beside visible icons.
+            rect, icon_screen = logical_rect(self.target['rect'])
+            return icon_screen == screen and self.exposed(rect[:2],screen,rect[2:])
         x, y = min(self.pet.x(),destination[0]), min(self.pet.y(),destination[1])
         return self.exposed((x,y), screen,
             (abs(self.pet.x()-destination[0])+self.pet.width(), abs(self.pet.y()-destination[1])+self.pet.height()))
 
-    def icon_destination(self):
+    def travel_limit(self):
+        """Icon errands may cross most of the desktop; strolls stay local."""
+        return ICON_ERRAND_SECONDS if self.target is not None else 12.
+
+    def allows_travel(self, seconds, elapsed=0.):
+        """Strolls keep the old safety margin; icon errands may use the screen."""
+        if self.target is not None:
+            return seconds+elapsed <= self.travel_limit()
+        return seconds*1.5+2+elapsed <= self.travel_limit()
+
+    def icon_walk(self):
+        """Icon errands may approach icons higher on the desktop.
+
+        Free strolls still never float upward. Climbed icons still need the
+        authored climb-up contact after arrival; walking upward alone never
+        glues the pet to an icon.
+        """
+        return self.target is not None and self.kind in ('observe','read','lean',
+                                                         'orbit','peek','perch')
+
+    def covered_by_surface(self, rect, screen):
+        """How strongly visible app windows hide an icon (2 = topmost)."""
+        x, y, w, h = rect
+        area = max(1, w*h)
+        for index, (_, (bounds, _, surface_screen)) in enumerate(self.depth.surfaces):
+            if surface_screen != screen:
+                continue
+            bx, by, bw, bh = bounds
+            overlap = (max(0., min(x+w, bx+bw)-max(x, bx))
+                       * max(0., min(y+h, by+bh)-max(y, by)))
+            if overlap >= area*.5:
+                return 2 if index == 0 else 1
+        return 0
+
+    def icon_destination(self, *, hidden=False):
         p = self.pet
         candidates = []
         if not p.preferences.autonomous_icons or self.icons.error:
             return None
+        if hidden and (not self.exploring or self.depth.mode != 'back'):
+            return None
         now = time.monotonic()
         pointer = QCursor.pos()
-        radius = min(360, p.height()*2, max(65, p.preferences.speed)*7)
+        # Icons live around the desktop edges while the pet roams anywhere, so
+        # a speed-sized radius left every icon out of range once she drifted
+        # away from them. Reach the whole screen; scoring still prefers near.
+        area = p.screen_area()
+        radius = min(1100, max(320, math.hypot(area.width(), area.height())*.5))
         for icon in self.icons.icons:
             try:
                 rect, screen = logical_rect(icon['rect'])
@@ -225,18 +453,38 @@ class Patrol:
                 score = self.policy.score(icon['id'], distance, radius, space,
                                           1.-self.policy.energy/100, now)
                 if (distance <= radius and score is not None
+                        and distance/max(1,walking_speed(p.preferences.speed)) <= ICON_ERRAND_SECONDS
                         and math.hypot(pointer.x()-(px+p.width()/2), pointer.y()-(py+p.height()/2)) >= avoid):
                     candidates.append((score, distance, icon, (px, py), screen))
             except (ValueError, KeyError):
                 continue
         candidates.sort(key=lambda item: item[0], reverse=True)
-        # Limit synchronous window probes per decision, not one per icon.
-        safe = []
-        for candidate in candidates[:8]:
-            if self.route_exposed(candidate[3],candidate[4]):
-                safe.append(candidate)
-                if len(safe) == 3:
-                    break
+        if hidden:
+            # Prefer icons behind the topmost app: that is the window the user
+            # is most likely to minimise next. Surface rects come from the
+            # depth scan, so no extra synchronous exposure probes are needed.
+            safe = []
+            for candidate in candidates:
+                if candidate[4] != p.screen():
+                    continue
+                rect, _ = logical_rect(candidate[2]['rect'])
+                rank = self.covered_by_surface(rect, candidate[4])
+                if rank:
+                    safe.append((rank, candidate))
+            if not safe:
+                return None
+            best = max(rank for rank, _ in safe)
+            safe = [candidate for rank, candidate in safe if rank == best][:3]
+        else:
+            # Limit synchronous window probes per decision, not one per icon.
+            safe = []
+            for candidate in candidates[:8]:
+                rect, _ = logical_rect(candidate[2]['rect'])
+                if ((self.exploring and (self.depth.mode == 'back' or self.exposed(rect[:2],candidate[4],rect[2:])))
+                        or (not self.exploring and self.exposed(rect[:2],candidate[4],rect[2:]))):
+                    safe.append(candidate)
+                    if len(safe) == 3:
+                        break
         return random.choices(safe, weights=[c[0] for c in safe])[0][1:] if safe else None
 
     def replan_target(self, current, now):
@@ -252,10 +500,11 @@ class Patrol:
         dx,dy = new[0]-old[0],new[1]-old[1]
         destination = (round(self.destination[0]+dx),round(self.destination[1]+dy))
         distance = math.dist((self.pet.x(),self.pet.y()),destination)
-        seconds = distance/max(65,self.pet.preferences.speed)
+        seconds = distance/max(1,walking_speed(self.pet.preferences.speed))
         elapsed = now-self.moving_since if self.moving_since is not None else 0.
         pointer = QCursor.pos()
-        if (math.hypot(dx,dy)>self.pet.height() or seconds*1.5+2+elapsed>12
+        if ((destination[1] < self.pet.y()-1 and not self.icon_walk())
+                or math.hypot(dx,dy)>self.pet.height() or not self.allows_travel(seconds,elapsed)
                 or seconds>self.policy.remaining(now,self.pet.preferences.activity)
                 or not self.route_exposed(destination,screen)
                 or math.hypot(pointer.x()-destination[0]-self.pet.width()/2,
@@ -265,10 +514,13 @@ class Patrol:
         if perch and not self.route_exposed(perch,screen):
             return False
         self.target,self.destination,self.perch = current,destination,perch
+        if self.support_position is not None:
+            self.support_position = (round(self.support_position[0]+dx),round(self.support_position[1]+dy))
         self.waypoints=[(round(x+dx),round(y+dy)) for x,y in self.waypoints]
         self.replans += 1
         self.phase='observing'
         self.until=now+1
+        self.arrive_at = self.step_at = None
         self.pet.state.travel_position=None
         self.pet.state.walking=False
         self.pet.state.gait_until=0
@@ -310,6 +562,50 @@ class Patrol:
             candidates.append((distance+penalty/max(1,p.width()),position))
         return min(candidates,key=lambda item:item[0])[1] if candidates else None
 
+    def look(self, key, now):
+        """Play one authored standing glance without claiming a story."""
+        s = self.pet.state
+        if key not in catalog():
+            return False
+        s.ambient.current = None
+        s.walking = False
+        s.gait_until = 0
+        s.travel_position = None
+        s.action_player.play(key, now=now)
+        self.owned_start = now
+        self.owned_generation = s.action_player.generation
+        self.until = now+sum(s.action_player.action['durations'])/1000
+        return True
+
+    def pointer_near(self):
+        p = self.pet
+        pointer = QCursor.pos()
+        return math.hypot(pointer.x()-(p.x()+p.width()/2),
+                          pointer.y()-(p.y()+p.height()/2)) <= max(140, p.height()*.8)
+
+    def react(self, now, key, label, reason):
+        """One short notice action owned by Patrol, then back to idle."""
+        s = self.pet.state
+        if s.action_player.action is not None or not self.look(key, now):
+            return False
+        self.phase = 'reacting'
+        self.kind = self.story = ''
+        self.target = self.destination = None
+        self.label = label
+        self.reason = reason
+        self.next_intent = '看完周围，再决定下一步'
+        self.task_id += 1
+        self.pet.state_changed.emit()
+        return True
+
+    def react_change(self, now, key, reason):
+        if self.active or now < self.next_environment_reaction:
+            return False
+        if self.pet.state.action_player.action is not None:
+            return False
+        self.next_environment_reaction = now+random.uniform(35, 60)
+        return self.react(now, key, '注意到变化', reason)
+
     def play(self, key, now, duration=None):
         s = self.pet.state
         if self.geometry is None:
@@ -334,7 +630,7 @@ class Patrol:
         self.no_target_streak = 0
         if self.story:
             self.policy.complete(self.story, self.target['id'] if self.target else None,
-                                 now, random.uniform(180, 360))
+                                 now, random.uniform(180, 360), exploring=self.exploring)
             p = self.pet
             if (self.story != 'affection' and p.preferences.autonomous_speech and now-self.last_speech >= 180
                     and not p.bubble.parts and random.random() < .12):
@@ -345,7 +641,7 @@ class Patrol:
 
     def queue_action(self, key, now):
         if self.owns_mask:
-            self.pet.clearMask()
+            self.pet.masker.clear('peek')
             self.owns_mask = False
         if key not in catalog():
             self.complete(now)
@@ -380,7 +676,28 @@ class Patrol:
 
     def arrived(self, now):
         self.moving_since = None
+        self.arrive_at = self.step_at = None
+        if self.pet.state.action_player.action is None:
+            self.owned_start = self.owned_generation = None
         self.pet.state.gait_until = 0
+        if self.kind == 'edge':
+            if not self.edge_valid():
+                self.fallback_stroll(now,'边框已变化，重新寻找支撑')
+                return
+            self.pet.state.edge_attachment.attach(self.edge_candidate,autonomous=True)
+            self.edge_started = self.pet.state.edge_attachment.started
+            self.phase, self.until = 'edge_hold', now+random.uniform(18,35)
+            edge = self.pet.state.edge_attachment
+            if self.demo:
+                self.until = now+14
+                edge.crawl_target = max(edge.interval[0],edge.parameter-180)
+                # Hold the top of the demo instead of wandering back down.
+                edge.hold_until = self.until
+                self.next_intent = '沿边缘向上爬一段，演示结束后松手'
+            else:
+                edge.crawl_target = max(edge.interval[0],edge.parameter-random.uniform(30,90))
+                self.next_intent = '抓住边框向上爬一段，再随机停留或离开'
+            return
         if self.kind == 'sleep_site':
             self.pet.state.sleep.set_rest_site(self.pet,self.target,self.icons)
             self.finished = True
@@ -395,9 +712,40 @@ class Patrol:
         if self.waypoints:
             self.destination = self.waypoints.pop(0)
             self.phase = 'observing'
-            self.until = now+random.uniform(1, 2)
-            self.next_intent = '停一下，再走向另一侧'
+            self.until = now+random.uniform(.1, .25)
+            self.reason = '绕过图标，继续走向另一侧'
+            self.next_intent = '不摆查看姿势，直接绕到另一侧'
             return
+        if self.kind == 'lean':
+            if self.support_position is not None:
+                self.ground = (self.pet.x(),self.pet.y())
+                self.support_stage = 'up'
+                self.play('play-climb-up',now)
+                self.climb = (self.ground,self.support_position,now,self.until-now)
+                self.next_intent = '接触图标后攀爬，坐下或趴着休息'
+                return
+            self.start_icon_hold(now)
+        else:
+            chains = {
+                'observe': ['sit-relaxed'],
+                'read': [random.choice(('reading-pose-1', 'reading-pose-2')), 'sit-neat'],
+                'stroll': ['hair-tuck'] if random.uniform(0,1) < .55 else [],
+                'tea': ['stretch', 'tea', 'sit-neat'],
+                'rest': ['prone-rest'],
+                'orbit': ['hair-tuck'] if random.uniform(0,1) < .4 else [],
+                'peek': ['play-peek', 'sit-relaxed'],
+            }
+            self.steps = chains.get(self.kind, ['sit-relaxed'])
+            self.next_intent = '完成互动后继续随机探索'
+            if self.steps:
+                self.queue_action(self.steps.pop(0), now)
+            else:
+                self.complete(now)
+                return
+            if self.kind == 'peek':
+                self.owns_mask = self.mask_icon()
+
+    def start_icon_hold(self, now):
         if self.kind == 'lean':
             try:
                 before = (self.pet.x(), self.pet.y())
@@ -410,25 +758,132 @@ class Patrol:
                     return
                 self.destination = self.icons.destination
                 self.phase = 'resting'
-                self.until = now+random.uniform(20, 45)
-                self.next_intent = '靠一会儿，然后回到待机'
+                self.until = now+(random.uniform(*BACKSTAGE_HOLD) if self.backstage
+                                  else random.uniform(20, 45))
+                self.next_intent = '依靠、坐着或趴一会儿，再继续探索'
             except ValueError:
                 self.cancel(now, '接触姿势不适配')
-        else:
-            chains = {
-                'observe': ['curious', 'sit-relaxed'],
-                'read': [random.choice(('reading-pose-1', 'reading-pose-2')), 'sit-neat'],
-                'stroll': ['curious', 'sit-relaxed'],
-                'tea': ['stretch', 'tea', 'sit-neat'],
-                'rest': ['prone-rest'],
-                'orbit': ['curious', 'sit-relaxed'],
-                'peek': ['play-peek', 'sit-relaxed'],
-            }
-            self.steps = chains.get(self.kind, ['sit-relaxed'])
-            self.next_intent = '完成小动作后安静休息'
-            self.queue_action(self.steps.pop(0), now)
-            if self.kind == 'peek':
-                self.owns_mask = self.mask_icon()
+
+    def watch_backstage(self, now):
+        """Notice the covering window disappearing and keep the pose visible."""
+        visit = self.backstage
+        if visit is None or self.target is None or not self.active:
+            return
+        if visit['revealed_at'] is None:
+            if now < visit['probe_at']:
+                return
+            visit['probe_at'] = now+.5
+            try:
+                rect, screen = logical_rect(self.target['rect'])
+            except (ValueError, KeyError):
+                return
+            if self.covered_by_surface(rect, screen):
+                return
+            visit['revealed_at'] = now
+            self.reason = '挡在前面的窗口移开了，留在图标旁让你看一会儿'
+            self.next_intent = '被发现后再和图标待十几秒，然后继续巡逻'
+            self.pet.state_changed.emit()
+        if self.phase in ('perched', 'resting'):
+            # Both holds are driven by `until`; extend only after a real
+            # reveal so the user catches an ongoing interaction, not a finish.
+            self.until = max(self.until, visit['revealed_at']+BACKSTAGE_REVEAL_HOLD)
+
+    def begin_edge(self, now, *, demo=False):
+        """Approach a side at the current height; only then acquire a grip."""
+        p, edge = self.pet, self.pet.state.edge_attachment
+        if edge is None or not self.exploring:
+            return False
+        if not demo and not self.policy.available('edge',now,exploring=True,unrestricted=p.preferences.activity == '活跃'):
+            return False
+        preview = p.snap_preview
+        preview.request_surfaces(force=True)
+        if not preview.surfaces_at or now-preview.surfaces_at > 2:
+            # The scanner is asynchronous. Treat "not scanned yet" as a reason
+            # to retry, not as proof that no edge exists.
+            if not self.edge_retry_until:
+                self.edge_retry_until = now+3.2
+            self.edge_retry_at = now+.8
+            return False
+        self.edge_retry_at = self.edge_retry_until = 0
+        self.icons.load_poses()
+        try:
+            choices = edge.choices(preview.surfaces,autonomous=True)
+        except (ValueError,OSError,RuntimeError):
+            return False
+        valid = []
+        for landing,surface,screen,rect in choices:
+            if screen != p.screen() or landing.kind not in ('left','right'):
+                continue
+            # Grasp height equals walking height: never float upward to a grip.
+            parameter = landing.parameter+p.y()-landing.position[1]
+            if not landing.interval[0] <= parameter <= landing.interval[1]:
+                continue
+            x = round(landing.position[0])
+            if not demo and abs(x-p.x()) > max(360,p.width()*3):
+                continue
+            pointer = QCursor.pos()
+            if math.hypot(pointer.x()-x-p.width()/2,pointer.y()-p.y()-p.height()/2) < max(120,p.height()*.65):
+                continue
+            landing = replace(landing,position=(x,p.y()),parameter=parameter,
+                              anchor=(landing.anchor[0],landing.anchor[1]+parameter-landing.parameter))
+            valid.append((landing,surface,screen,rect))
+        if not valid:
+            return False
+        self.edge_candidate = (min(valid,key=lambda item:abs(item[0].position[0]-p.x()))
+                               if demo else random.choice(valid))
+        self.kind = self.story = 'edge'
+        self.label = '演示攀爬：走向最近的侧边' if demo else '走近边框，抓住后攀爬'
+        self.target = None
+        self.destination = self.edge_candidate[0].position
+        self.screen = self.edge_candidate[2]
+        self.geometry = self.capture_geometry()
+        self.phase, self.until = 'observing', now+(1. if demo else .6)
+        self.task_id += 1
+        self.probe_at = now
+        self.reason = '演示边缘攀爬' if demo else '附近有可抓握的窗口或屏幕侧边'
+        self.next_intent = ('走到侧边后抓住边缘向上爬' if demo
+                            else '先横向走近，接触边框后再向上爬')
+        p.state.travel_position = None
+        p.state_changed.emit()
+        return True
+
+    def edge_valid(self):
+        if self.edge_candidate is None:
+            return False
+        _,surface,screen,_ = self.edge_candidate
+        edge = self.pet.state.edge_attachment
+        if screen != self.pet.screen():
+            return False
+        if surface is None:
+            return edge.options['screens']
+        self.pet.snap_preview.request_surfaces()
+        current = next((s for s in self.pet.snap_preview.surfaces if s.handle == surface.handle),None)
+        return bool(edge.options['windows'] and current and current.rect == surface.rect)
+
+    def demo_edge(self, now=None):
+        """Force one visible side climb without waiting for a random patrol."""
+        now = time.monotonic() if now is None else now
+        self.demo_restore_idle = not self.exploring
+        self.start_once(now)
+        self.demo = True
+        self.demo_at = now+.05
+        self.demo_until = now+4.
+        self.next_at = now+30
+        self.reason = '演示边缘攀爬'
+        self.next_intent = '先走到最近的侧边，抓住后向上爬'
+        self.pet.snap_preview.request_surfaces(force=True)
+        self.pet.state_changed.emit()
+
+    def finish_demo(self):
+        if not self.demo:
+            return
+        self.demo = False
+        self.demo_at = None
+        self.demo_until = 0.
+        if self.demo_restore_idle:
+            self.exploring = False
+            self.next_intent = '演示结束，恢复待机'
+        self.demo_restore_idle = False
 
     def begin_sleep_site(self, now):
         """One optional short approach; SleepCycle owns all sleep and wake logic."""
@@ -445,7 +900,7 @@ class Patrol:
             return False
         _, target, destination, screen = candidate
         distance = math.dist((self.pet.x(),self.pet.y()), destination)
-        seconds = distance/max(65,self.pet.preferences.speed)
+        seconds = distance/max(1,walking_speed(self.pet.preferences.speed))
         if seconds > min(6., self.policy.remaining(now,self.pet.preferences.activity)):
             return False
         self.target, self.destination, self.screen = target, destination, screen
@@ -475,18 +930,91 @@ class Patrol:
         if self.blocked():
             if self.active:
                 self.cancel(now)
+            # Blocked ticks stop refreshing depth. Never leave the pet behind
+            # a mask that no longer has a running plan to clear it.
+            self.release_depth()
             if not self.interruption:
                 self.reason = ('安静或暂停模式，原地陪伴' if p.preferences.quiet or p.preferences.paused
                            else '睡眠或用户交互优先，暂不玩耍')
             return
         self.settle_interruption(now)
+        if not self.active and (self.exploring or self.demo):
+            if self.demo and self.demo_at is not None and now >= self.demo_at:
+                if now > self.demo_until:
+                    self.demo = False
+                    self.demo_at = None
+                    self.reason = '附近没有可抓取的侧边，演示结束'
+                    self.next_at = now+5
+                    self.pet.state_changed.emit()
+                else:
+                    self.demo_at = now+.5
+                    if self.begin_edge(now, demo=True):
+                        self.demo_at = None
+                        return
+            elif self.edge_retry_at and now >= self.edge_retry_at:
+                if now > self.edge_retry_until:
+                    self.edge_retry_at = self.edge_retry_until = 0
+                elif self.begin_edge(now):
+                    return
+        if self.exploring:
+            self.depth.update(now)
+            if self.depth.mode != self.last_depth:
+                self.last_depth = self.depth.mode
+                if self.depth.mode == 'back':
+                    # The first decision after stepping behind windows should
+                    # find a covered icon instead of a free stroll.
+                    self.backstage_next = now
+            self.watch_backstage(now)
+        if self.step_at is not None:
+            if s.action_player.action is not None:
+                self.cancel(now)
+                return
+            if now < self.step_at:
+                return
+            self.step_at = None
+            if self.steps:
+                self.queue_action(self.steps.pop(0), now)
+            else:
+                self.complete(now)
+            return
+        if self.passage.active:
+            if self.passage.tick(now,dt):
+                self.complete(now)
+            return
+        if self.phase == 'reacting':
+            if now < self.until and s.action_player.action is not None:
+                return
+            if (self.owned_start is not None and s.action_player.started == self.owned_start
+                    and s.action_player.generation == self.owned_generation):
+                s.action_player.stop()
+            self.owned_start = self.owned_generation = None
+            self.phase = 'idle'
+            self.label = ''
+            self.reason = '看完周围，继续待机'
+            self.next_intent = '继续待机或选择下一件小事'
+            self.next_at = max(self.next_at, now+random.uniform(4, 8))
+            p.state_changed.emit()
+            return
         if self.active:
+            if self.phase == 'edge_hold':
+                edge = s.edge_attachment
+                if not edge.active or edge.started != self.edge_started:
+                    self.finish_demo()
+                    self.complete(now)
+                elif now >= self.until:
+                    edge.release(cooldown=0)
+                    self.edge_started = None
+                    self.finish_demo()
+                    self.complete(now)
+                return
             if self.geometry is not None and self.geometry != self.capture_geometry():
                 self.cancel(now, '屏幕或人物尺寸变化，重新确认接触点')
+                self.react_change(now, 'listen', '屏幕或人物尺寸变了，重新看看')
                 return
             wants_move = self.phase == 'walking' or self.roll_origin or self.climb
             if wants_move and (self.policy.remaining(now, p.preferences.activity) <= 0
-                           or (self.moving_since is not None and now-self.moving_since >= 12)):
+                           or (not self.exploring and self.moving_since is not None
+                               and now-self.moving_since >= self.travel_limit())):
                 self.cancel(now, '走动预算已到，休息一下')
                 return
             if self.target and now >= self.probe_at:
@@ -498,7 +1026,10 @@ class Patrol:
                     return
                 if (not current or current['rect'] != self.target['rect'] or self.icons.error
                         or not self.route_exposed(self.destination, self.screen)):
+                    moved = bool(current and current['rect'] != self.target['rect'])
                     self.cancel(now, '目标已变化或路径被遮挡，稍后再看', failed=True)
+                    self.react_change(now, 'curious' if moved else 'listen',
+                                      '目标或路径刚刚变了，停下来看看')
                     return
                 pointer = QCursor.pos()
                 if math.hypot(pointer.x()-self.destination[0]-p.width()/2,
@@ -510,21 +1041,35 @@ class Patrol:
                 destination = (self.roll_origin[0],self.roll_origin[1]+self.roll_origin[2]) if self.roll_origin else self.destination
                 if not self.route_exposed(destination, p.screen()):
                     self.cancel(now, '桌面路径被遮挡，停止探索', failed=True)
+                    self.react_change(now, 'listen', '前面的路被挡住了，先停一下')
+                    return
+                pointer = QCursor.pos()
+                if self.phase == 'walking' and math.hypot(pointer.x()-p.x()-p.width()/2,
+                                                        pointer.y()-p.y()-p.height()/2) < max(100,p.height()*.5):
+                    self.cancel(now, '鼠标来到附近，停下让出空间')
                     return
             if self.phase == 'observing':
                 if self.target:
                     current = next((i for i in self.icons.icons if i['id'] == self.target['id']), None)
                     if not current or current['rect'] != self.target['rect'] or self.icons.error:
                         self.cancel(now, '观察目标已变化')
+                        self.react_change(now, 'curious', '目标刚刚变了，停下来看看')
                         return
                 if now < self.until:
                     return
+                # Finish our own clip cleanly; never stop a user action.
+                if (self.owned_start is not None and s.action_player.started == self.owned_start
+                        and s.action_player.generation == self.owned_generation):
+                    s.action_player.stop()
+                self.owned_start = self.owned_generation = None
                 if self.destination is None:
                     self.arrived(now)
                 else:
                     self.phase = 'walking'
                     distance = math.dist((p.x(), p.y()), self.destination)
-                    self.until = now+min(12, distance/max(1, p.preferences.speed)*1.5+2)
+                    seconds = distance/max(1,walking_speed(p.preferences.speed))*1.5+2
+                    self.until = now+(seconds if self.exploring or self.target is not None
+                                      else min(12,seconds))
                     self.moving_since = now
                     p.state_changed.emit()
                 return
@@ -547,6 +1092,15 @@ class Patrol:
                     and s.action_player.started == self.owned_start
                     and s.action_player.generation == self.owned_generation+1):
                 self.owned_start = self.owned_generation = None
+                if self.kind == 'lean' and self.climb:
+                    p.move(*self.climb[1])
+                    s.position_x = float(p.x())
+                    self.climb = None
+                    if self.support_stage == 'down':
+                        self.complete(now)
+                    else:
+                        self.start_icon_hold(now)
+                    return
                 if self.kind == 'perch':
                     if self.climb:
                         p.move(*self.climb[1])
@@ -554,7 +1108,9 @@ class Patrol:
                         if self.next_intent == '正在爬下，随后安静休息':
                             self.complete(now)
                         else:
-                            self.play('play-top-rest', now, random.uniform(15,35))
+                            hold = (random.uniform(*BACKSTAGE_HOLD) if self.backstage
+                                    else random.uniform(15,35))
+                            self.play('play-top-rest', now, hold)
                             s.action_player.loop = True
                             self.phase = 'perched'
                             self.next_intent = '坐稳休息，然后扶着边缘爬下'
@@ -564,7 +1120,10 @@ class Patrol:
                         self.complete(now)
                         self.reason = '小动作收稳，接下来吃饭'
                     else:
-                        self.queue_action(self.steps.pop(0), now)
+                        # Let the previous clip finish before the next body
+                        # pose begins; the beat reads as a breath, not a cut.
+                        self.step_at = now+random.uniform(.10, .22)
+                        self.reason = '收住动作，缓一下再继续'
                 else:
                     self.complete(now)
                 return
@@ -578,7 +1137,15 @@ class Patrol:
                     self.climb = ((p.x(),p.y()),self.ground,now,self.until-now)
                     self.next_intent = '正在爬下，随后安静休息'
                 elif self.phase == 'resting':
-                    self.complete(now)
+                    if self.kind == 'lean' and self.support_position is not None:
+                        self.icons.wake('休息好了，扶着图标下来')
+                        self.icon_started = None
+                        self.support_stage = 'down'
+                        origin = (p.x(),p.y())
+                        self.play('play-climb-down',now)
+                        self.climb = (origin,self.ground,now,self.until-now)
+                    else:
+                        self.complete(now)
                 else:
                     self.cancel(now, '路线超时，先停下来')
                 return
@@ -589,26 +1156,49 @@ class Patrol:
                     before,after,progress = sample
                     phases = ((0.,0.,.25,.65,.90,1.) if before[0] == 'play-climb-up'
                               else (0.,0.,.20,.55,.85,1.))
-                    t = phases[before[1]]+(phases[after[1]]-phases[before[1]])*progress
+                    from locomotion import contact_progress
+                    t = phases[min(before[1],len(phases)-1)] if before==after else contact_progress(phases,before[1],progress)
                 else:
                     t = 1.
                 p.move(*(round(a+(b-a)*t) for a,b in zip(start,end)))
                 s.position_x = float(p.x())
                 return
             if self.phase == 'walking':
+                if self.arrive_at is not None:
+                    if now < self.arrive_at:
+                        return
+                    self.arrive_at = None
+                    self.arrived(now)
+                    return
+                if self.destination[1] < p.y()-1 and not self.icon_walk():
+                    self.cancel(now,'未接触支撑，不向上行走',failed=True)
+                    return
+                if self.exploring and self.kind == 'stroll' and self.target is None:
+                    self.depth.update(now)
                 if now >= self.segment_at:
                     self.segment_at = now+.2
                     distance = math.dist((p.x(), p.y()), self.destination)
-                    fraction = min(1., max(65,p.preferences.speed)*.25/max(.01,distance))
+                    fraction = min(1., p.preferences.speed*.25/max(.01,distance))
                     segment = tuple(a+(b-a)*fraction for a,b in zip((p.x(),p.y()), self.destination))
                     if not self.route_exposed(segment, self.screen):
                         self.cancel(now, '下一步被遮挡，停止探索', failed=True)
+                        self.react_change(now, 'listen', '下一步被挡住了，停下来看看')
                         return
                 distance = math.dist((p.x(), p.y()), self.destination)
-                speed = max(10, max(65,p.preferences.speed)*min(1., distance/18))
+                speed = max(4, p.preferences.speed*min(1., distance/18))
                 if p.advance_to(self.destination, dt, speed=speed):
-                    self.arrived(now)
+                    if self.kind == 'sleep_site':
+                        self.arrived(now)
+                        return
+                    self.arrive_at = now+random.uniform(.35, .6)
+                    self.moving_since = None
+                    self.until = max(self.until, self.arrive_at+.05)
+                    s.walking = False
+                    s.travel_position = None
+                    s.gait_until = 0
                     return
+                if self.exploring and self.kind == 'stroll' and self.target is None:
+                    self.depth.update(now)
                 return
             if self.kind == 'roll' and self.roll_origin:
                 # Use the same phase-locked movement as ambient/manual rolls.
@@ -644,19 +1234,30 @@ class Patrol:
             self.play('eat', now)
             p.bubble.say('只吃一小口零食……真的就一小口。', 'ambient')
             return
+        if ((7 <= at.hour < 23 or self.exploring) and now >= self.next_pointer_reaction
+                and self.pointer_near()):
+            pointer = QCursor.pos()
+            distance = math.hypot(pointer.x()-(p.x()+p.width()/2),
+                                  pointer.y()-(p.y()+p.height()/2))
+            key = 'curious' if distance <= max(110,p.height()*.6) else 'listen'
+            if self.react(now, key, '注意到你', '鼠标靠近，看看你在做什么'):
+                self.next_pointer_reaction = now+random.uniform(30, 50)
+                return
         if now < self.next_at:
             return
         idle = idle_seconds()
-        if idle is not None and idle < 2 and random.random() < .75:
+        if (not self.exploring and not self.icon_followup and idle is not None
+                and idle < 2 and random.random() < .75):
             self.next_at = now+random.uniform(30,60)
             self.reason = '用户正在操作，先安静陪伴'
             return
         # A due patrol gets one free-slot opportunity, rather than repeatedly
         # deferring behind ambient's timer. Active ambient clips still finish.
-        if at.hour >= 23 or at.hour < 7 or s.routine.period['walk'] <= 0:
+        if not self.exploring and (at.hour >= 23 or at.hour < 7 or s.routine.period['walk'] <= 0):
             self.reason = '作息需要安静休息'
+            self.next_at = now+30
             return
-        if now < self.policy.quiet_until or self.policy.remaining(now, p.preferences.activity) < 2:
+        if (not self.exploring and now < self.policy.quiet_until) or self.policy.remaining(now, p.preferences.activity) < 2:
             self.reason = '玩过了，先安静休息'
             self.next_at = max(now+30, self.policy.quiet_until)
             return
@@ -664,20 +1265,60 @@ class Patrol:
         self.next_at = now+random.uniform(60, 120)*pace/max(.3, s.routine.period['walk'])
         if now-self.icons.scanned_at > 30:
             self.icons.refresh()
-        candidate = self.icon_destination()
+        followup, self.icon_followup = self.icon_followup, False
+        backstage = (self.exploring and self.depth.mode == 'back'
+                     and now >= self.backstage_next)
+        candidate = self.icon_destination(hidden=True) if backstage else self.icon_destination()
+        if backstage and candidate is None:
+            # No icon is currently behind a window. Resume the normal patrol
+            # and retry later instead of forcing an invisible errand.
+            self.backstage_next = now+30.
+            backstage = False
+            candidate = self.icon_destination()
+        if (self.exploring and not backstage and not getattr(self,'first_walk',False)
+                and now >= self.next_passage
+                and random.random() < .25 and self.passage.begin(now)):
+            self.next_passage = now+random.uniform(60,120)
+            self.kind = self.story = 'depth_trip'
+            self.label = '走出屏幕，换一侧回来'
+            self.target = None
+            self.phase = 'screen_passage'
+            self.task_id += 1
+            self.reason = '从屏幕外切换窗口前后层级'
+            self.next_intent = '完全离开屏幕后换层，再从随机侧边走回来'
+            p.state_changed.emit()
+            return
+        if (self.exploring and not backstage and not getattr(self,'first_walk',False)
+                and random.random() < .28 and self.begin_edge(now)):
+            return
         icon_kinds = [k for k in ('observe', 'lean', 'read', 'orbit', 'peek', 'perch')
-                      if self.policy.available(k, now) and (k != 'peek' or 'play-peek' in catalog())
+                      if self.policy.available(k, now, exploring=self.exploring, unrestricted=p.preferences.activity == '活跃') and (k != 'peek' or 'play-peek' in catalog())
                       and (k != 'perch' or all(key in catalog() for key in ('play-climb-up','play-top-rest','play-climb-down')))]
-        if candidate and icon_kinds and random.random() < .65:
+        if backstage:
+            preferred = [kind for kind in BACKSTAGE_KINDS if kind in icon_kinds]
+            if preferred:
+                icon_kinds = preferred
+            else:
+                backstage = False
+                self.backstage_next = now+30.
+        first_walk = self.exploring and getattr(self, 'first_walk', False)
+        self.first_walk = False
+        if (candidate and icon_kinds and
+                (backstage or (not first_walk
+                               and (followup or random.random() < (.85 if self.exploring else .65))))):
             _, self.target, self.destination, self.screen = candidate
-            self.kind = random.choice(icon_kinds)
-            self.label = {'observe':'去看看附近的小角落', 'lean':'去图标旁靠一会儿',
-                          'read':'找个位置读一会儿', 'orbit':'绕这个小角落走半圈', 'peek':'藏一点点，再看看你',
-                          'perch':'抓住边缘，爬上图标坐坐'}[self.kind]
+            self.backstage = ({'revealed_at': None, 'probe_at': 0., 'planned_at': now}
+                              if backstage else None)
+            self.kind = (next(kind for kind in BACKSTAGE_KINDS if kind in icon_kinds)
+                         if backstage else random.choice(icon_kinds))
+            self.label = ('在窗口后面和图标玩' if backstage else
+                          {'observe':'去看看附近的小角落', 'lean':'去图标旁靠一会儿',
+                           'read':'找个位置读一会儿', 'orbit':'绕这个小角落走半圈', 'peek':'藏一点点，再看看你',
+                           'perch':'抓住边缘，爬上图标坐坐'}[self.kind])
             if self.kind in ('read','observe'):
                 beside = self.beside_icon(self.target,self.screen)
                 if beside is None:
-                    self.cancel(now,'图标文字旁没有安全空位，继续待机',failed=True)
+                    self.fallback_stroll(now,'图标文字旁没有安全空位')
                     return
                 self.destination = beside
             if self.kind == 'perch':
@@ -690,15 +1331,20 @@ class Patrol:
                 cx,cy = catalog()['play-top-rest']['support_contact']
                 self.perch = (round(x+w/2-(10+160*cx)*sx),round(y-(25+160*cy)*sy))
                 required = sum(sum(catalog()[key]['durations']) for key in ('play-climb-up','play-climb-down'))/1000
-                required += math.dist((p.x(),p.y()),self.destination)/max(65,p.preferences.speed)
+                required += math.dist((p.x(),p.y()),self.destination)/max(1,walking_speed(p.preferences.speed))
                 if (image is None or w < p.width()*.15 or not self.route_exposed(self.perch,self.screen)
                         or required+1 > self.policy.remaining(now,p.preferences.activity)):
-                    self.kind, self.label, self.perch = 'observe', '图标上方不适合，留在旁边坐坐', None
-                    beside = self.beside_icon(self.target,self.screen)
-                    if beside is None:
-                        self.cancel(now,'图标文字旁没有安全空位，继续待机',failed=True)
-                        return
-                    self.destination = beside
+                    if backstage and 'lean' in icon_kinds:
+                        # Keep contact with the icon instead of retreating to
+                        # a plain sit when the top is too small to climb.
+                        self.kind, self.label, self.perch = 'lean', '在窗口后面靠着图标', None
+                    else:
+                        self.kind, self.label, self.perch = 'observe', '图标上方不适合，留在旁边坐坐', None
+                        beside = self.beside_icon(self.target,self.screen)
+                        if beside is None:
+                            self.fallback_stroll(now,'图标文字旁没有安全空位')
+                            return
+                        self.destination = beside
             if self.kind == 'orbit':
                 x,y,w,h = logical_rect(self.target['rect'])[0]
                 side = -1 if p.x()+p.width()/2 < x+w/2 else 1
@@ -708,35 +1354,51 @@ class Patrol:
                 if not all(area.contains(int(px), int(py)) and
                            area.contains(int(px+p.width()-1), int(py+p.height()-1)) and
                            self.route_exposed((px,py), self.screen) for px,py in (first,second)):
-                    self.cancel(now, '图标旁没有足够的绕行空间',failed=True)
+                    self.fallback_stroll(now, '图标旁没有足够的绕行空间')
                     return
-                if (math.dist((p.x(),p.y()), first)+math.dist(first,second))/max(1,p.preferences.speed) > min(10,self.policy.remaining(now,p.preferences.activity)):
-                    self.cancel(now, '这次绕行太远，继续待机')
+                if (math.dist((p.x(),p.y()), first)+math.dist(first,second))/max(1,walking_speed(p.preferences.speed)) > min(10,self.policy.remaining(now,p.preferences.activity)):
+                    self.fallback_stroll(now, '这次绕行太远')
                     return
                 self.destination = first
                 self.waypoints = [second]
             if self.kind == 'lean':
                 self.icons.load_poses()
-                self.lean_pose = random.choice(('left', 'right'))
+                self.lean_pose = random.choice(('left','right',*NEW_POSES))
                 rect, _ = logical_rect(self.target['rect'])
+                support = icon_surface(rect,self.icons.cache_images.get(self.target['id'])) if self.lean_pose in NEW_POSES else rect
                 try:
-                    self.lean_pose, self.destination = placement(rect, (p.width(),p.height()), self.lean_pose,
+                    self.lean_pose, final = placement(support, (p.width(),p.height()), self.lean_pose,
                         {**self.icons.options, 'offset_x':0, 'offset_y':0}, self.screen.availableGeometry().getRect(), self.icons.bounds)
+                    self.destination = final
+                    if final[1] < p.y()-1:
+                        contact_y = rect[1]+rect[3]
+                        if p.y() <= contact_y <= p.y()+p.height():
+                            self.support_position = final
+                            self.destination = (final[0],p.y())
+                        else:
+                            # The icon sits higher up the desktop: walk to it
+                            # and lean there. Grabbing an out-of-reach edge
+                            # would animate a climb through empty air.
+                            self.support_position = None
+                            self.destination = final
                 except ValueError:
-                    self.cancel(now, '这里没有合适的支撑点')
+                    self.fallback_stroll(now, '这里没有合适的支撑点')
                     return
         else:
             self.target = None
-            choices = [k for k in ('roll', 'stroll', 'tea', 'rest') if self.policy.available(k, now)]
+            pool = ('roll','stroll') if self.exploring else ('roll','stroll','tea','rest')
+            choices = [k for k in pool if self.policy.available(k, now, exploring=self.exploring, unrestricted=p.preferences.activity == '活跃')]
+            if self.exploring and (self.policy.energy >= 15 or p.preferences.activity == '活跃') and 'stroll' not in choices:
+                choices.append('stroll')
             if not choices:
                 self.reason = '最近的小故事仍在冷却，继续待机'
                 return
-            self.kind = random.choice(choices)
+            self.kind = 'stroll' if first_walk and 'stroll' in choices else random.choice(choices)
             self.label = {'roll':'翻个身就歇着', 'stroll':'小步看看桌面', 'tea':'下午的小茶歇', 'rest':'坐趴着休息'}[self.kind]
             if self.kind == 'roll':
                 self.story = self.kind
                 area = p.screen_area()
-                action_id = random.choice(('lazy-roll-toward','lazy-roll-away'))
+                action_id = 'lazy-roll-away' if self.exploring else random.choice(('lazy-roll-toward','lazy-roll-away'))
                 from action_player import ROLL_DIRECTION
                 direction = ROLL_DIRECTION[action_id]
                 room = area.bottom()-p.y()-p.height()+1 if direction > 0 else p.y()-area.top()
@@ -755,16 +1417,20 @@ class Patrol:
             if self.kind in ('tea', 'rest'):
                 self.destination = None
             else:
-                area = p.screen_area()
-                x = round(max(area.left(), min(area.right()-p.width()+1, p.x()+random.choice((-1,1))*random.uniform(70,180))))
-                y = round(max(area.top(), min(area.bottom()-p.height()+1, p.y()+random.uniform(-85,85))))
-                self.destination = (x, y)
+                self.destination = self.random_destination()
                 self.screen = p.screen()
+                if self.destination is None:
+                    self.cancel(now, '附近没有安全空位，停下来观察后再选择', failed=True)
+                    return
+        distance = 0.
         if self.destination is not None:
+            if self.destination[1] < p.y()-1 and not self.icon_walk():
+                self.fallback_stroll(now,'尚未接触可攀爬对象，不向上走')
+                return
             distance = math.dist((p.x(), p.y()), self.destination)
-            seconds = distance/max(1, p.preferences.speed)
+            seconds = distance/max(1, walking_speed(p.preferences.speed))
             pointer = QCursor.pos()
-            if (seconds*1.5+2 > 12 or seconds > self.policy.remaining(now, p.preferences.activity)
+            if (not self.allows_travel(seconds) or seconds > self.policy.remaining(now, p.preferences.activity)
                     or not self.route_exposed(self.destination, self.screen)
                     or math.hypot(pointer.x()-self.destination[0]-p.width()/2,
                                   pointer.y()-self.destination[1]-p.height()/2) < max(120,p.height()*.65)):
@@ -773,11 +1439,14 @@ class Patrol:
         self.story = self.kind
         self.task_id += 1
         self.phase = 'observing'
-        self.until = now+random.uniform(1, 2)
         self.probe_at = now
-        self.reason = '附近路径可见，当前没有用户交互'
+        # No authored departure glance: stopping/starting a walk must not
+        # pin a canned look pose. The brief beat only revalidates the route.
+        self.until = now+random.uniform(.1, .25)
+        self.reason = '图标在窗口后面，悄悄过去和它玩一会儿' if backstage else '目标可见，直接靠近'
         self.geometry = self.capture_geometry()
-        self.next_intent = '先观察，再走近；条件改变就放弃'
+        self.next_intent = ('窗口移开时保持互动，让你看见' if backstage
+                            else '直接走向目标；条件改变就放弃')
         s.walking = False
         s.travel_position = None
         p.state_changed.emit()
@@ -789,5 +1458,5 @@ class Patrol:
         x,y,w,h = logical_rect(self.target['rect'])[0]
         glyph = alpha_region(image.scaled(max(1,round(w)), max(1,round(h))))
         from PySide6.QtGui import QRegion
-        self.pet.setMask(QRegion(self.pet.rect()).subtracted(glyph.translated(round(x-self.pet.x()), round(y-self.pet.y()))))
+        self.pet.masker.set('peek', QRegion(self.pet.rect()).subtracted(glyph.translated(round(x-self.pet.x()), round(y-self.pet.y()))))
         return True

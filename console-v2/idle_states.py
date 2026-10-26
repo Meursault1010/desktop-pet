@@ -7,10 +7,25 @@ CONFIG = json.loads((Path(__file__).parent/'assets/actions/idle-states.json').re
 STATES = {state['id']: state for state in CONFIG['states']}
 ACTION_STATE = {key: state['id'] for state in STATES.values() for key in state['actions']}
 AUTOMATIC_ACTIONS = tuple(key for state in STATES.values() for key in state['automatic'])
+# Expressive clips have no scheduler posture, but playback still knows how the
+# body is oriented. Warps and handovers read this; ambient scheduling must not.
+PLAYBACK_POSTURE = {
+    'affection': 'stand', 'afraid': 'stand', 'angry': 'stand',
+    'celebrate': 'stand', 'clicked': 'stand', 'curious': 'stand',
+    'sad': 'stand', 'shy': 'stand', 'smile': 'stand',
+    'play-peek': 'stand', 'play-lean': 'stand',
+    'play-climb-up': 'stand', 'play-climb-down': 'stand',
+    'play-sit': 'sit', 'play-top-rest': 'sit',
+}
 
 
 def posture_for(action_id):
     return ACTION_STATE.get(action_id)
+
+
+def motion_posture(action_id):
+    """Orientation used by playback; unlike posture_for this schedules nothing."""
+    return ACTION_STATE.get(action_id) or PLAYBACK_POSTURE.get(action_id)
 
 
 def snapshot(state):

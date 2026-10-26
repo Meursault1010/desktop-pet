@@ -1,4 +1,5 @@
 import unittest
+import math
 from play_policy import PlayPolicy
 
 
@@ -10,6 +11,16 @@ class PlayPolicyTests(unittest.TestCase):
         self.assertAlmostEqual(p.remaining(60, '默认'), 0.)
         self.assertLessEqual(len(p.motion), 61)
         self.assertEqual(p.remaining(700, '少动'), 30.)
+
+    def test_active_mode_has_no_accumulated_motion_limit_or_fatigue_gate(self):
+        p=PlayPolicy()
+        for i in range(20000):
+            p.advance(i*.1,.1,moving=True)
+        self.assertTrue(math.isinf(p.remaining(2000,'活跃')))
+        self.assertEqual(p.energy,0)
+        self.assertTrue(p.available('stroll',2000,exploring=True,unrestricted=True))
+        self.assertFalse(p.available('stroll',2000,exploring=True))
+        self.assertEqual(p.remaining(2000,'默认'),0)
 
     def test_recent_stories_and_icons_cannot_repeat(self):
         p = PlayPolicy()

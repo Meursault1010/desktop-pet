@@ -56,13 +56,14 @@
     "head_span": 88,
     "requested_scale": 1.07381,
     "transform": [
-      1.07421875,
-      -10,
-      -11
+      1,
+      0,
+      0
     ],
-    "frames": 6,
-    "input_hash": "e68f368de7992b46fa080e4919aeaa52b0e9757fdbe48b145c671239282b9734",
-    "output_hash": "e68f368de7992b46fa080e4919aeaa52b0e9757fdbe48b145c671239282b9734"
+    "frames": 7,
+    "input_hash": "9197fed3f329d5ec100d2b164a42873c5e71ad0930e216b126eaac94ca627c40",
+    "output_hash": "9197fed3f329d5ec100d2b164a42873c5e71ad0930e216b126eaac94ca627c40",
+    "note": "bridge composited after reviewed scale; final frames recorded at identity"
   },
   "actions/afraid": {
     "version": 2,
@@ -134,13 +135,14 @@
     "head_span": 88,
     "requested_scale": 1.076293,
     "transform": [
-      1.078125,
-      -10,
-      -12
+      1,
+      0,
+      0
     ],
-    "frames": 6,
-    "input_hash": "ab8fa60924d40e2efcf5928802e2f957a5a3cc68797c3819da54e0ab2343a401",
-    "output_hash": "ab8fa60924d40e2efcf5928802e2f957a5a3cc68797c3819da54e0ab2343a401"
+    "frames": 7,
+    "input_hash": "1d8e2a5ae407bb4130084250e11d62b22e605d1b391e722623591106fd2fed6d",
+    "output_hash": "1d8e2a5ae407bb4130084250e11d62b22e605d1b391e722623591106fd2fed6d",
+    "note": "bridge composited after reviewed scale; final frames recorded at identity"
   },
   "actions/dragged": {
     "version": 2,
@@ -251,13 +253,14 @@
     "head_span": 86,
     "requested_scale": 1.117565,
     "transform": [
-      1.1171875,
-      -14,
-      -21
+      1,
+      0,
+      0
     ],
-    "frames": 6,
-    "input_hash": "263ff5c8a27f279b5f435ba6db1b900af20a41aeb5c0a81281e184f009bf77db",
-    "output_hash": "263ff5c8a27f279b5f435ba6db1b900af20a41aeb5c0a81281e184f009bf77db"
+    "frames": 7,
+    "input_hash": "4a7b9f8b8cd56c4e11fb8ebd1fbb033a04b49aa8ca2fccfbcfb6ea98e4dacd9b",
+    "output_hash": "4a7b9f8b8cd56c4e11fb8ebd1fbb033a04b49aa8ca2fccfbcfb6ea98e4dacd9b",
+    "note": "bridge composited after reviewed scale; final frames recorded at identity"
   },
   "actions/tea": {
     "version": 2,
@@ -446,52 +449,52 @@
     "head_span": 87,
     "requested_scale": 1.114943,
     "transform": [
-      1.11328125,
-      -12,
+      1.05859375,
+      -7,
       -13
     ],
-    "frames": 6,
-    "input_hash": "de539305af51d88bd003ff2291e1788b2c71d031a6256d06edbda76f5538c7dc",
-    "output_hash": "de539305af51d88bd003ff2291e1788b2c71d031a6256d06edbda76f5538c7dc"
+    "frames": 120,
+    "input_hash": "b5de8aa342857dea208344a6758d2143cc78644b6965d82279fad39dd4c93fd3",
+    "output_hash": "cdb2dcaeef1ae841981c7088561e71e8d9f396196359a81c3fc951e8da813610"
   },
   "motion/walk-right": {
     "version": 2,
     "head_span": 91,
     "requested_scale": 1.065934,
     "transform": [
-      1.06640625,
-      3,
-      -2
+      1.05859375,
+      -8,
+      -13
     ],
-    "frames": 6,
-    "input_hash": "f4ca4616272ed2ef8ff547e1d5077fa0810a6c7aa57b803678164abcb19d996b",
-    "output_hash": "f4ca4616272ed2ef8ff547e1d5077fa0810a6c7aa57b803678164abcb19d996b"
+    "frames": 120,
+    "input_hash": "170989ab4391d6f44cb0ffe32291a370dfbee870a1a65b5e3302af3a5351f008",
+    "output_hash": "c88e33831ab8a7001cf6bff046e916a424eb404d09b2b5a5c7760be75e8e6b21"
   },
   "motion/climb-left": {
     "version": 2,
     "head_span": 84,
     "requested_scale": 1.098485,
     "transform": [
-      1.0546875,
-      1,
-      -5
+      1.08203125,
+      0,
+      -7
     ],
     "frames": 24,
-    "input_hash": "e1565eb287389009b67a214a762fae750907c6daad6b5cc796c532f4e343c9b3",
-    "output_hash": "e1565eb287389009b67a214a762fae750907c6daad6b5cc796c532f4e343c9b3"
+    "input_hash": "e233834575f4a476f0d26589d22a67fa3823a7ffab2035cbd053020977d515da",
+    "output_hash": "5e7386288552856ab5d025a712800759861c3668b6df2c382556225754fd59d0"
   },
   "motion/climb-right": {
     "version": 2,
     "head_span": 84,
     "requested_scale": 1.098485,
     "transform": [
-      1.05859375,
-      -18,
-      -8
+      1.05078125,
+      -20,
+      0
     ],
     "frames": 24,
-    "input_hash": "d5272d4d35d9f42996f170952788ae9f6ba9e701709955e0ecd5293054e18e8b",
-    "output_hash": "d5272d4d35d9f42996f170952788ae9f6ba9e701709955e0ecd5293054e18e8b"
+    "input_hash": "913e8c9bfddaa478f2224782503ff4418fdb2200f467172021dcc5705cbf0c96",
+    "output_hash": "837935adc2eee51eb6d1850ad3faa4d16e5645a969cbec25b7ad4295a69c51f0"
   },
   "motion/hang": {
     "version": 2,
@@ -503,8 +506,8 @@
       -7
     ],
     "frames": 24,
-    "input_hash": "09d82790ce0bcb35ae9a328e2191f09c2ef5e592f8a4198184bf9a8fc69d6334",
-    "output_hash": "09d82790ce0bcb35ae9a328e2191f09c2ef5e592f8a4198184bf9a8fc69d6334"
+    "input_hash": "278f1a3d9e36f5ed43c589bfa60d60bdca4aea0335274d7dff9032520df9eb20",
+    "output_hash": "298581cff5a238d88002356bd776afa3024d45fa6d493815c8475a1d704c1621"
   },
   "drag/down": {
     "version": 2,

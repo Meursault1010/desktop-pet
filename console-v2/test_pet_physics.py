@@ -327,7 +327,6 @@ class PetPhysicsIntegration(unittest.TestCase):
                 self.pet.mouseReleaseEvent(event)
         self.assertTrue(self.pet.state.physics.active)
         self.assertEqual(self.pet.state.physics.vx, 0)
-        self.assertFalse(self.pet.click_timer.isActive())
 
     def test_manual_throw_still_works_in_quiet_mode(self):
         from dataclasses import replace

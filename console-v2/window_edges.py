@@ -92,12 +92,16 @@ def foreground_process():
     return pid.value
 
 
-def visible_surfaces(excluded_processes=(),limit=40):
+def visible_surfaces(excluded_processes=(),limit=40, *, opaque_only=False):
     """Topmost first, without reading any titles or page contents."""
     if sys.platform!='win32':return []
     user=C.WinDLL('user32');callback=C.WINFUNCTYPE(W.BOOL,W.HWND,W.LPARAM)
     result=[];seen=set()
     def visit(hwnd,_):
+        if opaque_only:
+            from desktop_icons import transparent_overlay
+            if transparent_overlay(user,hwnd):
+                return True
         surface=inspect_foreground(excluded_processes,handle=hwnd)
         if surface and surface.handle not in seen:
             result.append(surface);seen.add(surface.handle)

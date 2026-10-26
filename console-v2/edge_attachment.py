@@ -57,8 +57,10 @@ class EdgeAttachment(QObject):
         self.started=0.;self.destination=None;self.variant=random.randrange(4)
         self.phase='idle';self.landing=None;self.interval=(0,0);self.parameter=0.;self.fraction=.5
         self.distance=0.;self.crawl_direction=1;self.crawl_target=None;self.next_move=0.;self.screen=None
+        self.hold_until=0.
+        self.climb_clock=0.;self.crawl_phase=0.
         self.timer=QTimer(self);self.timer.setInterval(100);self.timer.timeout.connect(self.tick)
-        self.animation=QTimer(self);self.animation.setInterval(33);self.animation.timeout.connect(self.animate)
+        self.animation=QTimer(self);self.animation.setInterval(16);self.animation.timeout.connect(self.animate)
         pet.state.edge_attachment=self
 
     def snapshot(self):return dict(options=self.options,active=self.active,kind=self.kind,message=self.message,error=self.error,direction=self.side)
@@ -74,8 +76,9 @@ class EdgeAttachment(QObject):
     def release(self,cooldown=20):
         was=self.active;self.active=False;self.handle=None;self.pending=None;self.destination=None;self.phase='idle'
         self.animation.stop();self.until=time.monotonic()+cooldown;self.message='等待自然停靠'
+        self.hold_until=0.
         self.variant=random.randrange(4)
-        self.pet.state.position_x=float(self.pet.x());self.pet.state.next_action=time.monotonic()+3
+        self.pet.state.position_x=float(self.pet.x())
         self.pet.state.gait_until=0;self.pet.state.travel_position=None
         if not self.options['enabled']:self.timer.stop()
         if was:self.pet.update();self.pet.state_changed.emit()
@@ -88,7 +91,7 @@ class EdgeAttachment(QObject):
     def excluded(self):
         return (os.getppid(),int(os.environ.get('PET_CONTROL_PID','0')))
 
-    def choices(self,surfaces,size=None,origin=None,*,cached_only=False):
+    def choices(self,surfaces,size=None,origin=None,*,cached_only=False,autonomous=False):
         from edge_geometry import candidates,corner_landing,screen_landings
         screens=QGuiApplication.screens();size=size or (self.pet.width(),self.pet.height());origin=origin or (self.pet.x(),self.pet.y())
         result=[];higher=[];foreground=None if cached_only else inspect_foreground(self.excluded())
@@ -96,7 +99,7 @@ class EdgeAttachment(QObject):
         # external visible surface still identifies the fullscreen page.
         if foreground is None and surfaces:foreground=surfaces[0]
         # Fullscreen content takes priority over desktop boundaries underneath.
-        if self.options['windows'] and foreground and (foreground.fullscreen or foreground.maximized):
+        if not autonomous and self.options['windows'] and foreground and (foreground.fullscreen or foreground.maximized):
             rect,area,screen=logical_surface(foreground,screens)
             if foreground.fullscreen:area=screen.geometry().getRect()
             return [(corner_landing(area,size,self.poses.bounds,origin,self.options['corner']),foreground,screen,rect)]
@@ -109,7 +112,7 @@ class EdgeAttachment(QObject):
         if self.options['screens']:
             for screen in screens:
                 area=screen.availableGeometry().getRect()
-                for landing in screen_landings(area,size,self.poses.bounds,origin,higher):
+                for landing in screen_landings(area,size,self.poses.bounds,origin,() if autonomous else higher):
                     result.append((landing,None,screen,area))
         return result
 
@@ -159,12 +162,15 @@ class EdgeAttachment(QObject):
         candidate=flight_intersection(start,end,(self.pet.width(),self.pet.height()),targets)
         return self.attach(candidate) if candidate is not None else False
 
-    def attach(self,candidate):
+    def attach(self,candidate,*,autonomous=False):
         """Shared immediate landing for a manual drop or a real airborne contact."""
         landing,surface,screen,rect=candidate
+        self.autonomous = autonomous
         self.set_landing(landing,rect);self.handle=surface.handle if surface else None;self.screen=screen
         now=time.monotonic();self.active=True;self.phase='resting';self.started=now;self.last_tick=now
         self.distance=0.;self.crawl_target=None;self.next_move=now+random.uniform(2,5);self.until=0
+        self.climb_clock=0.;self.crawl_phase=0.
+        self.hold_until=0.
         state=self.pet.state;state.physics.cancel();state.travel_target=None;state.travel_position=None;state.walking=False
         self.pet.animator.timer.setInterval(16)
         state.jump_started=None;state.action_player.stop();state.gait_until=0
@@ -203,7 +209,7 @@ class EdgeAttachment(QObject):
             if self.screen not in QGuiApplication.screens():return False
             rect=self.screen.availableGeometry().getRect()
             higher=[logical_surface(s,QGuiApplication.screens())[0] for s in surfaces]
-            choices=[l for l in screen_landings(rect,size,self.poses.bounds,origin,higher) if l.pose==self.side and l.kind==self.kind]
+            choices=[l for l in screen_landings(rect,size,self.poses.bounds,origin,() if getattr(self,'autonomous',False) else higher) if l.pose==self.side and l.kind==self.kind]
         if not choices:return False
         x,y,w,h=rect;p=(y+h*self.fraction) if self.kind in ('left','right') else (x+w*self.fraction)
         landing=min(choices,key=lambda l:abs(max(l.interval[0],min(l.interval[1],p))-p))
@@ -250,12 +256,20 @@ class EdgeAttachment(QObject):
             # gait distance and never changes the support pose.
             crawling=self.side.startswith('climb')
             if crawling and not paused:
-                if self.crawl_target is None and now>=self.next_move:
+                if self.crawl_target is None and now>=self.next_move and now>=self.hold_until:
                     lo,hi=self.interval
                     self.crawl_target=max(lo,min(hi,self.parameter+random.choice((-1,1))*random.uniform(25,100)))
                 if self.crawl_target is not None:
                     lo,hi=self.interval;self.crawl_target=max(lo,min(hi,self.crawl_target))
-                    delta=self.crawl_target-self.parameter;step=math.copysign(min(abs(delta),25*dt),delta)
+                    from climb_rig import pull_progress
+                    scale=self.pet.height()*.88/256
+                    delta=self.crawl_target-self.parameter
+                    # Ease each pull, slowing at the grip handoff. Use signed
+                    # local travel so reversing never resets the hand pose.
+                    next_phase=self.crawl_phase+math.copysign(12*dt/scale,delta)
+                    travel=(pull_progress(next_phase)-pull_progress(self.crawl_phase))*scale
+                    step=math.copysign(min(abs(delta),abs(travel)),delta)
+                    self.crawl_phase=next_phase;self.climb_clock+=step/scale
                     self.crawl_direction=1 if step>=0 else -1;self.distance+=abs(step)
                     self.parameter+=step;self.destination=(self.destination[0],self.destination[1]+step)
                     x,y,w,h=self.surface_rect;self.fraction=(self.parameter-y)/max(1,h)
@@ -274,6 +288,10 @@ class EdgeAttachment(QObject):
             pixmap=self.poses.pose_pixmap(self.side,elapsed)
         else:
             rect=QRectF(*sprite_rect((self.pet.width(),self.pet.height()),geometry(self.side),0,0))
+            if self.side.startswith('climb'):
+                from climb_rig import paint as paint_climb
+                paint_climb(painter,rect,self.side,self.climb_clock)
+                return True
             moving=self.crawl_target is not None and not (self.pet.preferences.paused or self.pet.preferences.quiet)
             pixmap=frame(self.side,self.distance,elapsed,moving,self.crawl_direction)
         painter.drawPixmap(rect,pixmap,QRectF(0,0,256,256));return True

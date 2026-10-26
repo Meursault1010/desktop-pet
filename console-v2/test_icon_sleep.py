@@ -141,6 +141,45 @@ class SleepInteractionTests(unittest.TestCase):
         self.assertFalse(self.sleep.paint(painter))
         painter.end()
 
+    def render_sleep(self):
+        image=QImage(self.controller.pet.size(),QImage.Format.Format_ARGB32_Premultiplied);image.fill(0)
+        painter=QPainter(image)
+        painted=self.sleep.paint(painter)
+        painter.end()
+        return painted,image
+
+    @staticmethod
+    def opaque_pixels(image):
+        return sum(1 for alpha in bytes(image.constBits())[3::4] if alpha)
+
+    def test_paint_ignores_the_shared_window_mask(self):
+        self.start()
+        with patch('icon_sleep.time.monotonic',return_value=self.sleep.started+1):
+            painted,owned=self.render_sleep()
+            self.assertTrue(painted)
+            expected=self.opaque_pixels(owned)
+            self.assertGreater(expected,1000)
+            # Another feature may release or replace the shared native mask
+            # between two animation ticks. Painting must never depend on it.
+            self.controller.pet.masker.clear_all()
+            painted,released=self.render_sleep()
+            self.assertTrue(painted)
+            self.assertEqual(self.opaque_pixels(released),expected)
+            self.controller.pet.masker.set('depth',QRegion(0,0,10,10))
+            painted,foreign=self.render_sleep()
+            self.assertTrue(painted)
+            self.assertEqual(self.opaque_pixels(foreign),expected)
+
+    def test_foreign_mask_does_not_crop_the_sleep_pose(self):
+        self.start()
+        self.sleep.update_mask()
+        own=self.controller.pet.mask()
+        self.controller.pet.masker.set('peek',QRegion(0,0,12,12))
+        combined=self.controller.pet.mask()
+        self.assertEqual(combined,own.intersected(QRegion(0,0,12,12)))
+        self.controller.pet.masker.clear('peek')
+        self.assertEqual(self.controller.pet.mask(),own)
+
     def test_scanned_window_overlap_does_not_enable_invisible_passthrough(self):
         self.start()
         with patch('icon_sleep.set_input_passthrough') as passthrough:

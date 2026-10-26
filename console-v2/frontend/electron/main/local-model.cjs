@@ -43,10 +43,15 @@ class LocalModel {
     }
     this.child?.kill();throw Error('Qwen 加载超时，请检查可用内存后重试。');
   }
+  async resume(){
+    // A canceled startup must settle before another launch can begin.
+    if(this.starting)await this.starting.catch(()=>{});
+    this.stopped=false;return this.ensure();
+  }
   async stop(){
     this.stopped=true;
     const child=this.child;if(!child)return;
-    await new Promise(resolve=>{const timer=setTimeout(resolve,5000);child.once('close',()=>{clearTimeout(timer);resolve();});child.kill();});
+    await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Model process did not exit; retry disabling.')),5000);child.once('close',()=>{clearTimeout(timer);resolve();});child.kill();});
   }
 }
 module.exports={LocalModel,ENDPOINT,MODEL};

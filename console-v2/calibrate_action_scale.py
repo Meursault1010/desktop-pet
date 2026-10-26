@@ -72,17 +72,23 @@ def map_point(point, transform, normalized=True):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--apply', action='store_true')
+    parser.add_argument('--group', action='append',
+                        choices=('actions','motion','drag','icon','legacy'),
+                        help='calibrate only these groups (repeatable)')
     args = parser.parse_args()
     if not args.apply:
         parser.error('Use --apply to publish the reviewed calibration')
+    groups = set(args.group or ('actions','motion','drag','icon','legacy'))
     profile = json.loads((ROOT/'scale_calibration.json').read_text(encoding='utf-8'))
     entries = json.loads((ASSETS/'actions/catalog.json').read_text(encoding='utf-8'))
-    if set(profile['actions']) != {entry['id'] for entry in entries}:
+    if 'actions' in groups and set(profile['actions']) != {entry['id'] for entry in entries}:
         raise ValueError('Review new or removed action scales before calibrating')
     WORK.mkdir(parents=True, exist_ok=True)
     report_path = WORK/'report.json'
     previous = json.loads(report_path.read_text(encoding='utf-8')) if report_path.exists() else {}
-    report = {}
+    # Keep fingerprints of untouched groups so a later full run still treats
+    # their published output as calibrated instead of scaling it twice.
+    report = dict(previous)
 
     def calibrate(group, name, paths, head, attached=False, upright_height=None, baseline=None):
         key = f'{group}/{name}'
@@ -111,7 +117,7 @@ def main():
                            output_hash=digest(paths))
         return transform
 
-    for entry in entries:
+    for entry in (entries if 'actions' in groups else ()):
         key = entry['id']; directory = ASSETS/'actions'/key
         paths = [directory/f'{i+1:02}.png' for i in range(entry['frames'])]
         neutral = Image.open(paths[0]).convert('RGBA')
@@ -131,10 +137,17 @@ def main():
     # Keep metadata sources alongside the original clips, then always transform
     # from those originals (never apply the scale twice to grip coordinates).
     for group, filename in [('motion','motion-v2/clips.json'),('drag','drag-resist/poses.json'),('icon','icon-interactions/poses.json')]:
+        if group not in groups:continue
         path=ASSETS/filename; backup=WORK/'originals'/f'{group}-metadata.json'
         if not backup.exists():shutil.copy2(path,backup)
         metadata=json.loads(backup.read_text(encoding='utf-8'))
+        current=json.loads(path.read_text(encoding='utf-8'))
         for key, head in profile[group].items():
+            if group=='motion' and key.startswith('walk'):
+                # build_grounded_walk owns gait pixels and metadata at final
+                # scale; the archived metadata still describes old 6-frame art.
+                if key in current:metadata[key]=current[key]
+                continue
             if group=='motion':paths=sorted((ASSETS/'motion-v2'/key).glob('*.png'))
             elif group=='drag':paths=[ASSETS/f'drag-resist/{key}.png']
             else:paths=sorted((ASSETS/'icon-interactions'/key).glob('*.png'))
@@ -153,20 +166,22 @@ def main():
         path.write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     legacy={}
     original_contacts=dict(left=(.76,.48),right=(.24,.48),back=(.76,.49),front=(.50,.48))
-    for key,head in profile['legacy'].items():
+    for key,head in (profile['legacy'] if 'legacy' in groups else {}).items():
         transform=calibrate('legacy',key,[ASSETS/f'icon-sleep-v2/{key}.png'],head,attached=True)
         legacy[key]={'contact':map_point(original_contacts[key],transform)}
-    (ASSETS/'icon-sleep-v2/poses.json').write_text(json.dumps(legacy,indent=2)+'\n',encoding='utf-8')
+    if 'legacy' in groups:
+        (ASSETS/'icon-sleep-v2/poses.json').write_text(json.dumps(legacy,indent=2)+'\n',encoding='utf-8')
     manifest=ASSETS/'actions/catalog.json'
     manifest.write_text(json.dumps(entries,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     # Save the source/output fingerprint before copying the web mirror, so a
     # transient Windows file lock cannot cause a later run to rescale outputs.
     report_path.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    for source in (ASSETS/'actions').rglob('*'):
-        if source.is_file():
-            target=ROOT/'frontend/public/actions'/source.relative_to(ASSETS/'actions')
-            target.parent.mkdir(parents=True,exist_ok=True)
-            target.write_bytes(source.read_bytes())
+    if 'actions' in groups:
+        for source in (ASSETS/'actions').rglob('*'):
+            if source.is_file():
+                target=ROOT/'frontend/public/actions'/source.relative_to(ASSETS/'actions')
+                target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_bytes(source.read_bytes())
     print(f'Calibrated {len(report)} clips; original sprites and audit: {WORK}')
 
 

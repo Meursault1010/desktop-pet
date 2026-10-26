@@ -231,7 +231,9 @@ class MusicCompanion(QObject):
         ambient_owned = bool(ambient and s.action_player.action
                              and s.action_player.started == ambient[1]
                              and not s.action_player.action['id'].startswith('sleep'))
-        if now < self.next_at or now-self.last_feature > 2.5 or (s.action_player.action and not ambient_owned) or s.walking:
+        if (now < self.next_at or now-self.last_feature > 2.5
+                or (s.action_player.action and not ambient_owned) or s.walking
+                or not s.gait_settled(now)):
             return
         kind = self.feature['kind']
         if (self.last_rhythm is not None and now-self.last_rhythm <= 8

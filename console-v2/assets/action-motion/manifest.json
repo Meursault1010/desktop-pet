@@ -2,21 +2,32 @@
   "version": 1,
   "method": "single-source-bidirectional-warp",
   "source_sha256": {
-    "affection": "c723d3e8622b56d6b938e1a06b25caa3824d724c0e4a1c16e29e119d777de5ee",
     "afraid": "dcfd144899c3af6d4370c166cf1ad09d91a192e4825279adc43a036ce77de861",
     "angry": "5aa3f992f862cfbfe84b5b61294b873c47b4f742a42d47e8da598c6385b06206",
     "blink": "a835eff74231c1a79339c4f1fe9d26f70eea230084af2f5ccb0f3fc308347929",
-    "celebrate": "bf50168f5328d768eb03c9eb1acf8714752cdf5b7e8fbd9b4e8ac6e69cd2888a",
+    "celebrate": "ea68309b14e64741db4b70e967fb3d3c2069011f8701e56d68f5c90ca6c524cc",
     "clicked": "7e091c5d3fa468dff3bcdf847e2c89db12b3b459432c1b3c4aca473510c5617f",
     "comb": "4518edbf5ab08a39ddbd48bd741d330c22516a7918f718c2ca39118f3364b6ff",
-    "curious": "2bdf1c2ce29041ee8966e985e38a67cf90a13af2a0071784392a031a955212af",
+    "curtsy": "44b3f76a83f0242aed1b96119c5aaa6cd63c4c4753261ced037b9691dce11f11",
+    "dance-rest": "eae97db1cb904ac7948a6ee675a3e72eae1e0fb946dad9880ef6b9072cd8ea2d",
     "dress": "5060029424ca654d8c39af26aaeec04a5d2a66325c814396b38e5c32cdd421e3",
     "eat": "25a2cc2bfaa2016944f6cb288c1deb5115d3639e9a2c62829d8c0003f8d81270",
     "files": "4d642f0fbe9506fc62c59536a22c24218b3a288edcc6a07b01874961ea58d67f",
+    "gaze-far": "52ac9b2c00a1026fdd4dcc3a928508bad716772c501de24e85b0f4d23b3bb016",
+    "hair-tuck": "9feba1f3ed8f1b99342321739bb4ace17f428bafd6b93a307266e922ee4ddfc1",
+    "hum": "7f60d44e77d60f5825a253665108edcc1350633c7e0480096579c1c47ca231b6",
     "lazy-roll-away": "683ceb4dd946957410923d9676714bd81abdf11efc0dd692a88752dffdb71526",
     "prone-rest": "b765dfe065d16f35598c645ee7cd16680d3750b3ef2b25b66d91522d18789d36",
     "lazy-roll-toward": "daa5e8004fff658faefef59af8980cdf0854f174a88c79e940f421ae01af88c2",
     "leap": "1ebf55f12cffb5c18044383dc1761aa9bd9f45dae7d71d07bf737b3aea20963d",
+    "listen": "033b25dfe148cf95833b0af79ec8abb4b56ea7e95ace3b33abbbd43fe5a94e9a",
+    "music-waltz": "698bd6bde559c7ce0b1e786b2caf4c5b9a35b841f0b382bbf305379b55c2f62b",
+    "play-climb-down": "9a681fe5902e8685ef061af0f3e5aa9f03d1ec1eb44a28b60d319473e368daf8",
+    "play-climb-up": "0ed0d6a1958496aa3d2de320512eb4e9504a98c983c4e11e8b175262c3c97bf1",
+    "play-lean": "a4d18ad1114f12917694e435b28a5854d3b2677b36a13b1b83ea9db4a8287eac",
+    "play-peek": "a4160ca16c1f35716bed2d85ca0236813ca29757c2212e8fed560dca93202c4e",
+    "play-sit": "185d5a3ff56d71b4ef20075c07ad00a91264b1c655e19a98251db3f9e8c24709",
+    "play-top-rest": "494b03848f7c6e70cb7f009f2ce5277c4031835a72d69d66274fa0c5b04c2cd0",
     "prone-chin": "1b35cc7a8b4c78dc48798daa4a1956f2e6cd08f21ea23c50292ab17edf33226a",
     "read": "743bb11a94227c1368a5249f9b4215c2683191f7584d5e30ae4cfb7a054f27c9",
     "sad": "e28bbb7ad91efec8ece27e24b8d2df9ddaa06273b781e6547394aaabb4deb12b",
@@ -25,60 +36,24 @@
     "sit-neat": "f1784830607f91309a17f35326cb10921642321a13602430a37f53e7e0f2f8e2",
     "sit-relaxed": "33192ede8f09c527a7c2440f987adaf8bb3a6503b8566743e20dbc1279589e35",
     "sit-swing": "c67f8bb94c11e43753314185723d400883bd81a8a6541e31a979b8d579e8ffc3",
+    "sleep": "8bbb510b204305e76226802275165bbcdf33d2adb532d0ad000ef19a80cc9a8f",
+    "sleep-enter": "e1dff56323d3b8b46d8469512c5582ea1d89bbd10270687ec09e09f0862ac551",
+    "sleep-wake": "85add9288ec5900665de455493b26214a4dcfa9f841141c6415d91f6ef8a66a5",
     "smile": "4ad0b0af4277e02487f29477b61fc5457d1762f5205f960b29aa4553696b20e3",
-    "stretch": "47407266e419985946b689a66205b6215965eeeace8d760649a63ffd52ee359b",
-    "tea": "fce04df07348c154bbcdff9e531b238d7c29730ca7e71f70140c3bd33b25e4b0",
-    "wait": "b40845a21951777f76380e63ed3414f08731f459db3046969ee5bd68deba3a8e",
-    "work": "580444bff584eeb70b06056118ee13de3ddd960caab135a57ec94dfc19a5c498",
-    "yawn": "2095f7b089646117979407b2f33cb428df3237c8299e8272780553eb29929b09",
-    "curtsy": "44b3f76a83f0242aed1b96119c5aaa6cd63c4c4753261ced037b9691dce11f11",
-    "gaze-far": "52ac9b2c00a1026fdd4dcc3a928508bad716772c501de24e85b0f4d23b3bb016",
-    "hair-tuck": "9feba1f3ed8f1b99342321739bb4ace17f428bafd6b93a307266e922ee4ddfc1",
-    "hum": "7f60d44e77d60f5825a253665108edcc1350633c7e0480096579c1c47ca231b6",
-    "listen": "033b25dfe148cf95833b0af79ec8abb4b56ea7e95ace3b33abbbd43fe5a94e9a",
     "sneeze": "4de425d61f4b2f6de2591601ee5b01a9d8b0614bd464b7dbddd358ae9577bc6b",
     "snow-catch": "a0010add68f00ad3dc64d4d2e3dd082fe4028bb8bc6c6bb278454f38d53a1ac8",
     "star-wish": "c4b92c81ce27dfce4e23ec7224fa96c674cdbaf3d6257276f8bc89b4db4131b4",
+    "tea": "fce04df07348c154bbcdff9e531b238d7c29730ca7e71f70140c3bd33b25e4b0",
+    "wait": "b40845a21951777f76380e63ed3414f08731f459db3046969ee5bd68deba3a8e",
     "warm-hands": "126c53a8604bbaec5c5927bebd23f2ae09922f82e6fc0b57c1e1aac82acbd721",
     "wave": "e8e989a265365870bb8250601b188f67d4437ce0d541eea86984731e8b22f390",
-    "play-climb-down": "9a681fe5902e8685ef061af0f3e5aa9f03d1ec1eb44a28b60d319473e368daf8",
-    "play-climb-up": "0ed0d6a1958496aa3d2de320512eb4e9504a98c983c4e11e8b175262c3c97bf1",
-    "play-lean": "a4d18ad1114f12917694e435b28a5854d3b2677b36a13b1b83ea9db4a8287eac",
-    "play-peek": "a4160ca16c1f35716bed2d85ca0236813ca29757c2212e8fed560dca93202c4e",
-    "play-sit": "185d5a3ff56d71b4ef20075c07ad00a91264b1c655e19a98251db3f9e8c24709",
-    "play-top-rest": "494b03848f7c6e70cb7f009f2ce5277c4031835a72d69d66274fa0c5b04c2cd0"
+    "work": "580444bff584eeb70b06056118ee13de3ddd960caab135a57ec94dfc19a5c498",
+    "yawn": "2095f7b089646117979407b2f33cb428df3237c8299e8272780553eb29929b09",
+    "affection": "ec09048e51b65175ba8e3ebc351f17dbc64f9c42abf8d541c6c306860dd7bc3b",
+    "curious": "400b9136c9f9be8c4a9ffc718f05265af56bfc7d5981afd810467294ebde676d",
+    "stretch": "375c640fb9598da0e6729d79d4985d812dc0de4697f616d11124855171090715"
   },
   "pairs": {
-    "affection:0>affection:1": {
-      "file": "affection_0--affection_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "affection:1>affection:2": {
-      "file": "affection_1--affection_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "affection:2>affection:3": {
-      "file": "affection_2--affection_3.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "affection:3>affection:4": {
-      "file": "affection_3--affection_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "affection:4>affection:5": {
-      "file": "affection_4--affection_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "affection:5>affection:0": {
-      "file": "affection_5--affection_0.png",
-      "frames": 25,
-      "columns": 5
-    },
     "afraid:0>afraid:1": {
       "file": "afraid_0--afraid_1.png",
       "frames": 25,
@@ -209,6 +184,11 @@
       "frames": 25,
       "columns": 5
     },
+    "celebrate:2>celebrate:3": {
+      "file": "celebrate_2--celebrate_3.png",
+      "frames": 25,
+      "columns": 5
+    },
     "celebrate:3>celebrate:4": {
       "file": "celebrate_3--celebrate_4.png",
       "frames": 25,
@@ -219,8 +199,13 @@
       "frames": 25,
       "columns": 5
     },
-    "celebrate:5>celebrate:0": {
-      "file": "celebrate_5--celebrate_0.png",
+    "celebrate:5>celebrate:6": {
+      "file": "celebrate_5--celebrate_6.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "celebrate:6>celebrate:0": {
+      "file": "celebrate_6--celebrate_0.png",
       "frames": 25,
       "columns": 5
     },
@@ -284,33 +269,78 @@
       "frames": 25,
       "columns": 5
     },
-    "curious:0>curious:1": {
-      "file": "curious_0--curious_1.png",
+    "curtsy:0>curtsy:1": {
+      "file": "curtsy_0--curtsy_1.png",
       "frames": 25,
       "columns": 5
     },
-    "curious:1>curious:2": {
-      "file": "curious_1--curious_2.png",
+    "curtsy:1>curtsy:2": {
+      "file": "curtsy_1--curtsy_2.png",
       "frames": 25,
       "columns": 5
     },
-    "curious:2>curious:3": {
-      "file": "curious_2--curious_3.png",
+    "curtsy:2>curtsy:3": {
+      "file": "curtsy_2--curtsy_3.png",
       "frames": 25,
       "columns": 5
     },
-    "curious:3>curious:4": {
-      "file": "curious_3--curious_4.png",
+    "curtsy:3>curtsy:4": {
+      "file": "curtsy_3--curtsy_4.png",
       "frames": 25,
       "columns": 5
     },
-    "curious:4>curious:5": {
-      "file": "curious_4--curious_5.png",
+    "curtsy:4>curtsy:5": {
+      "file": "curtsy_4--curtsy_5.png",
       "frames": 25,
       "columns": 5
     },
-    "curious:5>curious:0": {
-      "file": "curious_5--curious_0.png",
+    "curtsy:5>curtsy:0": {
+      "file": "curtsy_5--curtsy_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "dance-rest:0>dance-rest:1": {
+      "file": "dance-rest_0--dance-rest_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "dance-rest:1>dance-rest:2": {
+      "file": "dance-rest_1--dance-rest_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "dance-rest:2>dance-rest:3": {
+      "file": "dance-rest_2--dance-rest_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "dance-rest:3>dance-rest:4": {
+      "file": "dance-rest_3--dance-rest_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "dance-rest:4>dance-rest:5": {
+      "file": "dance-rest_4--dance-rest_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "dance-rest:5>dance-rest:6": {
+      "file": "dance-rest_5--dance-rest_6.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "dance-rest:6>dance-rest:7": {
+      "file": "dance-rest_6--dance-rest_7.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "dance-rest:7>dance-rest:8": {
+      "file": "dance-rest_7--dance-rest_8.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "dance-rest:8>dance-rest:9": {
+      "file": "dance-rest_8--dance-rest_9.png",
       "frames": 25,
       "columns": 5
     },
@@ -416,6 +446,96 @@
     },
     "files:5>files:0": {
       "file": "files_5--files_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "gaze-far:0>gaze-far:1": {
+      "file": "gaze-far_0--gaze-far_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "gaze-far:1>gaze-far:2": {
+      "file": "gaze-far_1--gaze-far_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "gaze-far:2>gaze-far:3": {
+      "file": "gaze-far_2--gaze-far_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "gaze-far:3>gaze-far:4": {
+      "file": "gaze-far_3--gaze-far_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "gaze-far:4>gaze-far:5": {
+      "file": "gaze-far_4--gaze-far_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "gaze-far:5>gaze-far:0": {
+      "file": "gaze-far_5--gaze-far_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hair-tuck:0>hair-tuck:1": {
+      "file": "hair-tuck_0--hair-tuck_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hair-tuck:1>hair-tuck:2": {
+      "file": "hair-tuck_1--hair-tuck_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hair-tuck:2>hair-tuck:3": {
+      "file": "hair-tuck_2--hair-tuck_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hair-tuck:3>hair-tuck:4": {
+      "file": "hair-tuck_3--hair-tuck_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hair-tuck:4>hair-tuck:5": {
+      "file": "hair-tuck_4--hair-tuck_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hair-tuck:5>hair-tuck:0": {
+      "file": "hair-tuck_5--hair-tuck_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hum:0>hum:1": {
+      "file": "hum_0--hum_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hum:1>hum:2": {
+      "file": "hum_1--hum_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hum:2>hum:3": {
+      "file": "hum_2--hum_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hum:3>hum:4": {
+      "file": "hum_3--hum_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hum:4>hum:5": {
+      "file": "hum_4--hum_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "hum:5>hum:0": {
+      "file": "hum_5--hum_0.png",
       "frames": 25,
       "columns": 5
     },
@@ -559,6 +679,686 @@
       "frames": 25,
       "columns": 5
     },
+    "listen:0>listen:1": {
+      "file": "listen_0--listen_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "listen:1>listen:2": {
+      "file": "listen_1--listen_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "listen:2>listen:3": {
+      "file": "listen_2--listen_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "listen:3>listen:4": {
+      "file": "listen_3--listen_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "listen:4>listen:5": {
+      "file": "listen_4--listen_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "listen:5>listen:0": {
+      "file": "listen_5--listen_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:0>music-waltz:1": {
+      "file": "music-waltz_0--music-waltz_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:1>music-waltz:2": {
+      "file": "music-waltz_1--music-waltz_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:2>music-waltz:3": {
+      "file": "music-waltz_2--music-waltz_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:3>music-waltz:4": {
+      "file": "music-waltz_3--music-waltz_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:4>music-waltz:5": {
+      "file": "music-waltz_4--music-waltz_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:5>music-waltz:6": {
+      "file": "music-waltz_5--music-waltz_6.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:6>music-waltz:7": {
+      "file": "music-waltz_6--music-waltz_7.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:7>music-waltz:8": {
+      "file": "music-waltz_7--music-waltz_8.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:8>music-waltz:9": {
+      "file": "music-waltz_8--music-waltz_9.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:9>music-waltz:10": {
+      "file": "music-waltz_9--music-waltz_10.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:10>music-waltz:11": {
+      "file": "music-waltz_10--music-waltz_11.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:11>music-waltz:12": {
+      "file": "music-waltz_11--music-waltz_12.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:12>music-waltz:13": {
+      "file": "music-waltz_12--music-waltz_13.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:13>music-waltz:14": {
+      "file": "music-waltz_13--music-waltz_14.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:14>music-waltz:15": {
+      "file": "music-waltz_14--music-waltz_15.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:15>music-waltz:16": {
+      "file": "music-waltz_15--music-waltz_16.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:16>music-waltz:17": {
+      "file": "music-waltz_16--music-waltz_17.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:17>music-waltz:18": {
+      "file": "music-waltz_17--music-waltz_18.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:18>music-waltz:19": {
+      "file": "music-waltz_18--music-waltz_19.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:19>music-waltz:20": {
+      "file": "music-waltz_19--music-waltz_20.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:20>music-waltz:21": {
+      "file": "music-waltz_20--music-waltz_21.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:21>music-waltz:22": {
+      "file": "music-waltz_21--music-waltz_22.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:22>music-waltz:23": {
+      "file": "music-waltz_22--music-waltz_23.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:23>music-waltz:24": {
+      "file": "music-waltz_23--music-waltz_24.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:24>music-waltz:25": {
+      "file": "music-waltz_24--music-waltz_25.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:25>music-waltz:26": {
+      "file": "music-waltz_25--music-waltz_26.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:26>music-waltz:27": {
+      "file": "music-waltz_26--music-waltz_27.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:27>music-waltz:28": {
+      "file": "music-waltz_27--music-waltz_28.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:28>music-waltz:29": {
+      "file": "music-waltz_28--music-waltz_29.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:29>music-waltz:30": {
+      "file": "music-waltz_29--music-waltz_30.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:30>music-waltz:31": {
+      "file": "music-waltz_30--music-waltz_31.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:31>music-waltz:32": {
+      "file": "music-waltz_31--music-waltz_32.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:32>music-waltz:33": {
+      "file": "music-waltz_32--music-waltz_33.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:33>music-waltz:34": {
+      "file": "music-waltz_33--music-waltz_34.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:34>music-waltz:35": {
+      "file": "music-waltz_34--music-waltz_35.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:35>music-waltz:36": {
+      "file": "music-waltz_35--music-waltz_36.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:36>music-waltz:37": {
+      "file": "music-waltz_36--music-waltz_37.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:37>music-waltz:38": {
+      "file": "music-waltz_37--music-waltz_38.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:38>music-waltz:39": {
+      "file": "music-waltz_38--music-waltz_39.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:39>music-waltz:40": {
+      "file": "music-waltz_39--music-waltz_40.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:40>music-waltz:41": {
+      "file": "music-waltz_40--music-waltz_41.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:41>music-waltz:42": {
+      "file": "music-waltz_41--music-waltz_42.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:42>music-waltz:43": {
+      "file": "music-waltz_42--music-waltz_43.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:43>music-waltz:44": {
+      "file": "music-waltz_43--music-waltz_44.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:44>music-waltz:45": {
+      "file": "music-waltz_44--music-waltz_45.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:45>music-waltz:46": {
+      "file": "music-waltz_45--music-waltz_46.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:46>music-waltz:47": {
+      "file": "music-waltz_46--music-waltz_47.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:47>music-waltz:48": {
+      "file": "music-waltz_47--music-waltz_48.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:48>music-waltz:49": {
+      "file": "music-waltz_48--music-waltz_49.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:49>music-waltz:50": {
+      "file": "music-waltz_49--music-waltz_50.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:50>music-waltz:51": {
+      "file": "music-waltz_50--music-waltz_51.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:51>music-waltz:52": {
+      "file": "music-waltz_51--music-waltz_52.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:52>music-waltz:53": {
+      "file": "music-waltz_52--music-waltz_53.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:53>music-waltz:54": {
+      "file": "music-waltz_53--music-waltz_54.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:54>music-waltz:55": {
+      "file": "music-waltz_54--music-waltz_55.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:55>music-waltz:56": {
+      "file": "music-waltz_55--music-waltz_56.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:56>music-waltz:57": {
+      "file": "music-waltz_56--music-waltz_57.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:57>music-waltz:58": {
+      "file": "music-waltz_57--music-waltz_58.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:58>music-waltz:59": {
+      "file": "music-waltz_58--music-waltz_59.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:59>music-waltz:60": {
+      "file": "music-waltz_59--music-waltz_60.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:60>music-waltz:61": {
+      "file": "music-waltz_60--music-waltz_61.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:61>music-waltz:62": {
+      "file": "music-waltz_61--music-waltz_62.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:62>music-waltz:63": {
+      "file": "music-waltz_62--music-waltz_63.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:63>music-waltz:64": {
+      "file": "music-waltz_63--music-waltz_64.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:64>music-waltz:65": {
+      "file": "music-waltz_64--music-waltz_65.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:65>music-waltz:66": {
+      "file": "music-waltz_65--music-waltz_66.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:66>music-waltz:67": {
+      "file": "music-waltz_66--music-waltz_67.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:67>music-waltz:68": {
+      "file": "music-waltz_67--music-waltz_68.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:68>music-waltz:69": {
+      "file": "music-waltz_68--music-waltz_69.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:69>music-waltz:70": {
+      "file": "music-waltz_69--music-waltz_70.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:70>music-waltz:71": {
+      "file": "music-waltz_70--music-waltz_71.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:71>music-waltz:72": {
+      "file": "music-waltz_71--music-waltz_72.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:72>music-waltz:73": {
+      "file": "music-waltz_72--music-waltz_73.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:73>music-waltz:74": {
+      "file": "music-waltz_73--music-waltz_74.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:74>music-waltz:75": {
+      "file": "music-waltz_74--music-waltz_75.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:75>music-waltz:76": {
+      "file": "music-waltz_75--music-waltz_76.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:76>music-waltz:77": {
+      "file": "music-waltz_76--music-waltz_77.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:77>music-waltz:78": {
+      "file": "music-waltz_77--music-waltz_78.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:78>music-waltz:79": {
+      "file": "music-waltz_78--music-waltz_79.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:79>music-waltz:80": {
+      "file": "music-waltz_79--music-waltz_80.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:80>music-waltz:81": {
+      "file": "music-waltz_80--music-waltz_81.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:81>music-waltz:82": {
+      "file": "music-waltz_81--music-waltz_82.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:82>music-waltz:83": {
+      "file": "music-waltz_82--music-waltz_83.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:83>music-waltz:84": {
+      "file": "music-waltz_83--music-waltz_84.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:84>music-waltz:85": {
+      "file": "music-waltz_84--music-waltz_85.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:85>music-waltz:86": {
+      "file": "music-waltz_85--music-waltz_86.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:86>music-waltz:87": {
+      "file": "music-waltz_86--music-waltz_87.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:87>music-waltz:88": {
+      "file": "music-waltz_87--music-waltz_88.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:88>music-waltz:89": {
+      "file": "music-waltz_88--music-waltz_89.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:89>music-waltz:90": {
+      "file": "music-waltz_89--music-waltz_90.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:90>music-waltz:91": {
+      "file": "music-waltz_90--music-waltz_91.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:91>music-waltz:92": {
+      "file": "music-waltz_91--music-waltz_92.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:92>music-waltz:93": {
+      "file": "music-waltz_92--music-waltz_93.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:93>music-waltz:94": {
+      "file": "music-waltz_93--music-waltz_94.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:94>music-waltz:95": {
+      "file": "music-waltz_94--music-waltz_95.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:95>music-waltz:96": {
+      "file": "music-waltz_95--music-waltz_96.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:96>music-waltz:97": {
+      "file": "music-waltz_96--music-waltz_97.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:97>music-waltz:98": {
+      "file": "music-waltz_97--music-waltz_98.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:98>music-waltz:99": {
+      "file": "music-waltz_98--music-waltz_99.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:99>music-waltz:100": {
+      "file": "music-waltz_99--music-waltz_100.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:100>music-waltz:101": {
+      "file": "music-waltz_100--music-waltz_101.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:101>music-waltz:102": {
+      "file": "music-waltz_101--music-waltz_102.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:102>music-waltz:103": {
+      "file": "music-waltz_102--music-waltz_103.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:103>music-waltz:104": {
+      "file": "music-waltz_103--music-waltz_104.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:104>music-waltz:105": {
+      "file": "music-waltz_104--music-waltz_105.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "music-waltz:105>music-waltz:0": {
+      "file": "music-waltz_105--music-waltz_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-down:0>play-climb-down:1": {
+      "file": "play-climb-down_0--play-climb-down_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-down:1>play-climb-down:2": {
+      "file": "play-climb-down_1--play-climb-down_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-down:2>play-climb-down:3": {
+      "file": "play-climb-down_2--play-climb-down_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-down:3>play-climb-down:4": {
+      "file": "play-climb-down_3--play-climb-down_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-down:4>play-climb-down:5": {
+      "file": "play-climb-down_4--play-climb-down_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-down:5>play-climb-down:0": {
+      "file": "play-climb-down_5--play-climb-down_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-up:0>play-climb-up:1": {
+      "file": "play-climb-up_0--play-climb-up_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-up:1>play-climb-up:2": {
+      "file": "play-climb-up_1--play-climb-up_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-up:2>play-climb-up:3": {
+      "file": "play-climb-up_2--play-climb-up_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-up:3>play-climb-up:4": {
+      "file": "play-climb-up_3--play-climb-up_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-up:4>play-climb-up:5": {
+      "file": "play-climb-up_4--play-climb-up_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-up:5>play-climb-up:0": {
+      "file": "play-climb-up_5--play-climb-up_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-lean:0>play-lean:1": {
+      "file": "play-lean_0--play-lean_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-lean:1>play-lean:2": {
+      "file": "play-lean_1--play-lean_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-lean:2>play-lean:3": {
+      "file": "play-lean_2--play-lean_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-lean:3>play-lean:0": {
+      "file": "play-lean_3--play-lean_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-peek:0>play-peek:1": {
+      "file": "play-peek_0--play-peek_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-peek:1>play-peek:2": {
+      "file": "play-peek_1--play-peek_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-peek:2>play-peek:3": {
+      "file": "play-peek_2--play-peek_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-peek:3>play-peek:0": {
+      "file": "play-peek_3--play-peek_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-sit:0>play-sit:1": {
+      "file": "play-sit_0--play-sit_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-sit:1>play-sit:2": {
+      "file": "play-sit_1--play-sit_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-sit:2>play-sit:3": {
+      "file": "play-sit_2--play-sit_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-sit:3>play-sit:0": {
+      "file": "play-sit_3--play-sit_0.png",
+      "frames": 25,
+      "columns": 5
+    },
     "prone-chin:0>prone-chin:1": {
       "file": "prone-chin_0--prone-chin_1.png",
       "frames": 25,
@@ -636,6 +1436,11 @@
     },
     "prone-chin:34>prone-chin:35": {
       "file": "prone-chin_34--prone-chin_35.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "prone-rest:0>prone-rest:1": {
+      "file": "prone-rest_0--prone-rest_1.png",
       "frames": 25,
       "columns": 5
     },
@@ -1084,6 +1889,16 @@
       "frames": 25,
       "columns": 5
     },
+    "sleep-enter:96>sleep-enter:0": {
+      "file": "sleep-enter_96--sleep-enter_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "sleep-wake:60>sleep-wake:0": {
+      "file": "sleep-wake_60--sleep-wake_0.png",
+      "frames": 25,
+      "columns": 5
+    },
     "smile:0>smile:1": {
       "file": "smile_0--smile_1.png",
       "frames": 25,
@@ -1111,296 +1926,6 @@
     },
     "smile:5>smile:0": {
       "file": "smile_5--smile_0.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "stretch:0>stretch:1": {
-      "file": "stretch_0--stretch_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "stretch:1>stretch:2": {
-      "file": "stretch_1--stretch_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "stretch:2>stretch:3": {
-      "file": "stretch_2--stretch_3.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "stretch:3>stretch:4": {
-      "file": "stretch_3--stretch_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "stretch:4>stretch:5": {
-      "file": "stretch_4--stretch_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "stretch:5>stretch:0": {
-      "file": "stretch_5--stretch_0.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "tea:0>tea:1": {
-      "file": "tea_0--tea_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "tea:1>tea:2": {
-      "file": "tea_1--tea_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "tea:2>tea:3": {
-      "file": "tea_2--tea_3.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "tea:3>tea:4": {
-      "file": "tea_3--tea_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "tea:4>tea:5": {
-      "file": "tea_4--tea_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "tea:5>tea:0": {
-      "file": "tea_5--tea_0.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "wait:0>wait:1": {
-      "file": "wait_0--wait_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "wait:1>wait:2": {
-      "file": "wait_1--wait_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "wait:3>wait:4": {
-      "file": "wait_3--wait_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "wait:4>wait:5": {
-      "file": "wait_4--wait_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "work:0>work:1": {
-      "file": "work_0--work_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "work:1>work:2": {
-      "file": "work_1--work_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "work:2>work:3": {
-      "file": "work_2--work_3.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "work:3>work:4": {
-      "file": "work_3--work_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "work:4>work:5": {
-      "file": "work_4--work_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "work:5>work:0": {
-      "file": "work_5--work_0.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "yawn:0>yawn:1": {
-      "file": "yawn_0--yawn_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "yawn:1>yawn:2": {
-      "file": "yawn_1--yawn_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "yawn:2>yawn:3": {
-      "file": "yawn_2--yawn_3.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "yawn:3>yawn:4": {
-      "file": "yawn_3--yawn_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "yawn:4>yawn:5": {
-      "file": "yawn_4--yawn_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "yawn:5>yawn:0": {
-      "file": "yawn_5--yawn_0.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "curtsy:0>curtsy:1": {
-      "file": "curtsy_0--curtsy_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "curtsy:1>curtsy:2": {
-      "file": "curtsy_1--curtsy_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "curtsy:2>curtsy:3": {
-      "file": "curtsy_2--curtsy_3.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "curtsy:3>curtsy:4": {
-      "file": "curtsy_3--curtsy_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "curtsy:4>curtsy:5": {
-      "file": "curtsy_4--curtsy_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "curtsy:5>curtsy:0": {
-      "file": "curtsy_5--curtsy_0.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "gaze-far:0>gaze-far:1": {
-      "file": "gaze-far_0--gaze-far_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "gaze-far:1>gaze-far:2": {
-      "file": "gaze-far_1--gaze-far_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "gaze-far:2>gaze-far:3": {
-      "file": "gaze-far_2--gaze-far_3.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "gaze-far:3>gaze-far:4": {
-      "file": "gaze-far_3--gaze-far_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "gaze-far:4>gaze-far:5": {
-      "file": "gaze-far_4--gaze-far_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "gaze-far:5>gaze-far:0": {
-      "file": "gaze-far_5--gaze-far_0.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hair-tuck:0>hair-tuck:1": {
-      "file": "hair-tuck_0--hair-tuck_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hair-tuck:1>hair-tuck:2": {
-      "file": "hair-tuck_1--hair-tuck_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hair-tuck:2>hair-tuck:3": {
-      "file": "hair-tuck_2--hair-tuck_3.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hair-tuck:3>hair-tuck:4": {
-      "file": "hair-tuck_3--hair-tuck_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hair-tuck:4>hair-tuck:5": {
-      "file": "hair-tuck_4--hair-tuck_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hair-tuck:5>hair-tuck:0": {
-      "file": "hair-tuck_5--hair-tuck_0.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hum:0>hum:1": {
-      "file": "hum_0--hum_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hum:1>hum:2": {
-      "file": "hum_1--hum_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hum:2>hum:3": {
-      "file": "hum_2--hum_3.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hum:3>hum:4": {
-      "file": "hum_3--hum_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hum:4>hum:5": {
-      "file": "hum_4--hum_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "hum:5>hum:0": {
-      "file": "hum_5--hum_0.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "listen:0>listen:1": {
-      "file": "listen_0--listen_1.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "listen:1>listen:2": {
-      "file": "listen_1--listen_2.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "listen:2>listen:3": {
-      "file": "listen_2--listen_3.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "listen:3>listen:4": {
-      "file": "listen_3--listen_4.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "listen:4>listen:5": {
-      "file": "listen_4--listen_5.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "listen:5>listen:0": {
-      "file": "listen_5--listen_0.png",
       "frames": 25,
       "columns": 5
     },
@@ -1494,6 +2019,66 @@
       "frames": 25,
       "columns": 5
     },
+    "tea:0>tea:1": {
+      "file": "tea_0--tea_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "tea:1>tea:2": {
+      "file": "tea_1--tea_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "tea:2>tea:3": {
+      "file": "tea_2--tea_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "tea:3>tea:4": {
+      "file": "tea_3--tea_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "tea:4>tea:5": {
+      "file": "tea_4--tea_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "tea:5>tea:0": {
+      "file": "tea_5--tea_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "wait:0>wait:1": {
+      "file": "wait_0--wait_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "wait:1>wait:2": {
+      "file": "wait_1--wait_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "wait:2>wait:3": {
+      "file": "wait_2--wait_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "wait:3>wait:4": {
+      "file": "wait_3--wait_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "wait:4>wait:5": {
+      "file": "wait_4--wait_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "wait:5>wait:0": {
+      "file": "wait_5--wait_0.png",
+      "frames": 25,
+      "columns": 5
+    },
     "warm-hands:0>warm-hands:1": {
       "file": "warm-hands_0--warm-hands_1.png",
       "frames": 25,
@@ -1554,108 +2139,168 @@
       "frames": 25,
       "columns": 5
     },
-    "play-climb-down:0>play-climb-down:1": {
-      "file": "play-climb-down_0--play-climb-down_1.png",
+    "work:0>work:1": {
+      "file": "work_0--work_1.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-down:1>play-climb-down:2": {
-      "file": "play-climb-down_1--play-climb-down_2.png",
+    "work:1>work:2": {
+      "file": "work_1--work_2.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-down:2>play-climb-down:3": {
-      "file": "play-climb-down_2--play-climb-down_3.png",
+    "work:2>work:3": {
+      "file": "work_2--work_3.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-down:3>play-climb-down:4": {
-      "file": "play-climb-down_3--play-climb-down_4.png",
+    "work:3>work:4": {
+      "file": "work_3--work_4.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-down:4>play-climb-down:5": {
-      "file": "play-climb-down_4--play-climb-down_5.png",
+    "work:4>work:5": {
+      "file": "work_4--work_5.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-down:5>play-climb-down:0": {
-      "file": "play-climb-down_5--play-climb-down_0.png",
+    "work:5>work:0": {
+      "file": "work_5--work_0.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-up:0>play-climb-up:1": {
-      "file": "play-climb-up_0--play-climb-up_1.png",
+    "yawn:0>yawn:1": {
+      "file": "yawn_0--yawn_1.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-up:1>play-climb-up:2": {
-      "file": "play-climb-up_1--play-climb-up_2.png",
+    "yawn:1>yawn:2": {
+      "file": "yawn_1--yawn_2.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-up:2>play-climb-up:3": {
-      "file": "play-climb-up_2--play-climb-up_3.png",
+    "yawn:2>yawn:3": {
+      "file": "yawn_2--yawn_3.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-up:3>play-climb-up:4": {
-      "file": "play-climb-up_3--play-climb-up_4.png",
+    "yawn:3>yawn:4": {
+      "file": "yawn_3--yawn_4.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-up:4>play-climb-up:5": {
-      "file": "play-climb-up_4--play-climb-up_5.png",
+    "yawn:4>yawn:5": {
+      "file": "yawn_4--yawn_5.png",
       "frames": 25,
       "columns": 5
     },
-    "play-climb-up:5>play-climb-up:0": {
-      "file": "play-climb-up_5--play-climb-up_0.png",
+    "yawn:5>yawn:0": {
+      "file": "yawn_5--yawn_0.png",
       "frames": 25,
       "columns": 5
     },
-    "play-lean:0>play-lean:1": {
-      "file": "play-lean_0--play-lean_1.png",
+    "affection:0>affection:1": {
+      "file": "affection_0--affection_1.png",
       "frames": 25,
       "columns": 5
     },
-    "play-lean:1>play-lean:2": {
-      "file": "play-lean_1--play-lean_2.png",
+    "affection:1>affection:2": {
+      "file": "affection_1--affection_2.png",
       "frames": 25,
       "columns": 5
     },
-    "play-lean:2>play-lean:3": {
-      "file": "play-lean_2--play-lean_3.png",
+    "affection:2>affection:3": {
+      "file": "affection_2--affection_3.png",
       "frames": 25,
       "columns": 5
     },
-    "play-peek:0>play-peek:1": {
-      "file": "play-peek_0--play-peek_1.png",
+    "affection:3>affection:4": {
+      "file": "affection_3--affection_4.png",
       "frames": 25,
       "columns": 5
     },
-    "play-peek:1>play-peek:2": {
-      "file": "play-peek_1--play-peek_2.png",
+    "affection:4>affection:5": {
+      "file": "affection_4--affection_5.png",
       "frames": 25,
       "columns": 5
     },
-    "play-peek:2>play-peek:3": {
-      "file": "play-peek_2--play-peek_3.png",
+    "affection:5>affection:6": {
+      "file": "affection_5--affection_6.png",
       "frames": 25,
       "columns": 5
     },
-    "play-sit:0>play-sit:1": {
-      "file": "play-sit_0--play-sit_1.png",
+    "affection:6>affection:0": {
+      "file": "affection_6--affection_0.png",
       "frames": 25,
       "columns": 5
     },
-    "play-sit:1>play-sit:2": {
-      "file": "play-sit_1--play-sit_2.png",
+    "curious:0>curious:1": {
+      "file": "curious_0--curious_1.png",
       "frames": 25,
       "columns": 5
     },
-    "play-sit:2>play-sit:3": {
-      "file": "play-sit_2--play-sit_3.png",
+    "curious:1>curious:2": {
+      "file": "curious_1--curious_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "curious:2>curious:3": {
+      "file": "curious_2--curious_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "curious:3>curious:4": {
+      "file": "curious_3--curious_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "curious:4>curious:5": {
+      "file": "curious_4--curious_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "curious:5>curious:6": {
+      "file": "curious_5--curious_6.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "curious:6>curious:0": {
+      "file": "curious_6--curious_0.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "stretch:0>stretch:1": {
+      "file": "stretch_0--stretch_1.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "stretch:1>stretch:2": {
+      "file": "stretch_1--stretch_2.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "stretch:2>stretch:3": {
+      "file": "stretch_2--stretch_3.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "stretch:3>stretch:4": {
+      "file": "stretch_3--stretch_4.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "stretch:4>stretch:5": {
+      "file": "stretch_4--stretch_5.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "stretch:5>stretch:6": {
+      "file": "stretch_5--stretch_6.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "stretch:6>stretch:0": {
+      "file": "stretch_6--stretch_0.png",
       "frames": 25,
       "columns": 5
     }

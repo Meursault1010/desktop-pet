@@ -60,7 +60,9 @@ class MusicTests(unittest.TestCase):
         self.assertEqual(self.music.transform(self.now+.7),(0.,0.,0.))
         self.assertEqual(self.pet.animator.timer.interval(),16)
         self.assertTrue(self.pet.state.action_player.loop)
-        self.assertTrue(self.now+30 <= self.music.until <= self.now+50)
+        # A slower complete phrase may extend beyond the preferred 50s limit.
+        phrase_seconds=sum(self.pet.state.action_player.action['durations'])/1000/self.pet.state.action_player.speed
+        self.assertTrue(self.now+30 <= self.music.until <= self.now+max(50,30+phrase_seconds))
         self.music.cancel(self.now+1)
         self.assertEqual(self.pet.animator.timer.interval(),16)
         self.assertGreaterEqual(self.music.next_at,self.now+4)
@@ -100,16 +102,19 @@ class MusicTests(unittest.TestCase):
         before = (now-player.started)*player.speed
         self.music.tick(now)
         self.assertAlmostEqual((now-player.started)*player.speed, before)
-        self.assertGreater(player.speed, 1.)
+        self.assertGreater(player.speed, .5)
         self.assertEqual(self.music.owned_start, player.started)
         self.music.cancel(now)
         self.music.next_at = 0
         self.feature(at=now)
         self.music.feature.update(bpm=96, beat_at=now-.06)
         self.music.tick(now)
-        self.assertEqual(player.speed,.8)
+        self.assertAlmostEqual(player.speed,.4)
         self.assertAlmostEqual(player.started,now-.06)
-        self.assertTrue(now+30 <= self.music.until <= now+50)
+        # At the slower 96-BPM pace, one complete phrase takes about 35.1s.
+        self.assertTrue(30 <= self.music.until-player.started <= 50)
+        phrase=sum(player.action["durations"])/1000
+        self.assertAlmostEqual((self.music.until-player.started)*player.speed, phrase)
 
     def test_authored_dance_renders_transparently_without_extra_warps(self):
         from music_dance_asset import preload, ready

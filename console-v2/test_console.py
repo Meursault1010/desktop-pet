@@ -32,9 +32,9 @@ class ConsoleTests(unittest.TestCase):
         self.directory = tempfile.TemporaryDirectory(prefix='xiaoju-test-')
         self.path = Path(self.directory.name) / 'settings.ini'
         self.controller = PetApplication(self.app, SettingsStore(self.path), enable_tray=False)
-        self.controller.pet.state.patrol = None  # Legacy movement controls are tested independently.
         self.controller.start()
-        self.controller.pet.advance_presence(time.monotonic()+2)
+        self.controller.pet.advance_presence(
+            time.monotonic()+self.controller.pet.presence.duration+.1)
         self.controller.pet.animator.timer.stop()
         self.app.processEvents()
         self.sleep_patch = patch('pet_sleep.sleep_time', return_value=False)
@@ -61,28 +61,25 @@ class ConsoleTests(unittest.TestCase):
         controller = self.controller
         window, pet = controller.window, controller.pet
         QTest.mouseClick(window.visibility_button, Qt.MouseButton.LeftButton)
-        pet.advance_presence(time.monotonic()+2)
+        pet.advance_presence(time.monotonic()+pet.presence.duration+.1)
         self.assertFalse(pet.isVisible())
         self.assertFalse(pet.animator.timer.isActive())
         self.assertFalse(window.jump_button.isEnabled())
-        visibility = next(a for a in controller.tray_menu.actions()
-                          if a.objectName() == 'visibility')
-        self.assertEqual(visibility.text(), '显示宠物')
-        visibility.trigger()
-        pet.advance_presence(time.monotonic()+2)
+        self.assertFalse(any(a.objectName() == 'visibility'
+                             for a in controller.tray_menu.actions()))
+        controller.toggle_visibility()
+        pet.advance_presence(time.monotonic()+pet.presence.duration+.1)
         self.assertTrue(pet.isVisible())
         QTest.mouseClick(window.pause_button, Qt.MouseButton.LeftButton)
         self.assertTrue(controller.preferences.paused)
         self.assertEqual(pet.status_text(), '已暂停')
-        pause = next(a for a in controller.tray_menu.actions() if a.objectName() == 'pause')
-        self.assertEqual(pause.text(), '继续走动')
         QTest.mouseClick(window.jump_button, Qt.MouseButton.LeftButton)
         self.assertIsNotNone(pet.state.jump_started)
         self.assertTrue(controller.preferences.paused)
         pet.state.jump_started = time.monotonic() - 1
         pet.animator.tick()
         self.assertEqual(pet.status_text(), '已暂停')
-        pause.trigger()
+        controller.toggle_pause()
         self.assertFalse(controller.preferences.paused)
 
     def test_settings_immediate_and_persistent(self):
@@ -124,54 +121,38 @@ class ConsoleTests(unittest.TestCase):
         controller.pet.animator.jump()
         self.assertGreater(controller.pet.state.message_until, time.monotonic())
 
-    def test_movement_speed_and_stop_conditions(self):
+    def test_travel_speed_and_movement_gating(self):
         controller, pet = self.controller, self.controller.pet
+        controller.set_preference('speed', 100)
         area = pet.screen_area()
         pet.move(area.left() + 50, area.top() + 100)
         pet.state.position_x = float(pet.x())
-        controller.set_preference('speed', 100)
-        pet.state.direction = 1
-        pet.state.walking = True
-        pet.state.next_action = float('inf')
-        now = time.monotonic()
-        pet.state.last_tick = now - .1
         before = pet.state.position_x
-        with patch('pet.time.monotonic', return_value=now):
-            pet.animator.tick()
-        self.assertAlmostEqual(pet.state.position_x - before, 10, places=4)
+        from locomotion import walking_speed
+        self.assertFalse(pet.advance_to((before + 10, float(pet.y())), .1))
+        self.assertAlmostEqual(pet.state.position_x - before, walking_speed(100)*.1, delta=1)
         controller.set_preference('paused', True)
-        before = pet.pos()
-        pet.state.walking = True
-        pet.animator.tick()
-        self.assertEqual(pet.pos(), before)
-        self.assertFalse(pet.state.walking)
+        self.assertFalse(pet.movement_allowed())
         controller.set_preference('paused', False)
         controller.set_preference('random_movement', False)
-        pet.state.walking = True
-        pet.animator.tick()
-        self.assertEqual(pet.pos(), before)
-        self.assertFalse(pet.state.walking)
+        self.assertFalse(pet.movement_allowed())
 
-    def test_activity_frequency_changes_behavior(self):
-        pet = self.controller.pet
-        for activity, expected, interval in (
-                ('少动', False, (14, 22)), ('默认', False, (10, 18)), ('活跃', True, (1, 2.5))):
-            self.controller.set_preference('activity', activity)
-            pet.state.next_action = 0
-            with patch('pet.random.random', return_value=.2), \
-                    patch('pet.random.uniform', return_value=3) as uniform:
-                pet.animator.tick()
-            self.assertEqual(pet.state.walking, expected)
+    def test_activity_frequency_changes_idle_interval(self):
+        ambient = self.controller.pet.state.ambient
+        now = time.monotonic()
+        for activity, interval in (('少动', (22, 34)), ('默认', (12, 22)), ('活跃', (9, 16))):
+            with patch('idle_actions.random.uniform', return_value=3) as uniform:
+                ambient.defer(now, activity)
             uniform.assert_called_once_with(*interval)
+            pace = ambient.period['pace'] if ambient.period else 1
+            self.assertEqual(ambient.next_at, now + 3*pace)
 
     def test_mouse_click_drag_and_boundaries(self):
         pet = self.controller.pet
         self.controller.set_preference('paused', True)
         QTest.mouseClick(pet, Qt.MouseButton.LeftButton, pos=QPoint(90, 110))
-        self.assertTrue(pet.click_timer.isActive())
-        pet.click_timer.stop()
-        pet.click_timer.timeout.emit()
-        self.assertEqual(pet.state.action_player.action['id'], 'shy')
+        self.assertEqual(pet.state.action_player.action['id'], 'smile')
+        self.assertEqual(pet.click_zone, 'body')
         self.assertIsNone(pet.state.jump_started)
         old = pet.pos()
         QTest.mousePress(pet, Qt.MouseButton.LeftButton, pos=QPoint(90, 110))
@@ -183,7 +164,7 @@ class ConsoleTests(unittest.TestCase):
         pet.clamp_to_screen()
         self.assertTrue(pet.screen_area().contains(pet.geometry()))
         self.controller.window.home_button.click()
-        for _ in range(200):
+        for _ in range(600):
             pet.state.last_tick-=.1;pet.animator.tick()
             if pet.state.travel_target is None:break
         self.assertEqual(pet.geometry().bottom(), pet.screen_area().bottom())
@@ -201,6 +182,8 @@ class ConsoleTests(unittest.TestCase):
         restored = PetApplication(self.app, SettingsStore(self.path), enable_tray=False)
         try:
             restored.start()
+            restored.pet.advance_presence(
+                time.monotonic()+restored.pet.presence.duration+.1)
             self.assertEqual(restored.pet.pos(), expected)
             self.assertEqual(restored.preferences.size, 125)
             self.assertTrue(restored.preferences.paused)

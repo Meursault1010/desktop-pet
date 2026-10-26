@@ -3,9 +3,10 @@ const VERSION = 1;
 const MAX_LINE = 2_000_000;
 const MAX_REQUEST = 65_536;
 const COMMANDS = new Set(['get_state', 'set_preference', 'set_visible', 'toggle_visibility',
-  'toggle_pause', 'jump', 'go_home', 'go_corner', 'set_focus', 'reset_defaults', 'shutdown', 'play_action', 'stop_action',
+  'toggle_pause', 'jump', 'go_home', 'go_corner', 'patrol_once', 'stop_patrol', 'set_focus', 'reset_defaults', 'shutdown', 'play_action', 'stop_action',
   'refresh_desktop_icons', 'configure_icon_sleep', 'start_icon_sleep', 'stop_icon_sleep',
-  'configure_ui', 'configure_edge_attachment', 'stop_edge_attachment', 'speech_update', 'wake_sleep', 'desktop_event', 'quick_tools_update']);
+  'configure_ui', 'configure_edge_attachment', 'stop_edge_attachment', 'speech_update', 'wake_sleep', 'desktop_event', 'quick_tools_update',
+  'reset_companion_memory', 'perch_window', 'stop_window_perch']);
 const empty = new Set([...COMMANDS].filter(c => !['set_focus','configure_ui','set_preference','set_visible','play_action',
   'configure_icon_sleep','start_icon_sleep','configure_edge_attachment','speech_update','desktop_event','quick_tools_update'].includes(c)));
 function object(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
@@ -16,18 +17,21 @@ function preference(key, value) {
   const limits = {size:[50,200], opacity:[30,100], speed:[10,150]};
   if (Object.hasOwn(limits,key)) return integer(value,...limits[key]);
   if (key === 'activity') return ['少动','默认','活跃'].includes(value);
-  return ['always_on_top','random_movement','autonomous_play','autonomous_icons','autonomous_speech','greeting','quiet','paused','auto_snap','music_reactions'].includes(key) && boolean(value);
+  return ['always_on_top','random_movement','autonomous_play','autonomous_icons','autonomous_speech','greeting','quiet','paused','auto_snap','music_reactions','focus_companion','focus_click_through','autonomous_windows','relationship_memory'].includes(key) && boolean(value);
 }
 function validate(name, payload = {}) {
   if (!COMMANDS.has(name) || !object(payload)) throw new Error('不支持的命令或参数');
   if (Buffer.byteLength(JSON.stringify(payload)) > MAX_REQUEST - 256) throw new Error('请求过大');
   if (empty.has(name)) keys(payload, []);
   if(name==='quick_tools_update'){keys(payload,['ready','clipboard','clipboardPaused','focus','todos','todoCount','error']);if(typeof payload.ready!=='boolean'||!Array.isArray(payload.clipboard)||payload.clipboard.length>10||!Array.isArray(payload.todos)||payload.todos.length>5||typeof payload.error!=='string'||payload.error.length>200)throw Error('快捷工具状态无效');}
-  if(name==='set_focus'){keys(payload,['enabled']);if(typeof payload.enabled!=='boolean')throw Error('专注状态无效');}
+  if(name==='set_focus'){
+    keys(payload,['enabled','phase','remaining']);
+    if(typeof payload.enabled!=='boolean'||('phase' in payload&&!['focus','break'].includes(payload.phase))||('remaining' in payload&&!integer(payload.remaining,0,86400)))throw Error('专注状态无效');
+  }
   if(name==='configure_ui'){keys(payload,['theme','bubble','reduced','translation']);if(!['light','mist','dark'].includes(payload.theme)||!['light','mist','dark'].includes(payload.bubble)||typeof payload.reduced!=='boolean'||typeof payload.translation!=='boolean')throw Error('界面设置无效');}
   if(name==='desktop_event'){
     keys(payload,['kind','text']);
-    if(!['usb','charging','download','success','failure'].includes(payload.kind)||typeof payload.text!=='string'||payload.text.length>180)throw new Error('桌面事件无效');
+    if(!['usb','charging','download','success','failure','thinking','working','waiting','done','error'].includes(payload.kind)||typeof payload.text!=='string'||payload.text.length>180)throw new Error('桌面事件无效');
   }
   if (name === 'speech_update') {
     keys(payload,['id','phase','text']);

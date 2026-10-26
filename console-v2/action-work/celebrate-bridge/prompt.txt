@@ -1,0 +1,9 @@
+Create exactly ONE single full-body chibi anime girl sprite, one character only, centered, full body including both cat ears, both hands, dress hem and both shoes. Flat pure bright chroma green #00ff00 background behind her; no floor, no shadow, no background glow, no text, no grid, no second character, no extra limbs.
+
+Use the first reference image (front/side/back turnaround) for identity only. Reproduce her exactly: very long flowing white hair, white cat ears, large blue eyes, snowflake hairclip on the viewer's RIGHT side above the ear, pale ice-blue off-shoulder layered dress with white lace trim, blue ribbon belt with a bow at the waist, white frilled petticoat, white socks, blue Mary Jane shoes, snowflake earrings, soft pale-blue outline around the character.
+
+Match the art style, colors, line width, camera (straight-on front view, slightly elevated), character scale, framing and narrow silhouette of the second and third reference images. Keep her hair width and body size identical to those references.
+
+Pose: a moment halfway between the second reference (standing, both arms fully overhead in a narrow V, eyes closed, mouth open) and the third reference (mid-hop with arms bent outward at head height, one foot kicked up behind her, eyes open, laughing). Draw her just leaving the ground: heels slightly lifted, knees softly bent, body rising a little, both arms halfway down from overhead, bent at the elbows with small fists near ear height and held close to the head (never spread wide), one foot beginning to lift behind her, eyes half-open and bright, big happy open-mouth laugh, head facing the viewer. Do not copy either reference pose exactly.
+
+References: 图片/三视图.png (identity), assets/actions/celebrate/03.png, assets/actions/celebrate/04.png. Output 1024x1024.

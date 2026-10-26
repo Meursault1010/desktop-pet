@@ -25,10 +25,13 @@ if __name__=='__main__':
             fake=dict(id='qa',name='文件夹',rect=dict(x=400,y=300,width=50,height=50),folder=True)
             sleep.icons=[fake]
             with patch.object(sleep,'refresh'),patch('icon_sleep.logical_rect',return_value=((400,300,50,50),app.primaryScreen())):
-                sleep.configure({'direction':side});sleep.start('qa');sleep.started-=2;sleep.tick()
+                sleep.configure({'direction':side});sleep.start('qa',instant=True);sleep.started-=2
                 sleep.exposed=True;sleep.image=image;sleep.update_mask()
                 pet=QImage(controller.pet.size(),QImage.Format.Format_ARGB32_Premultiplied);pet.fill(0)
-                draw=QPainter(pet);draw.setClipRegion(controller.pet.mask());sleep.paint(draw);draw.end()
+                draw=QPainter(pet)
+                owned=controller.pet.masker.requests.get('icon_sleep')
+                if owned is not None:draw.setClipRegion(owned)
+                sleep.paint(draw);draw.end()
                 shift=QPointF(index*300+150-425,220-325)
                 painter.drawImage(QPointF(controller.pet.x(),controller.pet.y())+shift,pet)
                 painter.drawImage(QRectF(index*300+125,195,50,50),image)

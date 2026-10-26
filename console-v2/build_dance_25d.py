@@ -7,6 +7,7 @@ import shutil
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw
+from dance_artwork_repair import repair_cell
 
 ROOT=Path(__file__).resolve().parent
 SOURCE=ROOT.parent/'output/waltz-20261020'
@@ -106,7 +107,7 @@ def bake(names,poses,order,d,report):
     durations=[];transitions=[];checks=[]
     for slot,index in enumerate(order):
         following=order[(slot+1)%len(order)]
-        cell=clean_cell(poses[index])
+        cell=repair_cell(clean_cell(poses[index]), names[index])
         atlas.paste(cell,(slot%10*256,slot//10*256))
         # Authored drawings, not repeated copies presented as 60 unique fps.
         duration=int(np.clip(90+180*d[index,following],100,170))

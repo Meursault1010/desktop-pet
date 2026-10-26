@@ -9,7 +9,7 @@ from PySide6.QtGui import QGuiApplication, QImage, QPainter, QPixmap, QRegion, Q
 from desktop_icons import scan_desktop, set_input_passthrough
 from icon_pose_geometry import PoseGeometry, sprite_rect, silhouette_envelope, target_contact, icon_surface
 
-DEFAULTS = dict(direction='auto', offset_x=0, offset_y=0, breath=55, duration=0, auto_snap=False, snap_distance=100)
+DEFAULTS = dict(direction='auto', offset_x=0, offset_y=0, breath=55, duration=0, snap_distance=100)
 LIMITS = dict(offset_x=(-100,100),offset_y=(-100,100),breath=(0,100),duration=(0,120),snap_distance=(30,240))
 POSES=('left','right','back','front')
 POSE_NAMES=dict(left='左侧背靠',right='右侧背靠',back='背对屏幕',front='正面背靠')
@@ -75,7 +75,6 @@ def validated(values):
             low,high=LIMITS[key]
             if type(value) is not int or not low<=value<=high: raise ValueError(f'{key} 超出允许范围')
         elif key=='direction' and value not in ('auto',*POSES): raise ValueError('未知依靠方向')
-        elif key=='auto_snap' and type(value) is not bool: raise ValueError('自动依靠必须为开关值')
     return result
 
 
@@ -167,7 +166,6 @@ class IconSleep(QObject):
         for k in LIMITS:
             try: values[k]=int(values[k])
             except (ValueError,TypeError): values[k]=DEFAULTS[k]
-        values['auto_snap']=str(values['auto_snap']).lower()=='true'
         try: self.options=validated(values)
         except ValueError: self.options=dict(DEFAULTS)
         self.icons=[]; self.target=None; self.phase='idle'; self.message=''; self.error=''
@@ -334,7 +332,7 @@ class IconSleep(QObject):
             skirt=transform.map(self.skirts[self.side])
             region=region.subtracted(glyph.intersected(skirt))
         # No holes for text or other icons. Hair is never in the cutout matte.
-        self.pet.setMask(region)
+        self.pet.masker.set('icon_sleep',region)
 
     def tick(self):
         if self.pet.presence.active:return
@@ -355,11 +353,11 @@ class IconSleep(QObject):
     def wake(self,message='已醒来'):
         active=self.target is not None
         self.target=None; self.phase='idle'; self.watch.stop(); self.animation.stop()
-        self.message=message; self.image=None; self.rect=None; self.pet.clearMask()
+        self.message=message; self.image=None; self.rect=None; self.pet.masker.clear('icon_sleep')
         self.icon_images={};self.glyph_regions={}
         set_input_passthrough(int(self.pet.winId()),False)
         if self.pet.preferences.auto_snap: self.watch.start()
-        self.pet.state.position_x=float(self.pet.x()); self.pet.state.next_action=time.monotonic()+3
+        self.pet.state.position_x=float(self.pet.x())
         self.pet.update()
         if active: self.changed()
 
@@ -387,12 +385,12 @@ class IconSleep(QObject):
     def paint(self,painter):
         if not self.target: return False
         if self.phase!='sleeping': return False
-        layer=QImage(self.pet.size(),QImage.Format.Format_ARGB32_Premultiplied); layer.fill(0)
-        draw=QPainter(layer); draw.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
-        draw.drawPixmap(self.pose_rect(),self.pose_pixmap(self.side,time.monotonic()-self.started),QRectF(0,0,256,256))
-        draw.end()
-        painter.save();painter.setClipRegion(self.pet.mask())
-        painter.drawImage(0,0,layer);painter.restore();return True
+        # The native window mask already cuts the icon hole. Clipping to
+        # pet.mask() here would erase the whole pose whenever another feature
+        # owns or releases that shared region between two animation ticks.
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        painter.drawPixmap(self.pose_rect(),self.pose_pixmap(self.side,time.monotonic()-self.started),QRectF(0,0,256,256))
+        return True
 
     def cleanup(self):
         self.closed=True

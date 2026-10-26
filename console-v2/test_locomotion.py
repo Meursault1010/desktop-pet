@@ -8,7 +8,7 @@ from PySide6.QtGui import QImage,QPainter
 from pet import DesktopPet
 from settings_model import Preferences
 from icon_sleep import GEOMETRIES
-from locomotion import step_towards,metadata,frame
+from locomotion import step_towards,metadata,frame,walking_speed
 from edge_geometry import nearest,candidates,envelope,contact_offset,corner_landing,screen_landings
 import test_edge_attachment as edge_tests
 
@@ -20,6 +20,49 @@ class MotionGeometryTests(unittest.TestCase):
     def bounds(self):
         from icon_sleep import ASSET_ROOT,pose_bounds
         return {p:pose_bounds(QImage(str(ASSET_ROOT/p/'base.png'))) for p in GEOMETRIES}
+
+    def test_support_foot_stays_in_place_as_body_advances(self):
+        from locomotion import ground_progress,walk_stride,support_sample,gait_advance,planted_frame
+        for name,direction in (('walk-right',1),('walk-left',-1)):
+            stride=walk_stride(name)
+            for group in (0,1):
+                anchors=[]
+                for i in range(1,30):
+                    clock=(group+i/30)*stride/2
+                    _,_,sole=support_sample(name,clock)
+                    world=direction*ground_progress(clock,stride)+sole[0]*160/256
+                    anchors.append(world)
+                self.assertLess(max(anchors)-min(anchors),.4)
+            d1,c1=gait_advance(0,name,65,.1,1)
+            d2,c2=gait_advance(0,name,130,.1,2)
+            self.assertAlmostEqual(c1,c2)
+            self.assertAlmostEqual(d1*2,d2)
+            self.assertFalse(planted_frame(name,c1).isNull())
+
+    def test_diagonal_support_is_fixed_at_every_scale(self):
+        from locomotion import ground_progress,walk_stride,support_sample,depth_stride
+        for name in ('walk-left','walk-right'):
+            sign=1 if name=='walk-right' else -1
+            for vector in ((sign,0),(.6*sign,.8),(.6*sign,-.8),(0,1)):
+                for scale in (.7,1,1.8):
+                    stride=walk_stride(name)
+                    for group in (0,1):
+                        anchors=[]
+                        for i in range(31):
+                            clock=(group+i/31)*stride/2
+                            _,_,sole=support_sample(name,clock,vector)
+                            travel=ground_progress(clock,stride)*depth_stride(name,vector)
+                            anchors.append(tuple((travel*v+s*160/256)*scale for v,s in zip(vector,sole)))
+                        for axis in (0,1):
+                            self.assertLess(max(p[axis] for p in anchors)-min(p[axis] for p in anchors),1e-8)
+
+    def test_short_destination_does_not_advance_past_contact_phase(self):
+        from locomotion import ground_progress,walk_stride
+        pet=DesktopPet(Preferences(random_movement=False));pet.animator.timer.stop();pet.move(100,100)
+        try:
+            self.assertTrue(pet.advance_to((101,100),.1,1000))
+            self.assertAlmostEqual(ground_progress(pet.state.gait_clock,walk_stride('walk-right'))*pet.width()/180,1,places=6)
+        finally:pet.hide();pet.deleteLater()
 
     def test_projection_selects_each_nearest_edge(self):
         rect=(400,300,600,400);area=(0,0,1600,1100);size=(180,190);bounds=self.bounds()
@@ -60,7 +103,7 @@ class MotionGeometryTests(unittest.TestCase):
         self.assertTrue(done);self.assertEqual(p,(30,40))
         pet=DesktopPet(Preferences(random_movement=False));pet.animator.timer.stop();pet.move(0,0)
         try:
-            for _ in range(10):pet.advance_to((30,40),.1,100)
+            for _ in range(math.ceil(50/(walking_speed(100)*.1))+1):pet.advance_to((30,40),.1,100)
             self.assertEqual((pet.x(),pet.y()),(30,40));self.assertAlmostEqual(pet.state.gait_distance,50)
             a=frame('walk-right',12).toImage();b=frame('walk-right',48).toImage()
             self.assertNotEqual(a,b)

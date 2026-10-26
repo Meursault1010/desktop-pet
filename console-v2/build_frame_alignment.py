@@ -1,6 +1,8 @@
 """Measure per-frame canvas drift and publish smooth runtime alignment offsets."""
 import argparse
 import json
+import os
+import time
 from pathlib import Path
 from PIL import Image
 
@@ -87,7 +89,20 @@ def main():
     payload = build()
     encoded = json.dumps(payload, ensure_ascii=False, indent=2)+'\n'
     if args.write:
-        OUTPUT.write_text(encoded, encoding='utf-8')
+        # Windows filter drivers intermittently reject an in-place rewrite of
+        # this JSON with EINVAL; publish through a unique sibling instead.
+        blob = encoded.encode('utf-8')
+        for attempt in range(5):
+            temporary = OUTPUT.with_name(f'{OUTPUT.name}.{os.getpid()}.{attempt}.tmp')
+            try:
+                temporary.write_bytes(blob)
+                os.replace(temporary, OUTPUT)
+                break
+            except OSError:
+                temporary.unlink(missing_ok=True)
+                if attempt == 4:
+                    raise
+                time.sleep(.35*(attempt+1))
     print(json.dumps({key:dict(frames=len(value['offsets']),
                                max_offset=max(max(abs(dx),abs(dy)) for dx,dy in value['offsets']))
                       for key,value in payload['actions'].items()},

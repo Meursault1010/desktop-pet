@@ -1,9 +1,9 @@
 {
-  "version": 1,
+  "version": 2,
   "source_frames": 17,
   "cell": 256,
-  "samples_per_pair": 25,
-  "method": "single-source-bidirectional-optical-flow",
+  "samples_per_pair": 0,
+  "method": "approved-single-master-leg-articulation",
   "entry": "peek-observe-walk-settle-idle",
   "exit": "turn-walk-look-back-withdraw",
   "edges": [
@@ -14,8 +14,10 @@
   "source_qa": "source-qa.json",
   "motion_qa": "motion-report.json",
   "notes": [
-    "Nearest horizontal edge on the current available desktop.",
-    "Partial animations reverse their existing path and poses.",
-    "No runtime optical flow or opacity fade."
-  ]
+    "Nearest horizontal edge on current desktop.",
+    "Reversible trajectory. Shared three-quarter walk artwork with normal gait.",
+    "No runtime or baked optical-flow sheets used."
+  ],
+  "optical_flow": false,
+  "walk_source": "../motion-v2/approved-walk-master.png"
 }

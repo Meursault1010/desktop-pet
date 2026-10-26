@@ -143,8 +143,9 @@ class SleepCycle:
         if not sleep_time():
             self.site_attempted = False
             if patrol and patrol.kind == 'sleep_site':
-                patrol.cancel(now, '睡眠时段结束，取消休息路线')
+                patrol.suspend(now, '睡眠时段结束，取消休息路线')
         if (not self.active and self.phase != 'waking' and sleep_time()
+                and not (patrol and getattr(patrol, 'exploring', False) is True)
                 and now >= self.awake_until and not busy and pet.isVisible()
                 and not (s.action_player.action and not s.ambient.current
                          and not owns_action and not owns_music and not owns_recovery)
@@ -163,7 +164,7 @@ class SleepCycle:
                     and now < self.site_deadline):
                 return
             if s.patrol:
-                s.patrol.cancel(now, '进入正式睡眠')
+                s.patrol.suspend(now, '进入正式睡眠')
             if s.music:
                 s.music.cancel()
             s.travel_target = s.travel_position = s.roll_path = None
@@ -203,12 +204,12 @@ class SleepCycle:
             return
         self.rest_site = dict(id=target['id'],rect=dict(target['rect']))
         self.rest_geometry = (pet.screen(),pet.width(),pet.height(),pet.pos())
-        pet.setMask(QRegion(pet.rect()).subtracted(glyph.translated(round(x-pet.x()),round(y-pet.y()))))
+        pet.masker.set('sleep_site',QRegion(pet.rect()).subtracted(glyph.translated(round(x-pet.x()),round(y-pet.y()))))
         self.site_mask = True
 
     def clear_rest_site(self, pet):
         if self.site_mask:
-            pet.clearMask()
+            pet.masker.clear('sleep_site')
         self.site_mask = False
         self.rest_site = self.rest_geometry = None
 

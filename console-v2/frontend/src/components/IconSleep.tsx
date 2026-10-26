@@ -5,7 +5,7 @@ import { Range, Toggle } from './SettingControls';
 import './IconSleep.css';
 
 type Props={state:PetSnapshot|null;disabled:boolean;act:(name:string,payload?:Record<string,unknown>,success?:string)=>Promise<boolean>};
-const fallback:IconSleepOptions={direction:'auto',offset_x:0,offset_y:0,breath:55,duration:0,auto_snap:false,snap_distance:100};
+const fallback:IconSleepOptions={direction:'auto',offset_x:0,offset_y:0,breath:55,duration:0,snap_distance:100};
 const poses=[['sit-front','转头坐坐'],['sit-back','回眸坐坐'],['prone-front','托腮趴趴'],['prone-back','回头趴趴'],['perch-front','朝你斜坐'],['perch-back','侧背倚靠']];
 const edgeFallback:EdgeOptions={enabled:false,windows:true,screens:true,corner:'right',delay:8};
 export function IconSleep({state,disabled,act}:Props){
