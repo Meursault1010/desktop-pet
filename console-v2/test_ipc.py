@@ -75,6 +75,10 @@ class ProtocolTests(unittest.TestCase):
         self.assertTrue(state['ok'])
         self.assertTrue(state['preview'].startswith('data:image/png;base64,'))
         self.assertTrue(state['state']['visible'])
+        activity = state['state']['activity']
+        self.assertEqual(activity['label'], state['state']['status'])
+        self.assertIsInstance(activity['key'], str)
+        self.assertIn(activity['posture'], (None, 'stand', 'sit', 'prone', 'sleep'))
         updated = self.request('set_preference', {'key': 'speed', 'value': 87})
         self.assertEqual(updated['state']['preferences']['speed'], 87)
         self.assertFalse(self.request('set_preference', {'key': 'speed', 'value': 999})['ok'])
@@ -90,6 +94,7 @@ class ProtocolTests(unittest.TestCase):
         self.assertFalse(hidden['state']['visible'])
         self.wait_for(lambda message: message.get('name') == 'state_changed'
                       and message['state']['status'] == '已隐藏')
+        self.assertEqual(self.request('get_state')['state']['activity']['key'], 'hidden')
         self.assertFalse(self.request('jump')['ok'])
         self.request('set_visible', {'visible': True})
         self.assertTrue(self.request('jump')['ok'])

@@ -26,10 +26,26 @@ def pose_ref(action_id, frame):
     return action_id, frame
 
 
+FAST_TEMPO = frozenset(('celebrate', 'clicked', 'afraid', 'angry'))
+GENTLE_TEMPO = frozenset((
+    'sleep-enter', 'sleep-wake', 'read', 'tea', 'sit-neat', 'sit-relaxed',
+    'sit-swing', 'prone-chin', 'prone-rest', 'yawn', 'stretch', 'comb',
+    'wave', 'curtsy', 'gaze-far', 'listen', 'warm-hands', 'star-wish',
+    'snow-catch', 'hair-tuck', 'hum', 'wait',
+))
+
+
 def transition_window(action, duration):
     # Long expression holds remain holds. Spend only the end of a slot moving
     # towards the next pose, then arrive exactly at that pose's start time.
-    return min(duration*.85, 340 if action.get('lazy_roll') else 240)
+    if action.get('lazy_roll'):
+        return min(duration*.85, 340)
+    action_id = action.get('id')
+    if action_id in FAST_TEMPO:
+        return min(duration*.55, 120)
+    if action_id in GENTLE_TEMPO:
+        return min(duration*.85, 300)
+    return min(duration*.8, 220)
 
 
 def transition_phase(action, duration, elapsed, frame, target_frame):

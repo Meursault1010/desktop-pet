@@ -13,6 +13,11 @@
     "count": 61,
     "seconds": 1.0
   },
+  "playback": {
+    "settle": 2.1,
+    "wake": 1.5,
+    "wake_hold": 0.25
+  },
   "source": "Approved sleep-transitions-v2 eyes on sleep-right-02-master",
   "pillow": "Unpatterned master; fixed throughout all sequences"
 }

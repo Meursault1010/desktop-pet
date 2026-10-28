@@ -1,26 +1,18 @@
-import {useEffect,useLayoutEffect,useRef,useState,type ReactNode,type CSSProperties} from 'react';
-import {GripVertical,Plus,X,ArrowUp,ArrowDown,Check,Pencil,RotateCcw,MoreHorizontal} from 'lucide-react';
-import {defaultPages,makeWidget,readStore,saveStore,validPages,widgetNames,type Widget,type WidgetType,type WorkspacePage} from '../workspaceModel';
+import type {CSSProperties,ReactNode} from 'react';
+import {defaultPages,type WidgetType} from '../workspaceModel';
+
+const page=defaultPages()[0];
+const defaultShape=page.widgets.map(w=>w.type).join(',')==='companion,journal,rhythm,system'
+ &&page.widgets.every((w,i)=>w.width===[3,2,1,1][i]);
+
 export function WorkspaceBoard({render}:{render:(type:WidgetType)=>ReactNode}){
- const [pages,setPages]=useState<WorkspacePage[]>(()=>validPages(readStore('pages',null)));
- const [editing,setEditing]=useState(false),[library,setLibrary]=useState(false),[query,setQuery]=useState(''),[error,setError]=useState('');
- const before=useRef<WorkspacePage[]>([]),drag=useRef(''),grid=useRef<HTMLDivElement>(null),rects=useRef(new Map<string,DOMRect>());const page=pages[0];
- useEffect(()=>{if(!editing)try{saveStore('pages',pages);saveStore('start-page','default');}catch{setError('布局无法保存，当前窗口中仍可使用。');}},[pages,editing]);
- const edit=()=>{before.current=structuredClone(pages);setEditing(true);};
- const cancel=()=>{setPages(before.current);setEditing(false);setLibrary(false);};
- useEffect(()=>{if(!editing)return;const escape=(e:KeyboardEvent)=>{if(e.key==='Escape'){setPages(before.current);setEditing(false);setLibrary(false);}};window.addEventListener('keydown',escape);return()=>window.removeEventListener('keydown',escape);},[editing]);
- useLayoutEffect(()=>{
-  const reduced=document.documentElement.dataset.motion==='reduced'||matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const next=new Map<string,DOMRect>();
-  grid.current?.querySelectorAll<HTMLElement>('[data-widget]').forEach(el=>{const id=el.dataset.widget!,r=el.getBoundingClientRect(),old=rects.current.get(id);next.set(id,r);if(old&&!reduced&&(Math.abs(old.x-r.x)>2||Math.abs(old.y-r.y)>2))el.animate([{translate:`${old.x-r.x}px ${old.y-r.y}px`},{translate:'0 0'}],{duration:320,easing:'cubic-bezier(.16,1,.3,1)'});});rects.current=next;
- },[pages]);
- function update(widgets:Widget[]){setPages(ps=>ps.map(p=>p.id===page.id?{...p,widgets}:p));}
- function patch(id:string,value:Partial<Widget>){update(page.widgets.map(w=>w.id===id?{...w,...value}:w));}
- function move(id:string,to:number){const next=[...page.widgets],from=next.findIndex(w=>w.id===id);if(from<0)return;const [item]=next.splice(from,1);next.splice(Math.max(0,to),0,item);update(next);}
- const defaultShape=page.widgets.map(w=>w.type).join(',')==='companion,journal,rhythm,system'&&page.widgets.every((w,i)=>w.width===[3,2,1,1][i]);
- return <section className={'workspace-board '+(editing?'is-editing':'')} aria-label="总览工作区"><div className="board-toolbar"><div className="workspace-tabs"><span>默认总览</span></div><div className="board-tools">{editing?<><button className="button secondary" onClick={()=>setLibrary(!library)}><Plus size={15}/>添加区块</button><button className="button secondary" onClick={cancel}>取消</button><button className="button primary" onClick={()=>{setEditing(false);setLibrary(false);}}><Check size={15}/>完成</button></>:<button className="button secondary" onClick={edit}><Pencil size={14}/>自定义布局</button>}</div></div>
- {editing&&<div className="layout-instructions"><span>拖动标题调整顺序，右下角调整大小；区块菜单支持键盘操作。</span><button className="button secondary" onClick={()=>update(defaultPages()[0].widgets)}><RotateCcw size={14}/>恢复默认区块</button></div>}
- {error&&<p role="status" className="notice">{error}</p>}
- {library&&<section className="widget-library"><label>搜索区块<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="时钟、待办、翻译…"/></label><div>{(Object.entries(widgetNames) as [WidgetType,string][]).filter(([,label])=>label.includes(query)).map(([type,label])=><button key={type} disabled={page.widgets.some(w=>w.type===type)||page.widgets.length>=20} onClick={()=>update([...page.widgets,makeWidget(type)])}><Plus size={15}/>{label}{page.widgets.some(w=>w.type===type)&&<small>已添加</small>}</button>)}</div></section>}
- <div className={'widget-grid '+(defaultShape?'editorial-layout ':'')+(defaultShape&&!editing?'default-layout':'')} ref={grid}>{page.widgets.map((w,i)=><section className={'workspace-widget widget-'+w.type} key={w.id} data-widget={w.id} data-width={w.width} style={{'--span':w.width,'--height':w.height+'px'} as CSSProperties} onDragOver={e=>{if(editing)e.preventDefault();}} onDrop={e=>{e.preventDefault();if(editing)move(drag.current,i);drag.current='';}}><div className="widget-heading" draggable={editing} onDragStart={e=>{drag.current=w.id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',w.id);}}><h2>{editing&&<GripVertical size={15}/>} {w.title}</h2>{editing&&<details className="widget-menu"><summary aria-label={w.title+'区块设置'}><MoreHorizontal size={18}/></summary><div><label>显示标题<input value={w.title} maxLength={40} onChange={e=>patch(w.id,{title:e.target.value})}/></label><label>宽度<select value={w.width} onChange={e=>patch(w.id,{width:Number(e.target.value) as 1|2|3})}><option value="1">紧凑</option><option value="2">宽</option><option value="3">整行</option></select></label><label>高度<input type="range" min="180" max="640" step="10" value={w.height} onChange={e=>patch(w.id,{height:Number(e.target.value)})}/></label><button onClick={()=>move(w.id,i-1)} disabled={!i}><ArrowUp size={14}/>向前移</button><button onClick={()=>move(w.id,i+1)} disabled={i===page.widgets.length-1}><ArrowDown size={14}/>向后移</button><button onClick={()=>patch(w.id,{height:makeWidget(w.type).height,width:makeWidget(w.type).width})}><RotateCcw size={14}/>恢复尺寸</button><button onClick={()=>update(page.widgets.filter(v=>v.id!==w.id))}><X size={14}/>移除区块</button></div></details>}</div><div className="widget-content">{render(w.type)}</div>{editing&&<button className="resize-handle" aria-label={'拖动调整'+w.title+'大小'} onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);e.currentTarget.dataset.start=String(e.clientY);e.currentTarget.dataset.height=String(w.height);e.currentTarget.dataset.x=String(e.clientX);e.currentTarget.dataset.width=String(w.width);}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))patch(w.id,{width:Math.min(3,Math.max(1,Number(e.currentTarget.dataset.width)+Math.round((e.clientX-Number(e.currentTarget.dataset.x))/(Math.max(180,(grid.current?.clientWidth||900)/3))))) as 1|2|3,height:Math.min(640,Math.max(180,Number(e.currentTarget.dataset.height)+e.clientY-Number(e.currentTarget.dataset.start)))});}}/>}</section>)}</div>{!page.widgets.length&&<div className="empty-state"><p>给这个页面留一点你需要的内容。</p><button className="button secondary" onClick={()=>{if(!editing)edit();setLibrary(true);}}>添加区块</button></div>}</section>;
+ return <section className="workspace-board" aria-label="总览工作区">
+  <div className="board-toolbar"><div className="workspace-tabs"><span>默认总览</span></div></div>
+  <div className={'widget-grid '+(defaultShape?'editorial-layout default-layout':'')}>
+   {page.widgets.map(w=><section className={'workspace-widget widget-'+w.type} key={w.id} data-widget={w.id} data-width={w.width} style={{'--span':w.width,'--height':w.height+'px'} as CSSProperties}>
+    <div className="widget-heading"><h2>{w.title}</h2></div>
+    <div className="widget-content">{render(w.type)}</div>
+   </section>)}
+  </div>
+ </section>;
 }

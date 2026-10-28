@@ -2,7 +2,8 @@ import unittest
 import random
 from copy import deepcopy
 from unittest.mock import patch
-from action_player import ActionPlayer, ground_idle_timeline, lazy_roll_timeline, ROLL_ENTRY, pose_ref
+from action_player import (ActionPlayer, ground_idle_timeline, lazy_roll_timeline,
+                           ROLL_ENTRY, pose_ref, catalog, transition_window)
 
 class ActionTests(unittest.TestCase):
     def setUp(self):
@@ -174,5 +175,38 @@ class ActionTests(unittest.TestCase):
                         else:
                             self.assertGreater(values[-1], values[0])
                         elapsed += duration
+
+class CatalogTempoTests(unittest.TestCase):
+    def test_reviewed_daily_actions_keep_their_slower_peaks(self):
+        ranges = {
+            'yawn': (3.0, 3.4), 'stretch': (3.0, 3.5),
+            'comb': (2.6, 3.0), 'wave': (2.8, 3.2),
+        }
+        for key, (low, high) in ranges.items():
+            total = sum(catalog()[key]['durations'])/1000
+            self.assertGreaterEqual(total, low, key)
+            self.assertLessEqual(total, high, key)
+
+    def test_ground_idle_entry_and_exit_carry_weight(self):
+        ranges = {
+            'sit-neat': (1000, 900), 'sit-relaxed': (1000, 900),
+            'sit-swing': (1000, 900), 'prone-chin': (1200, 1000),
+            'prone-rest': (1200, 1000),
+        }
+        for key, (entry, exit_) in ranges.items():
+            _, durations = ground_idle_timeline(catalog()[key], random.Random(3))
+            self.assertGreaterEqual(sum(durations[:3]), entry, key)
+            self.assertGreaterEqual(sum(durations[-3:]), exit_, key)
+
+    def test_sleep_catalog_matches_approved_playback(self):
+        self.assertAlmostEqual(sum(catalog()['sleep-enter']['durations'])/1000, 2.1, places=3)
+        self.assertAlmostEqual(sum(catalog()['sleep-wake']['durations'])/1000, 1.5, places=3)
+
+    def test_transition_windows_follow_tempo_tiers(self):
+        self.assertEqual(transition_window({'id':'celebrate'}, 160), 88.)
+        self.assertEqual(transition_window({'id':'shy'}, 420), 220.)
+        self.assertEqual(transition_window({'id':'read'}, 620), 300.)
+        self.assertEqual(transition_window({'id':'lazy-roll-toward','lazy_roll':True}, 400), 340.)
+
 
 if __name__=='__main__':unittest.main()

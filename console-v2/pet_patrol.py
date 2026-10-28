@@ -27,6 +27,9 @@ MEALS = ((7, 9, 'breakfast', '早餐时间，慢慢吃一点。'),
 # minute. It still fits the activity budget, and it is what "go to the icons"
 # means on a wide screen.
 ICON_ERRAND_SECONDS = 40.
+# Free walks are mostly a fallback when no icon errand is available, but one
+# walk may now reach anywhere on the usable desktop instead of a short shuffle.
+STROLL_SECONDS = 90.
 
 # Behind an app window the pet is invisible, so a visit needs to be long enough
 # that minimising the window reveals an interaction in progress. Prefer poses
@@ -35,6 +38,9 @@ BACKSTAGE_KINDS = ('perch', 'lean', 'read', 'observe')
 BACKSTAGE_HOLD = (30., 50.)
 BACKSTAGE_WAIT = (45., 90.)
 BACKSTAGE_REVEAL_HOLD = 12.
+# Passive frame visits reuse a warm window list instead of scanning on arrival.
+WINDOW_SCAN_TTL = 45.
+WINDOW_SCAN_INTERVAL = 25.
 
 
 def due_meal(at, completed):
@@ -52,6 +58,9 @@ class Patrol:
         self.depth = PatrolDepth(pet)
         self.passage = ScreenPassage(pet, self.depth)
         self.next_passage = time.monotonic()+random.uniform(45,90)
+        # Idle companionship keeps a low-frequency window list warm so a
+        # passive frame visit never has to enumerate the desktop synchronously.
+        self.next_window_scan = time.monotonic()+8
         self.edge_candidate = None
         self.edge_started = None
         self.edge_retry_at = 0.
@@ -182,16 +191,23 @@ class Patrol:
         p = self.pet
         area = p.screen_area()
         pointer = QCursor.pos()
-        # Sample fresh nearby goals, not an ordered list or a return route.
+        walking = max(1., walking_speed(p.preferences.speed))
+        # Keep the sampled span inside the same budget allows_travel enforces,
+        # then let a single free walk reach the far side of the desktop.
+        reach = walking*(STROLL_SECONDS-2.)/1.5
+        span = math.hypot(area.width(), area.height())
+        low = min(120., max(48., reach*.35))
+        high = max(low+20., min(span, reach))
+        # Sample fresh goals, not an ordered list or a return route.
         for _ in range(16):
             angle = random.uniform(0, math.tau)
-            radius = random.uniform(80, min(300, max(65,p.preferences.speed)*3))
+            radius = random.uniform(low, high)
             destination = (round(max(area.left(), min(area.right()-p.width()+1,p.x()+math.cos(angle)*radius))),
                            round(max(p.y(), min(area.bottom()-p.height()+1,p.y()+max(0,math.sin(angle))*radius))))
             distance = math.dist((p.x(), p.y()), destination)
             # Never hand the caller a stroll its own travel budget will reject.
-            if (distance >= 60
-                    and self.allows_travel(distance/max(1, walking_speed(p.preferences.speed)))
+            if (distance >= min(120., max(60., reach*.45))
+                    and self.allows_travel(distance/walking)
                     and self.route_exposed(destination,p.screen(),through_windows=self.exploring)
                     and math.hypot(pointer.x()-destination[0]-p.width()/2,
                                    pointer.y()-destination[1]-p.height()/2) >= max(120,p.height()*.65)):
@@ -209,7 +225,7 @@ class Patrol:
             self.reason = reason+'；附近也没有安全走动空间'
             return
         seconds = math.dist((p.x(),p.y()),destination)/max(1,walking_speed(p.preferences.speed))
-        if seconds*1.5+2 > 12 or seconds > self.policy.remaining(now,p.preferences.activity):
+        if not self.allows_travel(seconds) or seconds > self.policy.remaining(now,p.preferences.activity):
             self.reason = '走动预算不足，稍后继续巡逻'
             return
         self.kind = self.story = 'stroll'
@@ -233,7 +249,8 @@ class Patrol:
                     window_depth=self.depth.mode,
                     task_id=self.task_id, target_id=self.target['id'] if self.target else None,
                     next_intent=self.next_intent, reason=self.reason,
-                    target=('窗口或屏幕侧边' if self.kind == 'edge' else '屏幕外的返回入口' if self.passage.active else
+                    target=('窗口边框' if self.kind == 'edge' and not self.exploring else
+                            '窗口或屏幕侧边' if self.kind == 'edge' else '屏幕外的返回入口' if self.passage.active else
                             '窗口后面的图标' if self.backstage else '附近的图标' if self.target else
                             '随机桌面位置' if self.destination is not None else '原地' if self.active else '尚未选择'),
                     path_probe_ms=round(self.probe_ms, 2),
@@ -337,6 +354,8 @@ class Patrol:
                 or p.preferences.paused or not p.preferences.random_movement
                 or not p.preferences.autonomous_play
                 or (self.target is not None and not p.preferences.autonomous_icons)
+                or bool(not ignore_support and not self.demo
+                        and not p.preferences.autonomous_windows and self.edge_is_window())
                 or bool(s.music and s.music.active)
                 or s.travel_target is not None
                 or bool(getattr(p.controller, 'quick_pending', None))
@@ -390,11 +409,11 @@ class Patrol:
             (abs(self.pet.x()-destination[0])+self.pet.width(), abs(self.pet.y()-destination[1])+self.pet.height()))
 
     def travel_limit(self):
-        """Icon errands may cross most of the desktop; strolls stay local."""
-        return ICON_ERRAND_SECONDS if self.target is not None else 12.
+        """Icon errands may cross the desktop; free walks have a longer bound."""
+        return ICON_ERRAND_SECONDS if self.target is not None else STROLL_SECONDS
 
     def allows_travel(self, seconds, elapsed=0.):
-        """Strolls keep the old safety margin; icon errands may use the screen."""
+        """Free walks keep a safety margin; icon errands may use the screen."""
         if self.target is not None:
             return seconds+elapsed <= self.travel_limit()
         return seconds*1.5+2+elapsed <= self.travel_limit()
@@ -694,9 +713,21 @@ class Patrol:
                 # Hold the top of the demo instead of wandering back down.
                 edge.hold_until = self.until
                 self.next_intent = '沿边缘向上爬一段，演示结束后松手'
-            else:
+            elif self.exploring:
                 edge.crawl_target = max(edge.interval[0],edge.parameter-random.uniform(30,90))
                 self.next_intent = '抓住边框向上爬一段，再随机停留或离开'
+            else:
+                # Passive visits stay shorter and may crawl either way, so the
+                # same window does not always produce the same upward gesture.
+                self.until = now+random.uniform(15,28)
+                lo, hi = edge.interval
+                moves = []
+                if edge.parameter-lo >= 25:
+                    moves.append(max(lo,edge.parameter-random.uniform(25,70)))
+                if hi-edge.parameter >= 25:
+                    moves.append(min(hi,edge.parameter+random.uniform(25,70)))
+                edge.crawl_target = random.choice(moves) if moves else None
+                self.next_intent = '在窗口边框上抓一会儿，再松手离开'
             return
         if self.kind == 'sleep_site':
             self.pet.state.sleep.set_rest_site(self.pet,self.target,self.icons)
@@ -788,22 +819,38 @@ class Patrol:
             # reveal so the user catches an ongoing interaction, not a finish.
             self.until = max(self.until, visit['revealed_at']+BACKSTAGE_REVEAL_HOLD)
 
+    def passive_edge_ready(self, now):
+        preview = self.pet.snap_preview
+        return bool(preview.surfaces and preview.surfaces_at
+                    and now-preview.surfaces_at <= WINDOW_SCAN_TTL)
+
     def begin_edge(self, now, *, demo=False):
         """Approach a side at the current height; only then acquire a grip."""
         p, edge = self.pet, self.pet.state.edge_attachment
-        if edge is None or not self.exploring:
+        if edge is None or (not self.exploring and demo):
             return False
-        if not demo and not self.policy.available('edge',now,exploring=True,unrestricted=p.preferences.activity == '活跃'):
+        passive = not self.exploring
+        if not demo and passive and not p.preferences.autonomous_windows:
+            return False
+        if not demo and not self.policy.available('edge',now,exploring=self.exploring,
+                                                  unrestricted=p.preferences.activity == '活跃'):
             return False
         preview = p.snap_preview
-        preview.request_surfaces(force=True)
-        if not preview.surfaces_at or now-preview.surfaces_at > 2:
-            # The scanner is asynchronous. Treat "not scanned yet" as a reason
-            # to retry, not as proof that no edge exists.
-            if not self.edge_retry_until:
-                self.edge_retry_until = now+3.2
-            self.edge_retry_at = now+.8
-            return False
+        if passive:
+            # Idle visits only use the cache warmed by Patrol; stale data is
+            # replaced asynchronously instead of blocking on a desktop scan.
+            if not preview.surfaces_at or now-preview.surfaces_at > WINDOW_SCAN_TTL:
+                preview.request_surfaces(force=True)
+                return False
+        else:
+            preview.request_surfaces(force=True)
+            if not preview.surfaces_at or now-preview.surfaces_at > 2:
+                # The scanner is asynchronous. Treat "not scanned yet" as a reason
+                # to retry, not as proof that no edge exists.
+                if not self.edge_retry_until:
+                    self.edge_retry_until = now+3.2
+                self.edge_retry_at = now+.8
+                return False
         self.edge_retry_at = self.edge_retry_until = 0
         self.icons.load_poses()
         try:
@@ -814,12 +861,23 @@ class Patrol:
         for landing,surface,screen,rect in choices:
             if screen != p.screen() or landing.kind not in ('left','right'):
                 continue
+            if not demo and surface is not None and not p.preferences.autonomous_windows:
+                continue
+            if passive and (surface is None or getattr(surface,'fullscreen',False)
+                            or getattr(surface,'maximized',False)):
+                # A screen edge or a fullscreen/maximized border is not a
+                # movable window frame; passive visits only use real windows.
+                continue
             # Grasp height equals walking height: never float upward to a grip.
             parameter = landing.parameter+p.y()-landing.position[1]
             if not landing.interval[0] <= parameter <= landing.interval[1]:
                 continue
             x = round(landing.position[0])
             if not demo and abs(x-p.x()) > max(360,p.width()*3):
+                continue
+            seconds = abs(x-p.x())/max(1,walking_speed(p.preferences.speed))
+            if not demo and (not self.allows_travel(seconds)
+                             or seconds > self.policy.remaining(now,p.preferences.activity)):
                 continue
             pointer = QCursor.pos()
             if math.hypot(pointer.x()-x-p.width()/2,pointer.y()-p.y()-p.height()/2) < max(120,p.height()*.65):
@@ -831,8 +889,13 @@ class Patrol:
             return False
         self.edge_candidate = (min(valid,key=lambda item:abs(item[0].position[0]-p.x()))
                                if demo else random.choice(valid))
+        if passive:
+            # Arrival revalidates the landing against this list; refresh it
+            # while she walks rather than trusting a minute-old snapshot.
+            preview.request_surfaces(force=True)
         self.kind = self.story = 'edge'
-        self.label = '演示攀爬：走向最近的侧边' if demo else '走近边框，抓住后攀爬'
+        self.label = ('演示攀爬：走向最近的侧边' if demo else
+                      '去窗口边框旁抓一会儿' if passive else '走近边框，抓住后攀爬')
         self.target = None
         self.destination = self.edge_candidate[0].position
         self.screen = self.edge_candidate[2]
@@ -840,12 +903,19 @@ class Patrol:
         self.phase, self.until = 'observing', now+(1. if demo else .6)
         self.task_id += 1
         self.probe_at = now
-        self.reason = '演示边缘攀爬' if demo else '附近有可抓握的窗口或屏幕侧边'
-        self.next_intent = ('走到侧边后抓住边缘向上爬' if demo
-                            else '先横向走近，接触边框后再向上爬')
+        self.reason = ('演示边缘攀爬' if demo else
+                       '附近的窗口边框看起来可以抓一下' if passive else
+                       '附近有可抓握的窗口或屏幕侧边')
+        self.next_intent = ('走到侧边后抓住边缘向上爬' if demo else
+                            '先横向走近，接触窗口边框后再攀爬' if passive else
+                            '先横向走近，接触边框后再向上爬')
         p.state.travel_position = None
         p.state_changed.emit()
         return True
+
+    def edge_is_window(self):
+        return (self.kind == 'edge' and self.edge_candidate is not None
+                and self.edge_candidate[1] is not None)
 
     def edge_valid(self):
         if self.edge_candidate is None:
@@ -938,6 +1008,10 @@ class Patrol:
                            else '睡眠或用户交互优先，暂不玩耍')
             return
         self.settle_interruption(now)
+        if (not self.active and not self.exploring and not self.demo
+                and p.preferences.autonomous_windows and now >= self.next_window_scan):
+            p.snap_preview.request_surfaces(force=True)
+            self.next_window_scan = now+WINDOW_SCAN_INTERVAL
         if not self.active and (self.exploring or self.demo):
             if self.demo and self.demo_at is not None and now >= self.demo_at:
                 if now > self.demo_until:
@@ -1038,6 +1112,9 @@ class Patrol:
                     return
             elif (self.phase == 'walking' or self.roll_origin) and now >= self.probe_at:
                 self.probe_at = now+1
+                if self.kind == 'edge' and not self.exploring and not self.edge_valid():
+                    self.cancel(now, '窗口边框已移动或消失，停下重新确认', failed=True)
+                    return
                 destination = (self.roll_origin[0],self.roll_origin[1]+self.roll_origin[2]) if self.roll_origin else self.destination
                 if not self.route_exposed(destination, p.screen()):
                     self.cancel(now, '桌面路径被遮挡，停止探索', failed=True)
@@ -1069,7 +1146,7 @@ class Patrol:
                     distance = math.dist((p.x(), p.y()), self.destination)
                     seconds = distance/max(1,walking_speed(p.preferences.speed))*1.5+2
                     self.until = now+(seconds if self.exploring or self.target is not None
-                                      else min(12,seconds))
+                                      or self.kind == 'edge' else min(12,seconds))
                     self.moving_since = now
                     p.state_changed.emit()
                 return
@@ -1289,7 +1366,13 @@ class Patrol:
             p.state_changed.emit()
             return
         if (self.exploring and not backstage and not getattr(self,'first_walk',False)
+                and p.preferences.autonomous_windows
                 and random.random() < .28 and self.begin_edge(now)):
+            return
+        if (not self.exploring and not followup and p.preferences.autonomous_windows
+                and self.passive_edge_ready(now)
+                and random.random() < (.30 if candidate else .55)
+                and self.begin_edge(now)):
             return
         icon_kinds = [k for k in ('observe', 'lean', 'read', 'orbit', 'peek', 'perch')
                       if self.policy.available(k, now, exploring=self.exploring, unrestricted=p.preferences.activity == '活跃') and (k != 'peek' or 'play-peek' in catalog())
@@ -1304,8 +1387,8 @@ class Patrol:
         first_walk = self.exploring and getattr(self, 'first_walk', False)
         self.first_walk = False
         if (candidate and icon_kinds and
-                (backstage or (not first_walk
-                               and (followup or random.random() < (.85 if self.exploring else .65))))):
+                (backstage or first_walk or followup
+                 or random.random() < (.95 if self.exploring else .85))):
             _, self.target, self.destination, self.screen = candidate
             self.backstage = ({'revealed_at': None, 'probe_at': 0., 'planned_at': now}
                               if backstage else None)

@@ -11,7 +11,7 @@ from PySide6.QtGui import QImage, QPainter, QRegion
 from PySide6.QtWidgets import QApplication
 from main import PetApplication
 from settings_model import SettingsStore
-from icon_sleep import DEFAULTS, validated, placement, body_bounds, pose_bounds, alpha_region, skirt_region
+from icon_sleep import DEFAULTS, validated, placement, body_bounds, pose_bounds, alpha_region
 
 
 class PlacementTests(unittest.TestCase):
@@ -170,15 +170,11 @@ class SleepInteractionTests(unittest.TestCase):
             self.assertTrue(painted)
             self.assertEqual(self.opaque_pixels(foreign),expected)
 
-    def test_foreign_mask_does_not_crop_the_sleep_pose(self):
+    def test_icon_sleep_never_registers_a_window_mask(self):
         self.start()
         self.sleep.update_mask()
-        own=self.controller.pet.mask()
-        self.controller.pet.masker.set('peek',QRegion(0,0,12,12))
-        combined=self.controller.pet.mask()
-        self.assertEqual(combined,own.intersected(QRegion(0,0,12,12)))
-        self.controller.pet.masker.clear('peek')
-        self.assertEqual(self.controller.pet.mask(),own)
+        self.assertNotIn('icon_sleep',self.controller.pet.masker.requests)
+        self.assertTrue(self.controller.pet.mask().isEmpty())
 
     def test_scanned_window_overlap_does_not_enable_invisible_passthrough(self):
         self.start()
@@ -193,18 +189,14 @@ class SleepInteractionTests(unittest.TestCase):
         self.sleep.mark_available()
         self.assertTrue(all(i['available'] for i in self.sleep.icons))
 
-    def test_only_target_intersecting_skirt_is_cut_in_every_pose(self):
+    def test_target_icon_never_cuts_the_pose(self):
         self.start()
         self.sleep.image.fill('#ffffff')
-        for side in ('left','right','back','front'):
+        for side in ('left','right','back','front','sit-front','perch-front','prone-back'):
             self.sleep.configure({'direction':side})
-            self.sleep.skirts[side]=QRegion(0,0,256,256)
             self.sleep.update_mask()
-            x,y=round(400-self.controller.pet.x()),round(300-self.controller.pet.y())
-            self.assertFalse(self.controller.pet.mask().contains(QPoint(x+20,y+20)))
-            self.sleep.skirts[side]=QRegion()
-            self.sleep.update_mask()
-            self.assertTrue(self.controller.pet.mask().contains(QPoint(x+20,y+20)))
+            self.assertNotIn('icon_sleep',self.controller.pet.masker.requests)
+            self.assertTrue(self.controller.pet.mask().isEmpty())
 
     def test_nearby_icon_and_all_labels_do_not_cut_pet(self):
         self.start()
@@ -216,30 +208,8 @@ class SleepInteractionTests(unittest.TestCase):
             return (rect['x'],rect['y'],rect['width'],rect['height']),self.screen
         with patch('icon_sleep.logical_rect',side_effect=coords):
             self.sleep.update_mask()
-        self.assertTrue(self.controller.pet.mask().contains(QPoint(30,95)))
-        self.assertTrue(self.controller.pet.mask().contains(QPoint(30,115)))
-
-    def test_blue_skirt_matte_does_not_include_white_hair(self):
-        image=QImage(256,256,QImage.Format.Format_ARGB32);image.fill(0)
-        image.setPixelColor(40,180,'#eef4ff')  # long hair below the waist
-        image.setPixelColor(80,180,'#238cdb')  # skirt
-        image.setPixelColor(80,60,'#238cdb')   # blue hairclip above waist
-        matte=skirt_region(image)
-        self.assertFalse(matte.contains(QPoint(40,180)))
-        self.assertTrue(matte.contains(QPoint(80,180)))
-        self.assertFalse(matte.contains(QPoint(80,60)))
-
-    def test_real_pose_mattes_have_skirt_but_no_bright_hair(self):
-        self.sleep.load_poses()
-        for side,pixmap in self.sleep.pixmaps.items():
-            matte=self.sleep.skirts[side]
-            self.assertFalse(matte.isEmpty())
-            image=pixmap.toImage()
-            for y in range(0,256,3):
-                for x in range(0,256,3):
-                    color=image.pixelColor(x,y)
-                    if color.alpha()>200 and color.red()>210 and color.green()>210:
-                        self.assertFalse(matte.contains(QPoint(x,y)),(side,x,y))
+        self.assertNotIn('icon_sleep',self.controller.pet.masker.requests)
+        self.assertTrue(self.controller.pet.mask().isEmpty())
 
     def test_contact_is_at_shoulder_height_not_feet(self):
         self.sleep.configure({'direction':'left'})

@@ -4,8 +4,8 @@ import random
 import json
 import time
 from pathlib import Path
-from PySide6.QtCore import QObject, QThread, Signal, QTimer, QPoint, QRect, QRectF
-from PySide6.QtGui import QGuiApplication, QImage, QPainter, QPixmap, QRegion, QTransform
+from PySide6.QtCore import QObject, QThread, Signal, QTimer, QRectF
+from PySide6.QtGui import QGuiApplication, QImage, QPainter, QPixmap, QRegion
 from desktop_icons import scan_desktop, set_input_passthrough
 from icon_pose_geometry import PoseGeometry, sprite_rect, silhouette_envelope, target_contact, icon_surface
 
@@ -46,24 +46,6 @@ def alpha_region(image):
             elif not opaque and start is not None:
                 region=region.united(QRegion(start,y,x-start,1));start=None
     return region
-
-
-def skirt_region(image):
-    """Semantic dress matte for these white-haired, blue-dress sprites.
-
-    Only saturated blue below the waist is allowed behind the support. White
-    hair, skin and pale hair shadows stay foreground, including long hair tips.
-    This deliberately prefers a missed pale dress trim over cutting any hair.
-    """
-    source=image.convertToFormat(QImage.Format.Format_RGBA8888)
-    pixels=bytes(source.constBits());stride=source.bytesPerLine()
-    matte=QImage(source.size(),QImage.Format.Format_ARGB32);matte.fill(0)
-    for y in range(round(source.height()*.62),source.height()):
-        for x in range(source.width()):
-            i=y*stride+x*4;r,g,b,a=pixels[i:i+4]
-            if a and b>80 and r<b*.70 and b-r>40:
-                matte.setPixel(x,y,0xffffffff)
-    return alpha_region(matte)
 
 
 def validated(values):
@@ -170,10 +152,14 @@ class IconSleep(QObject):
         except ValueError: self.options=dict(DEFAULTS)
         self.icons=[]; self.target=None; self.phase='idle'; self.message=''; self.error=''
         self.worker=None; self.closed=False; self.image=None; self.exposed=True; self.side='left'; self.rect=None
-        self.icon_images={}; self.glyph_regions={}
-        self.started=0; self.origin=None; self.destination=None; self.pixmaps={}; self.bounds={};self.skirts={}
+        self.icon_images={}
+        self.started=0; self.origin=None; self.destination=None; self.pixmaps={}; self.bounds={}
         self.frames={}
-        self.watch=QTimer(self); self.watch.setInterval(700); self.watch.timeout.connect(self.refresh)
+        # One shell scan costs ~250ms of Python work; polling it every 0.7s
+        # kept a worker thread competing with the GUI for most of a core and
+        # made sudden clicks feel delayed. Icon layouts change slowly, and
+        # drop snapping still accepts scans younger than the 3s guard below.
+        self.watch=QTimer(self); self.watch.setInterval(2500); self.watch.timeout.connect(self.refresh)
         self.animation=QTimer(self); self.animation.setInterval(33); self.animation.timeout.connect(self.tick)
         pet.state.icon_sleep=self
         self.cache_images={};self.scanned_at=0.;self.auto_direction=None
@@ -248,7 +234,6 @@ class IconSleep(QObject):
             else:
                 if result.get('requested_id')==self.target['id']:
                     self.icon_images=result.get('images',{})
-                    self.glyph_regions.clear()
                 if result['image'] is not None and result.get('requested_id')==self.target['id']:
                     self.image=result['image']
                 if self.image is None and result.get('requested_id')==self.target['id']:
@@ -266,22 +251,6 @@ class IconSleep(QObject):
             pixmap=QPixmap(str(path))
             if pixmap.isNull(): raise ValueError('缺少依靠睡眠素材')
             self.bounds[side]=pose_bounds(pixmap.toImage())
-            if side in NEW_POSES:
-                matte=QImage(str(ASSET_ROOT/side/'skirt.png')).convertToFormat(QImage.Format.Format_RGBA8888)
-                source=pixmap.toImage()
-                # Grayscale mask files are opaque: turn their luminance into alpha.
-                region=QRegion()
-                for y in range(matte.height()):
-                    start=None
-                    for x in range(matte.width()+1):
-                        color=source.pixelColor(x,y) if x<matte.width() else None
-                        opaque=(x<matte.width() and matte.pixelColor(x,y).red()>128
-                                and not (color.red()>210 and color.green()>210))
-                        if opaque and start is None:start=x
-                        elif not opaque and start is not None:
-                            region=region.united(QRegion(start,y,x-start,1));start=None
-                self.skirts[side]=region
-            else:self.skirts[side]=skirt_region(pixmap.toImage())
             self.pixmaps[side]=pixmap
 
     def start(self,icon_id,instant=False,auto_pose=False,pose=None):
@@ -292,7 +261,7 @@ class IconSleep(QObject):
         edge=getattr(self.pet.state,'edge_attachment',None)
         if edge:edge.release(cooldown=20)
         self.wake('')
-        self.target=icon; self.image=self.cache_images.get(icon_id); self.exposed=True;self.icon_images={};self.glyph_regions={}
+        self.target=icon; self.image=self.cache_images.get(icon_id); self.exposed=True;self.icon_images={}
         self.auto_direction=(pose if pose in POSES else random.choice(('sit-front','sit-back','prone-front','prone-back','perch-front','perch-back'))) if auto_pose else None
         try: self.align()
         except ValueError:
@@ -318,21 +287,11 @@ class IconSleep(QObject):
         self.update_mask()
 
     def update_mask(self):
+        # Resting on an icon must never cut through the body: the skirt, hands
+        # and shoes stay fully opaque, and the target icon simply remains
+        # behind the character.
         if not self.target or not self.rect or self.phase!='sleeping': return
-        region=QRegion(self.pet.rect())
-        x,y,w,h=self.rect
-        local=QRect(round(x-self.pet.x()),round(y-self.pet.y()),max(1,round(w)),max(1,round(h)))
-        if self.image is not None:
-            key=(self.target['id'],local.width(),local.height())
-            if key not in self.glyph_regions:
-                self.glyph_regions[key]=alpha_region(self.image.scaled(local.width(),local.height()))
-            glyph=self.glyph_regions[key].translated(local.topLeft())
-            pose=self.pose_rect()
-            transform=QTransform().translate(pose.x(),pose.y()).scale(pose.width()/256,pose.height()/256)
-            skirt=transform.map(self.skirts[self.side])
-            region=region.subtracted(glyph.intersected(skirt))
-        # No holes for text or other icons. Hair is never in the cutout matte.
-        self.pet.masker.set('icon_sleep',region)
+        self.pet.masker.clear('icon_sleep')
 
     def tick(self):
         if self.pet.presence.active:return
@@ -354,7 +313,7 @@ class IconSleep(QObject):
         active=self.target is not None
         self.target=None; self.phase='idle'; self.watch.stop(); self.animation.stop()
         self.message=message; self.image=None; self.rect=None; self.pet.masker.clear('icon_sleep')
-        self.icon_images={};self.glyph_regions={}
+        self.icon_images={}
         set_input_passthrough(int(self.pet.winId()),False)
         if self.pet.preferences.auto_snap: self.watch.start()
         self.pet.state.position_x=float(self.pet.x())

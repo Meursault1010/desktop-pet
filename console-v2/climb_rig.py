@@ -29,6 +29,20 @@ def _weight(y,hand):
     return max(0.,min(1.,(125.-y)/27.))*max(0.,min(1.,(y-76.)/8.))
 
 
+def _smoothstep(value):
+    value=max(0.,min(1.,value))
+    return value*value*(3.-2.*value)
+
+
+def _face_protection(x,y,left):
+    # The arm mesh reaches the cheek/hair edge. Keep the eyes, nose, mouth and
+    # front hair rigid: zero the arm displacement inside this ellipse and fade
+    # it out before the actual raised arm begins.
+    cx,cy,rx,ry=(140.,76.,36.,40.) if left else (116.,76.,34.,40.)
+    distance=((x-cx)/rx)**2+((y-cy)/ry)**2
+    return 1.-_smoothstep((distance-1.)/.15)
+
+
 @lru_cache(maxsize=128)
 def _image(name,index,direction):
     from locomotion import frames
@@ -49,6 +63,7 @@ def _image(name,index,direction):
 
     def destination(x,y):
         weight=max(0.,min(1.,(x-151.)/22.)) if left else max(0.,min(1.,(105.-x)/25.))
+        weight*=1.-_face_protection(x,y,left)
         return QPointF(x,y+weight*sum(s*_weight(y,h) for h,s in enumerate(shifts)))
 
     for x0,x1 in zip(xs,xs[1:]):

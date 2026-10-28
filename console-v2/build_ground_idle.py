@@ -76,6 +76,15 @@ def prepare(key, publish=False):
     order = list(range(3)) + list(range(3,9))*repeats + list(range(9,12))
     duration = {3: 650, 4: 600, 5: 500, 6: 110, 7: 500, 8: 600}
     durations = [duration.get(i, 260) for i in order]
+    entry, exit = ({
+        'sit-neat': ((320, 400, 380), (320, 340, 360)),
+        'sit-relaxed': ((320, 400, 380), (320, 340, 360)),
+        'sit-swing': ((320, 400, 380), (320, 340, 360)),
+        'prone-chin': ((360, 480, 460), (340, 380, 400)),
+        'prone-rest': ((360, 480, 460), (340, 380, 400)),
+    }[key])
+    durations[:3] = entry
+    durations[-3:] = exit
     animation = [frames[i] for i in order]
     atlas = Image.new('RGBA', (1024, ((len(animation)+3)//4)*256))
     for i, frame in enumerate(animation):

@@ -16,7 +16,8 @@ from PySide6.QtWidgets import QApplication
 
 from main import PetApplication
 from settings_model import SettingsStore
-from pet_sleep import ASSETS, MANIFEST, SETTLE_SECONDS, SleepCycle, mix_frames
+from pet_sleep import (ASSETS, MANIFEST, SETTLE_SECONDS, WAKE_SECONDS,
+                       WAKE_HOLD_SECONDS, SleepCycle, mix_frames)
 import test_pet_sleep
 
 
@@ -45,6 +46,20 @@ class SleepAnimationTests(unittest.TestCase):
                 self.assertEqual(im.size, tuple(MANIFEST['size']))
                 self.assertEqual(im.mode,'RGBA')
                 self.assertTrue(np.array_equal(np.array(im)[190:225,274:293],reference),(name,i))
+
+    def test_playback_stretches_motion_and_holds_the_open_eyes(self):
+        self.assertAlmostEqual(SETTLE_SECONDS, 2.1)
+        self.assertAlmostEqual(WAKE_SECONDS, 1.5)
+        self.assertAlmostEqual(WAKE_HOLD_SECONDS, .25)
+        cycle = SleepCycle()
+        midpoint = cycle.sequence_frame('settle', MANIFEST['settle']['seconds']*.5)
+        self.assertTrue(np.array_equal(
+            pixels(cycle.transition_frame('settle', SETTLE_SECONDS*.5)),
+            pixels(midpoint)))
+        last = cycle.sequence_frame('wake', MANIFEST['wake']['seconds'])
+        self.assertTrue(np.array_equal(
+            pixels(cycle.transition_frame('wake', WAKE_SECONDS-WAKE_HOLD_SECONDS)),
+            pixels(last)))
 
     def test_breath_to_wake_first_frame_has_no_reset_for_every_breath_phase(self):
         for index in range(96):

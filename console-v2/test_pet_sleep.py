@@ -3,7 +3,8 @@ import unittest
 from datetime import datetime
 from types import SimpleNamespace as NS
 from unittest.mock import Mock, patch
-from pet_sleep import SleepCycle, sleep_time, SETTLE_SECONDS
+from pet_sleep import (SleepCycle, sleep_time, SETTLE_SECONDS, WAKE_SECONDS,
+                       WAKE_HOLD_SECONDS, MANIFEST)
 
 
 class SleepTests(unittest.TestCase):
@@ -40,7 +41,7 @@ class SleepTests(unittest.TestCase):
         s.tick(p,100+SETTLE_SECONDS+.001);self.assertEqual(s.phase,'asleep')
         s.tick(p,1000);self.assertEqual(s.phase,'asleep')
         s.wake(p,'点击',1001);self.assertEqual(s.phase,'waking')
-        s.tick(p,1002);self.assertEqual(s.phase,'awake')
+        s.tick(p,1001+s.wake_seconds+.001);self.assertEqual(s.phase,'awake')
         s.tick(p,1120);self.assertFalse(s.active)
         s.tick(p,1121);self.assertTrue(s.active)
         self.assertIsNone(p.state.travel_target)
@@ -50,8 +51,8 @@ class SleepTests(unittest.TestCase):
     def test_early_wake_and_drag_release_do_not_wait_for_animation(self, _):
         p,s=self.pet();s.tick(p,100)
         s.wake(p,'点击',100.4)
-        self.assertAlmostEqual(s.interrupted_settle,.25)
-        self.assertAlmostEqual(s.wake_seconds,.55)
+        self.assertAlmostEqual(s.interrupted_settle,.4/SETTLE_SECONDS)
+        self.assertAlmostEqual(s.wake_seconds,.6*s.interrupted_settle+.4)
         s.tick(p,100.8);self.assertEqual(s.phase,'waking')
         s.interrupt_for_drag()
         self.assertEqual(s.phase,'awake')

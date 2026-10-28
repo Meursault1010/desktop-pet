@@ -1,0 +1,66 @@
+{
+  "up": {
+    "body": "up-body.png",
+    "legs": [
+      "up-leg-0.png",
+      "up-leg-1.png"
+    ],
+    "baseline": 249,
+    "body_height": 231,
+    "cut_y": 218,
+    "feet": [
+      120.0,
+      139.67
+    ],
+    "pivots": [
+      [
+        120.0,
+        218.0
+      ],
+      [
+        139.67,
+        218.0
+      ]
+    ],
+    "stride": 48.0,
+    "lift": 16.0,
+    "outward": 3.0,
+    "tilt": 1.7,
+    "bob": 1.6,
+    "body_drop": 2.6,
+    "roll": 1.4,
+    "sway": 3.4
+  },
+  "down": {
+    "body": "down-body.png",
+    "legs": [
+      "down-leg-0.png",
+      "down-leg-1.png"
+    ],
+    "baseline": 249,
+    "body_height": 231,
+    "cut_y": 215,
+    "feet": [
+      120.0,
+      134.67
+    ],
+    "pivots": [
+      [
+        120.0,
+        215.0
+      ],
+      [
+        134.67,
+        215.0
+      ]
+    ],
+    "stride": 48.0,
+    "lift": 16.0,
+    "outward": 3.0,
+    "tilt": 1.7,
+    "bob": 1.6,
+    "body_drop": 2.6,
+    "roll": 1.4,
+    "sway": 3.4
+  }
+}

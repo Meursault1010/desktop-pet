@@ -111,6 +111,38 @@ class EdgeTests(unittest.TestCase):
             self.edge.tick();self.edge.pending_since-=2.1;self.edge.tick()
             self.assertFalse(self.edge.active);self.assertIsNone(self.edge.handle)
 
+    def attach_left(self):
+        self.edge.options.update(enabled=False,screens=False)
+        item=next(item for item in self.edge.choices([self.surface]) if item[0].kind=='left')
+        self.pet.move(*(round(v) for v in item[0].position))
+        self.edge.on_drop([self.surface],QPoint(*(round(v) for v in item[0].anchor)))
+        self.pet.snap_preview.surfaces=[self.surface];self.pet.snap_preview.surfaces_at=time.monotonic()
+        with patch('edge_attachment.inspect_foreground',return_value=self.surface),patch('edge_attachment.logical_surface',return_value=(self.surface.rect,self.surface.work_area,QApplication.primaryScreen())):
+            self.edge.tick()
+        self.assertTrue(self.edge.confirmed)
+        return item[0]
+
+    def test_vanished_window_drops_pet_from_current_position(self):
+        self.attach_left()
+        before=self.pet.pos()
+        self.pet.snap_preview.surfaces=[];self.pet.snap_preview.surfaces_at=time.monotonic()
+        with patch('edge_attachment.inspect_foreground',return_value=None):
+            self.edge.tick()
+        self.assertFalse(self.edge.active)
+        physics=self.pet.state.physics
+        self.assertTrue(physics.active)
+        self.assertEqual((physics.x,physics.y),(float(before.x()),float(before.y())))
+        self.assertEqual((physics.vx,physics.vy),(0.,0.))
+        self.assertIsNone(self.pet.state.action_player.action)
+
+    def test_live_window_missing_from_top_list_keeps_following_without_dropping(self):
+        self.attach_left()
+        self.pet.snap_preview.surfaces=[];self.pet.snap_preview.surfaces_at=time.monotonic()
+        with patch('edge_attachment.inspect_foreground',return_value=self.surface),patch('edge_attachment.logical_surface',return_value=(self.surface.rect,self.surface.work_area,QApplication.primaryScreen())):
+            self.edge.tick()
+        self.assertTrue(self.edge.active)
+        self.assertFalse(self.pet.state.physics.active)
+
     def test_generated_pose_top_contact_stays_at_icon_surface(self):
         options={**ICON_DEFAULTS,'direction':'sit-front'}
         side,(x,y)=placement((400,300,50,50),(180,190),'sit-front',options,(0,0,1280,900),self.poses.bounds)

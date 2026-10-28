@@ -109,6 +109,19 @@ class PresenceIntegration(unittest.TestCase):
         self.assertFalse(self.pet.presence_timer.isActive())
         self.assertFalse(self.pet.presence.active)
 
+    def test_entrance_and_exit_emit_completion_signals(self):
+        entered, exited = [], []
+        self.pet.presence_entered.connect(lambda: entered.append(True))
+        self.pet.presence_exited.connect(lambda: exited.append(True))
+        self.pet.present(True)
+        self.finish()
+        self.assertEqual(entered, [True])
+        self.assertTrue(self.pet.isVisible())
+        self.pet.present(False)
+        self.finish()
+        self.assertEqual(exited, [True])
+        self.assertFalse(self.pet.isVisible())
+
     def test_hide_interrupts_physics_and_drag(self):
         self.pet.show()
         self.pet.start_throw((300, -200))

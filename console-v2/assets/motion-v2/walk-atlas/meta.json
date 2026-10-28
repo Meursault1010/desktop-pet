@@ -1,0 +1,12 @@
+{
+  "name": "walk-atlas",
+  "frames": 8,
+  "cell": 256,
+  "baseline": 249,
+  "frame_ms": 90,
+  "directions": [
+    "right",
+    "left(mirror)"
+  ],
+  "source": "vibe_images/yuki-chibi-walk-sheet-v2 -> output/walk-chibi-v2 (8-frame chibi rebuild, 2026-10-28)"
+}

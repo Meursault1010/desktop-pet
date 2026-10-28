@@ -4,7 +4,9 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 import json
 import random
 import unittest
+from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 from PySide6.QtWidgets import QApplication
 from action_player import ActionPlayer, catalog
@@ -92,9 +94,14 @@ class IdlePostureInteractionTests(unittest.TestCase):
             for key in ('tea', 'sit-neat', 'prone-rest'):
                 pet.state.ambient.play(pet.state.action_player, key, 100)
                 value = snapshot(pet.state)
+                activity = pet.activity()
                 self.assertEqual(value['state'], posture_for(key))
                 self.assertTrue(value['automatic'])
                 self.assertIn(STATES[posture_for(key)]['name']+'待机', pet.status_text())
+                self.assertEqual(activity['label'], pet.status_text())
+                self.assertEqual(activity['key'], 'idle')
+                self.assertEqual(activity['posture'], posture_for(key))
+                self.assertEqual(activity['detail'], pet.state.action_player.action['name'])
             pet.state.action_player.play('read', now=101)
             self.assertFalse(snapshot(pet.state)['automatic'])
             with patch.object(pet.state.routine, 'update', return_value=False):
@@ -106,6 +113,62 @@ class IdlePostureInteractionTests(unittest.TestCase):
             pet.state.action_player.stop()
             pet.state.ambient.current = None
             self.assertEqual(snapshot(pet.state)['state'], 'stand')
+            self.assertEqual(pet.activity()['key'], 'idle')
+            self.assertEqual(pet.activity()['label'], pet.status_text())
+            pet.preferences = replace(pet.preferences, paused=True)
+            self.assertEqual(pet.activity()['key'], 'paused')
+            pet.preferences = replace(pet.preferences, paused=False)
+            pet.state.sleep.phase = 'asleep'
+            self.assertEqual(pet.activity()['key'], 'sleeping')
+            self.assertEqual(pet.activity()['posture'], 'sleep')
+            pet.state.sleep.phase = 'awake'
+            pet.hide()
+            self.assertEqual(pet.activity()['key'], 'hidden')
+        finally:
+            pet.close()
+            pet.deleteLater()
+            self.app.processEvents()
+
+    def test_walking_is_reported_from_the_gait_instead_of_the_legacy_flag(self):
+        pet = DesktopPet()
+        pet.animator.timer.stop()
+        pet.show()
+        try:
+            pet.advance_presence(10**10)
+            pet.state.walking = False
+            pet.move(120, 120)
+            pet.advance_to((240, 120), 0.05)
+            self.assertTrue(pet.state.walking)
+            self.assertEqual(pet.activity()['key'], 'walking')
+            self.assertEqual(pet.activity()['label'], '移动中')
+            self.assertEqual(snapshot(pet.state)['name'], '互动')
+            pet.state.gait_until = 0
+            pet.state.gait_energy = 0
+            pet.state.gait_energy_at = 0
+            pet.state.walking = False
+            self.assertEqual(pet.activity()['key'], 'idle')
+            self.assertEqual(pet.activity()['label'],
+                             '站立待机 · ' + pet.state.routine.period['name'])
+        finally:
+            pet.close()
+            pet.deleteLater()
+            self.app.processEvents()
+
+    def test_patrol_activity_reports_its_live_phase(self):
+        pet = DesktopPet()
+        pet.animator.timer.stop()
+        pet.show()
+        try:
+            pet.advance_presence(10**10)
+            pet.state.patrol = SimpleNamespace(active=True, exploring=False,
+                                               label='吃饭时间', phase='walking')
+            activity = pet.activity()
+            self.assertEqual(activity['key'], 'patrol')
+            self.assertEqual(activity['label'], '吃饭时间')
+            self.assertEqual(activity['detail'], '正在走过去')
+            pet.state.patrol.phase = 'doing'
+            self.assertEqual(pet.activity()['detail'], '正在互动')
+            pet.state.patrol = None
         finally:
             pet.close()
             pet.deleteLater()

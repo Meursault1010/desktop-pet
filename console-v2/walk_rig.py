@@ -8,8 +8,9 @@ from PySide6.QtGui import QColor, QPixmap
 
 ROOT = Path(__file__).resolve().parent / 'assets/motion-v2/walk-rig'
 AMPLITUDE = 16.
-BODY_DROP = 4.
+BODY_DROP = 0.
 LIFT = 15.
+FAR_LIFT = .8
 SWING_TILT = 3.
 STANCE = .5
 BOB = 1.
@@ -105,6 +106,8 @@ def _poses(clock, stride, vector=(1., 0.), energy=1.):
             angle = SWING_TILT * math.sin(2 * math.pi * u) * energy
         shift *= energy
         lift *= energy
+        if leg == 0:
+            lift *= FAR_LIFT
         home_x, home_y = HOME[leg]
         target = (home_x + vx * shift,
                   home_y + energy * (-abs(vy) * AMPLITUDE + vy * shift - LIFT * lift))

@@ -58,17 +58,6 @@ def main():
         for index in range(16):
             for kind,source in [('open',base),('blink',closed)]:
                 warp(source,spec,index*math.tau/16).save(folder/f'{kind}-{index:02}.png')
-        rgba=np.array(base);r,g,b,a=[rgba[:,:,i].astype(float) for i in range(4)]
-        l,t,rr,bb=spec['dress']; yy,xx=np.mgrid[:512,:512]
-        # Authored dress-only ROI AND conservative blue material mask. Hair,
-        # skin, legs, accessories and pale hair shadows cannot enter this matte.
-        allowed=(xx>=l)&(xx<rr)&(yy>=t)&(yy<bb)&(a>0)&(b>80)&(r<b*.70)&(b-r>40)
-        matte=Image.fromarray((allowed*255).astype('uint8')).resize((256,256),Image.Resampling.NEAREST)
-        small=np.array(base.resize((256,256),Image.Resampling.LANCZOS)).astype(float)
-        sr,sg,sb,sa=[small[:,:,i] for i in range(4)]
-        eligible=(sa>0)&(sb>80)&(sr<sb*.70)&(sb-sr>40)
-        matte=Image.fromarray((np.array(matte)*eligible).astype('uint8'))
-        matte.save(folder/'skirt.png')
         metadata[name]=dict(name=spec['name'],contact=[v/512 for v in spec['contact']],support=spec['support'],target_x=spec.get('target_x',.5),frames=16,cycle=6.4)
     (out/'poses.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2),encoding='utf-8')
     # Review animation at actual desktop size, on both dark and light surfaces.

@@ -1,7 +1,9 @@
 """A small Windows-friendly desktop cat. Run with Python 3.10+."""
+import ctypes
 import math
 import random
 import time
+from ctypes import wintypes as _wintypes
 from copy import copy
 from pathlib import Path
 from functools import lru_cache
@@ -17,19 +19,29 @@ from click_reaction import ClickReaction
 from pet_physics import PetPhysics, PointerVelocity
 from pet_presence import Presence
 from daily_routine import DailyRoutine
-from pet_sleep import SleepCycle
+from pet_sleep import SleepCycle, sleep_time
 from pet_mask import WindowMask
-from locomotion import frame as motion_frame, step_towards, metadata as motion_metadata, gait_advance, walk_stride
+from locomotion import frame as motion_frame, step_towards, metadata as motion_metadata, gait_advance, walk_stride, walking_name, vertical_walk
 from walk_rig import paint as paint_walk, rig as walk_rig
+from vertical_walk_rig import paint as paint_vertical, frame_rect as vertical_frame_rect, rig as vertical_rig
 
 from PySide6.QtCore import QPoint, QRect, QRectF, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QIcon, QImage, QPainter, QPen, QPixmap
+from PySide6.QtGui import QColor, QCursor, QIcon, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import QApplication, QWidget
 
 from settings_model import Preferences
 
 
 FRAME_INTERVAL_MS = 16
+
+
+class _NativeMessage(ctypes.Structure):
+    _fields_ = [('hwnd', _wintypes.HWND), ('message', _wintypes.UINT),
+                ('wParam', _wintypes.WPARAM), ('lParam', _wintypes.LPARAM),
+                ('time', _wintypes.DWORD), ('pt', _wintypes.POINT)]
+
+
+CLICK_REACTIONS = ('affection', 'shy', 'smile', 'clicked')
 
 
 class PetState:
@@ -55,6 +67,8 @@ class PetState:
         self.edge_attachment = None
         self.gait_clock = 0.
         self.gait_direction = None
+        self.gait_name = None
+        self.gait_target = None
         self.gait_distance = 0.
         self.gait_until = 0.
         self.gait_energy = 0.
@@ -159,7 +173,7 @@ class PetAnimator:
                     state.travel_target=None
                     self.pet.position_settled.emit()
         else:
-            state.walking = False
+            state.walking = self.pet.moving(now)
 
         if state.jump_started is not None and now - state.jump_started >= 0.65:
             state.jump_started = None
@@ -316,6 +330,7 @@ class PetRenderer:
         self.atlases = self.load_atlases()
         self.interaction_atlases()
         walk_rig()
+        vertical_rig()
         self.action_motion = ActionLifeMotion()
         self.last_pose = None
         self.last_image = None
@@ -342,7 +357,7 @@ class PetRenderer:
         action = state.action_player.action
         gait_visible = now < state.gait_until or state.current_gait_energy(now) > 0
         pose = ('sleep',) if state.sleep.active or state.sleep.phase == 'waking' else ('physics',) if state.physics.active else ('action', action['id'], None if action['id']=='music-waltz' else state.action_player.started) if action else (
-            ('walk', state.direction) if gait_visible else ('idle',))
+            ('walk', state.gait_name or state.direction) if gait_visible else ('idle',))
         if action and action.get('click_expression') and pose[0] == 'action':
             pose = (*pose, 'click-expression')
         # Keep source detail through the intermediate canvases. Device pixel
@@ -550,13 +565,17 @@ class PetRenderer:
             return
         gait_energy = max(0., min(1., state.current_gait_energy(now)))
         if now < state.gait_until or gait_energy > 0:
-            name='walk-right' if state.direction>0 else 'walk-left'
-            target = QRectF(10,181.875-160*motion_metadata()[name]['baseline'],160,160)
+            name=state.gait_name or ('walk-right' if state.direction>0 else 'walk-left')
             painter.save()
             painter.translate(*state.gait_render_offset)
             self.apply_click_reaction(painter, state, reaction)
-            paint_walk(painter,target,name,state.gait_clock,state.gait_vector,energy=gait_energy,
-                       eye_frame=state.idle.frame)
+            if vertical_walk(name):
+                paint_vertical(painter,vertical_frame_rect(name),name,state.gait_clock,
+                               energy=gait_energy)
+            else:
+                target = QRectF(10,181.875-160*motion_metadata()[name]['baseline'],160,160)
+                paint_walk(painter,target,name,state.gait_clock,state.gait_vector,energy=gait_energy,
+                           eye_frame=state.idle.frame)
             painter.restore()
             return
         if now < state.message_until:
@@ -592,7 +611,23 @@ class PetRenderer:
                 return decoded
         pinned=PetRenderer.interaction_atlases().get(action_id)
         if pinned is not None:return pinned
+        pinned=PetRenderer.click_atlases.get(action_id)
+        if pinned is not None:return pinned
         return QPixmap(str(Path(__file__).resolve().parent / 'assets/actions' / action_id / 'atlas.png'))
+
+    click_atlases = {}
+
+    @staticmethod
+    def prewarm_click_atlas(action_id):
+        # Decoding a 1024x1536 atlas takes 20-45ms. Pay it while idle instead
+        # of inside the first click, and pin it so ambient clips cannot evict
+        # the response back into a cold decode.
+        if action_id in PetRenderer.click_atlases:
+            return
+        path=Path(__file__).resolve().parent/'assets/actions'/action_id/'atlas.png'
+        pixmap=QPixmap(str(path))
+        if not pixmap.isNull():
+            PetRenderer.click_atlases[action_id]=pixmap
 
 
 class PetMenu:
@@ -620,6 +655,8 @@ class DesktopPet(QWidget):
     state_changed = Signal()
     position_settled = Signal()
     drag_finished = Signal()
+    presence_entered = Signal()
+    presence_exited = Signal()
 
     def __init__(self, preferences=None):
         super().__init__()
@@ -629,6 +666,10 @@ class DesktopPet(QWidget):
         self.snap_preview = SnapPreview(self)
         self.destroyed.connect(self.snap_preview.deleteLater)
         self.setWindowTitle('yuki · 桌面宠物')
+        # Keep the window focusable: the context menu needs activation. Left
+        # clicks are exempted from activation in nativeEvent below, because a
+        # normal first click waits ~1.2s for the foreground handshake while the
+        # workbench owns focus, which made the first drag feel frozen.
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint |
                             Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowType.Tool)
@@ -655,6 +696,23 @@ class DesktopPet(QWidget):
         self.press_started = 0.
         self.double_click = False
         self.renderer = PetRenderer()
+        # Stagger the click responses so the idle first seconds never pay a
+        # single long decode, and no user click ever waits for PNG I/O.
+        for offset, action_id in enumerate(CLICK_REACTIONS):
+            QTimer.singleShot(900+offset*150,
+                              lambda key=action_id: PetRenderer.prewarm_click_atlas(key))
+        self.memory_pending = {}
+        self.memory_timer = QTimer(self)
+        self.memory_timer.setSingleShot(True)
+        self.memory_timer.setInterval(400)
+        self.memory_timer.timeout.connect(self.flush_memory)
+        # Follow the live cursor at display rate. Moving the window from every
+        # WM_MOUSEMOVE let a backlog of stale positions trail the pointer for
+        # up to a second while the click left the window behind.
+        self.drag_follow_timer = QTimer(self)
+        self.drag_follow_timer.setTimerType(Qt.TimerType.PreciseTimer)
+        self.drag_follow_timer.setInterval(FRAME_INTERVAL_MS)
+        self.drag_follow_timer.timeout.connect(self.follow_drag_cursor)
         from drag_feedback import warm_assets
         warm_assets()
         self.animator = PetAnimator(self)
@@ -708,6 +766,7 @@ class DesktopPet(QWidget):
         # Compare with our last integer window command, not with its fractional
         # accumulator. Even a one-pixel external move starts from the new place.
         if position is None or actual != self.state.gait_window_position:position=actual
+        route_start = self.state.travel_position is None
         previous=position
         length=math.hypot(target[0]-position[0],target[1]-position[1])
         if length < .001:
@@ -716,11 +775,21 @@ class DesktopPet(QWidget):
         # Near-vertical travel must not flip on subpixel horizontal noise.
         direction = (1 if target[0]>position[0] else -1) if abs(target[0]-position[0])>.5 else self.state.direction
         vector=((target[0]-position[0])/length,(target[1]-position[1])/length)
-        name = 'walk-right' if direction > 0 else 'walk-left'
+        # Select the front/back rig per destination; repeated ticks for the
+        # same destination keep one silhouette instead of flickering. A few
+        # pixels of correction travel keep the current rig.
+        target_key = tuple(target)
+        if route_start or self.state.gait_name is None or target_key != self.state.gait_target:
+            if length >= 6:
+                self.state.gait_name = walking_name(direction, vector)
+            elif self.state.gait_name is None:
+                self.state.gait_name = 'walk-right' if direction > 0 else 'walk-left'
+        self.state.gait_target = target_key
+        name = self.state.gait_name
         stride=walk_stride(name)
         # Resume a settled route at a neutral half-stride instead of replaying
         # phase 0, which pops the legs when the last route stopped mid-step.
-        if (self.state.travel_position is None and now >= self.state.gait_until
+        if (route_start and now >= self.state.gait_until
                 and self.state.current_gait_energy(now) <= .02):
             self.state.gait_clock = round(self.state.gait_clock/stride*2)/2*stride
         self.state.gait_direction = self.state.direction = direction
@@ -735,6 +804,7 @@ class DesktopPet(QWidget):
         self.state.gait_render_offset=tuple((v-a)/(self.width()/180) for v,a in zip(position,(self.x(),self.y())))
         self.record_gait(position[0]-previous[0],position[1]-previous[1],clock=clock)
         if math.hypot(position[0]-previous[0],position[1]-previous[1]) > .001:
+            self.state.walking = True
             # A resumed walk keeps whatever strength remains, so a pause that
             # restarts quickly never makes the body drop and re-accelerate.
             energy = 0. if now-self.state.gait_energy_at > .18 else self.state.gait_energy
@@ -743,61 +813,94 @@ class DesktopPet(QWidget):
         self.state.position_x=float(self.x())
         return arrived
 
-    def status_text(self):
+    def moving(self, now=None):
+        """True while the body is actually stepping, not merely while a route exists."""
+        state = self.state
+        if (self.presence.active or self.drag_origin is not None
+                or state.physics.active or state.roll_path):
+            return False
+        now = time.monotonic() if now is None else now
+        return (state.travel_target is not None or now < state.gait_until
+                or state.current_gait_energy(now) > .02)
+
+    def activity(self):
+        """One live-state descriptor shared by the tray, IPC and the workbench."""
+        state = self.state
+        def report(key, label, posture=None, detail=''):
+            return {'key': key, 'label': label, 'detail': detail, 'posture': posture}
+        def patrol_report(posture=None):
+            detail = {'walking': '正在走过去', 'observing': '正在观察',
+                      'resting': '正在休息', 'doing': '正在互动',
+                      'perched': '停在窗口边上', 'reacting': '正在回应',
+                      'screen_passage': '正在绕到另一侧'}.get(state.patrol.phase, '')
+            label = ('巡逻 · '+state.patrol.label
+                     if state.patrol.exploring else state.patrol.label)
+            return report('patrol', label, posture, detail)
         if not self.isVisible():
-            return '已隐藏'
+            return report('hidden', '已隐藏', detail='再次显示后会回到桌面')
         if self.presence.active:
-            return '探头 · 正在走来' if self.presence.target else '回望 · 正在离开'
+            if self.presence.target:
+                return report('entering', '探头 · 正在走来', detail='正走向上次关闭时的位置')
+            return report('leaving', '回望 · 正在离开', detail='完全走出屏幕后才结束')
         if self.drag_origin is not None and self.dragged:
-            return '拖动中'
-        if self.state.physics.active:
-            if self.state.physics.impact_age < .3:
-                return {'left': '碰壁 · 弹回', 'right': '碰壁 · 弹回',
-                        'ceiling': '碰顶 · 弹回', 'floor': '落地 · 回弹'}.get(
-                            self.state.physics.impact, '抛掷 · 下落中')
-            return '抛掷 · 下落中' if self.state.physics.flying else '落地 · 缓一缓'
-        if self.state.sleep.active:
-            return '熟睡中 · z z z'
-        if self.state.sleep.phase == 'waking':
-            return '睡觉待机 · 正在醒来'
-        if self.state.icon_sleep and self.state.icon_sleep.target:
-            return self.state.icon_sleep.message
-        if self.state.edge_attachment and self.state.edge_attachment.active:
-            return self.state.edge_attachment.message
-        if self.state.action_player.action is not None:
-            player = self.state.action_player
-            performance = self.state.status_performance
+            return report('dragging', '拖动中', detail='松手后会落到最近的支撑面')
+        if state.physics.active:
+            if state.physics.impact_age < .3:
+                label = {'left': '碰壁 · 弹回', 'right': '碰壁 · 弹回',
+                         'ceiling': '碰顶 · 弹回', 'floor': '落地 · 回弹'}.get(
+                             state.physics.impact, '抛掷 · 下落中')
+            else:
+                label = '抛掷 · 下落中' if state.physics.flying else '落地 · 缓一缓'
+            return report('physics', label)
+        if state.sleep.active:
+            return report('sleeping', '熟睡中 · z z z', 'sleep',
+                          '作息时段' if sleep_time() else '安静地睡着')
+        if state.sleep.phase == 'waking':
+            return report('waking', '睡觉待机 · 正在醒来', 'sleep')
+        if state.icon_sleep and state.icon_sleep.target:
+            return report('icon_sleep', state.icon_sleep.message, detail='靠在你桌面上的图标旁')
+        if state.edge_attachment and state.edge_attachment.active:
+            return report('attached', state.edge_attachment.message, detail='沿着屏幕边缘停靠')
+        player = state.action_player
+        if player.action is not None:
+            action_id = player.action['id']
+            posture = posture_for(action_id)
+            performance = state.status_performance
             if (performance and player.started == performance.get('started')
-                    and player.action['id'] == performance.get('action')):
-                return performance['label']
+                    and action_id == performance.get('action')):
+                return report('status', performance['label'], posture, player.action['name'])
             focus = getattr(self, 'focus', None)
             if focus is not None and (focus.owns_action() or focus.owns_free()):
-                return '专注陪伴 · 安静地陪着你' if focus.phase == 'focus' else '专注休息 · 缓一缓'
-            if self.state.music and self.state.music.active:
-                return self.state.music.snapshot()['reaction']
-            if self.state.patrol and self.state.patrol.active:
-                return self.state.patrol.label
-            if self.state.ambient.current and self.state.action_player.started == self.state.ambient.current[1]:
-                posture = posture_for(self.state.action_player.action['id'])
-                if posture:
-                    return STATES[posture]['name'] + '待机 · ' + self.state.action_player.action['name']
-            return '动作 · ' + self.state.action_player.action['name']
-        if self.state.jump_started is not None:
-            return '跳跃中'
+                return report('focus', '专注陪伴 · 安静地陪着你' if focus.phase == 'focus' else '专注休息 · 缓一缓',
+                              posture)
+            if state.music and state.music.active:
+                music = state.music.snapshot()
+                return report('music', music['reaction'], posture, music.get('label', ''))
+            if state.patrol and state.patrol.active:
+                return patrol_report(posture)
+            if state.ambient.current and player.started == state.ambient.current[1] and posture:
+                return report('idle', STATES[posture]['name'] + '待机 · ' + player.action['name'],
+                              posture, player.action['name'])
+            return report('action', '动作 · ' + player.action['name'], posture, player.action['name'])
+        if state.jump_started is not None:
+            return report('jumping', '跳跃中')
         focus = getattr(self, 'focus', None)
         if focus is not None and focus.active and focus.base().focus_companion:
-            return '专注陪伴 · 安静地陪着你' if focus.phase == 'focus' else '专注休息 · 缓一缓'
+            return report('focus', '专注陪伴 · 安静地陪着你' if focus.phase == 'focus' else '专注休息 · 缓一缓')
         if self.preferences.quiet:
-            return '安静模式'
+            return report('quiet', '安静模式', detail='减少主动打扰，仍留在桌面')
         if self.preferences.paused:
-            return '已暂停'
+            return report('paused', '已暂停', detail='走动暂停，呼吸与手动动作保留')
+        if state.patrol and (state.patrol.active or state.patrol.exploring):
+            return patrol_report()
+        if self.moving():
+            return report('walking', '移动中', detail='正走向目的地')
         if not self.preferences.random_movement:
-            return '待机（随机移动已关闭）'
-        if self.state.patrol and self.state.patrol.active:
-            return '巡逻 · '+self.state.patrol.label if self.state.patrol.exploring else self.state.patrol.label
-        if self.state.patrol and self.state.patrol.exploring:
-            return '巡逻 · 观察与休息'
-        return '移动中' if self.state.walking else '站立待机 · ' + self.state.routine.period['name']
+            return report('idle', '待机（随机移动已关闭）', 'stand', '随机走动已关闭')
+        return report('idle', '站立待机 · ' + state.routine.period['name'], 'stand')
+
+    def status_text(self):
+        return self.activity()['label']
 
     def clamp_to_screen(self):
         self.state.physics.cancel()
@@ -826,6 +929,8 @@ class DesktopPet(QWidget):
         if self.state.patrol and (preferences.paused or preferences.quiet or not preferences.random_movement
                                  or not preferences.autonomous_play
                                  or (not preferences.autonomous_icons and self.state.patrol.target is not None)
+                                 or (not preferences.autonomous_windows and not self.state.patrol.demo
+                                     and self.state.patrol.edge_is_window())
                                  or rebuilt):
             # A flag or size change rebuilds the native window; never keep the
             # old back-layer mask and z-order applied to the new one.
@@ -977,6 +1082,7 @@ class DesktopPet(QWidget):
                 home = self.presence.home
                 self.hide()
                 self.move(*(round(v) for v in home))
+                self.presence_exited.emit()
             else:
                 self.state.last_tick = time.monotonic()
                 self.state.started = self.state.last_tick
@@ -985,7 +1091,24 @@ class DesktopPet(QWidget):
                 self.renderer.transition_image = None
                 self.renderer.pointer_hold_image = None
                 self.state.ambient.defer(self.state.last_tick, self.preferences.activity)
+                self.presence_entered.emit()
             self.state_changed.emit()
+
+    @staticmethod
+    def _skips_activation(lparam):
+        # WM_MOUSEACTIVATE stores the activating mouse message in the high
+        # word of lParam (wParam is the window handle).
+        return ((lparam >> 16) & 0xFFFF) in (0x0201, 0x0203)
+
+    def nativeEvent(self, eventType, message):
+        # MA_NOACTIVATE keeps the left-button message but skips the Windows
+        # foreground handshake. Right clicks keep default activation so the
+        # context menu can take focus.
+        if eventType == b'windows_generic_MSG':
+            msg = _NativeMessage.from_address(int(message))
+            if msg.message == 0x0021 and self._skips_activation(msg.lParam):
+                return True, 3
+        return super().nativeEvent(eventType, message)
 
     def mousePressEvent(self, event):
         if self.state.patrol and self.desired_visible():
@@ -996,15 +1119,17 @@ class DesktopPet(QWidget):
                 return
             was_sleeping = self.state.sleep.transitioning
             self.state.sleep.wake(self, '点击或拖拽')
+            if self.presence.active and self.presence.target:
+                self.presence_entered.emit()
             self.presence_timer.stop()
             self.presence.reset(True)
+            self.drag_follow_timer.stop()
             self.caught_flight = self.state.physics.active and self.state.physics.flying
             self.state.physics.cancel()
             point = event.globalPosition()
             self.state.pointer_velocity.reset(point.x(), point.y(), time.monotonic())
             self.double_click = False
             self.renderer.pointer_hold_image = None if was_sleeping else self.renderer.last_display_image
-            self.snap_preview.request_surfaces()
             self.renderer.transition_image = None
             # A press may become a drag. Do not show click feedback until the
             # gesture is classified; clearing a spring at the drag threshold
@@ -1069,11 +1194,27 @@ class DesktopPet(QWidget):
             player.frame_order = [2]
             reaction = {'shy': 'shy', 'body': 'happy', 'feet': 'startle'}.get(kind, 'shy')
         self.state.click_reaction.trigger(reaction, self.click_x)
-        memory = getattr(self.controller, 'memory', None)
-        if memory is not None:
-            memory.record('headpats' if kind == 'headpat' else 'clicks')
+        self.queue_memory('headpats' if kind == 'headpat' else 'clicks')
         self.update()
         self.state_changed.emit()
+
+    def queue_memory(self, kind):
+        # The counter lives in a JSON file written synchronously. A click must
+        # never wait for the disk, and rapid headpats share one flush.
+        if getattr(self.controller, 'memory', None) is None:
+            return
+        self.memory_pending[kind] = self.memory_pending.get(kind, 0) + 1
+        if not self.memory_timer.isActive():
+            self.memory_timer.start()
+
+    def flush_memory(self):
+        self.memory_timer.stop()
+        pending, self.memory_pending = self.memory_pending, {}
+        memory = getattr(self.controller, 'memory', None)
+        if memory is None:
+            return
+        for kind, amount in pending.items():
+            memory.record(kind, amount)
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -1087,7 +1228,6 @@ class DesktopPet(QWidget):
     def mouseMoveEvent(self, event):
         if self.drag_origin is not None:
             point = event.globalPosition().toPoint()
-            moved = False
             self.state.pointer_velocity.add(point.x(), point.y(), time.monotonic())
             if (point - self.press_position).manhattanLength() > QApplication.startDragDistance():
                 if not self.dragged:
@@ -1103,10 +1243,13 @@ class DesktopPet(QWidget):
                     self.state.drag_feedback=DragFeedback(target,compact=True)
                     self.state.drag_feedback.image(0)
                     self.animator.timer.setInterval(FRAME_INTERVAL_MS)
+                    self.drag_follow_timer.start()
                 self.dragged = True
             if self.dragged:
-                if not moved:
-                    self.move(point - self.drag_origin)
+                # Track the event immediately; the display-rate follower then
+                # re-anchors to the live cursor so a burst of queued moves
+                # cannot trail the pointer for hundreds of pixels.
+                self.move(point - self.drag_origin)
                 self.state.position_x = float(self.x())
                 self.snap_preview.queue(point)
                 self.update()
@@ -1115,6 +1258,19 @@ class DesktopPet(QWidget):
                 event.position().x()*180/max(1, self.width())-90)/80))
             self.hover_at = time.monotonic()
             self.hover_inside = True
+
+    def follow_drag_cursor(self):
+        if not self.dragged or self.drag_origin is None:
+            self.drag_follow_timer.stop()
+            return
+        point = QCursor.pos()
+        self.state.pointer_velocity.add(point.x(), point.y(), time.monotonic())
+        position = point - self.drag_origin
+        if position != self.pos():
+            self.move(position)
+            self.state.position_x = float(self.x())
+        self.snap_preview.queue(point)
+        self.update()
 
     def enterEvent(self, event):
         super().enterEvent(event)
@@ -1165,6 +1321,7 @@ class DesktopPet(QWidget):
 
     def end_drag_feedback(self):
         self.animator.timer.setInterval(FRAME_INTERVAL_MS)
+        self.drag_follow_timer.stop()
         self.snap_preview.timer.stop()
         self.snap_preview.hide()
         feedback=self.state.drag_feedback

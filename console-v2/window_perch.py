@@ -22,12 +22,14 @@ class WindowPerch:
         self.next_at = time.monotonic()+random.uniform(120, 240)
         self.variant = random.randrange(4)
         self.attached = False
+        self.manual_attached = False
         self.attached_started = None
         self.leaping = False
         self.leap_generation = None
         self.leap_started = 0.
         self.leap_duration = .6
         self.leap_from = (0., 0.)
+        self.leap_checked_at = 0.
         self.candidate = None
         pet.window_perch = self
 
@@ -42,6 +44,11 @@ class WindowPerch:
     def tick(self, now=None):
         now = time.monotonic() if now is None else now
         self.enabled = bool(self.pet.preferences.autonomous_windows)
+        if not self.enabled and not self.manual_attached and (self.leaping or self.attached):
+            # Turning the preference off ends an autonomous visit immediately;
+            # a user-requested perch stays until explicitly released.
+            self.release(now)
+            return
         if self.leaping:
             self._advance_leap(now)
             return
@@ -69,7 +76,7 @@ class WindowPerch:
             return True
         if not self._allowed(manual=True):
             raise ValueError('请先结束拖动、睡眠、专注或暂停状态')
-        if not self.try_perch(now):
+        if not self.try_perch(now, manual=True):
             raise ValueError(self.error or '当前没有可以停靠的前台窗口')
         self.next_at = now+random.uniform(120, 240)
         return True
@@ -90,6 +97,7 @@ class WindowPerch:
         if self.attached and self.edge.active and self.edge.started == self.attached_started:
             self.edge.release(cooldown=cooldown)
         self.attached = False
+        self.manual_attached = False
         self.attached_started = None
         if self.active:
             self.active = False
@@ -113,7 +121,7 @@ class WindowPerch:
                 and not (state.music and state.music.active)
                 and not (getattr(pet, 'focus', None) and pet.focus.active))
 
-    def try_perch(self, now):
+    def try_perch(self, now, manual=False):
         surface = inspect_foreground(self.excluded())
         if surface is None or surface.fullscreen:
             self.error = '当前没有可停靠的前台窗口'
@@ -156,6 +164,7 @@ class WindowPerch:
         self.leap_from = origin
         self.leap_started = now
         self.leap_duration = max(.45, min(.85, distance/520))
+        self.leap_checked_at = now+.1
         player = pet.state.action_player
         try:
             player.play('play-climb-up', loop=True, speed=.95, now=now)
@@ -171,6 +180,7 @@ class WindowPerch:
         pet.state.ambient.current = None
         pet.state.ambient.defer(now, pet.preferences.activity)
         self.leaping = True
+        self.manual_attached = bool(manual)
         self.active = True
         self.message = '去前台窗口上沿坐一会儿'
         pet.update()
@@ -184,6 +194,17 @@ class WindowPerch:
                 or self.pet.preferences.paused):
             self.release(now, 5)
             return
+        handle = getattr(self.candidate[1], 'handle', None)
+        if handle and now >= self.leap_checked_at:
+            # The target window can close mid-leap. Do not finish the arc onto
+            # empty space: drop from the current airborne position instead.
+            self.leap_checked_at = now+.1
+            if inspect_foreground(self.excluded(), handle=handle) is None:
+                self.release(now, 5)
+                self.pet.start_throw((0., 0.))
+                self.message = '窗框消失了 · 掉落'
+                self.pet.state_changed.emit()
+                return
         progress = min(1., max(0., (now-self.leap_started)/self.leap_duration))
         eased = progress*progress*(3-2*progress)
         x0, y0 = self.leap_from

@@ -8,11 +8,6 @@ export function makeWidget(type:WidgetType):Widget{return {id:crypto.randomUUID(
 export function defaultPages():WorkspacePage[]{return [{id:'default',name:'默认总览',widgets:(['companion','journal','rhythm','system'] as WidgetType[]).map(makeWidget)}];}
 export function readStore<T>(key:string,fallback:T):T{try{return JSON.parse(localStorage.getItem('yuki-v2-'+key)||'null')??fallback;}catch{return fallback;}}
 export function saveStore(key:string,value:unknown){localStorage.setItem('yuki-v2-'+key,JSON.stringify(value));}
-export function validPages(value:unknown):WorkspacePage[]{
- if(!Array.isArray(value)||!value.length)return defaultPages();
- const pages=value.filter(p=>p&&p.id==='default'&&typeof p.name==='string'&&Array.isArray(p.widgets)).slice(0,1).map(p=>({id:'default',name:'默认总览',widgets:p.widgets.slice(0,20).filter((w:Widget)=>w&&Object.hasOwn(widgetNames,w.type)).map((w:Widget)=>({...w,id:String(w.id),title:String(w.title||widgetNames[w.type]).slice(0,40),width:([1,2,3].includes(w.width)?w.width:1) as 1|2|3,height:Math.min(640,Math.max(180,Number(w.height)||260))}))}));
- return pages.length?pages:defaultPages();
-}
 
 export function validTodos(value:unknown):Todo[]{
  return Array.isArray(value)?value.filter(t=>t&&typeof t.id==='string'&&typeof t.text==='string'&&t.text.trim()).slice(0,200).map(t=>({id:t.id,text:t.text.slice(0,200),done:t.done===true,notified:t.notified===true,due:typeof t.due==='string'&&Number.isFinite(Date.parse(t.due))?t.due:''})):[];

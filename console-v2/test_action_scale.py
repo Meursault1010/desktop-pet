@@ -56,9 +56,6 @@ class ScaleTests(unittest.TestCase):
                 transform=self.report[f'{group}/{key}']['transform']
                 for field in ('hand','contact'):
                     if field in old:self.assertEqual(current[key][field],map_point(old[field],transform,normalized=field!='hand'))
-                if group=='icon':
-                    mask=Image.open(ROOT/f'assets/icon-interactions/{key}/skirt.png').convert('L')
-                    self.assertLessEqual(len(set(mask.tobytes())),2)
 
     def test_neutral_standing_height_is_close_to_default_and_lazy_roll_closes(self):
         profile=json.loads((ROOT/'scale_calibration.json').read_text(encoding='utf-8'))

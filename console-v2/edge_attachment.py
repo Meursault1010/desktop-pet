@@ -53,6 +53,7 @@ class EdgeAttachment(QObject):
         try:values['delay']=int(values['delay']);self.options=validated(values)
         except (TypeError,ValueError):self.options=dict(DEFAULTS)
         self.active=False;self.handle=None;self.side='perch-back';self.kind='';self.message='等待自然停靠';self.error=''
+        self.confirmed=False
         self.pending=None;self.pending_since=0.;self.until=time.monotonic()+self.options['delay']
         self.started=0.;self.destination=None;self.variant=random.randrange(4)
         self.phase='idle';self.landing=None;self.interval=(0,0);self.parameter=0.;self.fraction=.5
@@ -75,6 +76,7 @@ class EdgeAttachment(QObject):
 
     def release(self,cooldown=20):
         was=self.active;self.active=False;self.handle=None;self.pending=None;self.destination=None;self.phase='idle'
+        self.confirmed=False
         self.animation.stop();self.until=time.monotonic()+cooldown;self.message='等待自然停靠'
         self.hold_until=0.
         self.variant=random.randrange(4)
@@ -167,6 +169,7 @@ class EdgeAttachment(QObject):
         landing,surface,screen,rect=candidate
         self.autonomous = autonomous
         self.set_landing(landing,rect);self.handle=surface.handle if surface else None;self.screen=screen
+        self.confirmed=False
         now=time.monotonic();self.active=True;self.phase='resting';self.started=now;self.last_tick=now
         self.distance=0.;self.crawl_target=None;self.next_move=now+random.uniform(2,5);self.until=0
         self.climb_clock=0.;self.crawl_phase=0.
@@ -191,7 +194,13 @@ class EdgeAttachment(QObject):
         size=(self.pet.width(),self.pet.height());origin=(self.pet.x(),self.pet.y());higher=[]
         if self.handle:
             target=next((s for s in surfaces if s.handle==self.handle),None)
+            if target is None:
+                # The live window can be missing from the bounded top-N list
+                # while still existing. Only a closed/hidden window is gone;
+                # keep following it directly in that case.
+                target=inspect_foreground(self.excluded(),handle=self.handle)
             if target is None:return False
+            self.confirmed=True
             rect,area,self.screen=logical_surface(target,QGuiApplication.screens())
             for other in surfaces:
                 if other.handle==self.handle:break
@@ -224,17 +233,35 @@ class EdgeAttachment(QObject):
         if self.crawl_target is not None:self.crawl_target+=p-old
         return True
 
+    def support_gone(self):
+        """The attached window frame no longer exists on this desktop."""
+        return bool(self.handle) and inspect_foreground(self.excluded(),handle=self.handle) is None
+
+    def drop_from_missing_window(self):
+        # A vanished frame leaves the sprite standing on nothing. Fall exactly
+        # like a mouse release without a landing: zero launch velocity, then
+        # the normal gravity/bounce/recovery sequence.
+        if not self.active:return
+        self.release(cooldown=2)
+        self.pet.start_throw((0.,0.))
+        self.message='窗框消失了 · 掉落'
+        self.pet.state_changed.emit()
+
     def tick(self):
         if self.pet.presence.active:return
         # No autonomous search: only follow an already established grip.
         if not self.active:return
         if self.busy():return
+        if self.confirmed and self.support_gone():
+            self.drop_from_missing_window();return
         try:
             preview=self.pet.snap_preview
             preview.request_surfaces(force=True)
             if not preview.surfaces_at or time.monotonic()-preview.surfaces_at>.75:return
             surfaces=preview.surfaces
-            if not self.follow(surfaces):self.release(cooldown=2)
+            if not self.follow(surfaces):
+                if self.support_gone():self.drop_from_missing_window()
+                else:self.release(cooldown=2)
         except Exception as error:
             self.error=str(error);self.release(cooldown=5);self.pet.state_changed.emit()
 

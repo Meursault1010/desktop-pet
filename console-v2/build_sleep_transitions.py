@@ -22,6 +22,9 @@ SIZE = (340, 328)
 FPS = 60
 SETTLE_SECONDS = 1.6
 WAKE_SECONDS = 1.0
+# Runtime playback can breathe slower than the baked 60 fps motion without
+# regenerating the approved frame sequence.
+PLAYBACK = {'settle': 2.1, 'wake': 1.5, 'wake_hold': .25}
 
 
 def smooth(t):
@@ -156,6 +159,7 @@ def main():
     manifest = {'version': 1, 'fps': FPS, 'size': list(SIZE),
                 'settle': {'count': len(sequences['settle']), 'seconds': SETTLE_SECONDS},
                 'wake': {'count': len(sequences['wake']), 'seconds': WAKE_SECONDS},
+                'playback': PLAYBACK,
                 'source': 'Approved sleep-transitions-v2 eyes on sleep-right-02-master',
                 'pillow': 'Unpatterned master; fixed throughout all sequences'}
     (folder/'manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')

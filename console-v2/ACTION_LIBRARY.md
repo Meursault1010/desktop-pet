@@ -21,16 +21,24 @@
 
 `pet_backend.py` 接收 `play_action`（action_id、loop、speed）和 `stop_action`，Rust 仅转发白名单命令，不能传任意图片路径。React 的 `ActionLibrary.tsx` 用 Canvas 独立预览同一图集及帧时序，预览不会操作桌面宠物。
 
-新生成素材属于六关键帧的精灵动画第一版，并不是高帧率逐帧手绘。仍可能存在细小线稿漂移；若进一步追求电影级连贯性，应针对具体动作补画中间帧，而不是无条件复制帧或淡化。
+新生成素材最初是六关键帧的精灵动画。多数 4～12 帧的低帧率站立/情绪/日常/进食/持屏动作现已用 `build_smoothed_actions.py` 依据相邻关键帧生成单源光流中间帧，以约 70ms 步长并入同一动作，总时长保持不变；关键帧原图与原始停留时间备份在 `action-work/smooth/<动作ID>/original/`，catalog 用 `keyframes`、`keyframe_durations`、`smoothed`、`authored_motion` 记录差异。攀爬、打滚、物理撞击、睡眠、舞蹈和双帧静态姿势不走该流程；攀爬保留原有的首尾逐像素一致与过渡桥接。`screen` 的 `loop_start` 会在插帧后重新映射到对应关键帧。中间帧仍属于插值而非逐帧重绘，细小线稿漂移可能存在；追求电影级连贯性时应重画对应中间帧。
 
 ## 重建
 
 离线工具 `build_action_library.py` 需要 Pillow、numpy、OpenCV；宠物运行时不需要这些图像处理依赖。
 
 1. 不带参数：处理已有素材和阅读静态姿势。
-2. `--generate`：通过已安装的 shengtu-skill 生成缺失动作，已有 raw.png 会复用，不重复请求。
-3. `--generate --only stretch`：只处理某个动作。
-4. 前端资源发生变化后重新编译 Tauri EXE；仅 Python 播放逻辑变化不必重新编译 EXE。
-5. 若生成脚本改写了 `frontend/public/actions`，再运行 `optimize_frontend_actions.py` 把它转回 WebP 镜像；测试会拒绝回归的编号 PNG。
+2. `build_smoothed_actions.py --actions <动作ID...> [--force] --apply`：为低帧率动作烘焙中间帧；`--force` 允许从原图备份重建已平滑动作。
+3. `build_frame_alignment.py --write`：动作帧数变化后重建逐帧对齐。
+4. `optimize_frontend_actions.py`：刷新前端无损 WebP 镜像与镜像 catalog。
+5. `frontend` 目录执行 `npm run build`，工作台才会带上新动作。
+6. `--generate`：通过已安装的 shengtu-skill 生成缺失动作，已有 raw.png 会复用，不重复请求。
+7. `--generate --only stretch`：只处理某个动作。
+8. 前端资源发生变化后重新编译 Tauri EXE；仅 Python 播放逻辑变化不必重新编译 EXE。
+9. 若生成脚本改写了 `frontend/public/actions`，再运行 `optimize_frontend_actions.py` 把它转回 WebP 镜像；测试会拒绝回归的编号 PNG。
 
 生成输出和透明静帧均保留在项目内。API 密钥由技能私有配置解析，不复制到项目。
+
+## 横向走路实现
+
+左右走动当前由 `walk_rig` 在运行时实时绘制（`pet.py` / `pet_presence.py` 的 `paint_walk`）；侧身朝向是用户确认的规则。`assets/motion-v2/walk-atlas` 的 8 帧正面小图集是 2026-10-28 被否决的实验，运行时不再引用，未确认前不要切回；更早的 120 帧侧身序列在 `assets/motion-v2/walk-left|walk-right`。纵向上下走路仍由 `walk-vertical` rig 负责。

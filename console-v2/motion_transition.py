@@ -62,6 +62,13 @@ def handover_duration(before_pose, after_pose, before, after):
         return 0.
     if after_pose[0] not in ('idle', 'action', 'walk'):
         return 0.
+    # The up walk is the only back-facing pose, with no face and a different
+    # hair silhouette; blending it with any front-facing pose ghosts a second
+    # body. Orientation changes cut hard, as they do for side-view flips.
+    def back(pose):
+        return pose[0] == 'walk' and pose[1] == 'walk-up'
+    if back(before_pose) or back(after_pose):
+        return 0.
     # A direction flip mirrors the same walk drawing; dissolving it would
     # briefly show two overlapping bodies.
     if before_pose[0] == after_pose[0] == 'walk':

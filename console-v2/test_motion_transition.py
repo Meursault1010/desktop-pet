@@ -67,7 +67,7 @@ class TransitionTests(unittest.TestCase):
         actions=catalog()
         self.assertLess(sum(actions['afraid']['durations']),sum(actions['tea']['durations']))
         self.assertLess(sum(actions['leap']['durations']),sum(actions['stretch']['durations']))
-        self.assertGreater(max(actions['read']['durations']),500)
+        self.assertGreater(max(actions['read'].get('keyframe_durations', actions['read']['durations'])),500)
         for action in actions.values():
             self.assertEqual(action['frames'],len(action['durations']))
             self.assertTrue(all(d>0 for d in action['durations']))

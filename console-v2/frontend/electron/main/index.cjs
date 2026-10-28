@@ -24,7 +24,7 @@ const quickChat=new QuickChat(assistant, payload=>sidecar.request('speech_update
 
 protocol.registerSchemesAsPrivileged([{scheme:'yuki',privileges:{standard:true,secure:true,supportFetchAPI:true}}]);
 const ownsLock=app.requestSingleInstanceLock();
-let window=null,tray=null,sidecar=null,quitting=false,exitWork=null;
+let window=null,tray=null,sidecar=null,quitting=false,exitWork=null,started=false,startFallback=null;
 let runtimeRoot,uiRoot;
 let desktopServices,modelConfig,workbenchConfig,quickTools;
 let registeredShortcuts={};
@@ -42,12 +42,25 @@ function startTranslationCapture(){return translationWindows.capture().catch(err
 function showConsole(){if(window&&!window.isDestroyed()){if(window.isMinimized())window.restore();window.show();window.focus();}}
 function send(channel,value){if(window&&!window.isDestroyed())window.webContents.send(channel,value);}
 function guard(event){if(!trusted(event,window))throw new Error('拒绝未知页面的桌面请求');}
+function markStarted(){if(started||quitting)return;started=true;clearTimeout(startFallback);startFallback=null;showConsole();refreshTray();}
+function waitForExitAnimation(){
+  return new Promise(resolve=>{
+    if(!sidecar?.ready)return resolve();
+    let done=false;
+    const finish=()=>{if(done)return;done=true;clearTimeout(timer);sidecar.off('message',onMessage);resolve();};
+    const onMessage=message=>{if(message.type==='event'&&message.name==='exit_complete')finish();};
+    const timer=setTimeout(finish,20000);
+    sidecar.on('message',onMessage);
+    sidecar.request('prepare_exit',{}).catch(finish);
+  });
+}
 async function stopAndQuit(){
   if(exitWork)return exitWork;
   quitting=true;
+  clearTimeout(startFallback);startFallback=null;
   assistant.cancel();
   quickChat.cancel();
-  exitWork=(async()=>{globalShortcut.unregisterAll();translation?.stop();translationWindows?.stop();desktopServices?.stop();await Promise.all([sidecar?.stop(),localModel?.stop()]);tray?.destroy();tray=null;app.quit();})();
+  exitWork=(async()=>{await waitForExitAnimation();globalShortcut.unregisterAll();translation?.stop();translationWindows?.stop();desktopServices?.stop();await Promise.all([sidecar?.stop(),localModel?.stop()]);tray?.destroy();tray=null;app.quit();})();
   return exitWork;
 }
 function configureIpc(){
@@ -174,7 +187,7 @@ async function registerResources(){
 }
 async function createConsole(){
   window=new BrowserWindow({title:'yuki · 桌面小屋',width:900,height:740,minWidth:520,minHeight:420,resizable:true,movable:true,
-    show:!smoke,backgroundColor:'#E8EEF3',webPreferences:{...webPreferences(path.join(__dirname,'../preload/console.cjs')),backgroundThrottling:false}});
+    show:false,backgroundColor:'#E8EEF3',webPreferences:{...webPreferences(path.join(__dirname,'../preload/console.cjs')),backgroundThrottling:false}});
   harden(window);window.setMenuBarVisibility(false);
   window.on('close',event=>{const behavior=closeBehavior({quitting,trayReady:!!tray});
     if(behavior!=='close'){event.preventDefault();if(behavior==='hide')window.hide();else window.minimize();}});
@@ -217,7 +230,7 @@ else {
     sidecar.on('message',message=>{send('yuki:message',message);
       if(message.name==='quick_tool')void quickTools.action(message.tool,message.value).catch(log);
       if(message.name==='quick_chat')void quickChat.run(message.id,message.text).catch(log);
-      if(message.name==='open_console')showConsole();if(message.name==='exit_app')void stopAndQuit();
+      if(message.name==='entered')markStarted();if(message.name==='open_console')showConsole();if(message.name==='exit_app')void stopAndQuit();
       if(message.name==='translation_toggle'){try{translationMode(!translation.enabled);void syncWorkbench();}catch(e){log(e);}}
       if(message.type==='ready'){void syncWorkbench();void quickTools.publish().catch(log);}});
     sidecar.on('disconnected',reason=>{quickChat.cancel();send('yuki:disconnected',reason);if(!quitting)showConsole();});
@@ -226,6 +239,7 @@ else {
     createTray();
     await createConsole();
     await sidecar.start();
+    startFallback=setTimeout(markStarted,20000);
     desktopServices.start();
     try{installShortcuts(workbenchConfig.value.shortcuts);}catch(e){log(e);translation.update({error:e.message});}
     await syncWorkbench();

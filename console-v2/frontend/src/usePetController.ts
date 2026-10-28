@@ -53,6 +53,16 @@ export function usePetController() {
     return () => { cancelled = true; cleanup?.(); queue.current.onChange = () => {}; window.clearTimeout(noticeTimer.current); };
   }, [accept]);
 
+  useEffect(() => {
+    const resync = () => {
+      if (document.visibilityState !== 'visible' || !online.current) return;
+      void command('get_state').then(accept).catch(() => {});
+    };
+    document.addEventListener('visibilitychange', resync);
+    window.addEventListener('focus', resync);
+    return () => { document.removeEventListener('visibilitychange', resync); window.removeEventListener('focus', resync); };
+  }, [accept]);
+
   const act = (name: string, payload: Record<string, unknown> = {}, success?: string): Promise<boolean> => {
     const preference = name === 'set_preference' || name === 'configure_icon_sleep' || name === 'configure_edge_attachment';
     const key = name === 'set_preference' ? `preference:${String(payload.key)}`

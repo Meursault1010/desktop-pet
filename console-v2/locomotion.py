@@ -6,10 +6,28 @@ from PySide6.QtGui import QPixmap
 ROOT=Path(__file__).resolve().parent/'assets/motion-v2'
 WALK_PADDING=0
 # The live rig uses the baked 40px stride so the feet have room to separate
-# and then cross. Travel speed stays at the previous value: longer steps,
-# calmer cadence.
+# and then cross. Keep the foot cycle distance-driven; crossing the desktop
+# needs a noticeably quicker tempo than the old slow multiplier allowed.
 WALK_STRIDE_FACTOR=1.
-WALK_SPEED_FACTOR=.65*.7
+WALK_SPEED_FACTOR=.9
+VERTICAL_STRIDE=48.
+VERTICAL_WALKS=('walk-up','walk-down')
+# A step is half a cycle. Translation eases through each footfall and carries
+# the body forward while the swing leg travels, so the up/down walk reads as
+# stepping instead of a constant glide. The floor keeps it continuous.
+VERTICAL_CADENCE_FLOOR=.55
+
+
+def vertical_walk(name):
+    return name in VERTICAL_WALKS
+
+
+def walking_name(direction, vector):
+    """Front/back rigs only for routes that genuinely travel up or down."""
+    dx,dy=vector
+    if abs(dy)>abs(dx) and abs(dy)>=.2:
+        return 'walk-up' if dy<0 else 'walk-down'
+    return 'walk-right' if direction>0 else 'walk-left'
 
 
 def walking_speed(requested):
@@ -61,6 +79,7 @@ WALK_CONTACTS = {name: tuple(tuple(p) for p in metadata()[name]['contacts'])
 
 
 def walk_stride(name):
+    if vertical_walk(name):return VERTICAL_STRIDE
     return float(metadata()[name]['stride'])*WALK_STRIDE_FACTOR
 
 
@@ -74,8 +93,19 @@ def depth_stride(name,vector=None):
     return 1.
 
 
+def vertical_cadence(clock, name):
+    """Speed multiplier synced to the two steps in one up/down cycle."""
+    if not vertical_walk(name):
+        return 1.
+    phase = (max(0., clock) / VERTICAL_STRIDE) % 1.
+    step = math.sin(2 * math.pi * phase) ** 2
+    factor = VERTICAL_CADENCE_FLOOR + (1 - VERTICAL_CADENCE_FLOOR) * step
+    # Preserve the authored walking speed: average of sin^2 is one half.
+    return factor / ((1 + VERTICAL_CADENCE_FLOOR) / 2)
+
+
 def gait_advance(clock, name, speed, dt, scale=1.,vector=None):
-    distance=walking_speed(speed)*max(0.,min(.1,dt))
+    distance=walking_speed(speed)*max(0.,min(.1,dt))*vertical_cadence(clock, name)
     return distance,clock+distance/max(.01,scale)
 
 

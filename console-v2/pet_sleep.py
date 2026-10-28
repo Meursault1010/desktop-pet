@@ -8,8 +8,10 @@ from PySide6.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 
 ASSETS = Path(__file__).resolve().parent/'assets'/'sleep'
 MANIFEST = json.loads((ASSETS/'transitions/manifest.json').read_text(encoding='utf-8'))
-SETTLE_SECONDS = MANIFEST['settle']['seconds']
-WAKE_SECONDS = MANIFEST['wake']['seconds']
+PLAYBACK = MANIFEST.get('playback', {})
+SETTLE_SECONDS = PLAYBACK.get('settle', MANIFEST['settle']['seconds'])
+WAKE_SECONDS = PLAYBACK.get('wake', MANIFEST['wake']['seconds'])
+WAKE_HOLD_SECONDS = PLAYBACK.get('wake_hold', 0.)
 
 
 def mix_frames(first, last, weight):
@@ -237,20 +239,27 @@ class SleepCycle:
         index = min(spec['count']-1, max(0, round(seconds*MANIFEST['fps'])))
         return self.frame((clip, index))
 
+    def transition_frame(self, clip, elapsed):
+        """Stretch the baked sequence across its approved playback time."""
+        spec = MANIFEST[clip]
+        playback = SETTLE_SECONDS if clip == 'settle' else max(
+            .001, WAKE_SECONDS-WAKE_HOLD_SECONDS)
+        return self.sequence_frame(clip, min(1., elapsed/playback)*spec['seconds'])
+
     def sample(self, now):
         elapsed = max(0., now-self.started)
         if self.phase == 'settling':
-            return self.sequence_frame('settle', elapsed)
+            return self.transition_frame('settle', elapsed)
         if self.phase == 'waking':
             if self.interrupted_settle is not None:
                 reverse_seconds = .6*self.interrupted_settle
                 if elapsed < reverse_seconds:
-                    source_time = (1-elapsed/reverse_seconds)*self.interrupted_settle*SETTLE_SECONDS
+                    source_time = (1-elapsed/reverse_seconds)*self.interrupted_settle*MANIFEST['settle']['seconds']
                     frame = self.sequence_frame('settle', source_time)
                 else:
                     frame = self.sequence_frame('wake', .6+elapsed-reverse_seconds)
             else:
-                frame = self.sequence_frame('wake', elapsed)
+                frame = self.transition_frame('wake', elapsed)
             # Carry the last rendered breathing/settling pose into wake-up.
             # Only matching silhouettes are mixed, for the initial 120 ms.
             progress = min(1., elapsed/.12)

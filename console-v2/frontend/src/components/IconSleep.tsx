@@ -46,11 +46,11 @@ export function IconSleep({state,disabled,act}:Props){
     </section>
     <section className="edge-options sleep-options">
       <h2>自然停靠</h2>
-      <p className="muted">只在你拖到边框附近并松手时停靠：侧边抓框爬行，下沿悬挂轻晃，上沿坐着或趴着。停靠后跟随窗口移动与缩放；平时以日常待机为主，偶尔散步。</p>
-      <Toggle label="停靠应用与浏览器窗口" checked={edgeOptions.windows} disabled={locked} onChange={v=>{void configureEdge('windows',v);}}/>
+      <p className="muted">手动拖到边框附近并松手时停靠：侧边抓框爬行，下沿悬挂轻晃，上沿坐着或趴着。开启“自主窗口互动”后，她也会偶尔走近可见窗口侧边，或跳上前台窗口上沿；停靠后跟随窗口移动与缩放，平时仍以日常待机为主。</p>
+      <Toggle label="停靠应用与浏览器窗口" description="关闭后手动与自主行为都不再选择窗口侧边或上沿；屏幕边缘由下一项单独控制" checked={edgeOptions.windows} disabled={locked} onChange={v=>{void configureEdge('windows',v);}}/>
       <Toggle label="允许拖到屏幕边缘停靠" checked={edgeOptions.screens} disabled={locked} onChange={v=>{void configureEdge('screens',v);}}/>
       <label className="setting-label" htmlFor="edge-corner">角落等距时偏好</label><select id="edge-corner" value={edgeOptions.corner} disabled={locked} onChange={e=>void configureEdge('corner',e.target.value as 'left'|'right')}><option value="right">右侧</option><option value="left">左侧</option></select>
-      <div role="status" className="sleep-status"><span>{edge?.active?edge.message:'等待手动拖放停靠'}</span></div>
+      <div role="status" className="sleep-status"><span>{edge?.active?edge.message:'等待手动拖放或自主停靠'}</span></div>
       {edge?.error&&<p role="alert" className="save-error">{edge.error}</p>}
       <button className="button secondary" disabled={locked||!edge?.active} onClick={()=>void invoke('stop_edge_attachment')}>离开边缘</button>
       <p className="muted">图标互动优先。跟随浏览器外框，不跟随网页内部卡片；若要覆盖在窗口上方，请开启「始终置顶」。</p>

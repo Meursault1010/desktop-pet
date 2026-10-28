@@ -43,7 +43,8 @@ def endpoint_offset(profile, reference):
 def graph():
     pairs = set()
     for key, action in catalog().items():
-        if action.get('physics_only') or action['frames'] < 2 or key == 'dragged':
+        if (action.get('physics_only') or action.get('authored_motion')
+                or action['frames'] < 2 or key == 'dragged'):
             continue
         orders = [list(range(action['frames']))]
         if action.get('ground_idle'):

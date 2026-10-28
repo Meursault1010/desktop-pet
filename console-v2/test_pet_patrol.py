@@ -349,6 +349,136 @@ class PatrolTests(unittest.TestCase):
         self.life.stop(self.now+2)
         self.assertFalse(edge.active)
 
+    def test_passive_window_edge_walks_at_same_height_and_releases(self):
+        from edge_geometry import Landing
+        from window_edges import WindowSurface
+        screen = self.pet.screen()
+        rect = screen.geometry().getRect()
+        area = screen.availableGeometry().getRect()
+        surface = WindowSurface(4321, 999, (300, 150, 300, 400), rect, area, False, False)
+        landing = Landing('climb-left', (400, 200), 'left', (450, 260), 100, (180, 700), 260)
+        candidate = (landing, surface, screen, (300, 150, 300, 400))
+        preview = self.pet.snap_preview
+        preview.surfaces, preview.surfaces_at = [surface], self.now
+        edge = self.pet.state.edge_attachment
+        with patch.object(preview, 'request_surfaces'), patch.object(edge, 'choices', return_value=[candidate]):
+            self.assertTrue(self.life.begin_edge(self.now))
+        self.assertFalse(self.life.exploring)
+        self.assertEqual(self.life.kind, 'edge')
+        self.assertIsNone(self.life.target)
+        self.assertEqual(self.life.destination[1], self.pet.y())
+        self.pet.move(*self.life.destination)
+        self.life.arrived(self.now+1)
+        self.assertTrue(edge.active)
+        self.assertEqual(self.life.phase, 'edge_hold')
+        self.assertIn('窗口边框', self.life.next_intent)
+        self.assertLessEqual(self.life.until, self.now+1+28)
+        self.life.cancel(self.now+2)
+        self.assertFalse(edge.active)
+        self.assertFalse(self.life.active)
+
+    def test_passive_window_edge_requires_switch_and_real_stable_window(self):
+        from edge_geometry import Landing
+        from window_edges import WindowSurface
+        screen = self.pet.screen()
+        rect = screen.geometry().getRect()
+        area = screen.availableGeometry().getRect()
+        landing = Landing('climb-left', (400, 200), 'left', (450, 260), 100, (180, 700), 260)
+        surface = WindowSurface(4321, 999, (300, 150, 300, 400), rect, area, False, False)
+        candidate = (landing, surface, screen, (300, 150, 300, 400))
+        preview = self.pet.snap_preview
+        preview.surfaces, preview.surfaces_at = [surface], self.now
+        edge = self.pet.state.edge_attachment
+        with patch.object(preview, 'request_surfaces'), patch.object(edge, 'choices', return_value=[candidate]):
+            self.pet.preferences = replace(self.pet.preferences, autonomous_windows=False)
+            self.assertFalse(self.life.begin_edge(self.now))
+            self.pet.preferences = replace(self.pet.preferences, autonomous_windows=True)
+            screen_edge = (Landing('climb-left', (400, 200), 'left', (450, 260), 100, (180, 700), 260),
+                           None, screen, area)
+            with patch.object(edge, 'choices', return_value=[screen_edge]):
+                self.assertFalse(self.life.begin_edge(self.now))
+            fullscreen = WindowSurface(4321, 999, (300, 150, 300, 400), rect, area, False, True)
+            with patch.object(edge, 'choices', return_value=[(landing, fullscreen, screen, (300, 150, 300, 400))]):
+                self.assertFalse(self.life.begin_edge(self.now))
+            maximized = WindowSurface(4321, 999, (300, 150, 300, 400), rect, area, True, False)
+            with patch.object(edge, 'choices', return_value=[(landing, maximized, screen, (300, 150, 300, 400))]):
+                self.assertFalse(self.life.begin_edge(self.now))
+
+    def test_window_switch_off_keeps_active_patrol_screen_edges(self):
+        self.pet.move(80, 200)
+        self.life.start_once(self.now)
+        self.pet.preferences = replace(self.pet.preferences, autonomous_windows=False)
+        edge = self.pet.state.edge_attachment
+        edge.options.update(windows=False, screens=True)
+        preview = self.pet.snap_preview
+        preview.surfaces, preview.surfaces_at = [], self.now
+        with patch.object(preview, 'request_surfaces'):
+            self.assertTrue(self.life.begin_edge(self.now))
+        self.assertEqual(self.life.kind, 'edge')
+        self.life.cancel(self.now+1)
+
+    def test_passive_window_edge_aborts_when_window_disappears_before_arrival(self):
+        from edge_geometry import Landing
+        from window_edges import WindowSurface
+        screen = self.pet.screen()
+        rect = screen.geometry().getRect()
+        area = screen.availableGeometry().getRect()
+        surface = WindowSurface(4321, 999, (300, 150, 300, 400), rect, area, False, False)
+        landing = Landing('climb-left', (400, 200), 'left', (450, 260), 100, (180, 700), 260)
+        candidate = (landing, surface, screen, (300, 150, 300, 400))
+        preview = self.pet.snap_preview
+        preview.surfaces, preview.surfaces_at = [surface], self.now
+        edge = self.pet.state.edge_attachment
+        with patch.object(preview, 'request_surfaces'), patch.object(edge, 'choices', return_value=[candidate]):
+            self.assertTrue(self.life.begin_edge(self.now))
+        preview.surfaces = []
+        self.life.arrived(self.now+1)
+        self.assertFalse(self.life.active)
+        self.assertFalse(edge.active)
+
+    def test_idle_companionship_can_choose_a_window_edge_without_patrol(self):
+        from edge_geometry import Landing
+        from window_edges import WindowSurface
+        screen = self.pet.screen()
+        rect = screen.geometry().getRect()
+        area = screen.availableGeometry().getRect()
+        surface = WindowSurface(4321, 999, (300, 150, 300, 400), rect, area, False, False)
+        landing = Landing('climb-left', (400, 200), 'left', (450, 260), 100, (180, 700), 260)
+        candidate = (landing, surface, screen, (300, 150, 300, 400))
+        preview = self.pet.snap_preview
+        preview.surfaces, preview.surfaces_at = [surface], self.now
+        edge = self.pet.state.edge_attachment
+        self.pet.preferences = replace(self.pet.preferences, autonomous_icons=False)
+        self.life.next_at = 0
+        self.pet.state.action_player.stop()
+        self.pet.state.ambient.current = None
+        with patch.object(self.life, 'icon_destination', return_value=None), \
+                patch.object(preview, 'request_surfaces'), patch.object(edge, 'choices', return_value=[candidate]), \
+                patch('pet_patrol.random.random', return_value=.1):
+            self.life.tick(self.now, .03, self.at)
+        self.assertEqual(self.life.kind, 'edge')
+        self.assertFalse(self.life.exploring)
+        self.assertEqual(self.life.phase, 'observing')
+        self.assertIsNone(self.life.target)
+
+    def test_idle_companionship_skips_window_edge_when_switch_is_off(self):
+        from window_edges import WindowSurface
+        screen = self.pet.screen()
+        surface = WindowSurface(4321, 999, (300, 150, 300, 400),
+                                screen.geometry().getRect(), screen.availableGeometry().getRect(), False, False)
+        preview = self.pet.snap_preview
+        preview.surfaces, preview.surfaces_at = [surface], self.now
+        self.pet.preferences = replace(self.pet.preferences, autonomous_windows=False)
+        self.life.next_at = 0
+        self.pet.state.action_player.stop()
+        self.pet.state.ambient.current = None
+        with patch.object(self.life, 'icon_destination', return_value=None), \
+                patch.object(self.life, 'begin_edge') as begin_edge, \
+                patch('pet_patrol.random.choice', return_value='tea'):
+            self.life.tick(self.now, .03, self.at)
+        begin_edge.assert_not_called()
+        self.assertNotEqual(self.life.kind, 'edge')
+
     def test_back_layer_can_interact_with_hidden_icon_without_front_layer_teleport(self):
         icon=self.icon()
         self.life.start_once(self.now)
@@ -622,6 +752,35 @@ class PatrolTests(unittest.TestCase):
             seconds = math.dist((self.pet.x(), self.pet.y()), destination)/max(
                 1, walking_speed(self.pet.preferences.speed))
             self.assertTrue(self.life.allows_travel(seconds))
+
+    def test_free_walk_span_is_longer_and_stays_within_budget(self):
+        state = random.getstate()
+        self.addCleanup(random.setstate, state)
+        random.seed(11)
+        distances = []
+        for _ in range(80):
+            destination = self.life.random_destination()
+            if destination is None:
+                continue
+            distances.append(math.dist((self.pet.x(), self.pet.y()), destination))
+            seconds = distances[-1]/max(1, walking_speed(self.pet.preferences.speed))
+            self.assertTrue(self.life.allows_travel(seconds))
+        self.assertTrue(distances)
+        self.assertGreater(max(distances), 400)
+
+    def test_first_patrol_walk_prefers_an_icon_over_a_random_stroll(self):
+        icon = self.icon()
+        self.life.start_once(self.now)
+        self.assertTrue(self.life.first_walk)
+        with patch.object(self.life, 'icon_destination',
+                          return_value=(0, icon, (self.pet.x(), self.pet.y()), self.pet.screen())), \
+                patch.object(self.life, 'beside_icon', return_value=(self.pet.x(), self.pet.y())), \
+                patch.object(self.life, 'route_exposed', return_value=True), \
+                patch('pet_patrol.random.choice', return_value='observe'), \
+                patch('pet_patrol.random.random', return_value=.99):
+            self.life.tick(self.life.next_at+.01, .03, self.at)
+        self.assertEqual(self.life.kind, 'observe')
+        self.assertIs(self.life.target, icon)
 
     def test_walk_runs_continuously_without_a_look_pause(self):
         with patch.object(self.life,'icon_destination',return_value=None), \

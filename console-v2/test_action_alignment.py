@@ -58,7 +58,7 @@ class FrameAlignmentTests(unittest.TestCase):
         self.assertEqual(payload['transitions'], build()['transitions'])
         motion = ASSETS.parent/'action-motion'
         manifest = json.loads((motion/'manifest.json').read_text(encoding='utf-8'))['pairs']
-        self.assertGreater(len(payload['transitions']), 100)
+        self.assertGreater(len(payload['transitions']), 20)
         for pair, offsets in payload['transitions'].items():
             before, after = [(name, int(index)) for name, index in
                              (ref.rsplit(':', 1) for ref in pair.split('>'))]

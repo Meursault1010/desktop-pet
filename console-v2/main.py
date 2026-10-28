@@ -31,6 +31,8 @@ class PetApplication(QObject):
         self.storage_error = False
         self.shutting_down = False
         self.exit_requested = False
+        self.exit_animation_started = False
+        self.started = False
         self.quick_draft = ''
         self.quick_pending = None
         self.quick_last_text = ''
@@ -92,6 +94,14 @@ class PetApplication(QObject):
     def start(self):
         self.pet.present(True)
         self.music.start()
+        self.pet.presence_entered.connect(self._entered)
+        if not self.pet.presence.active:
+            QTimer.singleShot(0, self._entered)
+
+    def _entered(self):
+        if self.started:
+            return
+        self.started = True
         self.open_console()
 
     def open_console(self):
@@ -119,7 +129,7 @@ class PetApplication(QObject):
         self.changed.emit()
 
     def toggle_visibility(self):
-        if self.exit_requested:
+        if self.exit_requested or self.exit_animation_started:
             return
         self.pet.present(not self.pet.desired_visible())
         self.changed.emit()
@@ -218,7 +228,8 @@ class PetApplication(QObject):
             self.save_position()
 
     def save_position(self):
-        if self.pet.presence.active or self.pet.state.physics.active or self.pet.drag_origin is not None:
+        if (self.exit_animation_started or self.exit_requested or self.pet.presence.active
+                or self.pet.state.physics.active or self.pet.drag_origin is not None):
             return
         position = self.pet.pos()
         if position != self.saved_position:
@@ -240,6 +251,7 @@ class PetApplication(QObject):
         self.edge_attachment.cleanup()
         self.icon_sleep.cleanup()
         self.pet.animator.timer.stop()
+        self.pet.flush_memory()
         self.pet.bubble.timer.stop()
         self.pet.bubble.clear()
         self.store.save(self.preferences)
@@ -249,14 +261,32 @@ class PetApplication(QObject):
         if self.window is not None:
             self.window.hide()
 
+    def begin_exit(self):
+        """Start the walk-out and return its remaining duration in seconds."""
+        if self.exit_animation_started:
+            if self.pet.presence.active:
+                return max(0., self.pet.presence.total-self.pet.presence.clock())
+            return 0.
+        # Persist the last on-screen position before the pet leaves the screen.
+        self.save_position()
+        self.exit_animation_started = True
+        self.save_timer.stop()
+        if not self.pet.isVisible():
+            return 0.
+        was_active = self.pet.presence.active
+        was_entering = bool(self.pet.presence.entering) if was_active else False
+        self.pet.present(False)
+        if was_active and not was_entering:
+            return max(0., self.pet.presence.total-self.pet.presence.clock())
+        return max(0., self.pet.presence.duration)
+
     def quit(self):
         if self.exit_requested:
             return
+        delay = self.begin_exit()
         self.exit_requested = True
-        if self.pet.isVisible():
-            self.pet.present(False)
-            delay = round(self.pet.presence.duration*1000)+50
-            QTimer.singleShot(delay, self.finish_quit)
+        if delay > 0:
+            QTimer.singleShot(round(delay*1000)+50, self.finish_quit)
         else:
             self.finish_quit()
 

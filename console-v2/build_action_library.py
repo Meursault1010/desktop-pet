@@ -86,8 +86,14 @@ IDLE_DURATIONS = {
  'listen': (300, 380, 620, 560, 440, 400),
  'warm-hands': (300, 420, 560, 680, 480, 400),
  'curtsy': (300, 420, 620, 700, 520, 400),
- 'wave': (260, 300, 420, 480, 420, 380),
+ 'wave': (300, 400, 550, 650, 550, 500),
  'star-wish': (300, 420, 680, 760, 520, 400),
+}
+# Everyday actions with a deliberate peak or hold; kept out of IDLE_DURATIONS
+# because that map also marks a clip as an idle vignette.
+ACTION_DURATIONS = {
+ 'yawn': (280, 400, 650, 1000, 480, 390),
+ 'comb': (260, 400, 600, 720, 450, 300),
 }
 
 def extract(im, chroma=False):
@@ -207,7 +213,7 @@ def generate(item):
     im=Image.open(target)
     cells=[im.crop((round(c*im.width/3),round(r*im.height/2),round((c+1)*im.width/3),round((r+1)*im.height/2))) for r in range(2) for c in range(3)]
     result=export(action_id,name,category,[extract(cell,True) for cell in cells],'generated',
-                  [str(target)],IDLE_DURATIONS.get(action_id))
+                  [str(target)],IDLE_DURATIONS.get(action_id) or ACTION_DURATIONS.get(action_id))
     print(f'GENERATED {name}',flush=True)
     return result
 

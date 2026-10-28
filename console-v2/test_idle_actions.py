@@ -76,7 +76,8 @@ class AmbientTests(unittest.TestCase):
             self.assertTrue(action['idle_automatic'])
             self.assertTrue(action['scale_calibrated'])
             self.assertFalse(action.get('ground_idle'))
-            self.assertEqual(action['frames'], 6)
+            self.assertTrue(action.get('smoothed'), key)
+            self.assertGreater(action['frames'], action['keyframes'], key)
             self.assertTrue(2200 <= sum(action['durations']) <= 3200, key)
             self.assertEqual(public[key]['idle_role'], action['idle_role'])
             with Image.open(root/'assets'/action['atlas']) as atlas:

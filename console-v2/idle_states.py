@@ -36,9 +36,11 @@ def snapshot(state):
                      and state.ambient.current[0] == action['id']
                      and state.ambient.current[1] == state.action_player.started)
     posture = 'sleep' if sleep.transitioning else posture_for(action['id']) if action else 'stand'
+    now = time.monotonic()
+    moving = (state.travel_target is not None or now < state.gait_until
+              or state.current_gait_energy(now) > .02)
     interacting = (not sleep.transitioning and (state.physics.active
-                   or state.drag_feedback is not None or state.walking
-                   or time.monotonic() < state.gait_until
+                   or state.drag_feedback is not None or state.walking or moving
                    or bool(state.edge_attachment and state.edge_attachment.active)
                    or bool(state.icon_sleep and state.icon_sleep.target)))
     if interacting:

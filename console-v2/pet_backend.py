@@ -17,11 +17,11 @@ from pet import PetRenderer, PetState
 from settings_model import SettingsStore, Preferences, LIMITS, ACTIVITIES
 
 STATUS_PERFORMANCES = {
-    'thinking': ('curious', '工具状态 · 正在思考', True),
-    'working': ('work', '工具状态 · 正在处理', True),
-    'waiting': ('wait', '工具状态 · 等你回来', True),
-    'done': ('celebrate', '工具状态 · 完成了', False),
-    'error': ('sad', '工具状态 · 遇到问题', False),
+    'thinking': ('curious', '工具状态 · 正在思考', True, .8),
+    'working': ('work', '工具状态 · 正在处理', True, .95),
+    'waiting': ('wait', '工具状态 · 等你回来', True, .7),
+    'done': ('celebrate', '工具状态 · 完成了', False, .7),
+    'error': ('sad', '工具状态 · 遇到问题', False, .8),
 }
 NOTIFICATION_KINDS = ('usb', 'charging', 'download', 'success', 'failure')
 
@@ -45,6 +45,8 @@ class PetService(PetApplication):
         self.revision = 0
         self.previous = None
         self.started_at = time.monotonic()
+        self.entered_sent = False
+        self.exit_event_sent = False
         self.reader = InputReader(self)
         self.reader.message.connect(self.receive)
         self.reader.closed.connect(self.quit)
@@ -60,6 +62,32 @@ class PetService(PetApplication):
         self.reader.start()
         self.events.start()
         self.send({'type': 'ready', 'protocol': 1, 'state': self.snapshot(), 'preview': self.preview})
+        self.pet.presence_entered.connect(self._entered)
+        if not self.pet.presence.active:
+            QTimer.singleShot(0, self._entered)
+
+    def _entered(self):
+        if (self.entered_sent or self.shutting_down or self.exit_requested
+                or self.exit_animation_started):
+            return
+        self.entered_sent = True
+        self.send({'type': 'event', 'name': 'entered'})
+        self.publish()
+
+    def prepare_exit(self):
+        delay = self.begin_exit()
+        if self.exit_event_sent:
+            return
+        if delay <= 0:
+            QTimer.singleShot(0, self._exit_complete)
+        else:
+            QTimer.singleShot(round(delay*1000)+50, self._exit_complete)
+
+    def _exit_complete(self):
+        if self.exit_event_sent or self.shutting_down:
+            return
+        self.exit_event_sent = True
+        self.send({'type': 'event', 'name': 'exit_complete'})
 
     def open_console(self):
         self.send({'type': 'event', 'name': 'open_console'})
@@ -68,7 +96,8 @@ class PetService(PetApplication):
         self.send({'type': 'event', 'name': 'quick_tool', 'tool': name, 'value': value})
 
     def quick_chat_send(self, text):
-        if (self.quick_pending or self.exit_requested or not isinstance(text, str)
+        if (self.quick_pending or self.exit_requested or self.exit_animation_started
+                or not isinstance(text, str)
                 or not text.strip() or len(text.encode('utf-16-le'))//2>2000):
             return False
         self.quick_pending = str(uuid.uuid4())
@@ -108,7 +137,7 @@ class PetService(PetApplication):
             self.changed.emit()
 
     def perform_tool_status(self, kind):
-        action_id, label, loop = STATUS_PERFORMANCES[kind]
+        action_id, label, loop, speed = STATUS_PERFORMANCES[kind]
         state = self.pet.state
         player = state.action_player
         now = time.monotonic()
@@ -121,6 +150,11 @@ class PetService(PetApplication):
                 or (self.window_perch.attached or self.window_perch.leaping)):
             return
         current = state.status_performance
+        # A completion or failure is a short narrative beat, not a status
+        # spinner. Keep it on screen long enough to be read before replacing it.
+        if (current and current.get('kind') in ('done', 'error')
+                and now-current.get('started', now) < (1.2 if current['kind'] == 'done' else 1.0)):
+            return
         replacing = bool(current and player.action is not None
                          and player.started == current.get('started')
                          and player.action['id'] == current.get('action'))
@@ -135,9 +169,14 @@ class PetService(PetApplication):
         if state.music:
             state.music.cancel()
         try:
-            player.play(action_id, loop=loop, speed=.85, now=now)
+            player.play(action_id, loop=loop, speed=speed, now=now)
         except ValueError:
             return
+        if kind == 'done':
+            # Let the final smile land before returning to ordinary idle.
+            durations = list(player.action['durations'])
+            durations[-1] += 250
+            player.action = dict(player.action, durations=durations)
         state.status_performance = {'action': action_id, 'label': label,
                                     'started': player.started, 'kind': kind}
         state.walking = False
@@ -192,7 +231,8 @@ class PetService(PetApplication):
     def snapshot(self):
         self.pet.state.routine.update()
         screen = QApplication.screenAt(self.pet.frameGeometry().center()) or QApplication.primaryScreen()
-        return {'preferences': asdict(self.preferences), 'status': self.pet.status_text(),
+        activity = self.pet.activity()
+        return {'preferences': asdict(self.preferences), 'status': activity['label'], 'activity': activity,
                 'visible': self.pet.desired_visible(), 'position': {'x': self.pet.x(), 'y': self.pet.y()},
                 'screen': screen.name(), 'storage_error': self.storage_error,
                 'icon_sleep': self.icon_sleep.snapshot(),
@@ -392,6 +432,10 @@ class PetService(PetApplication):
                 self.memory.clear()
             elif command == 'reset_defaults':
                 self.reset_defaults()
+            elif command == 'prepare_exit':
+                if payload:
+                    raise ValueError('参数无效')
+                self.prepare_exit()
             elif command not in ('get_state', 'shutdown'):
                 raise ValueError('不支持的操作')
             self.publish()

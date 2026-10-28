@@ -25,6 +25,9 @@ WALK_EYES = ((135.0, 85.0), (167.5, 87.0))
 # Soft sockets that still cover every lash pixel of the walk drawing.
 SOCKETS = ((119, 73, 152, 97), (151, 75, 185, 99))
 FEATHER = 1.8
+# The walk iris is taller than the idle one; nudge the borrowed lid down so
+# the half blink still closes it far enough.
+PATCH_DROP = .75
 
 
 def _affine():
@@ -38,7 +41,7 @@ def _affine():
     c, s = math.cos(angle), math.sin(angle)
     a, b, d, e = c / scale, s / scale, -s / scale, c / scale
     return (a, b, sm[0] - a * dm[0] - b * dm[1],
-            d, e, sm[1] - d * dm[0] - e * dm[1])
+            d, e, sm[1] - d * dm[0] - e * dm[1] - PATCH_DROP)
 
 
 def _socket_mask():

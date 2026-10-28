@@ -18,6 +18,30 @@ async function run({window,sidecar,stopAndQuit,quickTools}){
   const petAsset=await ui(`new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve([image.naturalWidth,image.naturalHeight]);image.onerror=()=>reject(new Error('Missing pet asset route'));image.src='/pet-assets/living-idle/open.png';})`);
   assert.deepEqual(petAsset,[2048,2048]);
  });
+ await check('header live status mirrors the backend activity without a reload',async()=>{
+  const chip=()=>ui(`(()=>{const e=document.querySelector('.live-status');return e?{text:e.textContent.trim(),state:e.dataset.state}:null})()`);
+  for(let i=0;i<100;i++){const s=(await sidecar.request('get_state')).state;if(s.visible&&!s.activity.label.startsWith('探头')&&!s.activity.label.startsWith('回望'))break;await wait(120);}
+  const quiet=(await sidecar.request('get_state')).state.preferences.quiet;
+  await sidecar.request('set_preference',{key:'quiet',value:true});await wait(500);
+  const quietState=(await sidecar.request('get_state')).state;
+  assert.equal((await chip()).text,quietState.activity.label);
+  assert.equal((await chip()).state,quietState.activity.key);
+  const card=await ui(`(()=>{const h=document.querySelector('.companion-current h3');return h?{title:h.textContent.trim(),detail:h.parentElement.querySelector('p')?.textContent.trim()||''}:null})()`);
+  assert.equal(card.title,'雪 · '+quietState.activity.label);
+  assert.equal(card.detail,quietState.activity.detail);
+  await sidecar.request('set_preference',{key:'quiet',value:false});await wait(700);
+  const resumed=(await sidecar.request('get_state')).state;
+  assert.equal((await chip()).text,resumed.activity.label);
+  assert.equal((await chip()).state,resumed.activity.key);
+  await sidecar.request('set_preference',{key:'quiet',value:quiet});
+  await capture('live-status');
+  window.setSize(1180,820);await wait(250);await capture('live-status-wide');window.setSize(900,740);
+  await click('展开工作台');await wait(300);await capture('live-status-expanded');await click('紧凑窗口');await wait(350);
+  window.setSize(520,640);await wait(250);
+  assert.ok(await ui('document.documentElement.scrollWidth<=innerWidth'),'small window overflow');
+  assert.ok(await ui(`(()=>{const c=document.querySelector('.live-status').getBoundingClientRect(),b=document.querySelector('.window-size').getBoundingClientRect();return c.right<=b.left})()`),'live status overlaps window controls');
+  await capture('live-status-small');window.setSize(900,740);await wait(200);
+ });
  if(process.env.YUKI_PLAY_SMOKE==='1'){
   await nav('角色');await click('行为逻辑');
   await check('autoplay switches use real IPC and remain independent of drag snap',async()=>{
@@ -88,7 +112,7 @@ async function run({window,sidecar,stopAndQuit,quickTools}){
   console.log(JSON.stringify(report));await stopAndQuit();return;
  }
  await check('five sections and every subpage render without overflow or missing assets',async()=>{
-  for(const [section,tabs] of Object.entries({'总览':[],'角色':['音乐互动','动作','外观','行为逻辑'],'AI 助手':['与雪对话','模型连接'],'工具':['时间管理','剪贴板','待办事项','划词翻译'],'设置':['通用','主题与动态','快捷键','人设与记忆']})){
+  for(const [section,tabs] of Object.entries({'总览':[],'角色':['随音乐舞动','动作','外观','行为逻辑'],'AI 助手':['与雪对话','模型连接'],'工具':['时间管理','剪贴板','待办事项','划词翻译'],'设置':['通用','主题与动态','快捷键','人设与记忆']})){
    await nav(section);for(const tab of tabs){await click(tab);assert.ok(await ui('document.documentElement.scrollWidth<=innerWidth'),'overflow '+section+tab);await capture(section+'-'+tab);}
   }
   const broken=await ui(`Promise.all([...document.images].filter(i=>i.offsetParent).map(i=>new Promise(r=>{if(i.complete)return r(i.naturalWidth?null:i.src);i.onload=()=>r(null);i.onerror=()=>r(i.src);}))).then(x=>x.filter(Boolean))`);assert.deepEqual(broken,[]);

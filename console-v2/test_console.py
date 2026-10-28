@@ -171,6 +171,38 @@ class ConsoleTests(unittest.TestCase):
         self.controller.save_position()
         self.assertEqual(SettingsStore(self.path).position(), pet.pos())
 
+    def test_console_opens_only_after_the_entrance_arrives(self):
+        second = PetApplication(self.app, SettingsStore(self.path), enable_tray=False)
+        try:
+            second.start()
+            self.assertFalse(second.started)
+            self.assertFalse(second.window.isVisible())
+            second.pet.advance_presence(
+                time.monotonic()+second.pet.presence.duration+.1)
+            self.app.processEvents()
+            self.assertTrue(second.started)
+            self.assertTrue(second.window.isVisible())
+        finally:
+            second.cleanup()
+            second.window.deleteLater()
+            second.pet.deleteLater()
+            second.deleteLater()
+            self.app.processEvents()
+
+    def test_exit_saves_on_screen_position_before_walking_out(self):
+        pet = self.controller.pet
+        pet.move(120, 140)
+        pet.clamp_to_screen()
+        expected = pet.pos()
+        self.controller.save_position()
+        delay = self.controller.begin_exit()
+        self.assertGreater(delay, 0)
+        pet.advance_presence(time.monotonic()+pet.presence.duration+.1)
+        self.app.processEvents()
+        self.controller.save_position()
+        self.assertEqual(SettingsStore(self.path).position(), expected)
+        self.assertFalse(pet.isVisible())
+
     def test_real_restart_restores_position_and_preferences(self):
         controller = self.controller
         controller.set_preference('paused', True)

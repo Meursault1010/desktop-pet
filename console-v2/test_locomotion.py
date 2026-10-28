@@ -13,6 +13,12 @@ from edge_geometry import nearest,candidates,envelope,contact_offset,corner_land
 import test_edge_attachment as edge_tests
 
 
+class WalkingTempoTests(unittest.TestCase):
+    def test_walking_tempo_uses_more_of_the_speed_setting(self):
+        self.assertGreaterEqual(walking_speed(48), 30.)
+        self.assertGreater(walking_speed(40), 24.)
+
+
 class MotionGeometryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):cls.app=QApplication.instance() or QApplication([])

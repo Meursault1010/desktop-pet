@@ -56,16 +56,16 @@ class InbetweenTests(unittest.TestCase):
                 self.assertEqual(bytes(original_pixels.constBits()),
                                  bytes(actual_pixels.constBits()), key)
 
-    def test_new_idle_vignettes_ship_every_transition(self):
+    def test_new_idle_vignettes_ship_baked_frames(self):
         data = json.loads((ROOT/'manifest.json').read_text(encoding='utf-8'))
-        assets = ROOT.parent
         for key in ('snow-catch', 'hum', 'hair-tuck', 'sneeze', 'gaze-far', 'listen',
                     'warm-hands', 'curtsy', 'wave', 'star-wish'):
-            for index in range(5):
-                self.assertIn(pair_key((key, index), (key, index+1)), data['pairs'])
-            self.assertIn(pair_key((key, 5), (key, 0)), data['pairs'])
-            self.assertEqual(data['source_sha256'][key],
-                             hashlib.sha256((assets/catalog()[key]['atlas']).read_bytes()).hexdigest())
+            action=catalog()[key]
+            self.assertTrue(action.get('authored_motion'), key)
+            self.assertTrue(action.get('smoothed'), key)
+            self.assertGreater(action['frames'], action['keyframes'], key)
+            self.assertFalse(any(pair.startswith(key+':') for pair in data['pairs']), key)
+            self.assertNotIn(key, data['source_sha256'])
 
     def test_safe_fallback_and_bounded_cache(self):
         self.assertIsNone(sample_pose(('missing',0),('missing',1),.5))
@@ -137,12 +137,21 @@ class InbetweenTests(unittest.TestCase):
                 decode.assert_not_called()
 
     def test_expressive_actions_use_their_shipped_inbetweens(self):
-        for key in ('curious','play-peek','celebrate','affection','play-climb-up'):
+        for key in ('curious','play-peek','celebrate','affection'):
             pair=((key,0),(key,1))
-            self.assertIn(inbetweens.pair_key(*pair), inbetweens.manifest(), key)
+            action=catalog()[key]
+            self.assertTrue(action.get('authored_motion'), key)
+            self.assertTrue(action.get('smoothed'), key)
+            self.assertGreater(action['frames'], action['keyframes'], key)
+            self.assertNotIn(inbetweens.pair_key(*pair), inbetweens.manifest(), key)
             with patch('action_inbetweens.prepare') as decode:
                 inbetweens.prefetch([pair])
-                decode.assert_called_once()
+                decode.assert_not_called()
+        pair=(('play-climb-up',0),('play-climb-up',1))
+        self.assertIn(inbetweens.pair_key(*pair), inbetweens.manifest())
+        with patch('action_inbetweens.prepare') as decode:
+            inbetweens.prefetch([pair])
+            decode.assert_called_once()
 
     def test_idle_families_keep_their_optical_flow_permission(self):
         for key in ('comb','sit-neat','prone-rest','sleep','lazy-roll-toward','lazy-roll-away'):

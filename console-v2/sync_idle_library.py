@@ -12,10 +12,20 @@ def publish():
     config = json.loads((folder/'idle-states.json').read_text(encoding='utf-8'))
     entries = json.loads((folder/'catalog.json').read_text(encoding='utf-8'))
     manifest = json.loads((ROOT/'assets/sleep/transitions/manifest.json').read_text(encoding='utf-8'))
+    playback = manifest.get('playback', {})
+    settle_seconds = playback.get('settle', manifest['settle']['seconds'])
+    wake_seconds = playback.get('wake', manifest['wake']['seconds'])
+    wake_hold = playback.get('wake_hold', 0.)
+    settle_count = manifest['settle']['count']
+    wake_count = manifest['wake']['count']
+    settle_durations = [settle_seconds*1000/settle_count]*settle_count
+    wake_motion = max(.001, wake_seconds-wake_hold)
+    wake_durations = ([wake_motion*1000/(wake_count-1)]*(wake_count-1)
+                      +[wake_hold*1000])
     sources = {
         'sleep': ('睡觉 · 熟睡呼吸', [ROOT/'assets/sleep'/f'{i:02}.png' for i in range(96)], [50]*96),
-        'sleep-enter': ('闭眼入睡', [ROOT/'assets/sleep/transitions'/f'settle-{i:03}.png' for i in range(manifest['settle']['count'])], [1000/60]*manifest['settle']['count']),
-        'sleep-wake': ('睁眼唤醒', [ROOT/'assets/sleep/transitions'/f'wake-{i:03}.png' for i in range(manifest['wake']['count'])], [1000/60]*manifest['wake']['count']),
+        'sleep-enter': ('闭眼入睡', [ROOT/'assets/sleep/transitions'/f'settle-{i:03}.png' for i in range(settle_count)], settle_durations),
+        'sleep-wake': ('睁眼唤醒', [ROOT/'assets/sleep/transitions'/f'wake-{i:03}.png' for i in range(wake_count)], wake_durations),
     }
     for key, (name, paths, durations) in sources.items():
         target = folder/key

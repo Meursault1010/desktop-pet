@@ -40,6 +40,9 @@ class SnapPreview(QWidget):
         self.surfaces=[]
         self.surfaces_at=0.
         self.surface_scanner=None
+        # Creating the layered top-level window costs tens of milliseconds on
+        # Windows. Do it before input arrives so the first drag cannot hitch.
+        self.winId()
 
     def queue(self,point):
         if not self.pet.preferences.auto_snap:

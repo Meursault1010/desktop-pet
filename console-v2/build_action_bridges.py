@@ -24,7 +24,7 @@ COLUMNS = 4
 BRIDGES = {
     'stretch': dict(
         height=239.5, floor=247.5, center=123.5,
-        durations=[240, 360, 270, 270, 600, 340, 240],
+        durations=[300, 450, 400, 400, 1000, 420, 300],
         review='已审查：姿态 2→3 之间补入身体初倾、双臂仍在头顶的中帧，流程连续'),
     'affection': dict(
         height=227.5, floor=247.5, center=132.75,

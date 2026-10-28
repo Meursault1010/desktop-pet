@@ -16,7 +16,7 @@ from PySide6.QtWidgets import QApplication
 from companion_awareness import CompanionAwareness
 from companion_memory import CompanionMemory
 from focus_companion import FocusCompanion
-from pet import DesktopPet
+from pet import DesktopPet, PetRenderer
 from settings_model import Preferences, SettingsStore
 from window_perch import WindowPerch
 
@@ -62,6 +62,9 @@ class BehaviorUpgradeTests(unittest.TestCase):
         QTest.mouseRelease(pet, Qt.MouseButton.LeftButton, pos=QPoint(90, 30))
         self.assertEqual(pet.state.action_player.action['id'], 'affection')
         self.assertEqual(pet.state.click_reaction.kind, 'headpat')
+        # Click feedback must not wait for the counter file to reach the disk.
+        self.assertEqual(self.memory.snapshot()['headpats'], 0)
+        pet.flush_memory()
         self.assertEqual(self.memory.snapshot()['headpats'], 1)
 
         player = pet.state.action_player
@@ -71,6 +74,7 @@ class BehaviorUpgradeTests(unittest.TestCase):
         self.assertGreater(pet.state.click_reaction.started, started)
         self.assertGreater(player.generation, generation)
         self.assertEqual(pet.state.action_player.action['id'], 'affection')
+        pet.flush_memory()
         self.assertEqual(self.memory.snapshot()['headpats'], 2)
 
     def test_focus_hold_break_click_through_and_memory(self):
@@ -108,6 +112,20 @@ class BehaviorUpgradeTests(unittest.TestCase):
         focus.tick(now + 2)
         self.assertFalse(focus.active)
         self.assertFalse(pet.preferences.quiet)
+
+    def test_click_action_atlases_are_pinned_off_the_click_path(self):
+        PetRenderer.prewarm_click_atlas('clicked')
+        PetRenderer.action_atlas.cache_clear()
+        self.assertIs(PetRenderer.action_atlas('clicked'), PetRenderer.click_atlases['clicked'])
+
+    def test_left_click_skips_activation_but_right_click_keeps_the_menu(self):
+        import ctypes
+        from pet import _NativeMessage
+        pet = self.pet
+        self.assertFalse(pet.windowFlags() & Qt.WindowType.WindowDoesNotAcceptFocus)
+        self.assertTrue(pet._skips_activation((0x0201 << 16) | 1))
+        self.assertTrue(pet._skips_activation((0x0203 << 16) | 1))
+        self.assertFalse(pet._skips_activation((0x0204 << 16) | 1))
 
     def test_memory_is_content_free_and_reloads(self):
         stamp = 1_760_000_000
@@ -194,6 +212,65 @@ class BehaviorUpgradeTests(unittest.TestCase):
         self.assertTrue(perch.attached)
         perch.cancel(now + 2)
         self.assertFalse(perch.attached)
+
+    def test_perch_leap_falls_if_the_window_disappears_mid_air(self):
+        pet = self.pet
+        edge = SimpleNamespace(active=False, started=None, message='', poses=SimpleNamespace(bounds=None))
+        edge.attach = lambda candidate, autonomous=False: True
+        edge.release = lambda cooldown=0: None
+        perch = WindowPerch(pet, edge)
+        pet.state.action_player.stop()
+        landing = SimpleNamespace(kind='top', anchor=(400, 320), position=(400, 340))
+        now = time.monotonic()
+        surface = SimpleNamespace(title='target', fullscreen=False, handle=4242)
+        with patch('window_perch.inspect_foreground', return_value=surface):
+            with patch('window_perch.logical_surface',
+                       return_value=(QRect(0, 0, 800, 600), pet.screen_area(), pet.screen())):
+                with patch('window_perch.candidates', return_value=[(None, landing)]):
+                    with patch('window_perch.QCursor', SimpleNamespace(pos=lambda: QPoint(0, 0))):
+                        self.assertTrue(perch.manual(now))
+        self.assertTrue(perch.leaping)
+        with patch('window_perch.inspect_foreground', return_value=None):
+            perch._advance_leap(now + .2)
+        self.assertFalse(perch.leaping)
+        self.assertFalse(perch.active)
+        self.assertTrue(pet.state.physics.active)
+        self.assertIsNone(pet.state.action_player.action)
+
+    def test_autonomous_window_perch_releases_when_switch_turns_off(self):
+        pet = self.pet
+        edge = SimpleNamespace(active=True, started=1, message='', poses=SimpleNamespace(bounds=None))
+        released = []
+        edge.release = lambda cooldown=0: (released.append(cooldown),
+                                           setattr(edge, 'active', False),
+                                           setattr(edge, 'started', None))
+        perch = WindowPerch(pet, edge)
+        perch.attached = True
+        perch.attached_started = 1
+        perch.active = True
+        pet.apply_preferences(Preferences(autonomous_windows=False))
+        perch.tick(time.monotonic())
+        self.assertFalse(perch.attached)
+        self.assertTrue(released)
+
+        perch.attached = True
+        perch.manual_attached = True
+        perch.attached_started = 2
+        edge.active, edge.started = True, 2
+        perch.tick(time.monotonic())
+        self.assertTrue(perch.attached)
+        perch.cancel(time.monotonic())
+
+
+class ToolStatusTempoTests(unittest.TestCase):
+    def test_status_speeds_follow_their_semantics(self):
+        from pet_backend import STATUS_PERFORMANCES
+        self.assertEqual(STATUS_PERFORMANCES['thinking'][3], .8)
+        self.assertEqual(STATUS_PERFORMANCES['working'][3], .95)
+        self.assertEqual(STATUS_PERFORMANCES['waiting'][3], .7)
+        self.assertEqual(STATUS_PERFORMANCES['done'][3], .7)
+        self.assertEqual(STATUS_PERFORMANCES['error'][3], .8)
+        self.assertFalse(STATUS_PERFORMANCES['done'][2])
 
 
 if __name__ == '__main__':

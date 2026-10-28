@@ -42,3 +42,14 @@ settings.ini
 /tools/psd2live/PSD2Live-*-windows-x64-portable.zip
 /tools/psd2live/tmp/
 /tools/psd2live/workspace/
+
+# Local generation previews, QA output and rejected experiments
+/vibe_images/
+/.qoder/
+/console-v2/work/
+/console-v2/output/
+/console-v2/v6b/
+/console-v2/action-work/smooth/
+/console-v2/action-work/walk-atlas-before-chibi-20261028/
+/console-v2/action-work/vertical-walk/preview*/
+/console-v2/action-work/vertical-walk/refs/

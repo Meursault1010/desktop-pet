@@ -2,6 +2,8 @@
 import os
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 import unittest
+import numpy as np
+from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 from climb_rig import hand_sample,pull_progress,_image,STRIDE
 from locomotion import contact_progress
@@ -34,6 +36,24 @@ class ContactRigTests(unittest.TestCase):
             # The lower hair, skirt and legs come from the same source pixels.
             self.assertTrue(all(im.copy(0,128,256,128)==images[0].copy(0,128,256,128) for im in images))
             self.assertNotEqual(images[0],images[1])
+
+    @staticmethod
+    def _pixels(image):
+        image=image.convertToFormat(QImage.Format.Format_ARGB32)
+        data=np.frombuffer(image.constBits(),np.uint8)
+        return data.reshape(image.height(),image.bytesPerLine())[:,:image.width()*4].reshape(image.height(),image.width(),4).astype(int)
+
+    def test_climb_face_is_rigid_while_the_hand_moves(self):
+        for name in ('climb-left','climb-right'):
+            first=self._pixels(_image(name,0,1).toImage())
+            second=self._pixels(_image(name,30,1).toImage())
+            diff=np.abs(first-second).max(2)
+            if name=='climb-left':
+                face,arm=diff[55:95,120:160],diff[25:120,170:200]
+            else:
+                face,arm=diff[55:95,100:140],diff[25:120,56:92]
+            self.assertLessEqual(int(face.max()),2,name)
+            self.assertGreater(int(arm.max()),50,name)
 
     def test_icon_climb_keeps_grip_hold_and_monotone_travel(self):
         for phases in ((0.,0.,.25,.65,.90,1.),(0.,0.,.20,.55,.85,1.)):

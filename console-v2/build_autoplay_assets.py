@@ -118,6 +118,11 @@ def main():
         additions = entries if path == paths[0] else [dict(a,atlas=a['atlas'][:-4]+'.webp',poster=a['poster'][:-4]+'.webp') for a in entries]
         by_id.update({a['id']:a for a in additions})
         path.write_text(json.dumps(list(by_id.values()),ensure_ascii=False,indent=2),encoding='utf-8')
+    if any(entry['id'] == 'play-top-rest' for entry in entries):
+        # The generated climb[5] source lost the left calf; repair the
+        # published frames before the review sheets are regenerated.
+        from repair_top_rest_leg import main as repair_top_rest_leg
+        repair_top_rest_leg()
     previews=[]
     for entry in entries:
         atlas=Image.open(ROOT/'assets'/entry['atlas']).convert('RGBA')
