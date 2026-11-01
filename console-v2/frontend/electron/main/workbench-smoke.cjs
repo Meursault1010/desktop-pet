@@ -29,6 +29,7 @@ async function run({window,sidecar,stopAndQuit,quickTools}){
   const card=await ui(`(()=>{const h=document.querySelector('.companion-current h3');return h?{title:h.textContent.trim(),detail:h.parentElement.querySelector('p')?.textContent.trim()||''}:null})()`);
   assert.equal(card.title,'雪 · '+quietState.activity.label);
   assert.equal(card.detail,quietState.activity.detail);
+  assert.ok((await ui(`document.querySelector('.companion-art').src`)).startsWith('data:image/png;base64,'));
   await sidecar.request('set_preference',{key:'quiet',value:false});await wait(700);
   const resumed=(await sidecar.request('get_state')).state;
   assert.equal((await chip()).text,resumed.activity.label);
@@ -41,6 +42,14 @@ async function run({window,sidecar,stopAndQuit,quickTools}){
   assert.ok(await ui('document.documentElement.scrollWidth<=innerWidth'),'small window overflow');
   assert.ok(await ui(`(()=>{const c=document.querySelector('.live-status').getBoundingClientRect(),b=document.querySelector('.window-size').getBoundingClientRect();return c.right<=b.left})()`),'live status overlaps window controls');
   await capture('live-status-small');window.setSize(900,740);await wait(200);
+  await sidecar.request('wake_sleep',{});await wait(350);
+  await sidecar.request('play_action',{action_id:'prone-rest',loop:true,speed:1});await wait(700);
+  const prone=(await sidecar.request('get_state')).state;
+  assert.ok(prone.activity.label.includes('趴'),prone.activity.label);
+  assert.ok((await ui(`document.querySelector('.companion-current h3').textContent`)).includes(prone.activity.label));
+  assert.ok((await ui(`document.querySelector('.companion-art').src`)).startsWith('data:image/png;base64,'));
+  await capture('live-preview-prone');
+  await sidecar.request('stop_action');await wait(300);
  });
  if(process.env.YUKI_PLAY_SMOKE==='1'){
   await nav('角色');await click('行为逻辑');

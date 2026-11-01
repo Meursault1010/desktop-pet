@@ -173,7 +173,7 @@ class PetAnimator:
                     state.travel_target=None
                     self.pet.position_settled.emit()
         else:
-            state.walking = self.pet.moving(now)
+            state.walking = False
 
         if state.jump_started is not None and now - state.jump_started >= 0.65:
             state.jump_started = None
@@ -477,8 +477,8 @@ class PetRenderer:
         painter.scale(scale_x, scale_y)
         painter.translate(-90, -pivot)
 
-    def draw_pose(self, painter, state):
-        now = time.monotonic()
+    def draw_pose(self, painter, state, now=None):
+        now = time.monotonic() if now is None else now
         # Actions composite their breathing warp at 160px. Scaling that raster
         # up for the jelly (click) feedback re-blurs it, so keep the warp at
         # source resolution for as long as a non-identity transform is applied.
@@ -544,7 +544,15 @@ class PetRenderer:
             painter.translate(offset_x*160/256, offset_y*160/256)
             # The warp already carries the authored in-between motion; a remap
             # on top would cost another 3.5ms and smear the interpolated edges.
-            lived = None if action.get('authored_motion') or interpolated is not None else self.action_motion.render(atlas, source, visual_id, elapsed, warp_size)
+            # A long hold reads as an idle only if it keeps breathing. Clips
+            # flagged `idle_life` opt into the secondary motion that authored
+            # actions otherwise skip; the warp anchors at the feet.
+            life = action.get('idle_life') or {}
+            if isinstance(life, (int, float)):
+                life = {'scale': float(life)}
+            lived = None if (interpolated is not None or (
+                action.get('authored_motion') and not life)) else self.action_motion.render(
+                    atlas, source, visual_id, elapsed, warp_size, **life)
             target = QRectF(10, 25, 160, 160)
             if action.get('spatial_dance') or action.get('grounded_pose'):
                 depth = state.dance_depth_scale if action.get('spatial_dance') else 1.
@@ -804,7 +812,6 @@ class DesktopPet(QWidget):
         self.state.gait_render_offset=tuple((v-a)/(self.width()/180) for v,a in zip(position,(self.x(),self.y())))
         self.record_gait(position[0]-previous[0],position[1]-previous[1],clock=clock)
         if math.hypot(position[0]-previous[0],position[1]-previous[1]) > .001:
-            self.state.walking = True
             # A resumed walk keeps whatever strength remains, so a pause that
             # restarts quickly never makes the body drop and re-accelerate.
             energy = 0. if now-self.state.gait_energy_at > .18 else self.state.gait_energy
@@ -879,6 +886,8 @@ class DesktopPet(QWidget):
             if state.patrol and state.patrol.active:
                 return patrol_report(posture)
             if state.ambient.current and player.started == state.ambient.current[1] and posture:
+                if player.action.get('lazy_roll'):
+                    return report('action', '动作 · ' + player.action['name'], posture)
                 return report('idle', STATES[posture]['name'] + '待机 · ' + player.action['name'],
                               posture, player.action['name'])
             return report('action', '动作 · ' + player.action['name'], posture, player.action['name'])
@@ -1191,7 +1200,9 @@ class DesktopPet(QWidget):
             # A brief expression hold, not the authored gesture sequence.
             player.action = dict(player.action, durations=[1100 if action_id != 'clicked' else 900],
                                  click_expression=True)
-            player.frame_order = [2]
+            # The catalog names the authored expression pose, so re-cutting a
+            # clip cannot leave the click holding a mid-motion frame.
+            player.frame_order = [player.action.get('click_frame', 2)]
             reaction = {'shy': 'shy', 'body': 'happy', 'feet': 'startle'}.get(kind, 'shy')
         self.state.click_reaction.trigger(reaction, self.click_x)
         self.queue_memory('headpats' if kind == 'headpat' else 'clicks')

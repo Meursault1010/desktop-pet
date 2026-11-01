@@ -27,6 +27,7 @@ def image_bounds(image):
 def build():
     entries = json.loads((ASSETS/'catalog.json').read_text(encoding='utf-8'))
     previous = json.loads(OUTPUT.read_text(encoding='utf-8')) if OUTPUT.exists() else {}
+    locked = {entry['id'] for entry in entries if entry.get('body_locked')}
     actions = {}
     for entry in entries:
         if (entry.get('origin') != 'generated' or entry['frames'] < 2
@@ -34,6 +35,17 @@ def build():
                 or entry.get('physics_only') or entry['id'] in EXCLUDED):
             continue
         key = entry['id']
+        if key in locked:
+            # These clips bake their own stable-body registration; measuring
+            # visible bounds again would move the character behind the action.
+            locked_entry = previous.get('actions', {}).get(key)
+            if locked_entry is None:
+                locked_entry = dict(anchor_x=128.0, floor_y=252.0,
+                                    preserve_vertical=True,
+                                    offsets=[[0., 0.]]*entry['frames'])
+            locked_entry['body_locked'] = True
+            actions[key] = locked_entry
+            continue
         paths = [ASSETS/key/f'{index+1:02d}.png' for index in range(entry['frames'])]
         if not all(path.exists() for path in paths):
             # Atlas-only clips such as music-waltz have no per-frame sources;
@@ -62,6 +74,8 @@ def build():
     for pair, entry in pairs.items():
         before, after = (ref.rsplit(':', 1) for ref in pair.split('>'))
         if before[0] not in actions or after[0] not in actions:
+            continue
+        if before[0] in locked or after[0] in locked:
             continue
         start, end = actions[before[0]], actions[after[0]]
         offsets = []

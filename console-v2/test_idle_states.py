@@ -138,7 +138,6 @@ class IdlePostureInteractionTests(unittest.TestCase):
             pet.state.walking = False
             pet.move(120, 120)
             pet.advance_to((240, 120), 0.05)
-            self.assertTrue(pet.state.walking)
             self.assertEqual(pet.activity()['key'], 'walking')
             self.assertEqual(pet.activity()['label'], '移动中')
             self.assertEqual(snapshot(pet.state)['name'], '互动')
@@ -149,6 +148,22 @@ class IdlePostureInteractionTests(unittest.TestCase):
             self.assertEqual(pet.activity()['key'], 'idle')
             self.assertEqual(pet.activity()['label'],
                              '站立待机 · ' + pet.state.routine.period['name'])
+        finally:
+            pet.close()
+            pet.deleteLater()
+            self.app.processEvents()
+
+    def test_rolling_is_reported_as_an_action_not_a_prone_idle(self):
+        pet = DesktopPet()
+        pet.animator.timer.stop()
+        pet.show()
+        try:
+            pet.advance_presence(10**10)
+            pet.state.ambient.play(pet.state.action_player, 'lazy-roll-away', 100)
+            activity = pet.activity()
+            self.assertEqual(activity['key'], 'action')
+            self.assertTrue(activity['label'].startswith('动作 · '))
+            self.assertNotIn('待机', activity['label'])
         finally:
             pet.close()
             pet.deleteLater()

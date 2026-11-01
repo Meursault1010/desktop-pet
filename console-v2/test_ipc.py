@@ -152,10 +152,14 @@ class ProtocolTests(unittest.TestCase):
         self.assertFalse(ended['state']['focus']['active'])
 
     def test_action_commands(self):
+        self.request('wake_sleep')
+        time.sleep(.2)
+        standing = self.request('get_state')['preview']
         self.assertFalse(self.request('play_action', {'action_id':'../../bad'})['ok'])
         played=self.request('play_action', {'action_id':'sleep','loop':True,'speed':1})
         self.assertTrue(played['ok'])
         self.assertIn('睡觉',played['state']['status'])
+        self.assertNotEqual(self.request('get_state')['preview'], standing)
         self.assertFalse(self.request('play_action', {'action_id':'sleep','speed':99})['ok'])
         self.assertTrue(self.request('stop_action')['ok'])
         self.assertNotIn('动作',self.request('get_state')['state']['status'])

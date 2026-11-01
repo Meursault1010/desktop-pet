@@ -2,16 +2,21 @@ import os
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 import unittest
 import json
+import random
 from pathlib import Path
 from dataclasses import replace
 from unittest.mock import patch
+import numpy as np
 from PIL import Image
+from PySide6.QtCore import QRect
 from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QImage, QPainter
+from PySide6.QtGui import QImage, QPainter, QPixmap
 from pet import DesktopPet
 from settings_model import Preferences
-from action_player import catalog
+from action_player import ActionPlayer, catalog
+from action_life_motion import ActionLifeMotion
 from idle_actions import IdleActions, IDLE_ACTIONS
+from idle_animation import MOTION_SECONDS
 from daily_routine import schedule
 from types import SimpleNamespace
 
@@ -25,6 +30,65 @@ class AmbientTests(unittest.TestCase):
         scheduler = IdleActions()
         self.assertTrue(set(IDLE_ACTIONS).issubset(catalog()))
         self.assertEqual({scheduler.choose(catalog()) for _ in IDLE_ACTIONS}, set(IDLE_ACTIONS))
+
+    def test_reading_stays_like_an_idle_instead_of_a_short_gesture(self):
+        player = ActionPlayer()
+        with patch('action_player.random', random.Random(4)):
+            duration = IdleActions().play(player, 'read', 100)
+        self.assertGreaterEqual(duration, 17)
+        self.assertLessEqual(duration, 40)
+        self.assertEqual(player.action['id'], 'read')
+        self.assertIsNotNone(player.frame(100+duration*.5))
+        self.assertIsNone(player.frame(100+duration+.01))
+        self.assertTrue(catalog()['read'].get('reading_idle'))
+        self.assertGreater(catalog()['read']['idle_life']['bob'], 0)
+
+    def test_reading_breathing_keeps_the_book_and_feet_in_place(self):
+        root = Path(__file__).resolve().parent
+        action = catalog()['read']
+        atlas = QPixmap(str(root/'assets'/action['atlas']))
+        motion = ActionLifeMotion()
+        centroids, floors = [], []
+        for elapsed in (.4, 1.35, 2.3):
+            source = QRect((5 % action['columns'])*256, (5 // action['columns'])*256, 256, 256)
+            image = motion.render(atlas, source, 'read', elapsed, 256, **action['idle_life'])
+            image = image.convertToFormat(QImage.Format.Format_RGBA8888)
+            alpha = np.frombuffer(bytes(image.constBits()), dtype=np.uint8).reshape(256, 256, 4)[:, :, 3]
+            rows = np.flatnonzero(alpha.max(axis=1) > 32)
+            floors.append(int(rows[-1]))
+            band = alpha[max(0, rows[-1]-12):rows[-1]+1]
+            centroids.append(float(np.flatnonzero(band.any(axis=0)).mean()))
+        self.assertEqual(len(set(floors)), 1)
+        self.assertLess(max(centroids)-min(centroids), 1.5)
+
+    def test_held_reading_poses_breathe_like_the_base_idle(self):
+        root = Path(__file__).resolve().parent
+        motion = ActionLifeMotion()
+        for key in ('reading-pose-1', 'reading-pose-2', 'reading-pose-3'):
+            action = catalog()[key]
+            life = action['idle_life']
+            self.assertGreater(life['bob'], 0, key)
+            self.assertGreater(life['lean'], 0, key)
+            self.assertEqual(life['period'], MOTION_SECONDS, key)
+            atlas = QPixmap(str(root/'assets'/action['atlas']))
+            shots = []
+            for elapsed in (.0, life['period']*.25, life['period']*.5, life['period']*.75):
+                image = motion.render(atlas, QRect(0, 0, 256, 256), key, elapsed, 256, **life)
+                image = image.convertToFormat(QImage.Format.Format_RGBA8888)
+                shots.append(np.frombuffer(bytes(image.constBits()), dtype=np.uint8).reshape(256, 256, 4))
+            alpha = shots[0][:, :, 3]
+            rows = np.flatnonzero(alpha.max(axis=1) > 32)
+            heads = [int(np.flatnonzero((shot[:, :, 3] > 200).max(axis=1))[0]) for shot in shots]
+            floors = [int(np.flatnonzero((shot[:, :, 3] > 32).max(axis=1))[-1]) for shot in shots]
+            self.assertEqual(len(set(floors)), 1, key)
+            # The head lifts a couple of pixels and comes back; anything that
+            # moves the whole figure reads as floating rather than breathing.
+            self.assertGreaterEqual(max(heads)-min(heads), 2, key)
+            self.assertLessEqual(max(heads)-min(heads), 4, key)
+            waist = rows[0] + int((rows[-1]-rows[0])*.74)
+            for shot in shots[1:]:
+                moved = np.abs(shot[waist:].astype(int) - shots[0][waist:].astype(int)).max(axis=2)
+                self.assertLess(int((moved > 4).sum()), 24, key)
 
     def test_period_favourites_do_not_crowd_out_other_actions(self):
         for period in schedule():
@@ -67,7 +131,7 @@ class AmbientTests(unittest.TestCase):
     def test_new_standing_vignettes_are_complete_automatic_actions(self):
         root = Path(__file__).resolve().parent
         public = {a['id']: a for a in json.loads((root/'frontend/public/actions/catalog.json').read_text(encoding='utf-8'))}
-        vignettes = {'snow-catch', 'hum', 'hair-tuck', 'sneeze', 'gaze-far', 'listen',
+        vignettes = {'hum', 'hair-tuck', 'sneeze', 'gaze-far', 'listen',
                      'warm-hands', 'curtsy', 'wave', 'star-wish'}
         for key in vignettes:
             action = catalog()[key]

@@ -1,7 +1,7 @@
 """Shared, keyboard-accessible menu for the pet and the system tray."""
 from html import escape
 from pet_quick_tools import QuickToolsPane
-from PySide6.QtCore import QSize, Qt, QTimer, QVariantAnimation, QPointF
+from PySide6.QtCore import QSize, Qt, QTimer, QVariantAnimation, QPointF, QRectF
 from PySide6.QtGui import QColor, QCursor, QGuiApplication, QFont, QIcon, QPainter, QPen, QPixmap, QPainterPath
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMenu, QToolButton, QVBoxLayout, QWidget, QWidgetAction, QTextBrowser, QTabBar, QStackedWidget, QScrollArea, QFrame
 
@@ -35,6 +35,17 @@ def menu_icon(kind, color='#527b97'):
     elif kind == 'exit':
         painter.drawArc(4, 4, 12, 12, 130 * 16, 280 * 16)
         painter.drawLine(10, 2, 10, 9)
+    elif kind == 'translate':
+        painter.drawRoundedRect(3, 3, 14, 14, 3, 3)
+        painter.setFont(QFont('Segoe UI', 8))
+        painter.drawText(QRectF(4, 3, 7, 14), Qt.AlignmentFlag.AlignCenter, 'A')
+        painter.setFont(QFont('Microsoft YaHei UI', 7))
+        painter.drawText(QRectF(9, 3, 7, 14), Qt.AlignmentFlag.AlignCenter, '文')
+    elif kind == 'climb':
+        painter.drawLine(4, 16, 16, 4)
+        painter.drawLine(8, 4, 16, 4)
+        painter.drawLine(16, 4, 16, 12)
+        painter.drawLine(3, 17, 9, 17)
     elif kind == 'send':
         painter.drawLine(10, 16, 10, 4)
         painter.drawLine(5, 9, 10, 4)
@@ -51,6 +62,9 @@ class CelestialHeader(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.starlight = .65
+        self.line_color = QColor('#c5d8e4')
+        self.star_color = QColor('#7fa8c2')
+        self.accent_color = QColor('#638fae')
         self.reveal = QVariantAnimation(self)
         self.reveal.setStartValue(.25)
         self.reveal.setEndValue(.8)
@@ -59,6 +73,12 @@ class CelestialHeader(QWidget):
 
     def set_starlight(self, value):
         self.starlight = float(value)
+        self.update()
+
+    def set_palette(self, line, star, accent):
+        self.line_color = QColor(line)
+        self.star_color = QColor(star)
+        self.accent_color = QColor(accent)
         self.update()
 
     def showEvent(self, event):
@@ -84,11 +104,11 @@ class CelestialHeader(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.translate(self.width()-46, 8)
-        painter.setPen(QPen(QColor('#d4e1eb'), .8))
+        painter.setPen(QPen(self.line_color, .8))
         painter.drawLine(QPointF(8, 16), QPointF(28, 38))
         painter.drawLine(QPointF(28, 38), QPointF(14, 70))
         painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QColor('#92b4cd'))
+        painter.setBrush(self.star_color)
         for x, y, r in ((8,16,1.6),(28,38,1.2),(14,70,1.5),(32,80,.9)):
             painter.drawEllipse(QPointF(x,y),r,r)
         painter.setOpacity(self.starlight)
@@ -98,8 +118,11 @@ class CelestialHeader(QWidget):
         for x,y in ((1.6,-1.6),(7,0),(1.6,1.6),(0,7),(-1.6,1.6),(-7,0),(-1.6,-1.6)):
             path.lineTo(x,y)
         path.closeSubpath()
-        painter.setBrush(QColor('#638fae'))
+        painter.setBrush(self.accent_color)
         painter.drawPath(path)
+        painter.setOpacity(1)
+        painter.setPen(QPen(self.line_color, .7))
+        painter.drawLine(12, self.height()-1, self.width()-12, self.height()-1)
         painter.end()
 
 
@@ -125,10 +148,10 @@ class CompanionMenu(QMenu):
         header = CelestialHeader(self)
         self.celestial_header = header
         row = QHBoxLayout(header)
-        row.setContentsMargins(12, 10, 46, 16)
-        row.setSpacing(13)
+        row.setContentsMargins(14, 10, 44, 14)
+        row.setSpacing(12)
         copy = QVBoxLayout()
-        copy.setSpacing(4)
+        copy.setSpacing(3)
         name = QLabel('yuki')
         name.setObjectName('wordmark')
         self.status = QLabel()
@@ -151,61 +174,82 @@ class CompanionMenu(QMenu):
             return
         self._theme_key = (theme, reduced, hasattr(self, 'chat_input'))
         palettes = {
-            'light': ('#fcfdfd', '#111b22', '#5d6c75', '#e7edf0', '#d3dfe8', '#2f6f8f'),
-            'mist': ('#f7f9fa', '#15242c', '#546a76', '#dfe8ec', '#c5d2da', '#346f8b'),
-            'dark': ('#11171b', '#e9eef1', '#94a3ac', '#1b242a', '#3b4b56', '#9fc9dc'),
+            'light': dict(bg='#fbfdfe', fg='#14232b', muted='#5e717c', hover='#edf3f7',
+                          border='#d9e4ea', accent='#2f6f8f', inset='#f1f6f9',
+                          line='#cddfe9', star='#7fa8c2'),
+            'mist': dict(bg='#f2f6f8', fg='#15242c', muted='#5b6f7a', hover='#e5edf1',
+                         border='#cfdde4', accent='#346f8b', inset='#eaf1f4',
+                         line='#c3d6e1', star='#6f9bb5'),
+            'dark': dict(bg='#101820', fg='#e8eff4', muted='#97a9b5', hover='#182630',
+                         border='#2a3a45', accent='#9fc9dc', inset='#15232d',
+                         line='#2f4654', star='#6f9bb5'),
         }
-        bg, fg, muted, hover, border, accent = palettes.get(theme, palettes['mist'])
+        p = palettes.get(theme, palettes['mist'])
         self.setStyleSheet(f'''
-            QMenu {{ background:{bg}; color:{fg}; border:1px solid {border}; border-radius:14px; padding:8px; font-size:13px; }}
-            QMenu::item {{ padding:11px 24px 11px 14px; border-radius:6px; }}
-            QMenu::item:selected {{ background:{hover}; color:{fg}; }}
-            QMenu::item:disabled {{ color:{muted}; }}
-            QMenu::separator {{ height:1px; background:{border}; margin:7px 12px; }}
-            QMenu::indicator {{ width:13px; height:13px; margin-left:12px; border:1px solid {border}; border-radius:3px; }}
-            QMenu::indicator:checked {{ background:{accent}; }}
-            QWidget#menu-header, QLabel {{ background:transparent; color:{fg}; border:none; }}
-            QLabel#wordmark {{ font:italic 26px 'Georgia'; color:{accent}; }}
-            QLineEdit {{ background:{bg}; color:{fg}; border:1px solid {border}; border-radius:8px; padding:10px; selection-background-color:{accent}; }}
-            QLineEdit:focus {{ border-color:{accent}; }}
-            QToolButton {{ background:{hover}; color:{accent}; border:1px solid {border}; border-radius:8px; padding:7px 10px; font-size:12px; }}
-            QToolButton:hover {{ background:{border}; }}
-            QToolButton:focus {{ border-color:{accent}; }}
-            QToolButton:pressed {{ background:{border}; border-color:{accent}; }}
-            QToolButton:disabled {{ color:{muted}; }}
-        ''')
-        self.setStyleSheet(self.styleSheet()+f"""
-            QTabBar::tab {{ color:{muted}; padding:8px 10px; border:1px solid transparent; border-radius:6px; font-size:12px; }}
-            QTabBar::tab:hover {{ background:{hover}; color:{fg}; }}
-            QTabBar::tab:selected {{ color:{accent}; background:{hover}; border-color:{border}; }}
+            QMenu {{ background:{p['bg']}; color:{p['fg']}; border:1px solid {p['border']};
+                    border-radius:16px; padding:9px; font-size:13px; }}
+            QMenu::item {{ padding:10px 20px 10px 12px; border-radius:8px; margin:1px 0; }}
+            QMenu::item:selected {{ background:{p['hover']}; color:{p['fg']}; }}
+            QMenu::item:disabled {{ color:{p['muted']}; }}
+            QMenu::separator {{ height:1px; background:{p['border']}; margin:6px 10px; }}
+            QMenu::indicator {{ width:13px; height:13px; margin-left:12px;
+                               border:1px solid {p['border']}; border-radius:3px; }}
+            QMenu::indicator:checked {{ background:{p['accent']}; border-color:{p['accent']}; }}
+            QWidget#menu-header, QLabel {{ background:transparent; color:{p['fg']}; border:none; }}
+            QLabel#wordmark {{ font:italic 27px 'Georgia'; color:{p['accent']}; }}
+            QTabBar {{ background:{p['inset']}; border-radius:9px; padding:3px; }}
+            QTabBar::tab {{ color:{p['muted']}; padding:7px 10px; margin:0 1px;
+                           border:0; border-radius:7px; font-size:12px; }}
+            QTabBar::tab:hover {{ color:{p['fg']}; background:{p['hover']}; }}
+            QTabBar::tab:selected {{ color:{p['accent']}; background:{p['bg']}; font-weight:600; }}
+            QTextBrowser {{ background:{p['inset']}; color:{p['fg']}; border:1px solid {p['border']};
+                           border-radius:10px; padding:8px; font-size:12px; }}
+            QLineEdit {{ background:{p['bg']}; color:{p['fg']}; border:1px solid {p['border']};
+                        border-radius:10px; padding:10px 12px; selection-background-color:{p['accent']}; }}
+            QLineEdit:focus {{ border-color:{p['accent']}; }}
+            QToolButton {{ background:{p['inset']}; color:{p['accent']}; border:1px solid {p['border']};
+                          border-radius:10px; padding:7px 10px; font-size:12px; }}
+            QToolButton:hover {{ background:{p['hover']}; }}
+            QToolButton:focus {{ border-color:{p['accent']}; }}
+            QToolButton:pressed {{ background:{p['border']}; }}
+            QToolButton:disabled {{ color:{p['muted']}; }}
+            QPushButton {{ background:{p['inset']}; color:{p['fg']}; border:1px solid {p['border']};
+                          border-radius:8px; padding:6px 10px; font-size:11px; }}
+            QPushButton:hover {{ background:{p['hover']}; }}
+            QComboBox {{ background:{p['inset']}; color:{p['fg']}; border:1px solid {p['border']};
+                        border-radius:8px; padding:6px; }}
+            QListWidget {{ background:transparent; color:{p['fg']}; border:none; font-size:12px; }}
+            QListWidget::item {{ padding:8px 6px; border-bottom:1px solid {p['border']}; border-radius:6px; }}
+            QListWidget::item:hover {{ background:{p['hover']}; }}
+            QListWidget::item:selected {{ background:{p['hover']}; color:{p['fg']}; }}
+            QLabel#muted {{ color:{p['muted']}; font-size:11px; }}
+            QLabel#timer-reading {{ font:34px 'Segoe UI'; color:{p['accent']}; }}
+            QLabel#tool-feedback {{ color:{p['muted']}; font-size:11px; }}
             QScrollArea, QScrollArea > QWidget > QWidget {{ background:transparent; border:none; }}
-            QTextBrowser, QListWidget {{ background:transparent; color:{fg}; border:none; font-size:12px; }}
-            QListWidget::item {{ padding:9px 5px; border-bottom:1px solid {border}; }}
-            QListWidget::indicator {{ width:12px; height:12px; border:1px solid {border}; border-radius:3px; background:transparent; }}
-            QListWidget::indicator:checked {{ background:{accent}; }}
-            QListWidget::item:selected {{ background:{hover}; color:{fg}; }}
-            QLabel#muted {{ color:{muted}; font-size:11px; }}
-            QLabel#timer-reading {{ font:36px 'Segoe UI'; color:{accent}; }}
-            QLabel#tool-feedback {{ color:{muted}; font-size:11px; }}
-            QComboBox {{ background:{hover}; color:{fg}; border:1px solid {border}; border-radius:6px; padding:5px; }}
-            QScrollBar:vertical {{ background:transparent; width:5px; margin:0; }}
-            QScrollBar::handle:vertical {{ background:{border}; border-radius:2px; min-height:24px; }}
+        ''')
+        self.setStyleSheet(self.styleSheet()+f'''
+            QScrollBar:vertical {{ background:transparent; width:6px; margin:0; }}
+            QScrollBar::handle:vertical {{ background:{p['border']}; border-radius:3px; min-height:24px; }}
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height:0; }}
-        """)
-        self._icon_color = accent
+        ''')
+        self._palette = p
+        self._icon_color = p['accent']
+        icon_kinds = {'console': 'console', 'exit': 'exit', 'translation': 'translate', 'demo_climb': 'climb'}
         for action in self.actions():
-            if action.objectName() in ('console', 'exit'):
-                action.setIcon(menu_icon(action.objectName(), accent))
-        self.status.setStyleSheet(f'font-size:12px;color:{muted};')
-        self.routine.setStyleSheet(f'font-size:11px;color:{muted};')
+            kind = icon_kinds.get(action.objectName())
+            if kind:
+                action.setIcon(menu_icon(kind, p['accent']))
+        self.status.setStyleSheet(f"font-size:12px;color:{p['muted']};letter-spacing:.02em;")
+        self.routine.setStyleSheet(f"font-size:10.5px;color:{p['muted']};letter-spacing:.03em;")
+        self.celestial_header.set_palette(p['line'], p['star'], p['accent'])
         self.celestial_header.reveal.setDuration(900)
         self.celestial_header.reduced = reduced
         if hasattr(self, 'chat_input'):
             self.chat_input.setStyleSheet('')
             self.chat_send.setStyleSheet('')
-            self.chat_send.setIcon(menu_icon('send', accent))
-            self.chat_hint.setStyleSheet(f'font-size:11px;color:{muted};')
-            self.chat_reply.setStyleSheet(f'font-size:12px;color:{fg};padding:8px 2px;')
+            self.chat_send.setIcon(menu_icon('send', p['accent']))
+            self.chat_hint.setStyleSheet(f"font-size:10.5px;color:{p['muted']};letter-spacing:.02em;")
+            self.chat_reply.setStyleSheet('')
 
     def command(self, name, label, callback, icon=None, checkable=False):
         action = self.addAction(menu_icon(icon, getattr(self, '_icon_color', '#527b97')), label) if icon else self.addAction(label)
@@ -343,7 +387,12 @@ class CompanionMenu(QMenu):
         reply = getattr(controller, 'quick_reply', '')
         if reply and (not history or (busy and history[-1].get('text') != reply)):
             history.append({'role':'assistant', 'text':reply})
-        signature = [(entry.get('role'), entry.get('text')) for entry in history]
+        palette = getattr(self, '_palette', {})
+        fg = palette.get('fg', '#15242c')
+        muted = palette.get('muted', '#5b6f7a')
+        accent = palette.get('accent', '#346f8b')
+        signature = ((theme if (theme := getattr(self, '_theme_key', ('mist',))[0]) else 'mist'),
+                     [(entry.get('role'), entry.get('text')) for entry in history])
         if signature != getattr(self, '_chat_signature', None):
             self._chat_signature = signature
             scroll = self.chat_reply.verticalScrollBar()
@@ -352,9 +401,13 @@ class CompanionMenu(QMenu):
             blocks = []
             for entry in history:
                 who = '你' if entry.get('role') == 'user' else 'yuki'
+                who_color = muted if entry.get('role') == 'user' else accent
                 content = escape(str(entry.get('text', ''))).replace('\n','<br>')
-                blocks.append(f'<p style="margin:4px 0 12px"><b>{who}</b><br>{content}</p>')
-            self.chat_reply.setHtml(''.join(blocks) or '<p>和 yuki 说句话吧。<br>近期对话可用滚轮回看。</p>')
+                blocks.append(f'<p style="margin:4px 0 12px;line-height:1.7"><span style="font-size:10.5px;letter-spacing:.08em;color:{who_color}">{who}</span><br>{content}</p>')
+            empty = ('<div style="text-align:center;padding:36px 8px 8px">'
+                     f'<p style="margin:0 0 7px;font-size:15px;color:{fg}">和 yuki 说句话吧。</p>'
+                     f'<p style="margin:0;font-size:11.5px;color:{muted}">近期对话可用滚轮回看。</p></div>')
+            self.chat_reply.setHtml(''.join(blocks) or empty)
             scroll.setValue(scroll.maximum() if follow else min(old, scroll.maximum()))
         for pane in self.tool_panes:
             pane.refresh(getattr(controller, 'quick_tools', {}))

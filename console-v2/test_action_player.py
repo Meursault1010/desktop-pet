@@ -3,7 +3,8 @@ import random
 from copy import deepcopy
 from unittest.mock import patch
 from action_player import (ActionPlayer, ground_idle_timeline, lazy_roll_timeline,
-                           ROLL_ENTRY, pose_ref, catalog, transition_window)
+                           reading_idle_timeline, ROLL_ENTRY, READ_SETTLE,
+                           pose_ref, catalog, transition_window)
 
 class ActionTests(unittest.TestCase):
     def setUp(self):
@@ -58,6 +59,29 @@ class ActionTests(unittest.TestCase):
                 self.assertTrue(all(d>0 for d in durations))
                 schedules.add(tuple(order))
             self.assertGreater(len(schedules),10)
+
+    def test_reading_idle_lifts_once_and_rerolls_its_dwell(self):
+        action={'id':'read','reading_idle':True,'frames':33,'durations':[70]*33}
+        schedules=set()
+        for seed in range(20):
+            order,durations=reading_idle_timeline(action, random.Random(seed))
+            self.assertEqual(order[:READ_SETTLE], list(range(READ_SETTLE)))
+            self.assertTrue(all(0<=frame<33 for frame in order))
+            self.assertEqual(len(order),len(durations))
+            self.assertTrue(all(d>0 for d in durations))
+            self.assertGreaterEqual(sum(durations),17000)
+            self.assertGreaterEqual(max(durations),2400)
+            # Reading is a posture: the dwell keeps the book in hand.
+            self.assertTrue(all(frame>=READ_SETTLE for frame in order[READ_SETTLE:]))
+            schedules.add(tuple(order))
+        self.assertGreater(len(schedules),10)
+        self.data['read']=action
+        self.player.play('read',now=5)
+        elapsed=0
+        for frame,duration in zip(self.player.frame_order,self.player.action['durations']):
+            self.assertEqual(self.player.frame(5+(elapsed+duration/2)/1000),frame)
+            elapsed+=duration
+        self.assertIsNone(self.player.frame(5+elapsed/1000+.001))
 
     def test_random_idle_uses_mapped_atlas_frames_and_actual_end(self):
         action={'id':'sit-neat','ground_idle':True,'frames':36,'durations':[260]*36}

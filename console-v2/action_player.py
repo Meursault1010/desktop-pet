@@ -26,12 +26,19 @@ def pose_ref(action_id, frame):
     return action_id, frame
 
 
+# Reading is a posture, not a gesture: lift the book once, then hold it and
+# let the eyes drift between the page and the viewer before settling out.
+READ_SETTLE = 12
+READ_EYES_UP = (12, 20)
+READ_EYES_DOWN = (27, 32)
+
+
 FAST_TEMPO = frozenset(('celebrate', 'clicked', 'afraid', 'angry'))
 GENTLE_TEMPO = frozenset((
     'sleep-enter', 'sleep-wake', 'read', 'tea', 'sit-neat', 'sit-relaxed',
     'sit-swing', 'prone-chin', 'prone-rest', 'yawn', 'stretch', 'comb',
     'wave', 'curtsy', 'gaze-far', 'listen', 'warm-hands', 'star-wish',
-    'snow-catch', 'hair-tuck', 'hum', 'wait',
+    'hair-tuck', 'hum', 'wait',
 ))
 
 
@@ -91,6 +98,9 @@ class ActionPlayer:
         if self.action.get('dance_rest'):
             self.frame_order,durations=dance_rest_timeline(self.action,random)
             self.action=dict(self.action,durations=durations)
+        if self.action.get('reading_idle'):
+            self.frame_order, durations = reading_idle_timeline(self.action)
+            self.action = dict(self.action, durations=durations)
         self.loop=loop; self.speed=speed
         self.started=time.monotonic() if now is None else now
 
@@ -247,6 +257,35 @@ def ground_idle_timeline(action, rng=random):
     order.extend(range(action['frames']-3, action['frames']))
     durations.extend(action['durations'][-3:])
     return order, durations
+
+
+def reading_idle_timeline(action, rng=random, target=None):
+    """Lift the book once, then stay reading with slow gaze drifts.
+
+    The authored clip is a 3s gesture. As an idle it keeps the same drawings
+    but holds each reading pose for seconds, so the cover settle, the dwell and
+    the lift can be rerolled per play without ever replaying the entry.
+    """
+    durations = action['durations']
+    last = action['frames']-1
+    order = list(range(READ_SETTLE))
+    times = list(durations[:READ_SETTLE])
+    # Settle straight into the page; the dwell never lifts the cover again.
+    order.extend(range(READ_SETTLE, READ_EYES_DOWN[0]+1))
+    times.extend(durations[READ_SETTLE:READ_EYES_DOWN[0]+1])
+    target = rng.uniform(17000, 27000) if target is None else target
+    while sum(times) < target:
+        down = min(last, rng.randint(*READ_EYES_DOWN))
+        up = rng.randint(*READ_EYES_UP)
+        order.append(down)
+        times.append(rng.randint(2400, 4600))
+        order.extend(range(down-1, up-1, -1))
+        times.extend([rng.randint(85, 115)]*(down-up))
+        order.append(up)
+        times.append(rng.randint(1400, 2800))
+        order.extend(range(up+1, down+1))
+        times.extend([rng.randint(85, 115)]*(down-up))
+    return order, times
 
 
 def dance_rest_timeline(action, rng=random):

@@ -1035,8 +1035,10 @@ class PatrolTests(unittest.TestCase):
         self.life.perch = (ground[0], ground[1]-80)
         self.life.arrived(self.now)
         self.assertEqual(self.pet.state.action_player.action['id'], 'play-climb-up')
-        middle = self.now+(self.life.until-self.now)/2
-        self.life.tick(middle,.03,self.at)
+        # The window reaches the perch by the sixth of ten beats, so sample
+        # while the hop is still in the air rather than at the clip's midpoint.
+        rising = self.now+(self.life.until-self.now)*.25
+        self.life.tick(rising,.03,self.at)
         self.assertTrue(ground[1]-80 < self.pet.y() < ground[1])
         self.assertIsNone(self.controller.icon_sleep.target)
         self.finish_action()
@@ -1062,7 +1064,7 @@ class PatrolTests(unittest.TestCase):
     def test_climb_bridge_frames_are_pixel_identical(self):
         from PIL import Image, ImageChops
         root=Path(__file__).parent/'assets'/'actions'
-        reference=Image.open(root/'play-climb-up'/'06.png').convert('RGBA')
+        reference=Image.open(root/'play-climb-up'/'10.png').convert('RGBA')
         for action in ('play-top-rest','play-climb-down'):
             frame=Image.open(root/action/'01.png').convert('RGBA')
             self.assertIsNone(ImageChops.difference(reference,frame).getbbox())

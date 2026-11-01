@@ -10,13 +10,10 @@
     "prone-chin": "1b35cc7a8b4c78dc48798daa4a1956f2e6cd08f21ea23c50292ab17edf33226a",
     "sit-neat": "f1784830607f91309a17f35326cb10921642321a13602430a37f53e7e0f2f8e2",
     "sit-relaxed": "33192ede8f09c527a7c2440f987adaf8bb3a6503b8566743e20dbc1279589e35",
-    "sit-swing": "c67f8bb94c11e43753314185723d400883bd81a8a6541e31a979b8d579e8ffc3",
-    "sleep": "8bbb510b204305e76226802275165bbcdf33d2adb532d0ad000ef19a80cc9a8f",
-    "sleep-enter": "e1dff56323d3b8b46d8469512c5582ea1d89bbd10270687ec09e09f0862ac551",
-    "sleep-wake": "85add9288ec5900665de455493b26214a4dcfa9f841141c6415d91f6ef8a66a5",
-    "play-climb-down": "25680c81e2e63a6da992f304f2537a971a3dfe0e0d7f3a18ecf33f1698e167f3",
-    "play-climb-up": "10d9cc3dc64655eb0a24b9c52a498e41708acfc0ff4951a0654d154ed6173a45",
-    "play-top-rest": "089fe0bcec29a8b2addfd2530e9f42c847eb819c24e3421d88f7e2dbe7afcf41"
+    "sit-swing": "b514eebe401882d1ebb74c1019c0acd75c85b8893b2fd2a6889c0404f20463de",
+    "play-climb-down": "f746bb393c0715992edc1ba57c76a6ec331c429d40fa64e6a2deaea2480b91ea",
+    "play-climb-up": "43e030304f3b39a0765d845ba7c9979f430596c99b10f64c4a41d43154ded69f",
+    "play-top-rest": "7b8c77f00635b5a77381805c63df4e8c50f76d3c3f6b8a569b779e64e9213208"
   },
   "pairs": {
     "dance-rest:0>dance-rest:1": {
@@ -1094,16 +1091,6 @@
       "frames": 25,
       "columns": 5
     },
-    "sleep-enter:96>sleep-enter:0": {
-      "file": "sleep-enter_96--sleep-enter_0.png",
-      "frames": 25,
-      "columns": 5
-    },
-    "sleep-wake:60>sleep-wake:0": {
-      "file": "sleep-wake_60--sleep-wake_0.png",
-      "frames": 25,
-      "columns": 5
-    },
     "play-climb-down:0>play-climb-down:1": {
       "file": "play-climb-down_0--play-climb-down_1.png",
       "frames": 25,
@@ -1159,8 +1146,28 @@
       "frames": 25,
       "columns": 5
     },
-    "play-climb-up:5>play-climb-up:0": {
-      "file": "play-climb-up_5--play-climb-up_0.png",
+    "play-climb-up:5>play-climb-up:6": {
+      "file": "play-climb-up_5--play-climb-up_6.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-up:6>play-climb-up:7": {
+      "file": "play-climb-up_6--play-climb-up_7.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-up:7>play-climb-up:8": {
+      "file": "play-climb-up_7--play-climb-up_8.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-up:8>play-climb-up:9": {
+      "file": "play-climb-up_8--play-climb-up_9.png",
+      "frames": 25,
+      "columns": 5
+    },
+    "play-climb-up:9>play-climb-up:0": {
+      "file": "play-climb-up_9--play-climb-up_0.png",
       "frames": 25,
       "columns": 5
     }

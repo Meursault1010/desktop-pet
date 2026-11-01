@@ -1231,8 +1231,8 @@ class Patrol:
                 sample = s.action_player.motion_sample(now)
                 if sample:
                     before,after,progress = sample
-                    phases = ((0.,0.,.25,.65,.90,1.) if before[0] == 'play-climb-up'
-                              else (0.,0.,.20,.55,.85,1.))
+                    phases = ((0.,0.,.30,.55,.80,1.,1.,1.,1.,1.) if before[0] == 'play-climb-up'
+                              else (0.,0.,0.,0.,.24,1.,1.,1.))
                     from locomotion import contact_progress
                     t = phases[min(before[1],len(phases)-1)] if before==after else contact_progress(phases,before[1],progress)
                 else:

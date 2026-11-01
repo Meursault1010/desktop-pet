@@ -24,7 +24,6 @@ NEW = [
  ('work','工作','日常','sit at tiny laptop, hands approach keyboard, type, pause thinking, type'),
  ('tea','喝茶','日常','hold teacup low, lift cup, sip, lower cup, contented expression'),
  ('yawn','打哈欠','日常','sleepy eyes, hand to mouth, mouth opens yawning, closes, relax'),
- ('files','查看文件','日常','hold blue folder, open folder, look down reading, turn page, close folder'),
  ('celebrate','庆祝','情绪','excited smile, raise fists, both arms up, happy bounce, relax'),
  ('comb','梳头','日常','hold small comb, bring to side hair, comb downward, second stroke, lower hand'),
  ('dress','整理衣服','日常','look down, gently smooth skirt left, smooth skirt right, adjust bow, stand'),
@@ -45,9 +44,6 @@ EXISTING = [
 # normal standing pose so the ambient scheduler can cut in and out without a
 # posture change.
 IDLE_NEW = [
- ('snow-catch','接住雪花','待机动作',
-  'neutral stand; tilt her head up and smile; raise both arms above her head with palms open and her face fully visible; lower her open palms to chest height as she catches the snowflake; cup both hands and look down at it with a happy smile; hold her cupped hands closer; lower her arms and return to neutral',
-  'A single tiny stylized snowflake starts above her open palms and ends resting in her cupped hands at chest height. Her hands never cover her face or eyes. No other props, no falling-snow background, no sparkles.'),
  ('hum','轻轻哼歌','待机动作',
   'neutral stand; loosely clasp hands at waist height; sway gently to one side with eyes softly closed; sway to the other side; smile with eyes closed; open eyes and settle back to neutral',
   'The sway is small and lyrical, never a dance, jump or wide step. Both feet remain planted.'),
@@ -78,7 +74,6 @@ IDLE_NEW = [
 ]
 # Slow, readable idle pacing: short entry, lingering gestures, calm recovery.
 IDLE_DURATIONS = {
- 'snow-catch': (300, 360, 520, 620, 480, 400),
  'hum': (300, 420, 700, 700, 520, 400),
  'hair-tuck': (300, 420, 600, 520, 420, 380),
  'sneeze': (300, 280, 360, 520, 420, 380),

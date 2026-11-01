@@ -20,7 +20,7 @@
     {
       "id": "stand",
       "name": "站立",
-      "description": "默认是轻微呼吸与随机眨眼，间隔穿插梳头、整理衣服、看书、喝茶和伸懒腰等日常小动作，也会接雪花、哼歌、理鬓发、眺望、倾听、暖手、行礼、招手和许愿。",
+      "description": "默认是轻微呼吸与随机眨眼，间隔穿插梳头、整理衣服、喝茶和伸懒腰等日常小动作，也会哼歌、理鬓发、眺望、倾听、暖手、行礼、招手和许愿。看书会抬起书后停留约 20～35 秒，像阅读待机一样持续呼吸并偶尔抬眼看你。",
       "actions": [
         "blink",
         "comb",
@@ -32,9 +32,7 @@
         "wait",
         "yawn",
         "screen",
-        "files",
         "leap",
-        "snow-catch",
         "hum",
         "hair-tuck",
         "sneeze",
@@ -54,9 +52,7 @@
         "wait",
         "yawn",
         "screen",
-        "files",
         "leap",
-        "snow-catch",
         "hum",
         "hair-tuck",
         "sneeze",
@@ -71,7 +67,6 @@
         "blink": "基础待机",
         "reading-pose-3": "静态阅读姿势",
         "leap": "短暂活动后站立",
-        "snow-catch": "接住雪花",
         "hum": "轻声哼唱",
         "hair-tuck": "整理鬓发",
         "sneeze": "小小喷嚏",
@@ -80,7 +75,9 @@
         "warm-hands": "呵气暖手",
         "curtsy": "浅鞠行礼",
         "wave": "向观众招手",
-        "star-wish": "对星许愿"
+        "star-wish": "对星许愿",
+        "screen": "持屏待机",
+        "read": "看书待机"
       }
     },
     {

@@ -10,14 +10,15 @@ from unittest.mock import patch
 import numpy as np
 from PIL import Image
 from PySide6.QtCore import QPoint, Qt
-from PySide6.QtGui import QImage, QPainter
+from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
 from main import PetApplication
 from settings_model import SettingsStore
-from pet_sleep import (ASSETS, MANIFEST, SETTLE_SECONDS, WAKE_SECONDS,
-                       WAKE_HOLD_SECONDS, SleepCycle, mix_frames)
+from pet_sleep import (ASSETS, BREATH_AMPLITUDE, BREATH_SECONDS, MANIFEST,
+                       SETTLE_SECONDS, WAKE_SECONDS, WAKE_HOLD_SECONDS, SleepCycle,
+                       mix_frames)
 import test_pet_sleep
 
 
@@ -63,7 +64,8 @@ class SleepAnimationTests(unittest.TestCase):
 
     def test_breath_to_wake_first_frame_has_no_reset_for_every_breath_phase(self):
         for index in range(96):
-            p,s=test_pet_sleep.SleepTests().pet();s.phase='asleep';s.last_frame=s.frame(index)
+            p,s=test_pet_sleep.SleepTests().pet();s.phase='asleep'
+            s.last_frame=s.warped_frame(s.frame(index),100)
             before=pixels(s.last_frame)
             s.wake(p,'点击',100)
             self.assertTrue(np.array_equal(pixels(s.sample(100)),before),index)
@@ -71,12 +73,45 @@ class SleepAnimationTests(unittest.TestCase):
     def test_interrupted_settling_uses_last_visible_pose(self):
         for elapsed in (.01,.3,.8,1.4):
             p,s=test_pet_sleep.SleepTests().pet();s.phase='settling';s.started=100
-            s.last_frame=s.sample(100+elapsed)
+            s.last_frame=s.warped_frame(s.sample(100+elapsed),100+elapsed)
             before=pixels(s.last_frame)
             s.wake(p,'消息',100+elapsed)
             self.assertTrue(np.array_equal(pixels(s.sample(100+elapsed)),before))
             self.assertIsNotNone(s.interrupted_settle)
             self.assertFalse(s.sample(100+elapsed+s.wake_seconds-.001).isNull())
+
+    def test_sleep_breath_raises_the_chest_and_leaves_the_pillow_alone(self):
+        cycle = SleepCycle()
+        cycle.phase = 'asleep'
+        cycle.breath_started = 0.
+        source = cycle.frame(21)
+        inhale = pixels(cycle.warped_frame(source, BREATH_SECONDS/4))
+        exhale = pixels(cycle.warped_frame(source, BREATH_SECONDS*3/4))
+        self.assertAlmostEqual(cycle.breath_offset(BREATH_SECONDS/4), BREATH_AMPLITUDE)
+        self.assertAlmostEqual(cycle.breath_offset(BREATH_SECONDS*3/4), -BREATH_AMPLITUDE)
+        # Alpha is saturated inside the body, so follow the drawn outlines instead.
+        def outline_row(image):
+            dark = (image[..., :3].astype(float).mean(2) < 150) & (image[..., 3] > 200)
+            ys, _ = np.nonzero(dark[140:220, 110:220])
+            return float(ys.mean())
+        self.assertLess(outline_row(inhale), outline_row(exhale)-BREATH_AMPLITUDE*.6)
+        # Supported regions must not ride along with the breath. Boxes sit well
+        # inside the guards: their edges ramp over FEATHER px.
+        for name, box in (('pillow', (slice(165, 240), slice(258, 312))),
+                          ('face', (slice(100, 178), slice(212, 300))),
+                          ('shoes', (slice(272, 305), slice(60, 140)))):
+            self.assertTrue(np.array_equal(inhale[box], exhale[box]), name)
+
+    def test_settling_exhales_into_the_asleep_clock_without_a_reversal(self):
+        cycle = SleepCycle()
+        cycle.phase = 'settling'
+        cycle.started = 1000.
+        cycle.breath_started = 1000.+SETTLE_SECONDS
+        self.assertAlmostEqual(cycle.breath_offset(1000.), 0., places=3)
+        self.assertLess(cycle.breath_offset(1000.+SETTLE_SECONDS/2), 0.)
+        self.assertAlmostEqual(cycle.breath_offset(1000.+SETTLE_SECONDS), 0., places=3)
+        cycle.phase = 'asleep'
+        self.assertGreater(cycle.breath_offset(1000.+SETTLE_SECONDS+.01), 0.)
 
     def test_weighted_blending_preserves_opaque_pillow(self):
         s=SleepCycle();a=s.frame(25);b=s.sequence_frame('wake',.08)

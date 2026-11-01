@@ -58,5 +58,26 @@ class ActionLifeMotionTests(unittest.TestCase):
         self.assertIsNot(later, first)
 
 
+    def test_the_hip_mask_is_limited_to_the_reading_holds(self):
+        """An amplitude rule approved for one clip is not a licence for all."""
+        source = QRect(0, 0, 256, 256)
+        shipped = ActionLifeMotion.UPPER_ONLY
+        self.addCleanup(setattr, ActionLifeMotion, 'UPPER_ONLY', shipped)
+
+        def below_waist(action, masked):
+            ActionLifeMotion.UPPER_ONLY = shipped & {action} if masked else set()
+            motion = ActionLifeMotion()
+            image = motion.render(self.atlas, source, action, .95)
+            return bytes(image.constBits())[190*256*4:250*256*4]
+
+        for action in ('sit-neat', 'prone-rest', 'work', 'read', 'reading-pose-1'):
+            with self.subTest(action=action):
+                limited, whole = below_waist(action, True), below_waist(action, False)
+                if action in shipped:
+                    self.assertNotEqual(limited, whole, f'{action} lost its hip mask')
+                else:
+                    self.assertEqual(limited, whole, f'{action} picked up a hip mask')
+
+
 if __name__ == '__main__':
     unittest.main()

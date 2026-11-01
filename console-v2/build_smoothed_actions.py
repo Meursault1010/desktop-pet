@@ -14,7 +14,7 @@ import shutil
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 from action_player import catalog
 from build_action_inbetweens import interpolate
@@ -34,6 +34,31 @@ def load_frame(path):
 
 def sample_indices(k):
     return [round((index + 1) * 24 / (k + 1)) for index in range(k)]
+
+
+# Actions where the optical-flow in-betweens tear (eyelids, eyes) or smear a
+# sideways drift into a visible glide: keep only the authored key poses plus any
+# drawn in-betweens. Other actions keep the warp.
+# wave came back once its key poses shared one base: the source batch had drawn
+# the same stance 19px apart, so the warp was modelling that canvas slide as
+# motion. With the poses locked the largest endpoint step is 12.3, inside the
+# range where the flow only has to carry a real gesture.
+NO_FLOW = {'blink', 'curious', 'tea', 'play-lean'}
+
+# In-place actions must not slide sideways; bake the per-frame centre so the
+# stomp stays under the same spot on screen.
+IN_PLACE = {'angry'}
+
+# Segments whose in-betweens are drawn instead of warped. Eyelids are the first
+# case: the flow tears the thin lash strokes, and a generated eye loses the
+# heavy anime lash at 256 px, so the lid change is staged with the artwork's own
+# key poses (a crisp blink reads better than a smeared one).
+DRAWN = {
+    ('blink', 3): ['action-work/smooth/blink/original/04.png'],
+    ('blink', 4): ['action-work/smooth/blink/original/06.png'],
+    ('blink', 8): ['action-work/smooth/blink/original/09.png'],
+    ('blink', 9): ['action-work/smooth/blink/original/11.png'],
+}
 
 
 def fit_frame(frame):
@@ -62,6 +87,34 @@ def fit_frame(frame):
     return shifted
 
 
+def edge_strength(frame):
+    """Mean gradient inside the sprite; proxies the drawn line weight."""
+    a = np.asarray(frame).astype(np.float32)
+    alpha = a[:, :, 3] / 255.0
+    solid = alpha > 0.78
+    if not solid.any():
+        return 0.0
+    lum = (a[:, :, :3] * alpha[..., None] + 240 * (1 - alpha[..., None])).mean(2)
+    gy, gx = np.gradient(lum)
+    return float(np.sqrt(gy ** 2 + gx ** 2)[solid].mean())
+
+
+def match_edge(frame, target, limit=150):
+    """Warped in-betweens come out softer than the key poses; lift them back."""
+    best, best_percent = None, 0
+    for percent in range(0, limit + 1, 10):
+        image = Image.fromarray(frame)
+        sharp = image if percent == 0 else image.filter(
+            ImageFilter.UnsharpMask(radius=1.0, percent=percent, threshold=2))
+        candidate = np.asarray(sharp)
+        score = abs(edge_strength(candidate) - target)
+        if best is None or score < best[0]:
+            best, best_percent = (score, candidate), percent
+        if edge_strength(candidate) > target:
+            break
+    return best[1], best_percent
+
+
 def choose_k(duration_ms):
     if duration_ms - 60 < STEP_MS:
         return 0
@@ -83,16 +136,31 @@ def expanded(action_id, stage_dir, frame_images, base_entry):
         source = frame_images[index]
         duration = durations[index]
         target = index + 1 if index + 1 < frames else loop_source
-        k = choose_k(duration) if target is not None else 0
+        drawn = DRAWN.get((action_id, index))
+        warped = action_id not in NO_FLOW
+        k = len(drawn) if drawn else (choose_k(duration) if target is not None and warped else 0)
         key_index[index] = len(result)
         if target is None or k == 0:
             result.append(source)
             schedule.append(duration)
             continue
-        step = STEP_MS
-        hold = max(60, duration - k * step)
+        if drawn:
+            # The drawing count is fixed; shrink the step so the segment still
+            # fits its authored duration exactly.
+            step = max(24, int((duration - 60) // max(1, k)))
+            hold = duration - k * step
+        else:
+            step = STEP_MS
+            hold = max(60, duration - k * step)
         result.append(source)
         schedule.append(hold)
+        if drawn:
+            for path in drawn:
+                result.append(load_frame(ROOT / path if not Path(path).is_absolute() else path))
+                schedule.append(step)
+            reports.append({'segment': [index, target], 'k': len(drawn), 'hold': hold,
+                            'step': step, 'drawn': True})
+            continue
         frames_inbetween, quality = interpolate(
             source, frame_images[target], (action_id, index), (action_id, target))
         picks = sample_indices(k)
@@ -101,6 +169,28 @@ def expanded(action_id, stage_dir, frame_images, base_entry):
             schedule.append(step)
         reports.append({'segment': [index, target], 'k': k, 'hold': hold,
                         'step': step, **quality})
+    if action_id in IN_PLACE:
+        centres = []
+        for frame in result:
+            xs = np.where(np.asarray(frame)[:, :, 3] > 8)[1]
+            centres.append(float(xs.mean()) if len(xs) else 128.0)
+        target_centre = float(np.median(centres))
+        for i, frame in enumerate(result):
+            shift = int(round(target_centre - centres[i]))
+            if shift:
+                result[i] = np.roll(frame, shift, axis=1)
+    # Align line weight across the clip: warped samples are ~40% softer than the
+    # authored key poses, which reads as one frame "drawn in another hand".
+    key_edges = [edge_strength(result[i]) for i in key_index.values() if i < len(result)]
+    if key_edges:
+        target_edge = float(np.median(key_edges))
+        sharpened = 0
+        for i, frame in enumerate(result):
+            if edge_strength(frame) < target_edge * 0.92:
+                result[i], percent = match_edge(frame, target_edge)
+                sharpened += 1
+        if sharpened:
+            print(f'  {action_id}: edge-aligned {sharpened} frames to {target_edge:.2f}')
     assert abs(sum(schedule) - sum(durations)) < 1e-6, (action_id, sum(schedule), sum(durations))
     stage_dir.mkdir(parents=True, exist_ok=True)
     for i, frame in enumerate(result):

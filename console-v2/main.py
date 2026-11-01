@@ -155,8 +155,8 @@ class PetApplication(QObject):
     def create_menu(self, parent):
         menu = CompanionMenu(parent, self.icon)
         menu.quick_chat(self)
-        menu.command('translation', '划词翻译', self.toggle_translation, checkable=True)
-        menu.command('demo_climb', '演示边缘攀爬', self.demo_climb)
+        menu.command('translation', '划词翻译', self.toggle_translation, 'translate', checkable=True)
+        menu.command('demo_climb', '演示边缘攀爬', self.demo_climb, 'climb')
         menu.command('console', '打开工作台', self.open_console, 'console')
         menu.addSeparator()
         # PetService redirects the last action through Electron's exit handler.
@@ -181,8 +181,8 @@ class PetApplication(QObject):
         if isinstance(menu, CompanionMenu):
             menu.status.setText(self.pet.status_text())
             menu.routine.setText(self.pet.state.routine.period['name'])
-            menu.update_chat(self)
             menu.apply_theme(getattr(self, 'ui_theme', 'mist'))
+            menu.update_chat(self)
         for action in menu.actions():
             if action.objectName() == 'translation':
                 action.setChecked(getattr(self, 'translation_enabled', False))

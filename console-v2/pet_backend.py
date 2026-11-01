@@ -9,11 +9,11 @@ import re
 import uuid
 
 from PySide6.QtCore import QByteArray, QBuffer, QIODevice, QThread, QTimer, Signal, Qt
-from PySide6.QtGui import QImage, QPainter
+from PySide6.QtGui import QBitmap, QImage, QPainter, QRegion
 from PySide6.QtWidgets import QApplication
 
 from main import PetApplication
-from pet import PetRenderer, PetState
+from pet import PetRenderer
 from settings_model import SettingsStore, Preferences, LIMITS, ACTIVITIES
 
 STATUS_PERFORMANCES = {
@@ -21,7 +21,7 @@ STATUS_PERFORMANCES = {
     'working': ('work', '工具状态 · 正在处理', True, .95),
     'waiting': ('wait', '工具状态 · 等你回来', True, .7),
     'done': ('celebrate', '工具状态 · 完成了', False, .7),
-    'error': ('sad', '工具状态 · 遇到问题', False, .8),
+    'error': ('sad', '工具状态 · 遇到问题', False, 1.),
 }
 NOTIFICATION_KINDS = ('usb', 'charging', 'download', 'success', 'failure')
 
@@ -54,14 +54,17 @@ class PetService(PetApplication):
         self.events = QTimer(self)
         self.events.setInterval(500)
         self.events.timeout.connect(self.publish)
-        self.preview = self.make_preview()
+        self.preview_renderer = PetRenderer()
+        self.preview = None
+        self.preview_token = None
 
     def start(self):
         self.pet.present(True)
         self.music.start()
         self.reader.start()
         self.events.start()
-        self.send({'type': 'ready', 'protocol': 1, 'state': self.snapshot(), 'preview': self.preview})
+        self.send({'type': 'ready', 'protocol': 1, 'state': self.snapshot(),
+                   'preview': self.ensure_preview()[0]})
         self.pet.presence_entered.connect(self._entered)
         if not self.pet.presence.active:
             QTimer.singleShot(0, self._entered)
@@ -253,30 +256,85 @@ class PetService(PetApplication):
         from idle_states import snapshot
         return snapshot(self.pet.state)
 
-    def publish(self):
-        if self.shutting_down:
-            return
-        state = self.snapshot()
-        comparable = {k: v for k, v in state.items() if k != 'revision'}
-        if comparable != self.previous:
-            self.previous = comparable
-            self.revision += 1
-            state['revision'] = self.revision
-            self.send({'type': 'event', 'name': 'state_changed', 'state': state})
+    def preview_signature(self):
+        state = self.pet.state
+        action = state.action_player.action
+        return (self.pet.isVisible(), self.pet.desired_visible(),
+                state.sleep.phase, action['id'] if action else None,
+                state.action_player.started if action else None,
+                self.pet.moving(), state.drag_feedback is not None,
+                state.physics.active, state.gait_name)
 
-    @staticmethod
-    def make_preview():
+    def ensure_preview(self):
+        signature = self.preview_signature()
+        if signature == self.preview_token and self.preview is not None:
+            return self.preview, False
+        self.preview_token = signature
+        self.preview = self.render_preview()
+        return self.preview, True
+
+    def render_preview(self):
+        state = self.pet.state
+        now = time.monotonic()
+        action = state.action_player.action
+        at = now
+        if action is not None and not (state.sleep.active or state.sleep.phase == 'waking'):
+            try:
+                total = sum(action['durations'])/1000/state.action_player.speed
+                at = state.action_player.started + total*.5
+            except (KeyError, TypeError, ZeroDivisionError):
+                at = now
         image = QImage(360, 380, QImage.Format.Format_ARGB32)
         image.fill(Qt.GlobalColor.transparent)
         painter = QPainter(image)
         painter.scale(2, 2)
-        PetRenderer().draw(painter, PetState())
+        self.preview_renderer.draw_pose(painter, state, at)
         painter.end()
+        image = self.fit_preview(image)
         data = QByteArray()
         buffer = QBuffer(data)
         buffer.open(QIODevice.OpenModeFlag.WriteOnly)
         image.save(buffer, 'PNG')
         return 'data:image/png;base64,' + base64.b64encode(bytes(data)).decode('ascii')
+
+    @staticmethod
+    def fit_preview(image):
+        box = QRegion(QBitmap.fromImage(image.createAlphaMask())).boundingRect()
+        if box.isEmpty():
+            return image
+        pad = max(6, round(max(box.width(), box.height())*.08))
+        box = box.adjusted(-pad, -pad, pad, pad)
+        width, height = box.width(), box.height()
+        if width/height < 128/145:
+            width = round(height*128/145)
+        else:
+            height = round(width*145/128)
+        canvas = QImage(width, height, QImage.Format.Format_ARGB32)
+        canvas.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(canvas)
+        painter.drawImage(round((width-box.width())/2)-box.x(),
+                          round((height-box.height())/2)-box.y(), image)
+        painter.end()
+        return canvas
+
+    def publish(self):
+        if self.shutting_down:
+            return
+        state = self.snapshot()
+        comparable = {k: v for k, v in state.items() if k != 'revision'}
+        preview, preview_changed = self.ensure_preview()
+        changed = comparable != self.previous
+        if not changed and not preview_changed:
+            return
+        message = {'type': 'event', 'name': 'state_changed'}
+        if changed:
+            self.previous = comparable
+            self.revision += 1
+            state['revision'] = self.revision
+        message['state'] = state
+        if preview_changed:
+            message['preview'] = preview
+        self.send(message)
 
     def receive(self, line):
         request_id = None
@@ -341,7 +399,10 @@ class PetService(PetApplication):
                             s.patrol.suspend()
                         if s.music:
                             s.music.cancel()
-                        s.action_player.play('sad' if kind == 'failure' else 'celebrate', speed=.8)
+                        if kind == 'failure':
+                            s.action_player.play('sad', speed=1.)
+                        else:
+                            s.action_player.play('celebrate', speed=.8)
                         s.walking = False
                         s.ambient.current = None
                         s.ambient.next_at = now + 10
@@ -441,7 +502,7 @@ class PetService(PetApplication):
             self.publish()
             response = {'type': 'response', 'id': request_id, 'ok': True, 'state': self.snapshot()}
             if command == 'get_state':
-                response['preview'] = self.preview
+                response['preview'] = self.ensure_preview()[0]
             self.send(response)
             if command == 'shutdown':
                 QTimer.singleShot(0, self.quit)

@@ -45,7 +45,8 @@ class RecoveryLiveTests(unittest.TestCase):
         self.player.play('music-waltz',now=self.now)
         self.recovery.tick(self.now)
         duration=sum(self.player.action['durations'])/1000;position=self.pet.pos()
-        self.recovery.tick(self.now+duration)
+        # A real tick lands after the boundary; an exact one can fall a hair short.
+        self.recovery.tick(self.now+duration+.01)
         self.assertEqual(self.player.action['id'],ACTION_ID)
         self.assertEqual(self.pet.pos(),position)
         self.assertFalse(self.player.loop)

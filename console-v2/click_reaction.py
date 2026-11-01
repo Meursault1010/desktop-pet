@@ -40,9 +40,8 @@ class ClickReaction:
         shear = self.direction*(.065 if self.kind == 'shy' else .04 if self.kind == 'startle' else .025)*strength*wobble
         dx, angle = 0., self.direction*.9*wobble
         if self.kind == 'shy':
-            # Lean gently away, then settle back without moving the window.
+            # Lean gently away, then settle back; the character stays planted.
             shy = math.sin(math.pi*min(1., elapsed/1.8))**2
-            dx = -self.direction*3*shy
             angle -= self.direction*1*shy
         elif self.kind == 'startle':
             dx = self.direction*2*math.sin(math.pi*min(1., elapsed/1.8))

@@ -5,7 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from PySide6.QtCore import QRectF, Qt
-from PySide6.QtGui import QColor, QPixmap
+from PySide6.QtGui import QColor, QImage, QPainter, QPixmap
 
 ROOT = Path(__file__).resolve().parent / 'assets/motion-v2/walk-vertical'
 GROUND = 181.875
@@ -15,19 +15,44 @@ NAMES = ('walk-up', 'walk-down')
 # foot slides back by this much while the window moves forward, which keeps a
 # visible step under the planted leg instead of a pure window translation.
 FOOT_TRAVEL = 4.0
+# The vertical rig is deliberately restrained: the character's idle pose is
+# nearly still, so a full-size gait bob/roll reads as shaking rather than weight
+# transfer. Keep the leg cadence, but attenuate only the torso response.
+BODY_MOTION_SCALE = .35
 
 
 @lru_cache(maxsize=1)
 def rig():
     data = json.loads((ROOT / 'rig.json').read_text(encoding='utf-8'))
-    bodies = {name: QPixmap(str(ROOT / data[name]['body']))
-              for name in ('up', 'down')}
+    bodies = {'up': QPixmap(str(ROOT / data['up']['body'])),
+              'down': _idle_down_body(data['down']['cut_y'])}
     legs = {name: tuple(QPixmap(str(ROOT / file))
                         for file in data[name]['legs'])
             for name in ('up', 'down')}
     if any(im.isNull() for im in (*bodies.values(), *legs['up'], *legs['down'])):
         raise ValueError('缺少纵向走路图层')
     return data, bodies, legs
+
+
+@lru_cache(maxsize=1)
+def _idle_down_body(cut_y):
+    """Use the current idle front view as the down-walk torso.
+
+    The old standalone down body was drawn in a different style. The idle
+    atlas is already the approved front-facing source; clear its baked legs so
+    the existing vertical leg layers remain responsible for the step.
+    """
+    atlas = QPixmap(str(Path(__file__).resolve().parent / 'assets' / 'living-idle' / 'open.png'))
+    if atlas.isNull():
+        raise ValueError('缺少待机正面素材')
+    image = atlas.copy(0, 0, 256, 256).toImage().convertToFormat(
+        QImage.Format.Format_ARGB32_Premultiplied)
+    painter = QPainter(image)
+    painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_DestinationOut)
+    painter.fillRect(0, int(cut_y), image.width(), image.height() - int(cut_y),
+                     QColor(0, 0, 0, 255))
+    painter.end()
+    return QPixmap.fromImage(image)
 
 
 def direction(name):
@@ -70,9 +95,10 @@ def _poses(phase, data, energy, travel=1.):
     # equal weight, so this passes through the neutral stance smoothly.
     total = sum(planted)
     weight_shift = ((planted[1] - planted[0]) / total) if total else 0.
-    bob = energy * (data['body_drop'] - data['bob'] * (1 - math.cos(4 * math.pi * phase)))
-    sway = energy * data['sway'] * weight_shift
-    roll = energy * data['roll'] * weight_shift
+    bob = (energy * (data['body_drop'] - data['bob'] *
+                    (1 - math.cos(4 * math.pi * phase))) * BODY_MOTION_SCALE)
+    sway = energy * data['sway'] * weight_shift * BODY_MOTION_SCALE
+    roll = energy * data['roll'] * weight_shift * BODY_MOTION_SCALE
     return moves, bob, sway, roll
 
 

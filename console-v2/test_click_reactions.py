@@ -47,9 +47,9 @@ class ClickTests(unittest.TestCase):
         self.assertEqual(self.pet.state.action_player.action['id'], 'shy')
         self.assertEqual(self.pet.state.click_reaction.kind, 'shy')
         player = self.pet.state.action_player
-        self.assertEqual(player.frame_order, [2])
-        self.assertEqual(player.frame(player.started+.5), 2)
-        self.assertEqual(player.motion_sample(player.started+.5), (('shy',2),('shy',2),0.))
+        self.assertEqual(player.frame_order, [7])
+        self.assertEqual(player.frame(player.started+.5), 7)
+        self.assertEqual(player.motion_sample(player.started+.5), (('shy',7),('shy',7),0.))
         self.assertIsNone(self.pet.state.jump_started)
         self.assertEqual(self.pet.pos(), origin)
 
@@ -146,8 +146,17 @@ class ClickTests(unittest.TestCase):
         left = response.transform(100.9)
         response.trigger('shy', 180, now=100)
         right = response.transform(100.9)
-        self.assertAlmostEqual(left[0], -right[0])
-        self.assertGreater(left[0], 0)
+        self.assertEqual(left[0], 0.)
+        self.assertEqual(right[0], 0.)
+        self.assertAlmostEqual(left[2], -right[2])
+
+    def test_shy_keeps_the_sprite_planted(self):
+        response = ClickReaction()
+        response.trigger('shy', 20, now=100)
+        for step in range(181):
+            dx, dy, *_ = response.transform(100+step/100)
+            self.assertEqual(dx, 0.)
+            self.assertEqual(dy, 0.)
 
     def test_jelly_compresses_then_stretches_without_shrinking(self):
         response = ClickReaction()

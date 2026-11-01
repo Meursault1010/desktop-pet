@@ -1,10 +1,14 @@
 """Scheduled continuous sleep, independent of random idle clips."""
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 import json
+import math
 import time
 from PySide6.QtCore import QRectF
 from PySide6.QtGui import QColor, QFont, QImage, QPainter, QPixmap
+import cv2
+import numpy as np
 
 ASSETS = Path(__file__).resolve().parent/'assets'/'sleep'
 MANIFEST = json.loads((ASSETS/'transitions/manifest.json').read_text(encoding='utf-8'))
@@ -12,6 +16,53 @@ PLAYBACK = MANIFEST.get('playback', {})
 SETTLE_SECONDS = PLAYBACK.get('settle', MANIFEST['settle']['seconds'])
 WAKE_SECONDS = PLAYBACK.get('wake', MANIFEST['wake']['seconds'])
 WAKE_HOLD_SECONDS = PLAYBACK.get('wake_hold', 0.)
+SIZE = tuple(MANIFEST['size'])
+
+# The sleeper lies on the pillow, so a whole-body scale reads as the picture
+# inflating: the head and the pillow travel with the chest and the pillow is
+# supposed to be pixel exact. The breath is a bulge on the shoulder/chest mass
+# instead, with the supported regions guarded to zero.
+BREATH_SECONDS = 4.2
+BREATH_AMPLITUDE = 5.                       # source px at the crest (screen ±2.5 px)
+CHEST = (0.50, 0.535, 0.22, 0.14)           # nx, ny, x spread, y spread
+HIP = (0.42, 0.72, 0.22, 0.10)
+HIP_FOLLOW = 0.35
+# x0, y0, x1, y1: the face and hand resting on the pillow, the pillow itself and
+# the shoes on the ground. Guarded regions stay byte-identical while breathing.
+GUARDS = ((200, 60, 330, 190), (246, 150, 322, 252), (50, 262, 150, 312))
+CONTACT_ROW = 311
+FEATHER = 14.
+
+
+def _guard(shape, box):
+    """1 outside the box, ramping to 0 over `FEATHER` px inside it."""
+    x0, y0, x1, y1 = box
+    yy, xx = np.mgrid[0:shape[0], 0:shape[1]].astype(np.float32)
+    inner = np.minimum.reduce([xx - x0, y1 - yy, x1 - xx, yy - y0])
+    return np.clip(inner / FEATHER + .5, 0., 1.)
+
+
+@lru_cache(maxsize=2)
+def breath_field(width, height):
+    """Upward chest displacement per unit of breath, in source pixels."""
+    yy, xx = np.mgrid[0:height, 0:width].astype(np.float32)
+    nx, ny = xx / width, yy / height
+
+    def gauss(cx, cy, sx, sy):
+        return np.exp(-((nx - cx) / sx) ** 2) * np.exp(-((ny - cy) / sy) ** 2)
+
+    keep = 1.
+    for box in GUARDS:
+        keep *= 1. - _guard((height, width), box)
+    keep *= np.clip((CONTACT_ROW - yy) / 10. + .5, 0., 1.)
+    return (gauss(*CHEST) + gauss(*HIP) * HIP_FOLLOW) * keep
+
+
+@lru_cache(maxsize=2)
+def breath_maps(width, height):
+    grid = np.mgrid[0:height, 0:width].astype(np.float32)
+    return np.float32(grid[1]), grid[0]
+
 
 
 def mix_frames(first, last, weight):
@@ -51,6 +102,8 @@ class SleepCycle:
         self.frames = {}
         self.preload_cursor = 0
         self.breath_started = 0.
+        self._breath_key = None
+        self._breath_frame = None
         self.wake_source = None
         self.last_frame = None
         self.interrupted_settle = None
@@ -267,24 +320,70 @@ class SleepCycle:
             return mix_frames(self.wake_source, frame, weight)
         return self.frame(int(max(0., now-self.breath_started)*20) % 96)
 
+    def breath_offset(self, now):
+        """Signed chest displacement in source pixels for this instant.
+
+        Settling exhales into sleep: the half-cycle that ends the head-lower is
+        the descending zero of the clock the asleep loop starts from, so the
+        handover never reverses direction. SETTLE_SECONDS is half BREATH_SECONDS
+        for exactly that reason.
+        """
+        if self.phase == 'settling':
+            elapsed = max(0., now-self.started)
+            if elapsed > SETTLE_SECONDS:
+                return 0.
+            t = min(1., elapsed/SETTLE_SECONDS)
+            ramp = .6+.4*t*t*(3-2*t)
+            return -BREATH_AMPLITUDE*ramp*math.sin(math.tau*elapsed/BREATH_SECONDS)
+        if self.phase != 'asleep':
+            return 0.
+        return BREATH_AMPLITUDE*math.sin(math.tau*(now-self.breath_started)/BREATH_SECONDS)
+
+    def warped_frame(self, frame, now):
+        """The breathing pose as a frame, so waking starts from what is visible."""
+        # Half-pixel buckets: at this amplitude a whole-pixel step would land
+        # roughly every fifth of a second and read as a tick, not a breath.
+        offset = round(self.breath_offset(now)*2)/2
+        if not offset or frame is None or frame.isNull() \
+                or (frame.width(), frame.height()) != SIZE:
+            return frame
+        key = (frame.cacheKey(), offset)
+        if key == self._breath_key:
+            return self._breath_frame
+        image = frame.toImage().convertToFormat(QImage.Format.Format_RGBA8888_Premultiplied)
+        width, height = image.width(), image.height()
+        rgba = np.frombuffer(image.constBits(), np.uint8)
+        rgba = rgba.reshape(height, image.bytesPerLine()//4, 4)[:, :width]
+        map_x, map_y = breath_maps(width, height)
+        shifted = np.clip(map_y+breath_field(width, height)*offset, 0, height-1)
+        warped = cv2.remap(np.ascontiguousarray(rgba), map_x, np.ascontiguousarray(shifted),
+                           cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+        self._breath_key = key
+        self._breath_frame = QPixmap.fromImage(QImage(
+            warped.data, width, height, width*4,
+            QImage.Format.Format_RGBA8888_Premultiplied).copy())
+        return self._breath_frame
+
     def paint(self, painter, now):
         elapsed = max(0., now-self.started)
         painter.setRenderHint(painter.RenderHint.SmoothPixmapTransform, True)
         frame = self.sample(now)
         if frame.isNull():
             return False
-        self.last_frame = frame
-        painter.save()
-        painter.drawPixmap(QRectF(5, 20, 170, 164), frame, QRectF(frame.rect()))
+        # The drawn pose is the one a click has to continue from, breath included.
+        self.last_frame = self.warped_frame(frame, now)
+        painter.drawPixmap(QRectF(5, 20, 170, 164), self.last_frame,
+                           QRectF(self.last_frame.rect()))
         if self.phase != 'waking':
             # Letters appear after the eyelids have closed, not while sleepy.
             settle = min(1., max(0., (elapsed-1.1)/.5)) if self.phase == 'settling' else 1.
             letter_time = now-self.started
+            painter.save()
             painter.setFont(QFont('Comic Sans MS', 12, QFont.Weight.Bold))
             for j in range(3):
                 p = (letter_time/4.8+j/3) % 1
                 alpha = round(210*max(0, min(1, p/.18, (1-p)/.25))*settle)
                 painter.setPen(QColor(114, 141, 199, alpha))
                 painter.drawText(QRectF(124+28*p, 37-15*p, 20, 24), 'z')
-        painter.restore()
+            painter.restore()
         return True

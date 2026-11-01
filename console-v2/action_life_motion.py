@@ -23,13 +23,17 @@ class ActionLifeMotion:
     EXCLUDED = {'lazy-roll-away', 'lazy-roll-toward', 'throw-flight',
                 'play-climb-up', 'play-climb-down',
                 'impact-left', 'impact-right', 'impact-ceiling', 'impact-floor'}
+    # The reading holds hold a book in the lap, so their breath stops at the hip.
+    # Every other idle keeps the original whole-torso field: the mask was tuned
+    # for these four and must not leak into the everyday poses.
+    UPPER_ONLY = {'read', 'reading-pose-1', 'reading-pose-2', 'reading-pose-3'}
 
     def __init__(self):
         self.cache = {}
         self.last_key = None
         self.last_image = None
 
-    def render(self, atlas, source, action_id, elapsed, target_size=None):
+    def render(self, atlas, source, action_id, elapsed, target_size=None, scale=1., center=None, spread=.19, bob=0., sway=0., period=3.8, lean=0.):
         if action_id in self.EXCLUDED or action_id in {'sleep', 'sleep-enter', 'sleep-wake'}:
             return None
         frame = (atlas.copy(source) if isinstance(atlas, QImage) else atlas.copy(source).toImage()).convertToFormat(
@@ -42,7 +46,8 @@ class ActionLifeMotion:
         # The secondary motion is slow; recomputing it at 60Hz doubles paint
         # cost for no visible gain. Reuse the 30Hz bucket on alternate frames.
         bucket = round(elapsed*30)
-        key = (action_id, size, atlas.cacheKey(), source.x(), source.y(), bucket)
+        key = (action_id, size, atlas.cacheKey(), source.x(), source.y(), bucket,
+               scale, center, spread, bob, sway, period, lean)
         if key == self.last_key:
             return self.last_image
         unit = size/256
@@ -63,26 +68,34 @@ class ActionLifeMotion:
         xx, yy = _coordinates(size)
         nx = (xx-x0)/width
         ny = (yy-y0)/height
-        phase = 2*math.pi*(elapsed % 3.8)/3.8
+        phase = 2*math.pi*(elapsed % period)/period
         breath = math.sin(phase)
         is_prone = action_id in self.PRONE
         is_seated = action_id in self.SEATED
         # Keep the deformation centered on the torso for each authored pose.
-        chest_y = .53 if is_prone else .46 if is_seated else .51
-        chest = np.exp(-((ny-chest_y)/.19)**2) * np.exp(-((nx-.51)/.29)**2)
-        amplitude = .58 if is_prone else .82 if is_seated else 1.05
+        chest_y = center if center is not None else .53 if is_prone else .46 if is_seated else .51
+        chest = np.exp(-((ny-chest_y)/spread)**2) * np.exp(-((nx-.51)/.29)**2)
+        amplitude = (.58 if is_prone else .82 if is_seated else 1.05)*scale
         alpha = rgba[:, :, 3].astype(np.float32)/255
         anchor = np.clip((1-ny)/.12, 0, 1)
-        dy = -amplitude*breath*chest*anchor*alpha*unit
-        dx = (nx-.51)*width*.012*breath*chest*alpha
+        # The field is built on canvas coordinates, not on coverage: weighting it
+        # by alpha pinned the transparent rows above the head, so a large bob
+        # shaved the top of the silhouette instead of lifting it.
+        upper = np.clip((.74-ny)/.28, 0, 1) if action_id in self.UPPER_ONLY else 1.
+        dy = -amplitude*breath*chest*anchor*upper*unit
+        dy += -bob*breath*upper*unit
+        dx = (nx-.51)*width*.012*breath*chest*upper
+        dx += lean*breath*upper*unit
 
-        # Let the outer hair trail the torso by a fraction of a beat.
+        # Let the outer hair trail the torso by a fraction of a beat. On the
+        # reading holds it rides the same upper-body mask, otherwise the drape
+        # over the skirt swings and the lower half stops reading as planted.
         hair_region = np.clip((ny-.34)/.24, 0, 1)*np.clip((.96-ny)/.2, 0, 1)
         sides = np.clip((np.abs(nx-.5)-.31)/.2, 0, 1)
-        hair = hair_region*sides*alpha
+        hair = hair_region*sides*alpha*upper
         lag = (ny-.34)*1.9
-        dx += .72*np.sin(phase-lag)*hair*unit
-        dy += .34*np.sin(phase-lag+.6)*hair*unit
+        dx += (.72*scale+sway)*np.sin(phase-lag)*hair*unit
+        dy += (.34*scale+.5*sway)*np.sin(phase-lag+.6)*hair*unit
 
         if action_id == 'play-top-rest':
             # A tiny irregular leg swing below the fixed seat, not a new pose

@@ -1,1 +1,0 @@
-2026-10-23 visual QA: identity, clean cutout, six distinct poses, neutral start/end, face visible while catching.

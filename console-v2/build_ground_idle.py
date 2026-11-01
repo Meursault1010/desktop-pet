@@ -128,7 +128,15 @@ if __name__ == '__main__':
     parser.add_argument('--only', choices=SPECS)
     parser.add_argument('--publish', action='store_true')
     args = parser.parse_args()
+    manifest = ROOT/'assets/actions/catalog.json'
+    shipped = json.loads(manifest.read_text(encoding='utf-8')) if manifest.exists() else []
     for key in [args.only] if args.only else SPECS:
+        # A later lock script re-baked this clip's placement into the pixels;
+        # re-cutting the sheet here would put the sideways slide back.
+        entry = next((item for item in shipped if item['id'] == key), None)
+        if entry and entry.get('body_locked'):
+            print(f'SKIP {key}: ships locked authored frames', flush=True)
+            continue
         if (WORK/key/'raw.png').exists():
             prepare(key, args.publish)
             print(f'PREPARED {key}', flush=True)

@@ -58,7 +58,7 @@ class InbetweenTests(unittest.TestCase):
 
     def test_new_idle_vignettes_ship_baked_frames(self):
         data = json.loads((ROOT/'manifest.json').read_text(encoding='utf-8'))
-        for key in ('snow-catch', 'hum', 'hair-tuck', 'sneeze', 'gaze-far', 'listen',
+        for key in ('hum', 'hair-tuck', 'sneeze', 'gaze-far', 'listen',
                     'warm-hands', 'curtsy', 'wave', 'star-wish'):
             action=catalog()[key]
             self.assertTrue(action.get('authored_motion'), key)
@@ -137,7 +137,14 @@ class InbetweenTests(unittest.TestCase):
                 decode.assert_not_called()
 
     def test_expressive_actions_use_their_shipped_inbetweens(self):
-        for key in ('curious','play-peek','celebrate','affection'):
+        # curious dropped its optical-flow in-betweens (they tore the eyes) and
+        # now ships three drawn in-betweens whose faces are pasted back from the
+        # key poses they belong to, so the flow manifest must stay empty for it.
+        curious=catalog()['curious']
+        self.assertTrue(curious.get('authored_motion'))
+        self.assertEqual(curious['frames'], curious['keyframes']+3)
+        self.assertFalse(any(pair.startswith('curious:') for pair in inbetweens.manifest()))
+        for key in ('play-peek','celebrate','affection'):
             pair=((key,0),(key,1))
             action=catalog()[key]
             self.assertTrue(action.get('authored_motion'), key)

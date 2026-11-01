@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Yuki rig renderer</title>
+<style>
+  html, body { margin: 0; background: #1d2937; }
+  canvas { display: block; width: 1024px; height: 1024px; }
+</style>
+</head>
+<body>
+<canvas id="stage" width="1024" height="1024"></canvas>
+<script type="module">
+import { P2LPlayer } from "./p2l.js";
+
+const playerCanvas = document.createElement("canvas");
+playerCanvas.width = 512; playerCanvas.height = 512;
+const player = await P2LPlayer.create(playerCanvas, "p2l_runtime.wasm", "Yuki_Live2D.p2lrt");
+player.play(null);
+for (const id of player.parameters) player.setParameter(id, 0);
+player.update(0);
+
+const meshes = player.meshes.map((m, i) => ({
+  i,
+  uvs: m.uvs,
+  indices: m.indices,
+  verts: new Float32Array(player.meshVertices(i)),
+}));
+
+const canvas = document.getElementById("stage");
+const gl = canvas.getContext("webgl2", { premultipliedAlpha: false, alpha: true });
+if (!gl) throw new Error("webgl2 unavailable");
+
+const vs = `#version 300 es
+in vec2 a_pos;
+in vec2 a_uv;
+uniform vec4 u_view;
+out vec2 v_uv;
+void main() {
+  v_uv = a_uv;
+  gl_Position = vec4(a_pos * u_view.xy + u_view.zw, 0.0, 1.0);
+}`;
+const fs = `#version 300 es
+precision highp float;
+in vec2 v_uv;
+uniform sampler2D u_tex;
+out vec4 outColor;
+void main() {
+  vec4 c = texture(u_tex, v_uv);
+  if (c.a < 0.002) discard;
+  outColor = c;
+}`;
+function shader(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, shader(gl.VERTEX_SHADER, vs));
+gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, fs));
+gl.linkProgram(prog);
+if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+const loc = {
+  pos: gl.getAttribLocation(prog, "a_pos"),
+  uv: gl.getAttribLocation(prog, "a_uv"),
+  view: gl.getUniformLocation(prog, "u_view"),
+  tex: gl.getUniformLocation(prog, "u_tex"),
+};
+
+const tex = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, tex);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+const image = new Image();
+image.src = "texture_00.png";
+await image.decode();
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+for (const m of meshes) {
+  m.uvBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, m.uvBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, m.uvs, gl.STATIC_DRAW);
+  m.idxBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.idxBuf);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, m.indices, gl.STATIC_DRAW);
+  m.posBuf = gl.createBuffer();
+}
+
+gl.enable(gl.BLEND);
+gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+gl.disable(gl.DEPTH_TEST);
+gl.disable(gl.CULL_FACE);
+
+function transformPoint(x, y, t) {
+  const dx = x - t.pivot[0], dy = y - t.pivot[1];
+  const c = Math.cos(t.angle), s = Math.sin(t.angle);
+  const sx = t.scale ? t.scale[0] : 1, sy = t.scale ? t.scale[1] : 1;
+  return [
+    t.pivot[0] + (dx * c - dy * s) * sx + t.offset[0],
+    t.pivot[1] + (dx * s + dy * c) * sy + t.offset[1],
+  ];
+}
+
+const GROUPS = {
+  backhair: { meshes: [29, 30], order: 0 },
+  legL: { meshes: [27, 25], order: 1 },
+  legR: { meshes: [28, 26], order: 1 },
+  skirt: { meshes: [20, 21], order: 2 },
+  torso: { meshes: [15, 16, 19, 22], order: 3 },
+  armL: { meshes: [17, 23], order: 4 },
+  armR: { meshes: [18, 24], order: 4 },
+  face: { meshes: [14, 12, 13, 10, 11, 8, 9, 7, 1, 2], order: 5 },
+  hair: { meshes: [3, 4, 5, 6, 0], order: 6 },
+};
+const MESH_GROUP = {};
+for (const [name, g] of Object.entries(GROUPS)) for (const m of g.meshes) MESH_GROUP[m] = name;
+
+const IDENTITY = { pivot: [0, 0], angle: 0, offset: [0, 0] };
+const ROOT = {
+  root: [0, 0],
+  torso: 0,
+  head: 0,
+  armL: 0,
+  armR: 0,
+  legL: 0,
+  legR: 0,
+  headTilt: 0,
+};
+const PIVOT = {
+  hip: [507, 575],
+  neck: [507, 435],
+  shoulderL: [456, 486],
+  shoulderR: [561, 486],
+  hipL: [550, 620],
+  hipR: [465, 620],
+};
+
+function poseTransforms(p) {
+  const root = { pivot: [0, 0], angle: 0, offset: [p.root[0], p.root[1]] };
+  const torso = { pivot: PIVOT.hip, angle: p.torso, offset: [0, 0] };
+  const head = { pivot: PIVOT.neck, angle: p.head, offset: [0, 0] };
+  const armL = { pivot: PIVOT.shoulderL, angle: p.armL, offset: [0, 0] };
+  const armR = { pivot: PIVOT.shoulderR, angle: p.armR, offset: [0, 0] };
+  const legL = { pivot: PIVOT.hipL, angle: p.legL, offset: [0, 0] };
+  const legR = { pivot: PIVOT.hipR, angle: p.legR, offset: [0, 0] };
+  return { root, torso, head, armL, armR, legL, legR };
+}
+
+function worldPoint(x, y, t, parent) {
+  let p = [x, y];
+  if (parent) p = worldPoint(p[0], p[1], parent, null);
+  return transformPoint(p[0], p[1], t);
+}
+
+function drawPose(p) {
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.uniform4f(loc.view, 2 / 1024, -2 / 1024, -1, 1);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.uniform1i(loc.tex, 0);
+
+  const T = poseTransforms(p);
+  // Compose torso -> head/arms, root -> torso/legs.
+  const chain = {
+    torso: [T.root, T.torso],
+    head: [T.root, T.torso, T.head],
+    armL: [T.root, T.torso, T.armL],
+    armR: [T.root, T.torso, T.armR],
+    legL: [T.root, T.legL],
+    legR: [T.root, T.legR],
+    skirt: [T.root, T.torso],
+    backhair: [T.root, T.torso, T.head],
+    face: [T.root, T.torso, T.head],
+    hair: [T.root, T.torso, T.head],
+  };
+  const ordered = Object.entries(GROUPS).sort((a, b) => a[1].order - b[1].order);
+  for (const [name, g] of ordered) {
+    for (const mi of g.meshes) {
+      const m = meshes[mi];
+      const pos = new Float32Array(m.verts.length);
+      const pts = chain[name];
+      for (let i = 0; i < m.verts.length; i += 2) {
+        let x = m.verts[i], y = m.verts[i + 1];
+        for (const t of pts) {
+          const dx = x - t.pivot[0], dy = y - t.pivot[1];
+          const c = Math.cos(t.angle), s = Math.sin(t.angle);
+          x = t.pivot[0] + dx * c - dy * s + t.offset[0];
+          y = t.pivot[1] + dx * s + dy * c + t.offset[1];
+        }
+        pos[i] = x; pos[i + 1] = y;
+      }
+      gl.bindBuffer(gl.ARRAY_BUFFER, m.posBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, pos, gl.DYNAMIC_DRAW);
+      gl.enableVertexAttribArray(loc.pos);
+      gl.vertexAttribPointer(loc.pos, 2, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, m.uvBuf);
+      gl.enableVertexAttribArray(loc.uv);
+      gl.vertexAttribPointer(loc.uv, 2, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.idxBuf);
+      gl.drawElements(gl.TRIANGLES, m.indices.length, gl.UNSIGNED_INT, 0);
+    }
+  }
+}
+
+window.player = player;
+window.meshes = meshes;
+window.renderPose = drawPose;
+window.ROOT = ROOT;
+window.PIVOT = PIVOT;
+drawPose(ROOT);
+window.rigReady = true;
+</script>
+</body>
+</html>

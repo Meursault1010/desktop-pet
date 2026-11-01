@@ -1,7 +1,7 @@
 {
   "source_count": 52,
   "originals_used": 52,
-  "used_count": 54,
+  "used_count": 53,
   "order": [
     "mixed-pose-01.png",
     "inbetween-17-18-2.png",
@@ -121,11 +121,9 @@
     ]
   ],
   "method": "deterministic multistart nearest-neighbor + fourth-power 2-opt closed cycle",
-  "frames": 106,
+  "frames": 104,
   "columns": 10,
   "durations": [
-    279,
-    124,
     131,
     120,
     127,
@@ -231,385 +229,625 @@
     131,
     124
   ],
-  "duration_seconds": 14.058,
+  "duration_seconds": 13.655,
   "transitions": [
-    {
-      "from": "mixed-pose-01.png",
-      "to": "inbetween-17-18-2.png",
-      "samples": 1,
-      "duration_ms": 129,
-      "score": 0.22136715054512024
-    },
-    {
-      "from": "inbetween-17-18-2.png",
-      "to": "inbetween-12-13-1.png",
-      "samples": 1,
-      "duration_ms": 124,
-      "score": 0.19015537202358246
-    },
     {
       "from": "inbetween-12-13-1.png",
       "to": "inbetween-17-18-1.png",
       "samples": 1,
-      "duration_ms": 131,
-      "score": 0.23254868388175964
+      "duration_ms": 131
     },
     {
       "from": "inbetween-17-18-1.png",
       "to": "mixed-pose-17.png",
       "samples": 1,
-      "duration_ms": 120,
-      "score": 0.17135928571224213
+      "duration_ms": 120
     },
     {
       "from": "mixed-pose-17.png",
       "to": "mixed-pose-21.png",
       "samples": 1,
-      "duration_ms": 127,
-      "score": 0.20686614513397217
+      "duration_ms": 127
     },
     {
       "from": "mixed-pose-21.png",
       "to": "mixed-pose-15.png",
       "samples": 1,
-      "duration_ms": 125,
-      "score": 0.19728513062000275
+      "duration_ms": 125
     },
     {
       "from": "mixed-pose-15.png",
       "to": "mixed-pose-23.png",
       "samples": 1,
-      "duration_ms": 117,
-      "score": 0.15206249058246613
+      "duration_ms": 117
     },
     {
       "from": "mixed-pose-23.png",
       "to": "mixed-pose-08.png",
       "samples": 1,
-      "duration_ms": 119,
-      "score": 0.16438932716846466
+      "duration_ms": 119
     },
     {
       "from": "mixed-pose-08.png",
       "to": "mixed-pose-04.png",
       "samples": 1,
-      "duration_ms": 117,
-      "score": 0.15354469418525696
+      "duration_ms": 117
     },
     {
       "from": "mixed-pose-04.png",
       "to": "mixed-pose-14.png",
       "samples": 1,
-      "duration_ms": 118,
-      "score": 0.1572185903787613
+      "duration_ms": 118
     },
     {
       "from": "mixed-pose-14.png",
       "to": "inbetween-22-23-2.png",
       "samples": 1,
-      "duration_ms": 133,
-      "score": 0.23979540169239044
+      "duration_ms": 133
     },
     {
       "from": "inbetween-22-23-2.png",
       "to": "mixed-pose-22.png",
       "samples": 1,
-      "duration_ms": 131,
-      "score": 0.23076172173023224
+      "duration_ms": 131
     },
     {
       "from": "mixed-pose-22.png",
       "to": "mixed-pose-24.png",
       "samples": 1,
-      "duration_ms": 128,
-      "score": 0.2120193988084793
+      "duration_ms": 128
     },
     {
       "from": "mixed-pose-24.png",
       "to": "mixed-pose-07.png",
       "samples": 1,
-      "duration_ms": 124,
-      "score": 0.19190667569637299
+      "duration_ms": 124
     },
     {
       "from": "mixed-pose-07.png",
       "to": "mixed-pose-05.png",
       "samples": 1,
-      "duration_ms": 125,
-      "score": 0.19758018851280212
+      "duration_ms": 125
     },
     {
       "from": "mixed-pose-05.png",
       "to": "mixed-pose-11.png",
       "samples": 1,
-      "duration_ms": 126,
-      "score": 0.20002780854701996
+      "duration_ms": 126
     },
     {
       "from": "mixed-pose-11.png",
       "to": "mixed-pose-13.png",
       "samples": 1,
-      "duration_ms": 138,
-      "score": 0.27210623025894165
+      "duration_ms": 138
     },
     {
       "from": "mixed-pose-13.png",
       "to": "mixed-pose-03.png",
       "samples": 1,
-      "duration_ms": 139,
-      "score": 0.27594467997550964
+      "duration_ms": 139
     },
     {
       "from": "mixed-pose-03.png",
       "to": "bridge-02.png",
       "samples": 1,
-      "duration_ms": 146,
-      "score": 0.31508663594722747
+      "duration_ms": 146
     },
     {
       "from": "bridge-02.png",
       "to": "keyed-turn-08.png",
       "samples": 1,
-      "duration_ms": 132,
-      "score": 0.23383680284023284
+      "duration_ms": 132
     },
     {
       "from": "keyed-turn-08.png",
       "to": "keyed-turn-07.png",
       "samples": 1,
-      "duration_ms": 148,
-      "score": 0.3252473086118698
+      "duration_ms": 148
     },
     {
       "from": "keyed-turn-07.png",
       "to": "keyed-turn-06.png",
       "samples": 1,
-      "duration_ms": 143,
-      "score": 0.29649673998355863
+      "duration_ms": 143
     },
     {
       "from": "keyed-turn-06.png",
       "to": "keyed-turn-05.png",
       "samples": 1,
-      "duration_ms": 123,
-      "score": 0.18868993123372396
+      "duration_ms": 123
     },
     {
       "from": "keyed-turn-05.png",
       "to": "bridge-01.png",
       "samples": 1,
-      "duration_ms": 149,
-      "score": 0.3295285026232402
+      "duration_ms": 149
     },
     {
       "from": "bridge-01.png",
       "to": "mixed-pose-19.png",
       "samples": 1,
-      "duration_ms": 144,
-      "score": 0.3001415729522705
+      "duration_ms": 144
     },
     {
       "from": "mixed-pose-19.png",
       "to": "keyed-turn-04.png",
       "samples": 1,
-      "duration_ms": 129,
-      "score": 0.2218675954474343
+      "duration_ms": 129
     },
     {
       "from": "keyed-turn-04.png",
       "to": "keyed-turn-03.png",
       "samples": 1,
-      "duration_ms": 132,
-      "score": 0.23373086916075814
+      "duration_ms": 132
     },
     {
       "from": "keyed-turn-03.png",
       "to": "keyed-turn-02.png",
       "samples": 1,
-      "duration_ms": 149,
-      "score": 0.33179797828197477
+      "duration_ms": 149
     },
     {
       "from": "keyed-turn-02.png",
       "to": "mixed-pose-10.png",
       "samples": 1,
-      "duration_ms": 145,
-      "score": 0.30764269563886854
+      "duration_ms": 145
     },
     {
       "from": "mixed-pose-10.png",
       "to": "inbetween-10-11-1.png",
       "samples": 1,
-      "duration_ms": 150,
-      "score": 0.3339594470130073
+      "duration_ms": 150
     },
     {
       "from": "inbetween-10-11-1.png",
       "to": "inbetween-10-11-2.png",
       "samples": 1,
-      "duration_ms": 115,
-      "score": 0.14298423594898646
+      "duration_ms": 115
     },
     {
       "from": "inbetween-10-11-2.png",
       "to": "keyed-turn-01.png",
       "samples": 1,
-      "duration_ms": 134,
-      "score": 0.2457085672352049
+      "duration_ms": 134
     },
     {
       "from": "keyed-turn-01.png",
       "to": "inbetween-16-17-2.png",
       "samples": 1,
-      "duration_ms": 133,
-      "score": 0.24348871409893036
+      "duration_ms": 133
     },
     {
       "from": "inbetween-16-17-2.png",
       "to": "mixed-pose-20.png",
       "samples": 1,
-      "duration_ms": 144,
-      "score": 0.30504229134983485
+      "duration_ms": 144
     },
     {
       "from": "mixed-pose-20.png",
       "to": "inbetween-20-21-1.png",
       "samples": 1,
-      "duration_ms": 134,
-      "score": 0.2481650087568495
+      "duration_ms": 134
     },
     {
       "from": "inbetween-20-21-1.png",
       "to": "inbetween-20-21-2.png",
       "samples": 1,
-      "duration_ms": 141,
-      "score": 0.28416118986076777
+      "duration_ms": 141
     },
     {
       "from": "inbetween-20-21-2.png",
       "to": "inbetween-21-22-2.png",
       "samples": 1,
-      "duration_ms": 143,
-      "score": 0.2962149653169844
+      "duration_ms": 143
     },
     {
       "from": "inbetween-21-22-2.png",
       "to": "inbetween-09-10-2.png",
       "samples": 1,
-      "duration_ms": 145,
-      "score": 0.30742579168743556
+      "duration_ms": 145
     },
     {
       "from": "inbetween-09-10-2.png",
       "to": "inbetween-04-05-2.png",
       "samples": 1,
-      "duration_ms": 132,
-      "score": 0.23867619037628174
+      "duration_ms": 132
     },
     {
       "from": "inbetween-04-05-2.png",
       "to": "inbetween-04-05-1.png",
       "samples": 1,
-      "duration_ms": 127,
-      "score": 0.21069756315814125
+      "duration_ms": 127
     },
     {
       "from": "inbetween-04-05-1.png",
       "to": "inbetween-22-23-1.png",
       "samples": 1,
-      "duration_ms": 135,
-      "score": 0.2554626166820526
+      "duration_ms": 135
     },
     {
       "from": "inbetween-22-23-1.png",
       "to": "inbetween-21-22-1.png",
       "samples": 1,
-      "duration_ms": 135,
-      "score": 0.2548481523990631
+      "duration_ms": 135
     },
     {
       "from": "inbetween-21-22-1.png",
       "to": "inbetween-13-14-1.png",
       "samples": 1,
-      "duration_ms": 129,
-      "score": 0.2207341343164444
+      "duration_ms": 129
     },
     {
       "from": "inbetween-13-14-1.png",
       "to": "inbetween-13-14-2.png",
       "samples": 1,
-      "duration_ms": 114,
-      "score": 0.13346830010414124
+      "duration_ms": 114
     },
     {
       "from": "inbetween-13-14-2.png",
       "to": "inbetween-12-13-2.png",
       "samples": 1,
-      "duration_ms": 113,
-      "score": 0.12958139181137085
+      "duration_ms": 113
     },
     {
       "from": "inbetween-12-13-2.png",
       "to": "inbetween-16-17-1.png",
       "samples": 1,
-      "duration_ms": 116,
-      "score": 0.14676855504512787
+      "duration_ms": 116
     },
     {
       "from": "inbetween-16-17-1.png",
       "to": "inbetween-09-10-1.png",
       "samples": 1,
-      "duration_ms": 110,
-      "score": 0.11134129762649536
+      "duration_ms": 110
     },
     {
       "from": "inbetween-09-10-1.png",
       "to": "mixed-pose-18.png",
       "samples": 1,
-      "duration_ms": 120,
-      "score": 0.16666845977306366
+      "duration_ms": 120
     },
     {
       "from": "mixed-pose-18.png",
       "to": "mixed-pose-16.png",
       "samples": 1,
-      "duration_ms": 120,
-      "score": 0.1706657111644745
+      "duration_ms": 120
     },
     {
       "from": "mixed-pose-16.png",
       "to": "mixed-pose-09.png",
       "samples": 1,
-      "duration_ms": 124,
-      "score": 0.1903040111064911
+      "duration_ms": 124
     },
     {
       "from": "mixed-pose-09.png",
       "to": "mixed-pose-12.png",
       "samples": 1,
-      "duration_ms": 122,
-      "score": 0.18192479014396667
+      "duration_ms": 122
     },
     {
       "from": "mixed-pose-12.png",
       "to": "mixed-pose-02.png",
       "samples": 1,
-      "duration_ms": 126,
-      "score": 0.20039299130439758
+      "duration_ms": 126
     },
     {
       "from": "mixed-pose-02.png",
       "to": "mixed-pose-06.png",
       "samples": 1,
-      "duration_ms": 118,
-      "score": 0.16096283495426178
+      "duration_ms": 118
     },
     {
       "from": "mixed-pose-06.png",
-      "to": "mixed-pose-01.png",
+      "to": "mixed-pose-02.png",
       "samples": 1,
-      "duration_ms": 105,
-      "score": 0.087576724588871
+      "duration_ms": 255
+    },
+    {
+      "from": "mixed-pose-02.png",
+      "to": "mixed-pose-12.png",
+      "samples": 1,
+      "duration_ms": 118
+    },
+    {
+      "from": "mixed-pose-12.png",
+      "to": "mixed-pose-09.png",
+      "samples": 1,
+      "duration_ms": 126
+    },
+    {
+      "from": "mixed-pose-09.png",
+      "to": "mixed-pose-16.png",
+      "samples": 1,
+      "duration_ms": 122
+    },
+    {
+      "from": "mixed-pose-16.png",
+      "to": "mixed-pose-18.png",
+      "samples": 1,
+      "duration_ms": 124
+    },
+    {
+      "from": "mixed-pose-18.png",
+      "to": "inbetween-09-10-1.png",
+      "samples": 1,
+      "duration_ms": 120
+    },
+    {
+      "from": "inbetween-09-10-1.png",
+      "to": "inbetween-16-17-1.png",
+      "samples": 1,
+      "duration_ms": 120
+    },
+    {
+      "from": "inbetween-16-17-1.png",
+      "to": "inbetween-12-13-2.png",
+      "samples": 1,
+      "duration_ms": 110
+    },
+    {
+      "from": "inbetween-12-13-2.png",
+      "to": "inbetween-13-14-2.png",
+      "samples": 1,
+      "duration_ms": 116
+    },
+    {
+      "from": "inbetween-13-14-2.png",
+      "to": "inbetween-13-14-1.png",
+      "samples": 1,
+      "duration_ms": 113
+    },
+    {
+      "from": "inbetween-13-14-1.png",
+      "to": "inbetween-21-22-1.png",
+      "samples": 1,
+      "duration_ms": 114
+    },
+    {
+      "from": "inbetween-21-22-1.png",
+      "to": "inbetween-22-23-1.png",
+      "samples": 1,
+      "duration_ms": 129
+    },
+    {
+      "from": "inbetween-22-23-1.png",
+      "to": "inbetween-04-05-1.png",
+      "samples": 1,
+      "duration_ms": 135
+    },
+    {
+      "from": "inbetween-04-05-1.png",
+      "to": "inbetween-04-05-2.png",
+      "samples": 1,
+      "duration_ms": 135
+    },
+    {
+      "from": "inbetween-04-05-2.png",
+      "to": "inbetween-09-10-2.png",
+      "samples": 1,
+      "duration_ms": 127
+    },
+    {
+      "from": "inbetween-09-10-2.png",
+      "to": "inbetween-21-22-2.png",
+      "samples": 1,
+      "duration_ms": 132
+    },
+    {
+      "from": "inbetween-21-22-2.png",
+      "to": "inbetween-20-21-2.png",
+      "samples": 1,
+      "duration_ms": 145
+    },
+    {
+      "from": "inbetween-20-21-2.png",
+      "to": "inbetween-20-21-1.png",
+      "samples": 1,
+      "duration_ms": 143
+    },
+    {
+      "from": "inbetween-20-21-1.png",
+      "to": "mixed-pose-20.png",
+      "samples": 1,
+      "duration_ms": 141
+    },
+    {
+      "from": "mixed-pose-20.png",
+      "to": "inbetween-16-17-2.png",
+      "samples": 1,
+      "duration_ms": 134
+    },
+    {
+      "from": "inbetween-16-17-2.png",
+      "to": "keyed-turn-01.png",
+      "samples": 1,
+      "duration_ms": 144
+    },
+    {
+      "from": "keyed-turn-01.png",
+      "to": "inbetween-10-11-2.png",
+      "samples": 1,
+      "duration_ms": 133
+    },
+    {
+      "from": "inbetween-10-11-2.png",
+      "to": "inbetween-10-11-1.png",
+      "samples": 1,
+      "duration_ms": 134
+    },
+    {
+      "from": "inbetween-10-11-1.png",
+      "to": "mixed-pose-10.png",
+      "samples": 1,
+      "duration_ms": 115
+    },
+    {
+      "from": "mixed-pose-10.png",
+      "to": "keyed-turn-02.png",
+      "samples": 1,
+      "duration_ms": 150
+    },
+    {
+      "from": "keyed-turn-02.png",
+      "to": "keyed-turn-03.png",
+      "samples": 1,
+      "duration_ms": 145
+    },
+    {
+      "from": "keyed-turn-03.png",
+      "to": "keyed-turn-04.png",
+      "samples": 1,
+      "duration_ms": 149
+    },
+    {
+      "from": "keyed-turn-04.png",
+      "to": "mixed-pose-19.png",
+      "samples": 1,
+      "duration_ms": 132
+    },
+    {
+      "from": "mixed-pose-19.png",
+      "to": "bridge-01.png",
+      "samples": 1,
+      "duration_ms": 129
+    },
+    {
+      "from": "bridge-01.png",
+      "to": "keyed-turn-05.png",
+      "samples": 1,
+      "duration_ms": 144
+    },
+    {
+      "from": "keyed-turn-05.png",
+      "to": "keyed-turn-06.png",
+      "samples": 1,
+      "duration_ms": 149
+    },
+    {
+      "from": "keyed-turn-06.png",
+      "to": "keyed-turn-07.png",
+      "samples": 1,
+      "duration_ms": 123
+    },
+    {
+      "from": "keyed-turn-07.png",
+      "to": "keyed-turn-08.png",
+      "samples": 1,
+      "duration_ms": 143
+    },
+    {
+      "from": "keyed-turn-08.png",
+      "to": "bridge-02.png",
+      "samples": 1,
+      "duration_ms": 148
+    },
+    {
+      "from": "bridge-02.png",
+      "to": "mixed-pose-03.png",
+      "samples": 1,
+      "duration_ms": 132
+    },
+    {
+      "from": "mixed-pose-03.png",
+      "to": "mixed-pose-13.png",
+      "samples": 1,
+      "duration_ms": 146
+    },
+    {
+      "from": "mixed-pose-13.png",
+      "to": "mixed-pose-11.png",
+      "samples": 1,
+      "duration_ms": 139
+    },
+    {
+      "from": "mixed-pose-11.png",
+      "to": "mixed-pose-05.png",
+      "samples": 1,
+      "duration_ms": 138
+    },
+    {
+      "from": "mixed-pose-05.png",
+      "to": "mixed-pose-07.png",
+      "samples": 1,
+      "duration_ms": 126
+    },
+    {
+      "from": "mixed-pose-07.png",
+      "to": "mixed-pose-24.png",
+      "samples": 1,
+      "duration_ms": 125
+    },
+    {
+      "from": "mixed-pose-24.png",
+      "to": "mixed-pose-22.png",
+      "samples": 1,
+      "duration_ms": 124
+    },
+    {
+      "from": "mixed-pose-22.png",
+      "to": "inbetween-22-23-2.png",
+      "samples": 1,
+      "duration_ms": 128
+    },
+    {
+      "from": "inbetween-22-23-2.png",
+      "to": "mixed-pose-14.png",
+      "samples": 1,
+      "duration_ms": 131
+    },
+    {
+      "from": "mixed-pose-14.png",
+      "to": "mixed-pose-04.png",
+      "samples": 1,
+      "duration_ms": 133
+    },
+    {
+      "from": "mixed-pose-04.png",
+      "to": "mixed-pose-08.png",
+      "samples": 1,
+      "duration_ms": 118
+    },
+    {
+      "from": "mixed-pose-08.png",
+      "to": "mixed-pose-23.png",
+      "samples": 1,
+      "duration_ms": 117
+    },
+    {
+      "from": "mixed-pose-23.png",
+      "to": "mixed-pose-15.png",
+      "samples": 1,
+      "duration_ms": 119
+    },
+    {
+      "from": "mixed-pose-15.png",
+      "to": "mixed-pose-21.png",
+      "samples": 1,
+      "duration_ms": 117
+    },
+    {
+      "from": "mixed-pose-21.png",
+      "to": "mixed-pose-17.png",
+      "samples": 1,
+      "duration_ms": 125
+    },
+    {
+      "from": "mixed-pose-17.png",
+      "to": "inbetween-17-18-1.png",
+      "samples": 1,
+      "duration_ms": 127
+    },
+    {
+      "from": "inbetween-17-18-1.png",
+      "to": "inbetween-12-13-1.png",
+      "samples": 1,
+      "duration_ms": 120
+    },
+    {
+      "from": "inbetween-12-13-1.png",
+      "to": "inbetween-17-18-2.png",
+      "samples": 1,
+      "duration_ms": 131
     }
   ],
   "loop_closed": true,
@@ -625,17 +863,17 @@
     {
       "frame": 1,
       "source": "inbetween-17-18-2.png",
-      "cell_sha256": "ff2fe453174c858e3365844109215d3084d32414b258f81b4a7f4b42e64179cc"
+      "cell_sha256": "e4ab539a6359749f1ff4ab7cadbe9e93619eb49bdb07b7acd0a745deee19474f"
     },
     {
       "frame": 2,
       "source": "inbetween-12-13-1.png",
-      "cell_sha256": "3b5fd93033f1215aa6d937977922c77a65646d283b27754e278825943ad9688c"
+      "cell_sha256": "75d5d9c44dc1a98d071733424321c9ec82922ea5c83487e147c0aa7e5b886e2d"
     },
     {
       "frame": 3,
       "source": "inbetween-17-18-1.png",
-      "cell_sha256": "cb3644cf2218a438ac825256b25ee2d01148a5f19116478bbdbe41e9247c4213"
+      "cell_sha256": "9a534ff83e37b417ed32a93084b1726ed8dbe4094d21ba2126e99c01788a106d"
     },
     {
       "frame": 4,
@@ -675,7 +913,7 @@
     {
       "frame": 11,
       "source": "inbetween-22-23-2.png",
-      "cell_sha256": "2d3f177a3e3bae41a5c72c6f4782153062d0eecc6abaf478032a226ec690791d"
+      "cell_sha256": "53fad761905c69a3b0d927afd32a6d9607cc59464c0e8cc9f6ef862ca4e1ec3e"
     },
     {
       "frame": 12,
@@ -770,12 +1008,12 @@
     {
       "frame": 30,
       "source": "inbetween-10-11-1.png",
-      "cell_sha256": "7802c118dc2a0e92327eb6801d830c26925cfbde541fece5295022d03b4a1989"
+      "cell_sha256": "543546289d7f55ce59a3907b7d19bbee0ad339e6760ce326cbdec30c20d8f9e8"
     },
     {
       "frame": 31,
       "source": "inbetween-10-11-2.png",
-      "cell_sha256": "a746dce078aa74acaa842f261e24b72c2dcdbff3d1ddf2f13fdb4b383658162d"
+      "cell_sha256": "359b13522c0a279e8265111bfb8243f76fc6da7bada8c318f2f9c366f9c7d193"
     },
     {
       "frame": 32,
@@ -785,7 +1023,7 @@
     {
       "frame": 33,
       "source": "inbetween-16-17-2.png",
-      "cell_sha256": "d2894260a1d78b45295431f76439838092fa33222bc3fb93a891b86b8ce9e005"
+      "cell_sha256": "2efcac4bc7af16f7f095eb345cc64ae9be53477d716d9c55604d64fee11cf576"
     },
     {
       "frame": 34,
@@ -795,67 +1033,67 @@
     {
       "frame": 35,
       "source": "inbetween-20-21-1.png",
-      "cell_sha256": "29592e82dcfe392b0114625cc7d2c4a20ef8760ba7ae10fdbf4761780b0a878c"
+      "cell_sha256": "b05bea71c213c5fe1d6c55348ee786fb8dd74026147b7f2450b295b752ce960d"
     },
     {
       "frame": 36,
       "source": "inbetween-20-21-2.png",
-      "cell_sha256": "3b8a4b17757a43c32c8a7b2099d5e4eaa045e9c8cc1d739c64e644f92f82d96b"
+      "cell_sha256": "99a6244c6a397cc1f81f179f87ee4e14c6333b17839e4f61412ae88a9c648304"
     },
     {
       "frame": 37,
       "source": "inbetween-21-22-2.png",
-      "cell_sha256": "4476973527dc7f0a79fbba2db56ef450073d298d019511dd562eca00652c318e"
+      "cell_sha256": "6b8730923c02dab6fe617158fbd52e2a37e3c88f7fd44acb0d2f515d9918db22"
     },
     {
       "frame": 38,
       "source": "inbetween-09-10-2.png",
-      "cell_sha256": "7887170ab7bf5bc46c7627eba26a5506d56ee90619af318fb121960c47794b01"
+      "cell_sha256": "34037e6edb918f2512c5e46473dd8ce0d30bff4564b3a04545d973e35af7a26a"
     },
     {
       "frame": 39,
       "source": "inbetween-04-05-2.png",
-      "cell_sha256": "a29450256d040d574e6d9815c07ad577cf7c98103b0c03b8f78baa4d67d4aef2"
+      "cell_sha256": "c2c7c012f2e04afc3b61a65af990538ea37a5627b97f416ef572ff22df1b58fe"
     },
     {
       "frame": 40,
       "source": "inbetween-04-05-1.png",
-      "cell_sha256": "5d01a77a9c6db1690cf2f57a7c31aa9277a14be18da55da409225ef23231ad64"
+      "cell_sha256": "8fbb3cd42300a058df8b4bcedab3a4453fd316474e721974ee6be22e882c299f"
     },
     {
       "frame": 41,
       "source": "inbetween-22-23-1.png",
-      "cell_sha256": "5b3426f6e51114b0d03f0cd491abf1f84477ca49b94354dc2847cf0d3b088135"
+      "cell_sha256": "e3a985408b2568b5ff407d0b4cd12af445dda609de0ca8c782fbf4830d75e691"
     },
     {
       "frame": 42,
       "source": "inbetween-21-22-1.png",
-      "cell_sha256": "55a042184414ed62837a795aae447b8818a4329df78c55c74b5fa823eb5b950a"
+      "cell_sha256": "83e5b9b5a3ad089dcc630d4e96a57be98344703e9ecf59ae06351270909ed951"
     },
     {
       "frame": 43,
       "source": "inbetween-13-14-1.png",
-      "cell_sha256": "902c98a0fc7f9c9c15354049e0110d3c94b8684dcbd0671fb6da62cecc64c49b"
+      "cell_sha256": "250e8faeceaf55d64994114eb3d58e4b8d1da8ec5b1cd5a728253a319802d17e"
     },
     {
       "frame": 44,
       "source": "inbetween-13-14-2.png",
-      "cell_sha256": "94d23a03531cb19ee5a6325b90ccfb4cb7433e3b1030247365cbced42d6b4b5b"
+      "cell_sha256": "98f53360f1221a612c72609428146dd2c227a8919de9a1244007c10e314c3cbd"
     },
     {
       "frame": 45,
       "source": "inbetween-12-13-2.png",
-      "cell_sha256": "f463012a709de221fba573cb12ba88342df0b41ca2d5aafa8e737d77194d4cf2"
+      "cell_sha256": "07b863eff3cc5dad8a8f1b7796bc02fc02daf829273fdbd2a43236c3560a4ebc"
     },
     {
       "frame": 46,
       "source": "inbetween-16-17-1.png",
-      "cell_sha256": "34142245ef60f1ff27f5176cde1b9c33fad5d254edfb165e3e33f2b06141fb45"
+      "cell_sha256": "bace72c1976c69abfa5f7b9815309028a28fc3a6f5c147f24096ab1a4c9f3d68"
     },
     {
       "frame": 47,
       "source": "inbetween-09-10-1.png",
-      "cell_sha256": "18e9f186c52059070a47fa5b10434ec13992c5c37b95102007ce65ff172a88c9"
+      "cell_sha256": "7860ab57d605d05c0770934c901c0c54172bae4386f14782ea335b5d0f83f59f"
     },
     {
       "frame": 48,
@@ -899,5 +1137,11 @@
     "isotropic_scale": true
   },
   "footwork": "sole contact lock; forward-and-return; fixed scale",
-  "source_frames": 54
+  "source_frames": 53,
+  "transition": "de-stalled palindrome: dropped old frames 0 and 105",
+  "redraw": {
+    "date": "20261030-140100",
+    "drawings": 20,
+    "method": "line-quality redraw, registered to the original silhouette"
+  }
 }

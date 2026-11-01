@@ -19,15 +19,17 @@ WALK = ROOT / 'assets/motion-v2/walk-rig'
 IDLE = ROOT / 'assets/living-idle'
 FRAME = 1
 
-# Eye centres: neutral idle frame -> approved walk body.
-IDLE_EYES = ((120.5, 97.5), (157.5, 98.5))
+# Eye centres: frame 1 of the idle atlas -> approved walk body. These are the
+# actual eye centres in the cropped atlas cell; using the old 120/157 values
+# shifted the borrowed left eyelid roughly 10px left on the walking body.
+IDLE_EYES = ((107.5, 97.5), (147.5, 98.5))
 WALK_EYES = ((135.0, 85.0), (167.5, 87.0))
 # Soft sockets that still cover every lash pixel of the walk drawing.
 SOCKETS = ((119, 73, 152, 97), (151, 75, 185, 99))
 FEATHER = 1.8
-# The walk iris is taller than the idle one; nudge the borrowed lid down so
-# the half blink still closes it far enough.
-PATCH_DROP = .75
+# Keep the blink patch on the current walk eye line. Any vertical adjustment
+# changes the apparent eye position during a blink.
+PATCH_DROP = 0.0
 
 
 def _affine():
