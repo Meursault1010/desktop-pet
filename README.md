@@ -15,13 +15,13 @@ yuki 是一只运行在 Windows 桌面上的白发蓝裙桌宠，也是本项目
 
 ## 从仓库运行
 
-本地已生成 Windows x64 便携目录 `releases/electron/yuki-win32-x64/`。运行根目录 `start.bat` 或其中的 `yuki.exe`；整个便携目录一起保留，无需全局 Python、Node、Rust 或 WebView2。不要同时运行旧桌面安装版。
+本地已生成 Windows x64 便携目录 `releases/electron/yuki-win32-x64/`。运行根目录 `start.bat` 或其中的 `yuki.exe`；整个便携目录一起保留，无需全局 Python、Node、Rust 或 WebView2。`start.bat` 优先启动这个正式便携目录；克隆源码后安装开发依赖但本机没有便携目录时，它会回退到源码运行环境。不要同时运行旧桌面安装版。
 
 便携产物与构建缓存不上传 Git。克隆仓库后，安装 Python 3.10+、Node 22.12+ 与 npm，运行 `install-electron.bat`，再运行 `start.bat`；或使用 `build-electron.ps1` 构建内含 Python/PySide6 的便携版。首次构建需要下载依赖。
 
 正式版本由 Electron 管理工作台、托盘、单实例和 IPC，宠物透明窗口与桌面行为仍由 PySide6 实现。Electron Canvas PNG 窗口是独立开发原型，尚未替代正式宠物。旧 Tauri 路径保留：保存并退出当前版本后运行 `start-tauri.bat`，环境安装使用 `install-tauri.bat`。
 
-开发命令（`console-v2/frontend/`）：`npm test`、`npm run build`、`npm run electron`；PNG 原型使用 `npm run electron:prototype`。
+源码开发时先运行 `install-electron.bat`，再运行 `start-workbench.bat`。前端命令（`console-v2/frontend/`）：`npm test`、`npm run build`、`npm run electron`；PNG 原型使用 `npm run electron:prototype`。`start-electron.bat` 与 `start.bat` 使用同一正式便携目录规则。
 
 ## 目录
 

@@ -1,7 +1,7 @@
 param([string]$Python = 'python', [switch]$SkipInstall)
 $ErrorActionPreference='Stop'
 & (Join-Path $PSScriptRoot 'build-selection.ps1')
-& (Join-Path $PSScriptRoot 'build-ocr.ps1') -SkipInstall:$SkipInstall
+& (Join-Path $PSScriptRoot 'build-ocr.ps1') -Python $Python -SkipInstall:$SkipInstall
 if($LASTEXITCODE){throw 'Offline OCR build failed'}
 $petRoot=Join-Path $PSScriptRoot 'console-v2'
 $buildRoot=Join-Path $PSScriptRoot '.electron-build'
@@ -12,7 +12,7 @@ if(-not(Test-Path -LiteralPath $buildPython)){
     if($LASTEXITCODE){throw 'Unable to create isolated build environment'}
 }
 if(-not $SkipInstall){
-    & $buildPython -m pip install 'PySide6==6.10.2' 'pyinstaller==6.19.0' 'PyAudioWPatch==0.2.12.8' 'opencv-python-headless==4.11.0.86'
+    & $buildPython -m pip install -r (Join-Path $petRoot 'requirements.txt') 'pyinstaller==6.19.0'
     if($LASTEXITCODE){throw 'Build dependency installation failed'}
 }
 Push-Location $petRoot

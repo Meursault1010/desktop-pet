@@ -54,14 +54,14 @@ async function main(){
     // Retain readable Python sources; the frozen backend already contains the only asset copy.
     for(const name of fs.readdirSync(root))if(name.endsWith('.py')&&!name.startsWith('test_'))fs.copyFileSync(path.join(root,name),path.join(pet,name));
     fs.writeFileSync(path.join(output,'使用说明.txt'),[
-      'yuki Electron 工作台重做版 · 2026-10-20',
+      'yuki · Windows 桌面伙伴',
       '双击 yuki.exe。完整目录一起移动，不要单独复制 EXE。',
       '内含 Electron、Python/PySide6、离线 OCR 和运行素材，无需全局 Python/Node/Rust。',
       '工作台包含总览、角色、AI 助手、工具、设置；支持雪白、银雾、星夜主题和宽窄窗口切换。',
-      '总览可添加、拖动、调整区块大小并保存自定义页面。右键宠物可快捷聊天、切换划词翻译、打开工作台和退出。',
+      '总览采用固定布局，显示雪的状态、今日足迹、陪伴节奏与电脑状态。右键宠物可快捷聊天、使用常用工具、打开工作台和退出。',
       '宠物设置继续保存在 %LOCALAPPDATA%\\XiaoJu\\DesktopPet\\settings.ini；工作台设置保存在 Electron 用户数据目录。',
-      '内置 Qwen 4B 本地模型，打开 Yuki 自动加载，无需另开 LM Studio；首次加载需稍等。模型连接页也可切换其他本地服务或远程 API。',
-      '今日摘要依据运行期间收集的事件；保留随系统播放声音舞动的互动，不提供音乐播放器控制；提醒需要保持 Yuki 运行。',
+      '内置本地模型默认关闭，可在设置中启用；也可连接兼容的本地服务或用户选择的云端 API。云端服务会收到用户发送的内容；AI 助手不提供联网检索。',
+      '今日摘要依据运行期间的实际事件；音乐互动只检测本机播放声音并驱动舞动，不提供播放器控制；提醒需要保持 Yuki 运行。',
       '工作台由 Electron 管理，透明宠物窗口保留 PySide6；未签名的便携版，不是安装器。',
       '更新前请先通过旧版 Yuki 菜单保存并退出，再运行新版。',
       ''

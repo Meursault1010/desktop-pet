@@ -2,8 +2,8 @@
 setlocal
 cd /d "%~dp0"
 
-rem Launch the current workbench from console-v2/frontend/dist.
-rem The legacy packaged release is still available via start-electron.bat.
+rem Launch the source-tree workbench for development.
+rem The normal user launcher is start.bat, which prefers the portable release.
 
 if not exist "console-v2\frontend\node_modules\electron\dist\electron.exe" goto missing
 if not exist "console-v2\.venv\Scripts\python.exe" goto missing

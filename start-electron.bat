@@ -1,90 +1,13 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-if exist "releases\electron\yuki-win32-x64-music-sync\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-music-sync\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-music-dance\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-music-dance\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-workbench\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-workbench\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-translation\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-translation\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-ocr\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-ocr\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-attachments\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-attachments\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-idle-states\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-idle-states\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-sleep-transitions\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-sleep-transitions\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-desktop\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-desktop\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-safe-logging\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-safe-logging\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-hair-consistent\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-hair-consistent\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-frame-aligned\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-frame-aligned\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-roll-phase\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-roll-phase\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-opposite-roll\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-opposite-roll\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-depth-roll\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-depth-roll\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-roll-motion\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-roll-motion\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-continuity\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-continuity\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-rebound\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-rebound\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-motion\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-motion\yuki-win32-x64"
-  goto launch
-)
-if exist "releases\electron\yuki-win32-x64-breathing\yuki-win32-x64\yuki.exe" (
-  set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64-breathing\yuki-win32-x64"
-  goto launch
-)
+rem The generic directory is the one canonical portable build output.
 if exist "releases\electron\yuki-win32-x64\yuki.exe" (
   set "YUKI_DIR=%~dp0releases\electron\yuki-win32-x64"
   goto launch
 )
+
+rem Source checkout fallback for developers after install-electron.bat.
 if not exist "console-v2\frontend\node_modules\electron\dist\electron.exe" goto missing
 if not exist "console-v2\.venv\Scripts\python.exe" goto missing
 if not exist "console-v2\frontend\dist\index.html" goto missing

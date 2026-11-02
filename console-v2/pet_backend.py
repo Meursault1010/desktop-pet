@@ -1,4 +1,4 @@
-"""Tauri 专用宠物进程。stdout 只传逐行 JSON，日志写 stderr。"""
+"""Electron sidecar for the PySide6 pet. stdout carries JSON lines; logs use stderr."""
 import argparse
 import base64
 from dataclasses import asdict
@@ -24,17 +24,28 @@ STATUS_PERFORMANCES = {
     'error': ('sad', '工具状态 · 遇到问题', False, 1.),
 }
 NOTIFICATION_KINDS = ('usb', 'charging', 'download', 'success', 'failure')
+MAX_INPUT_LINE_BYTES = 65536
 
 
 class InputReader(QThread):
     message = Signal(str)
+    oversized = Signal(str)
     closed = Signal()
 
     def run(self):
         try:
-            for line in sys.stdin:
-                if len(line) <= 65536:
-                    self.message.emit(line)
+            stream = sys.stdin.buffer
+            while not self.isInterruptionRequested():
+                line = stream.readline(MAX_INPUT_LINE_BYTES + 1)
+                if not line:
+                    break
+                if len(line) > MAX_INPUT_LINE_BYTES:
+                    request_id = re.search(rb'"id"\s*:\s*"([a-zA-Z0-9-]{1,80})"', line[:512])
+                    while line and not line.endswith(b'\n'):
+                        line = stream.readline(MAX_INPUT_LINE_BYTES + 1)
+                    self.oversized.emit(request_id.group(1).decode('ascii') if request_id else '')
+                    continue
+                self.message.emit(line.decode('utf-8', errors='replace'))
         finally:
             self.closed.emit()
 
@@ -49,6 +60,7 @@ class PetService(PetApplication):
         self.exit_event_sent = False
         self.reader = InputReader(self)
         self.reader.message.connect(self.receive)
+        self.reader.oversized.connect(self.reject_oversized)
         self.reader.closed.connect(self.quit)
         self.changed.connect(self.publish)
         self.events = QTimer(self)
@@ -124,7 +136,9 @@ class PetService(PetApplication):
                 or phase not in ('thinking','answer','done','error')
                 or not isinstance(text,str) or len(text)>6000):
             raise ValueError('气泡消息无效')
-        if self.quick_pending and key != self.quick_pending:
+        # Ignore chunks from timed-out/completed chats as well as older chats
+        # that arrive after a newer request has started.
+        if key != self.quick_pending:
             return
         self.pet.bubble.say(text or '…', 'error' if phase=='error' else 'chat',
                             streaming=phase in ('thinking','answer'))
@@ -512,6 +526,10 @@ class PetService(PetApplication):
             print(str(error), file=sys.stderr, flush=True)
             self.send({'type': 'response', 'id': request_id, 'ok': False, 'error': '操作失败，请重试'})
 
+    def reject_oversized(self, request_id):
+        if request_id:
+            self.send({'type': 'response', 'id': request_id, 'ok': False, 'error': '请求内容超过限制'})
+
     def cleanup(self):
         if hasattr(self, 'events'):
             self.events.stop()
@@ -532,8 +550,11 @@ def main():
     service = PetService(app, SettingsStore(args.settings_file))
     service.start()
     result = app.exec()
-    # stdin 读取线程等待父进程关闭管道；退出不等待下一条输入。
+    # The parent closes stdin after receiving the shutdown response. Give the
+    # reader a bounded chance to observe EOF before the process-level fallback.
     service.reader.requestInterruption()
+    if service.reader.isRunning():
+        service.reader.wait(1000)
     return result, service
 
 

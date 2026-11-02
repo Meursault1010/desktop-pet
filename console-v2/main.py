@@ -82,7 +82,7 @@ class PetApplication(QObject):
             self.tray.show()
 
         self.save_timer = QTimer(self)
-        self.save_timer.setInterval(2000)
+        self.save_timer.setInterval(10000)
         self.save_timer.timeout.connect(self.save_position)
         self.save_timer.start()
         self.app.aboutToQuit.connect(self.cleanup)

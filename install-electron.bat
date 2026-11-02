@@ -12,7 +12,7 @@ node node_modules/electron/install.js
 if errorlevel 1 goto failed
 call npm.cmd run build
 if errorlevel 1 goto failed
-echo Electron development setup complete. Use start-electron.bat.
+echo Electron development setup complete. Use start.bat or start-workbench.bat.
 pause
 exit /b 0
 :failed

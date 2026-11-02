@@ -1,9 +1,9 @@
-param([switch]$SkipInstall)
+param([string]$Python = 'python', [switch]$SkipInstall)
 $ErrorActionPreference='Stop'
 $buildRoot=Join-Path $PSScriptRoot '.electron-build'
 $ocrPython=Join-Path $buildRoot 'ocr-venv/Scripts/python.exe'
 if(-not(Test-Path -LiteralPath $ocrPython)){
-    & python -m venv (Join-Path $buildRoot 'ocr-venv')
+    & $Python -m venv (Join-Path $buildRoot 'ocr-venv')
     if($LASTEXITCODE){throw 'OCR environment creation failed'}
 }
 if(-not $SkipInstall){
