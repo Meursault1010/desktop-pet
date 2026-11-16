@@ -1,28 +1,40 @@
 'use strict';
-const $=id=>document.getElementById(id);let current;
+const $=id=>document.getElementById(id);let current,editTimer;
 function render(state){
  current=state;const loading=['loading','ocr'].includes(state.phase),error=state.phase==='error';
  $('direction').textContent=state.target==='English'?'中文 → English':state.target?'外语 → 中文':'划线翻译';
  $('status').className='status'+(loading?' loading':error?' error':'');
- $('status').textContent=state.error||(state.phase==='ocr'?'正在识别框选区域…':loading?'雪正在翻译…':'');
- $('status').hidden=!loading&&!state.error;$('result').textContent=state.text||'';$('source').textContent=state.source||'';
- $('original').hidden=!state.source;$('copy').disabled=state.phase!=='done'||!state.text;$('copy').querySelector('span').textContent='复制译文';
+  $('status').textContent=state.error||(state.phase==='ocr'?'正在识别框选区域…':loading?'雪正在翻译…':'');
+  $('status').hidden=!loading&&!state.error;$('result').textContent=state.text||'';
+  if(document.activeElement!==$('source')&&$('source').value!==state.source)$('source').value=state.source||'';
+ $('original').hidden=false;$('copy').disabled=state.phase!=='done'||!state.text;$('copy').querySelector('span').textContent='复制译文';
  $('retry').hidden=!error||!state.source;$('method').textContent=(state.method==='ocr'?'本地 OCR + Qwen':'本地 Qwen')+' · 仅本次显示';
 }
 window.translation.subscribe(render);window.translation.snapshot().then(state=>{if(!current)render(state);});
 async function control(name){try{await window.translation.control(name);if(name==='copy')$('copy').querySelector('span').textContent='已复制';}catch{$('status').hidden=false;$('status').textContent='操作失败，请重试';}}
 $('close').onclick=()=>control('close');$('copy').onclick=()=>control('copy');$('retry').onclick=()=>control('retry');
+ $('source').addEventListener('input',event=>{
+  const value=event.target.value;clearTimeout(editTimer);
+  editTimer=setTimeout(()=>window.translation.edit(value).catch(()=>{ $('status').hidden=false;$('status').textContent='原文修改失败，请重试';}),450);
+ });
 document.addEventListener('keydown',event=>{if(event.key==='Escape')void control('close');});
 // Pointer capture keeps dragging continuous even when the pointer leaves the window.
 // Capture event coordinates immediately so queued IPC cannot lose a quick gesture.
 function draggable(element,kind){
- let pointer=null,frame=null,point=null;
+ let pointer=null,frame=null,point=null,queue=Promise.resolve();
  const position=event=>({x:event.screenX,y:event.screenY});
- const send=input=>window.translation.gesture(input).catch(()=>{
-  const active=pointer;pointer=null;delete element.dataset.dragging;
-  if(frame!==null){cancelAnimationFrame(frame);frame=null;}
-  if(active!==null&&element.hasPointerCapture(active))element.releasePointerCapture(active);
- });
+ // Keep the gesture lifecycle ordered. IPC invokes can otherwise overlap, so a
+ // late update may arrive after end and leave the native window in an invalid
+ // move/resize state.
+ const send=input=>{
+  const request=queue.then(()=>window.translation.gesture(input));
+  queue=request.catch(()=>{
+   const active=pointer;pointer=null;delete element.dataset.dragging;
+   if(frame!==null){cancelAnimationFrame(frame);frame=null;}
+   if(active!==null&&element.hasPointerCapture(active))element.releasePointerCapture(active);
+  });
+  return queue;
+ };
  element.addEventListener('pointerdown',event=>{
   if(event.button!==0||(kind==='move'&&event.target.closest('button'))||pointer!==null)return;
   event.preventDefault();pointer=event.pointerId;point=position(event);element.setPointerCapture(pointer);element.dataset.dragging='true';void send({phase:'start',kind,...point});

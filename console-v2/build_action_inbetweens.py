@@ -60,6 +60,28 @@ def graph():
             pairs.add(((key, 11), ('prone-rest', 3)))
         elif not action.get('ground_idle'):
             pairs.add(((key, action['frames']-1), (key, action.get('loop_start', 0))))
+    # Authored story handovers. These edges are played by Patrol, not loops.
+    # Target seated neutral poses directly when the source is already seated.
+    pairs.update((
+        (('reading-pose-1', 0), ('sit-neat', 3)),
+        (('reading-pose-2', 0), ('sit-neat', 3)),
+        (('reading-pose-3', 0), ('sit-neat', 0)),
+        (('sit-neat', 3), ('reading-pose-1', 0)),
+        (('sit-neat', 3), ('reading-pose-2', 0)),
+        (('sit-neat', 3), ('eat', 0)),
+        (('sit-neat', 3), ('work', 0)),
+        (('sit-neat', 3), ('play-sit', 0)),
+        (('eat', catalog()['eat']['frames']-1), ('sit-neat', 3)),
+        (('work', catalog()['work']['frames']-1), ('sit-neat', 3)),
+        (('play-sit', catalog()['play-sit']['frames']-1), ('sit-neat', 3)),
+        (('stretch', catalog()['stretch']['frames']-1), ('tea', 0)),
+        (('tea', catalog()['tea']['frames']-1), ('sit-neat', 0)),
+        (('play-peek', catalog()['play-peek']['frames']-1), ('sit-relaxed', 0)),
+        (('play-climb-up', catalog()['play-climb-up']['frames']-1), ('play-top-rest', 0)),
+        (('play-top-rest', 0), ('play-climb-down', 0)),
+        (('play-top-rest', 1), ('play-climb-down', 0)),
+        (('dance-rest', catalog()['dance-rest']['frames']-1), ('sit-neat', 3)),
+    ))
     return sorted(pairs)
 
 

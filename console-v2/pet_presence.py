@@ -7,8 +7,15 @@ from PySide6.QtGui import QPixmap, QTransform
 ASSETS = Path(__file__).resolve().parent / 'assets/presence'
 ENTER = tuple(f'enter-{i:02d}.png' for i in range(1,11))
 EXIT = tuple(f'exit-{i:02d}.png' for i in range(1,8))
-ENTER_DURATIONS = (.28,.25,.22,.28,.18,.16,.16,.16,.18,.22)
-EXIT_DURATIONS = (.16,.25,.16,.16,.20,.40,.20)
+# Presence should feel like one brisk, readable motion.  The authored peek
+# frames remain, but their holds are short enough that the walk carries the
+# transition instead of making the pet wait at the edge.
+ENTER_DURATIONS = (.34,.34,.34,.34,.34,.20,.20,.20,.24,.24)
+EXIT_DURATIONS = (.20,.24,.20,.20,.24,.28,.28)
+# Both directions use the same distance budget. Keep the transition calm and
+# deliberate while avoiding a separate, slower edge segment.
+PRESENCE_WALK_SPEED = 180.
+MIN_WALK_DURATION = .48
 
 
 def ease(t):
@@ -62,21 +69,25 @@ class Presence:
         self.entering = self.target = bool(visible)
         self.sequence = ENTER + ('idle.png',) if visible else ('idle.png',) + EXIT
         durations = list(ENTER_DURATIONS if visible else EXIT_DURATIONS)
-        # Allow enough travel time on wide desktops, retaining observation holds.
-        from locomotion import walking_speed
-        travel = max(.6, abs(x-peek[0])/walking_speed(48))
+        # Allocate time from the actual distance of each segment. Previously
+        # the edge segment inherited a whole pose group, which made the first
+        # and last few pixels visibly crawl on the desktop boundary.
+        edge_travel = max(MIN_WALK_DURATION,
+                          abs(self.peek[0]-self.origin[0])/PRESENCE_WALK_SPEED)
         if visible:
-            durations[5:8] = [travel/3]*3
-            self.walk_start = sum(durations[:5])
-            self.walk_end = sum(durations[:8])
+            walk_travel = max(MIN_WALK_DURATION,
+                              abs(self.destination[0]-self.peek[0])/PRESENCE_WALK_SPEED)
+            durations[:5] = [edge_travel/5]*5
+            durations[5:8] = [walk_travel/3]*3
+            self.walk_start = edge_travel
+            self.walk_end = edge_travel + walk_travel
         else:
-            durations[2:5] = [travel/3]*3
-            self.walk_start = sum(durations[:2])
-            self.walk_end = sum(durations[:5])
-        durations = durations + [.08] if visible else [.16] + durations
-        if not visible:
-            self.walk_start += .16
-            self.walk_end += .16
+            final_travel = max(MIN_WALK_DURATION,
+                               abs(self.destination[0]-self.peek[0])/PRESENCE_WALK_SPEED)
+            durations = [edge_travel/5]*5 + [final_travel/3]*3
+            self.walk_start = 0.
+            self.walk_end = edge_travel
+        durations = durations + [.08] if visible else durations
         self.durations = tuple(durations)
         self.total = self.duration = sum(durations)
         self.playhead,self.direction,self.started = 0.,1,now
@@ -109,14 +120,24 @@ class Presence:
         t = self.clock(now)
         def blend(a,b,p):
             return tuple(x+(y-x)*p for x,y in zip(a,b))
+        if t <= 0.:
+            return self.origin
+        if t >= self.total:
+            return self.destination
         if self.entering:
-            if t < .22:
-                return blend(self.origin,self.peek,ease(t/.22))
-            return blend(self.peek,self.destination,ease((t-self.walk_start)/(self.walk_end-self.walk_start)))
+            # Start moving on the first frame. The authored peek frames remain
+            # visible, but never create a stationary pause at the edge.
+            if t < self.walk_start:
+                return blend(self.origin,self.peek,t/max(.001,self.walk_start))
+            if t < self.walk_end:
+                return blend(self.peek,self.destination,(t-self.walk_start)/max(.001,self.walk_end-self.walk_start))
+            return self.destination
         if t < self.walk_end:
-            return blend(self.origin,self.peek,ease((t-self.walk_start)/(self.walk_end-self.walk_start)))
-        withdrawal = self.total-self.durations[-1]
-        return blend(self.peek,self.destination,ease((t-withdrawal)/self.durations[-1]))
+            # Departure begins immediately; the idle frame is a pose, not a
+            # reason to wait before the body starts crossing the desktop.
+            return blend(self.origin,self.peek,t/max(.001,self.walk_end))
+        return blend(self.peek,self.destination,
+                     (t-self.walk_end)/max(.001,self.total-self.walk_end))
 
     def frame(self, now=None):
         if not self.sequence:

@@ -64,8 +64,9 @@ export function usePetController() {
   }, [accept]);
 
   const act = (name: string, payload: Record<string, unknown> = {}, success?: string): Promise<boolean> => {
-    const preference = name === 'set_preference' || name === 'configure_icon_sleep' || name === 'configure_edge_attachment';
+    const preference = name === 'set_preference' || name === 'configure_icon_sleep' || name === 'configure_edge_attachment' || name === 'set_appearance_preview';
     const key = name === 'set_preference' ? `preference:${String(payload.key)}`
+      : name === 'set_appearance_preview' ? 'appearance-preview'
       : name === 'configure_icon_sleep' ? `icon_sleep:${Object.keys(payload).sort().join(',')}`
       : name === 'configure_edge_attachment' ? `edge_attachment:${Object.keys(payload).sort().join(',')}` : name;
     const token = epoch.current;

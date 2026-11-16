@@ -59,6 +59,10 @@ class ControlWindow(QMainWindow):
         appearance_form.addRow('当前角色', QLabel('yuki · 白发蓝裙角色'))
         self.add_slider(appearance_form, '宠物大小', 'size', '%')
         self.add_slider(appearance_form, '不透明度', 'opacity', '%')
+        opacity_hint = QLabel('设为 0 会直接隐藏宠物；再次显示时恢复上次的不透明度。')
+        opacity_hint.setWordWrap(True)
+        opacity_hint.setObjectName('caption')
+        appearance_form.addRow(opacity_hint)
         self.add_check(appearance_form, '始终置顶', 'always_on_top')
         layout.addWidget(appearance)
 

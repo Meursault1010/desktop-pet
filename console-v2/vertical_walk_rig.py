@@ -49,7 +49,11 @@ def _idle_down_body(cut_y):
         QImage.Format.Format_ARGB32_Premultiplied)
     painter = QPainter(image)
     painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_DestinationOut)
-    painter.fillRect(0, int(cut_y), image.width(), image.height() - int(cut_y),
+    # The idle front frame's lace hem continues below the rig cut (roughly to
+    # row 224). Clear only the baked legs below that hem; clearing at the old
+    # 215px cut erased the visible skirt edge from down-walk.
+    leg_cut = max(int(cut_y), 225)
+    painter.fillRect(0, leg_cut, image.width(), image.height() - leg_cut,
                      QColor(0, 0, 0, 255))
     painter.end()
     return QPixmap.fromImage(image)

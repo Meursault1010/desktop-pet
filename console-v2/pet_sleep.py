@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 import math
 import time
+from action_player import catalog
 from PySide6.QtCore import QRectF
 from PySide6.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 import cv2
@@ -114,6 +115,8 @@ class SleepCycle:
         self.rest_geometry = None
         self.site_mask = False
         self.site_probe_at = 0.
+        self.action_started = None
+        self.action_generation = None
         # Decode one small frame per idle tick. Prioritize sequence endpoints
         # so a cold launch does not batch-decode an animation on pointer input.
         self.preload_keys = [('settle', 0), ('wake', 0), 0]
@@ -146,11 +149,32 @@ class SleepCycle:
                                  if self.interrupted_settle is not None else WAKE_SECONDS)
             self.wake_source = self.last_frame
             self.phase, self.started = 'waking', now
-            pet.state.action_player.stop()
+            if 'sleep-wake' in catalog():
+                self.play_sleep_action(pet, 'sleep-wake', now)
+            else:
+                self.stop_sleep_action(pet)
+                pet.state.action_player.stop()
             pet.state.ambient.current = None
             pet.state.ambient.next_at = now+5
             pet.renderer.pointer_hold_image = None
             pet.state_changed.emit()
+
+    def play_sleep_action(self, pet, action_id, now, *, loop=False):
+        """Use the authored catalog sleep clips for real scheduled transitions."""
+        if action_id not in catalog():
+            return False
+        player = pet.state.action_player
+        player.play(action_id, now=now, loop=loop)
+        self.action_started = player.started
+        self.action_generation = player.generation
+        return True
+
+    def stop_sleep_action(self, pet):
+        player = pet.state.action_player
+        if (self.action_started is not None and player.started == self.action_started
+                and player.generation == self.action_generation):
+            player.stop()
+        self.action_started = self.action_generation = None
 
     def tick(self, pet, now):
         s = pet.state
@@ -188,6 +212,7 @@ class SleepCycle:
         if busy and self.awake_until:
             self.awake_until = max(self.awake_until, now+120)
         if self.phase == 'waking' and now-self.started >= self.wake_seconds:
+            self.stop_sleep_action(pet)
             self.phase = 'awake'
             self.wake_source = None
             self.interrupted_settle = None
@@ -231,11 +256,15 @@ class SleepCycle:
             self.phase, self.started = 'settling', now
             self.last_frame = self.wake_source = None
             self.interrupted_settle = None
+            if not self.play_sleep_action(pet, 'sleep-enter', now):
+                self.action_started = self.action_generation = None
             pet.state_changed.emit()
         if self.phase == 'settling' and now-self.started >= SETTLE_SECONDS:
             # Anchor breath phase to the end of settling, not the last tick.
             self.breath_started = self.started+SETTLE_SECONDS
             self.phase = 'asleep'
+            if not self.play_sleep_action(pet, 'sleep', now, loop=True):
+                self.action_started = self.action_generation = None
             pet.state_changed.emit()
 
     def snapshot(self):
@@ -272,6 +301,7 @@ class SleepCycle:
         # Pointer/throw physics own the pose immediately after the gesture
         # crosses the drag threshold; a pending wake must not suspend them.
         self.phase = 'awake'
+        self.action_started = self.action_generation = None
         self.wake_source = self.last_frame = None
         self.interrupted_settle = None
 

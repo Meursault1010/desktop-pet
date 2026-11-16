@@ -128,7 +128,11 @@ class PatrolDepth:
         self.pet.masker.clear('depth')
         if self.override:
             try:
-                set_pet_topmost(int(self.pet.winId()), self.pet.preferences.always_on_top)
+                restore = getattr(self.pet, 'apply_window_layer', None)
+                if restore is not None:
+                    restore()
+                else:
+                    set_pet_topmost(int(self.pet.winId()), self.pet.preferences.always_on_top)
             except OSError:
                 pass
         self.region = None

@@ -27,6 +27,10 @@ class FocusCompanion:
         self.last_hold_attempt = 0.
         self.sessions = 0
         self.free_generation = None
+        self.pending_free_action = None
+        self.pending_free_start = None
+        self.pending_free_generation = None
+        self.pending_free_duration = 0.
         pet.focus = self
 
     def set(self, enabled, phase='focus', remaining=None, now=None):
@@ -59,9 +63,11 @@ class FocusCompanion:
         elif previous != phase:
             if phase == 'break':
                 self._finish_focus(now)
-                self._release_actions()
-                self._begin_break(now)
+                from_sit = self.owns_action()
+                self._release_actions(stop_hold=not from_sit)
+                self._begin_break(now, from_sit=from_sit)
             else:
+                self.pending_free_action = None
                 self.break_started = self.break_treat_at = None
                 self.focus_started = now
                 self._begin_focus(now)
@@ -79,7 +85,8 @@ class FocusCompanion:
         self.focus_started = None
         self.break_started = None
         self.break_treat_at = 0.
-        self._release_actions()
+        self._release_actions(now=now, stand_up=phase == 'focus')
+        self.pending_free_action = None
         self._set_click_through(False)
         self.sync()
         if was_active and phase == 'break' and self.base().focus_companion:
@@ -107,6 +114,19 @@ class FocusCompanion:
         if self.phase == 'focus':
             self._hold_sit(now)
         elif self.phase == 'break':
+            if self.pending_free_action:
+                player = self.pet.state.action_player
+                if (player.started != self.pending_free_start
+                        or player.generation not in (self.pending_free_generation,
+                                                     self.pending_free_generation+1)):
+                    self.pending_free_action = None
+                elif (player.action is None
+                      and player.generation == self.pending_free_generation+1
+                      and now >= self.pending_free_start+self.pending_free_duration):
+                    action = self.pending_free_action
+                    self.pending_free_action = None
+                    self._play_free(action, now)
+                return
             if self.break_started is None:
                 self.break_started = now
             if self.break_treat_at and now >= self.break_treat_at:
@@ -145,10 +165,20 @@ class FocusCompanion:
         self.pet.state.sleep.wake(self.pet, '专注陪伴')
         self._hold_sit(now, force=True)
 
-    def _begin_break(self, now):
+    def _begin_break(self, now, from_sit=False):
         self.break_started = now
         self.break_treat_at = now+60
-        self._play_free('stretch', now)
+        if from_sit:
+            duration = self.pet.state.ambient.play(
+                self.pet.state.action_player, 'sit-neat', now, exit_only=True)
+            self.pet.state.ambient.current = None
+            player = self.pet.state.action_player
+            self.pending_free_action = 'stretch'
+            self.pending_free_start = player.started
+            self.pending_free_generation = player.generation
+            self.pending_free_duration = duration
+        else:
+            self._play_free('stretch', now)
 
     def _finish_focus(self, now):
         if self.focus_started is None:
@@ -191,9 +221,18 @@ class FocusCompanion:
         self.pet.state_changed.emit()
         return True
 
-    def _release_actions(self):
+    def _release_actions(self, now=None, stand_up=False, stop_hold=True):
         player = self.pet.state.action_player
-        if (player.action is not None
+        state = self.pet.state
+        if stand_up and self.owns_action():
+            now = time.monotonic() if now is None else now
+            state.ambient.play(player, 'sit-neat', now, exit_only=True)
+            state.ambient.current = None
+            state.ambient.defer(now, self.pet.preferences.activity)
+        elif (player.action is not None and player.generation == self.hold_generation
+              and not stop_hold):
+            pass
+        elif (player.action is not None
                 and player.generation in (self.hold_generation, self.free_generation)):
             player.stop()
         self.hold_generation = None
@@ -227,7 +266,6 @@ class FocusCompanion:
             return
         self.click_through = enabled
         visible = self.pet.isVisible()
-        self.pet.setWindowFlag(Qt.WindowType.WindowTransparentForInput, enabled)
+        self.pet.set_window_flag_preserving_idle(Qt.WindowType.WindowTransparentForInput, enabled)
         if visible:
-            self.pet.show()
             self.pet.masker.reapply()

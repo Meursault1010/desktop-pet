@@ -19,6 +19,18 @@
   margin-bottom:0;
   font-size:14px
 }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .chat-transcript {
   flex:1;
   min-height:0;
@@ -161,6 +173,19 @@
   overflow-wrap:anywhere;
   margin:12px 0
 }
+.connection-feedback {
+  margin:10px 0;
+  padding:9px 11px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:var(--soft);
+  font-size:var(--type-meta,12px);
+  line-height:1.65;
+  overflow-wrap:anywhere
+}
+.connection-feedback:not(.save-error) {
+  color:var(--muted)
+}
 .ai-model-label {
   display:block;
   font-size:12px;
@@ -251,5 +276,44 @@
 .chat-file>span {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
 .chat-file small {display:block;font-size:11px;color:var(--muted);margin-top:3px}
 .chat-file img {width:40px;height:40px;object-fit:contain;border-radius:4px}
+.chat-file-mode {flex:none;max-width:118px;padding:3px 4px;font-size:11px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.chat-sessions {display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.chat-session {display:flex;align-items:center;gap:2px;padding:2px 4px 2px 8px;background:var(--soft);border:1px solid var(--line);border-radius:999px;font-size:11px}
+.chat-session.selected {border-color:var(--blue)}
+.chat-session>button:not(.icon-button) {display:inline-flex;align-items:center;gap:5px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-session small {color:var(--muted);font-size:10px}
+.chat-session .icon-button {width:22px;height:22px}
+.chat-session-edit {max-width:170px;padding:2px 5px;font-size:11px;border:1px solid var(--blue);border-radius:6px;background:var(--panel)}
+.chat-session-actions {display:inline-flex;gap:10px;margin-left:auto}
 .chat-file button:focus-visible,.chat-composer button:focus-visible {outline:2px solid var(--blue);outline-offset:3px}
 .chat-composer>div>span {flex:1;padding-left:8px}
+
+/* Rendered answer body. Selectors stay more specific than the workbench layers that also
+   target `.chat-turn p`, and reuse the existing bubble instead of a new visual system. */
+.chat-turn .chat-body {margin-top:8px;min-width:0;background:var(--soft);border:1px solid var(--line);border-radius:3px 10px 10px 10px;padding:14px 16px}
+.chat-turn.user .chat-body {background:var(--blue-soft);border-radius:10px 3px 10px 10px}
+.chat-turn .chat-body p {margin:0 0 9px;background:none;border:0;padding:0;border-radius:0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.85;font-size:13px;color:var(--text)}
+.chat-turn .chat-body .md-heading {margin:0 0 8px;font-size:14px;font-weight:600;letter-spacing:.01em;color:var(--text);white-space:normal}
+.chat-turn .chat-body .md-heading.level-1 {font-size:15px}
+.chat-turn .chat-body .md-list {margin:0 0 9px;padding-left:20px;display:grid;gap:5px;font-size:13px;line-height:1.8;overflow-wrap:anywhere}
+.chat-turn .chat-body .md-ordered {list-style-type:decimal}
+.chat-turn .chat-body .md-list li {white-space:pre-wrap}
+.chat-turn .chat-body .md-list li::marker {color:var(--muted)}
+.chat-turn .chat-body .md-code {margin:0 0 9px;padding:12px 13px;overflow:auto;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--text);font:12px/1.75 'Cascadia Mono',Consolas,monospace;white-space:pre}
+.chat-turn .chat-body code {font-family:'Cascadia Mono',Consolas,monospace;font-size:12px;padding:1px 4px;background:var(--panel);border:1px solid var(--line);border-radius:4px}
+.chat-turn .chat-body .md-code code {padding:0;background:none;border:0}
+.chat-turn .chat-body a {color:var(--blue);text-decoration:underline;text-underline-offset:2px}
+.chat-turn .chat-body>:last-child {margin-bottom:0}
+.chat-turn-actions {display:flex;gap:12px;margin-top:7px;opacity:0;transition:opacity var(--motion)}
+.chat-turn:hover .chat-turn-actions,.chat-turn:focus-within .chat-turn-actions {opacity:1}
+.chat-turn.user .chat-turn-actions {justify-content:flex-end}
+.chat-turn-actions button {display:inline-flex;align-items:center;gap:5px;padding:2px 0;font-size:11px;color:var(--muted)}
+.chat-turn-actions button:hover:not(:disabled) {color:var(--blue)}
+.chat-turn-actions button.danger:hover:not(:disabled) {color:var(--danger)}
+.chat-jump {position:sticky;bottom:8px;display:block;width:max-content;margin:0 auto;padding:6px 13px;font-size:11px;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:999px;box-shadow:0 8px 22px #06162522}
+.chat-jump:hover {color:var(--blue);border-color:var(--blue)}
+.chat-retry-row {display:flex;align-items:center;gap:9px;margin-top:9px}
+.chat-retry-row small {font-size:11px;color:var(--muted)}
+@media(hover:none) {
+  .chat-turn-actions {opacity:1}
+}

@@ -38,7 +38,7 @@ class MenuTests(unittest.TestCase):
         self.directory.cleanup()
 
     def test_compact_menu_exposes_only_authorized_commands(self):
-        self.assertEqual(set(self.actions), {'translation', 'demo_climb', 'console', 'exit'})
+        self.assertEqual(set(self.actions), {'translation', 'console', 'exit'})
         self.assertEqual(self.menu.width(), 328)
         self.assertEqual(self.menu.actions()[-1].objectName(), 'exit')
         self.controller.update_menu(self.menu)
@@ -47,11 +47,6 @@ class MenuTests(unittest.TestCase):
         for theme in ('light', 'mist', 'dark'):
             self.menu.apply_theme(theme)
             self.assertFalse(self.menu.grab().isNull())
-
-    def test_demo_climb_entry_starts_visible_exploration(self):
-        self.actions['demo_climb'].trigger()
-        self.assertTrue(self.controller.patrol.demo)
-        self.assertTrue(self.controller.patrol.exploring)
 
     def test_keyboard_escape_and_inline_reply(self):
         self.controller.quick_reply = '雪在这里。'

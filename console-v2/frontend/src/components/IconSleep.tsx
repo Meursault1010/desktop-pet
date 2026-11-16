@@ -22,7 +22,7 @@ export function IconSleep({state,disabled,act}:Props){
   const locked=disabled||busy||demo;
   return <div className="icon-sleep-page page-enter">
     <section className="sleep-targets">
-      <div className="sleep-section-heading"><h2>桌面图标</h2><button className="icon-button bordered" title="刷新桌面图标" aria-label="刷新桌面图标" disabled={locked||sleep?.scanning} onClick={()=>void invoke('refresh_desktop_icons')}>{sleep?.scanning?<LoaderCircle size={17} className="spin"/>:<RefreshCw size={17}/>}</button></div>
+      <div className="sleep-section-heading"><h2>桌面图标</h2><button className="icon-button bordered" title="重新扫描桌面快捷方式和图标文件，更新下面可供雪依靠的目标。" aria-label="刷新桌面图标" disabled={locked||sleep?.scanning} onClick={()=>void invoke('refresh_desktop_icons')}>{sleep?.scanning?<LoaderCircle size={17} className="spin"/>:<RefreshCw size={17}/>}</button></div>
       <input className="sleep-search" aria-label="搜索桌面图标" placeholder="搜索名称" value={query} onChange={e=>setQuery(e.target.value)}/>
       {demo&&<p className="muted">预览模式未连接 Windows 桌面。</p>}
       {sleep?.error&&<p role="alert" className="save-error">{sleep.error}</p>}

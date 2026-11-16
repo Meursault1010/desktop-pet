@@ -2,6 +2,7 @@
 import math
 import time
 from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtGui import QIntValidator
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QListWidget,
     QListWidgetItem, QLineEdit, QToolButton, QComboBox, QAbstractItemView)
 
@@ -23,16 +24,55 @@ def validate_snapshot(v):
         raise ValueError('待办提醒无效')
     f=v.get('focus')
     if f is not None:
-        if not isinstance(f,dict) or f.get('mode') not in ('focus','break') or f.get('duration') not in (15,25,45,60):
+        # Any whole minute from 1 to 180 is a legal focus length: the four preset buttons are
+        # only shortcuts, and rejecting everything else silently killed the desktop popup.
+        if not isinstance(f,dict) or f.get('mode') not in ('focus','break') or type(f.get('duration')) is not int or not 1<=f['duration']<=180:
             raise ValueError('计时状态无效')
-        for key in ('remaining','completed'):
-            if type(f.get(key)) not in (int,float) or not math.isfinite(f[key]) or f[key]<0:
+        for key,limit in (('remaining',10800),('completed',None)):
+            if type(f.get(key)) not in (int,float) or not math.isfinite(f[key]) or f[key]<0 or (limit is not None and f[key]>limit):
                 raise ValueError('计时状态无效')
         if f.get('end') is not None and (type(f['end']) not in (int,float) or not math.isfinite(f['end']) or f['end']<=0):
             raise ValueError('计时状态无效')
     if type(v.get('todoCount')) is not int or not 0<=v['todoCount']<=200 or not isinstance(v.get('error'),str) or len(v['error'])>200:
         raise ValueError('快捷工具状态无效')
     return v
+
+
+class EditableClock(QLineEdit):
+    commitRequested=Signal()
+
+    def mousePressEvent(self,event):
+        if event.button()==Qt.MouseButton.LeftButton and self.isReadOnly():
+            self.setReadOnly(False)
+            self.setCursor(Qt.CursorShape.IBeamCursor)
+            super().mousePressEvent(event)
+            QTimer.singleShot(0,self.selectAll)
+            return
+        super().mousePressEvent(event)
+
+    def focusOutEvent(self,event):
+        super().focusOutEvent(event)
+        if not self.isReadOnly():
+            self.setReadOnly(True)
+            self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def keyPressEvent(self,event):
+        if event.key() in (Qt.Key.Key_Return,Qt.Key.Key_Enter) and not self.isReadOnly():
+            self.commitRequested.emit()
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
+
+class CommitLineEdit(QLineEdit):
+    commitRequested=Signal()
+
+    def keyPressEvent(self,event):
+        if event.key() in (Qt.Key.Key_Return,Qt.Key.Key_Enter):
+            self.commitRequested.emit()
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
 
 class QuickToolsPane(QWidget):
@@ -91,11 +131,36 @@ class QuickToolsPane(QWidget):
             layout.addStretch()
             self.phase=QLabel('专注时间')
             self.phase.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.clock=QLabel('25:00')
+            self.clock=EditableClock('25:00')
             self.clock.setObjectName('timer-reading')
             self.clock.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.clock.setAccessibleName('专注计时剩余时间')
+            self.clock.setReadOnly(True)
+            self.clock.setMaxLength(6)
+            self.clock.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.clock.setAccessibleName('可编辑的专注剩余时间，可输入分钟或分:秒')
+            self.clock.setToolTip('点击后输入分钟（如 30）或分:秒（如 30:00），按 Enter 应用')
+            self.clock.setAttribute(Qt.WidgetAttribute.WA_InputMethodEnabled,True)
+            self.clock.commitRequested.connect(self.apply_focus_time)
+            self.clock.editingFinished.connect(self.apply_focus_time)
             layout.addWidget(self.phase);layout.addWidget(self.clock)
+            custom_row=QHBoxLayout();custom_row.addStretch()
+            self.custom_minutes=CommitLineEdit()
+            self.custom_minutes.setFixedWidth(66)
+            self.custom_minutes.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.custom_minutes.setMaxLength(3)
+            self.custom_minutes.setValidator(QIntValidator(1,180,self.custom_minutes))
+            self.custom_minutes.setAccessibleName('自定义专注时长，分钟，1 到 180')
+            self.custom_minutes.setPlaceholderText('分钟')
+            self.custom_minutes.setToolTip('输入 1 到 180 分钟')
+            self.custom_minutes.setAttribute(Qt.WidgetAttribute.WA_InputMethodEnabled,True)
+            self.custom_minutes.commitRequested.connect(self.apply_custom_minutes)
+            self.custom_apply=self.button('应用',self.apply_custom_minutes)
+            custom_row.addWidget(QLabel('自定义'))
+            custom_row.addWidget(self.custom_minutes)
+            custom_row.addWidget(QLabel('分钟'))
+            custom_row.addWidget(self.custom_apply)
+            custom_row.addStretch()
+            layout.addLayout(custom_row)
             row=QHBoxLayout();row.addStretch()
             self.toggle=self.button('开始',lambda:self.request.emit('focus-toggle',None))
             self.reset=self.button('重置',lambda:self.request.emit('focus-reset',None))
@@ -127,13 +192,51 @@ class QuickToolsPane(QWidget):
         self.add.setEnabled(False)
         self.request.emit('todo-add',{'text':text,'minutes':self.due.currentData()})
 
+    def apply_focus_time(self):
+        if self.clock.isReadOnly():return
+        parts=self.clock.text().strip().split(':')
+        total=0
+        try:
+            if len(parts)==1:
+                total=int(parts[0])*60
+            elif len(parts)==2:
+                minutes,seconds=(int(part) for part in parts)
+                total=minutes*60+seconds
+                if not 0<=seconds<60:total=0
+            if not 60<=total<=10800:total=0
+        except (ValueError,TypeError):pass
+        if not total:
+            self.feedback.setText('请输入 1–180 分钟，例如 30 或 30:00。')
+        else:
+            self.feedback.clear()
+            self.request.emit('focus-set-seconds',total)
+        self.clock.setModified(False)
+        self.clock.setReadOnly(True)
+        self.clock.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.update_clock()
+
+    def apply_custom_minutes(self):
+        try:minutes=int(self.custom_minutes.text().strip())
+        except ValueError:minutes=0
+        if not 1<=minutes<=180:
+            self.feedback.setText('请输入 1 到 180 分钟。')
+            return
+        self.feedback.clear()
+        self.custom_minutes.setModified(False)
+        self.request.emit('focus-set-seconds',minutes*60)
+
     def refresh(self,state):
         self.state=state
         self.feedback.setText(state.get('error',''))
         ready=state.get('ready',False)
         if self.kind=='focus':
-            self.caption.setText('与工作台共用计时 · 完成后提醒' if ready else '正在连接工作台…')
-            self.toggle.setEnabled(ready);self.reset.setEnabled(ready)
+            self.caption.setText('共享计时 · 点击时间输入分钟或分:秒' if ready else '正在连接工作台…')
+            self.clock.setEnabled(ready);self.toggle.setEnabled(ready);self.reset.setEnabled(ready)
+            if not self.custom_minutes.hasFocus() and not self.custom_minutes.isModified():
+                focus=state.get('focus') or {}
+                self.custom_minutes.setText(str(focus.get('duration',25)))
+            self.custom_minutes.setEnabled(ready)
+            self.custom_apply.setEnabled(ready)
             self.update_clock()
             return
         data=state.get('clipboard' if self.kind=='clipboard' else 'todos',[])
@@ -181,6 +284,7 @@ class QuickToolsPane(QWidget):
         if not data:self.items.setToolTip('复制文字后会显示在这里。' if self.kind=='clipboard' else '暂时没有待办，可以在下方添加。')
 
     def update_clock(self):
+        if not self.clock.isReadOnly():return
         f=self.state.get('focus') or {}
         end=f.get('end')
         remaining=max(0,math.ceil(end/1000-time.time())) if end else f.get('remaining',1500)

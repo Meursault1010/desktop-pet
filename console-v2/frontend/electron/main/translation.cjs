@@ -30,20 +30,20 @@ class Translation {
   return this.snapshot();
  }
  cancel(){this.generation++;this.engine.cancel();}
- async translate(source,point,method='selection'){
+ async translate(source,point,method='selection',options={}){
   if(!this.enabled||typeof source!=='string'||!source.trim())return;
   source=source.trim();const now=Date.now();
   if(source===this.lastText&&now-this.lastAt<1000)return;
   this.lastText=source;this.lastAt=now;
   this.cancel();const generation=this.generation;
-  this.point=point;this.update({source:source.slice(0,4000),text:'',error:'',target:targetLanguage(source),method,phase:'loading'});this.display(point);
+  this.point=point;this.update({source:source.slice(0,4000),text:'',error:'',target:targetLanguage(source),method,phase:'loading'});if(!options.keepWindow)this.display(point);
   if(source.length>4000){this.update({phase:'error',error:'选中文字超过 4000 字符，请缩小选区后重试。'});return;}
   try{
-   if(!['127.0.0.1','localhost','[::1]'].includes(new URL(this.config.value.endpoint).hostname))throw Error('自动划线翻译仅使用本机模型，请先在 AI 助手中配置本地 Qwen。');
    // Separate client prevents translation from mixing into chat history or cancelling chat.
    const old=this.pending; if(old)await old.catch(()=>{});
    if(generation!==this.generation)return;
-   this.engine.configure(this.config);const work=(async()=>{
+   const selected=this.config.translationValue?.()||{mode:'system'};const active=selected.mode==='custom'?{value:selected,key:selected.key,ensureReady:()=>Promise.resolve()}:this.config;
+   this.engine.configure(active);const work=(async()=>{
     const available=await this.engine.models();if(generation!==this.generation)return;
     const model=available.models.includes(this.config.value.model)?this.config.value.model:available.models.find(id=>/qwen/i.test(id))||available.models[0];
     if(!model)throw Error('请先在本地服务加载聊天模型。');
@@ -53,6 +53,10 @@ class Translation {
     if(generation===this.generation)this.update({phase:'done',text:result.text});
    })();this.pending=work;await work;
   }catch(error){if(generation===this.generation)this.update({phase:'error',error:String(error.message||error).slice(0,300)});}
+ }
+ async edit(source){
+  if(!this.enabled)return;
+  return this.translate(source,this.point||{x:0,y:0},this.state.method||'selection',{keepWindow:true});
  }
  retry(){this.lastText='';return this.translate(this.state.source,this.point,this.state.method);}
  stop(){this.enabled=false;this.cancel();this.watcher.stop();}

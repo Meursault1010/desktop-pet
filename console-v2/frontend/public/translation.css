@@ -12,7 +12,8 @@ header button{-webkit-app-region:no-drag;app-region:no-drag;flex-shrink:0;min-wi
 .result-area:focus-visible{outline:2px solid var(--blue);outline-offset:-3px}
 .reading-content{width:100%;max-width:75ch;margin-inline:auto}
 .result{font-size:clamp(14px,calc(12px + .714vw),18px);line-height:1.85}
-#source{font-size:clamp(12px,calc(10px + .476vw),14px)}
+#source{display:block;width:100%;min-height:76px;max-height:180px;resize:vertical;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);font:inherit;font-size:clamp(12px,calc(10px + .476vw),14px);line-height:1.7;overflow:auto}
+#source:focus{outline:2px solid #8dc9e8;outline-offset:1px}
 footer{flex-wrap:wrap;min-width:0;padding-right:24px;row-gap:3px}
 #method{flex:1 1 140px;line-height:1.6;overflow-wrap:anywhere}
 footer>div{flex-shrink:0;margin-left:auto}

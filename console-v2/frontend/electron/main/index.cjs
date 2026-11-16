@@ -1,5 +1,5 @@
 'use strict';
-const {app,BrowserWindow,Tray,Menu,Notification,ipcMain,protocol,session,dialog,nativeImage,clipboard,powerMonitor,safeStorage,screen,desktopCapturer,globalShortcut}=require('electron');
+const {app,BrowserWindow,Tray,Menu,Notification,ipcMain,protocol,session,dialog,nativeImage,clipboard,powerMonitor,safeStorage,screen,desktopCapturer,globalShortcut,shell}=require('electron');
 const path=require('node:path');
 const fs=require('node:fs');
 const smoke=process.argv.includes('--smoke-test');
@@ -15,8 +15,12 @@ const {CSP,resourcePath,trusted,webPreferences,harden,closeBehavior}=require('./
 const {validate}=require('../shared/protocol.cjs');
 const {Assistant}=require('./assistant.cjs');
 const assistant=new Assistant();
+assistant.imagePreview=data=>{try{const image=nativeImage.createFromDataURL(data);return image.isEmpty()?undefined:image.resize({width:240,quality:'good'}).toDataURL();}catch{return undefined;}};
 const {DesktopServices}=require('./desktop-services.cjs');
 const {ModelConfig}=require('./model-config.cjs');
+const {Conversations,MAX_CONVERSATION_PAYLOAD}=require('./conversations.cjs');
+const {coalesceUpdates}=require('./stream-coalesce.cjs');
+const {discoverLocalServices}=require('./local-services.cjs');
 const {LocalModel,ENDPOINT:LOCAL_ENDPOINT,MODEL:LOCAL_MODEL}=require('./local-model.cjs');
 let localModel;
 const {QuickChat}=require('./quick-chat.cjs');
@@ -24,9 +28,9 @@ const quickChat=new QuickChat(assistant, payload=>sidecar.request('speech_update
 
 protocol.registerSchemesAsPrivileged([{scheme:'yuki',privileges:{standard:true,secure:true,supportFetchAPI:true}}]);
 const ownsLock=app.requestSingleInstanceLock();
-let window=null,tray=null,sidecar=null,quitting=false,exitWork=null,started=false,startFallback=null;
+let window=null,tray=null,sidecar=null,quitting=false,exitWork=null,started=false,startFallback=null,notificationWindow=null,notificationReady=null,notificationTimer=null,timers=null;
 let runtimeRoot,uiRoot;
-let desktopServices,modelConfig,workbenchConfig,quickTools;
+let desktopServices,modelConfig,workbenchConfig,quickTools,conversations;
 let registeredShortcuts={};
 function shortcutAction(id){return {console:showConsole,visibility:()=>void sidecar.request('toggle_visibility',{}).catch(log),translation:()=>{try{translationMode(!translation.enabled);}catch(e){translation.update({error:String(e.message||e)});}},capture:()=>void startTranslationCapture()}[id];}
 function installShortcuts(next){
@@ -42,6 +46,30 @@ function startTranslationCapture(){return translationWindows.capture().catch(err
 function showConsole(){if(window&&!window.isDestroyed()){if(window.isMinimized())window.restore();window.show();window.focus();}}
 function send(channel,value){if(window&&!window.isDestroyed())window.webContents.send(channel,value);}
 function guard(event){if(!trusted(event,window))throw new Error('拒绝未知页面的桌面请求');}
+async function showDesktopNotification(text){
+  const body=String(text||'').trim();if(!body)return;
+  if(!notificationWindow||notificationWindow.isDestroyed()){
+    notificationWindow=new BrowserWindow({width:440,height:148,show:false,frame:false,transparent:true,resizable:false,movable:false,focusable:true,alwaysOnTop:true,skipTaskbar:true,hasShadow:false,backgroundColor:'#00000000',webPreferences:webPreferences(path.join(__dirname,'../preload/notification.cjs'))});
+    harden(notificationWindow);notificationWindow.setMenuBarVisibility(false);notificationWindow.setAlwaysOnTop(true,'floating');notificationWindow.on('closed',()=>{notificationWindow=null;notificationReady=null;});
+    notificationReady=notificationWindow.loadURL('yuki://app/notification.html');await notificationReady;
+  }else if(notificationReady)await notificationReady;
+  if(!notificationWindow||notificationWindow.isDestroyed())return;
+  const area=screen.getPrimaryDisplay().workArea;const [width,height]=notificationWindow.getSize();
+  notificationWindow.setPosition(Math.round(area.x+area.width-width-22),Math.round(area.y+area.height-height-22));
+  notificationWindow.webContents.send('yuki:notification-update',{title:'yuki · 小提醒',text:body,theme:workbenchConfig?.value?.theme||'mist',kind:'reminder'});
+  notificationWindow.showInactive();notificationWindow.setAlwaysOnTop(true,'floating');
+  clearTimeout(notificationTimer);notificationTimer=setTimeout(()=>{if(notificationWindow&&!notificationWindow.isDestroyed())notificationWindow.hide();},7200);
+}
+// The self-drawn card is the primary path; the system notification is only the fallback.
+// Every delivery is recorded so the smoke run can prove a reminder reached the desktop while
+// the workbench window was hidden.
+const desktopReminders=[];
+function notifyDesktop(text){
+  void showDesktopNotification(text).then(()=>{
+    desktopReminders.push({text,at:Date.now(),shown:!!(notificationWindow&&!notificationWindow.isDestroyed()&&notificationWindow.isVisible())});
+    if(desktopReminders.length>20)desktopReminders.shift();
+  }).catch(error=>{log(`自绘桌面提醒失败：${error.message||error}`);if(Notification.isSupported())new Notification({title:'Yuki · 小提醒',body:text,silent:true}).show();});
+}
 function markStarted(){if(started||quitting)return;started=true;clearTimeout(startFallback);startFallback=null;showConsole();refreshTray();}
 function waitForExitAnimation(){
   return new Promise(resolve=>{
@@ -60,10 +88,12 @@ async function stopAndQuit(){
   clearTimeout(startFallback);startFallback=null;
   assistant.cancel();
   quickChat.cancel();
-  exitWork=(async()=>{await waitForExitAnimation();globalShortcut.unregisterAll();translation?.stop();translationWindows?.stop();desktopServices?.stop();await Promise.all([sidecar?.stop(),localModel?.stop()]);tray?.destroy();tray=null;app.quit();})();
+  exitWork=(async()=>{await waitForExitAnimation();globalShortcut.unregisterAll();clearTimeout(notificationTimer);notificationWindow?.destroy();notificationWindow=null;timers?.stop();translation?.stop();translationWindows?.stop();desktopServices?.stop();await Promise.all([sidecar?.stop(),localModel?.stop()]);tray?.destroy();tray=null;app.quit();})();
   return exitWork;
 }
 function configureIpc(){
+  ipcMain.handle('yuki:notification-close',event=>{if(notificationWindow&&!notificationWindow.isDestroyed()&&event.sender===notificationWindow.webContents){notificationWindow.hide();clearTimeout(notificationTimer);}});
+  ipcMain.handle('yuki:open-external',(event,url)=>{guard(event);const parsed=new URL(String(url));if(parsed.protocol!=='https:')throw new Error('只允许打开 HTTPS 来源');return shell.openExternal(parsed.href);});
   ipcMain.handle('yuki:workbench-config',event=>{guard(event);return {...workbenchConfig.snapshot(),shortcutStatus:{...registeredShortcuts}};});
   ipcMain.handle('yuki:workbench-set',async(event,input)=>{guard(event);const next=workbenchConfig.validate(input),previous=workbenchConfig.snapshot();if(input.shortcuts)installShortcuts(next.shortcuts);try{workbenchConfig.write(next);}catch(e){if(input.shortcuts)installShortcuts(previous.shortcuts);throw e;}await syncWorkbench();refreshTray();return {...workbenchConfig.snapshot(),shortcutStatus:{...registeredShortcuts}};});
   ipcMain.handle('yuki:window-mode',(event,wide)=>{guard(event);if(typeof wide!=='boolean')throw Error('窗口模式无效');return require('./workbench-window.cjs').setWindowMode(window,screen,wide);});
@@ -75,6 +105,10 @@ function configureIpc(){
     guard(event);
     return desktopServices.action(input);
   });
+  // Clipboard bodies stay in the main process; the detail pane asks for one by id.
+  ipcMain.handle('yuki:clipboard-read',(event,id)=>{guard(event);return desktopServices.clipboardBody(id);});
+  ipcMain.handle('yuki:workbench-timers',event=>{guard(event);return timers.snapshot();});
+  ipcMain.handle('yuki:workbench-timers-set',(event,input)=>{guard(event);const value=timers.apply(input);send('yuki:workbench-timers',value);return value;});
   let builtinChanging=false;
   ipcMain.handle('yuki:builtin-model-set',async(event,enabled)=>{
     guard(event);
@@ -82,18 +116,39 @@ function configureIpc(){
     if(builtinChanging)throw Error('内置模型正在切换，请稍候');
     builtinChanging=true;
     try{
-      modelConfig.setBuiltinEnabled(enabled);
+      await modelConfig.setBuiltinEnabled(enabled);
       if(!enabled){
         if(modelConfig.value.endpoint===LOCAL_ENDPOINT){assistant.cancel();quickChat.cancel();translation?.cancel();}
         await localModel.stop();
       }else{
-        try{await localModel.resume();}catch(error){modelConfig.setBuiltinEnabled(false);await localModel.stop();throw error;}
+        try{await localModel.resume();}catch(error){await modelConfig.setBuiltinEnabled(false);await localModel.stop();throw error;}
       }
       return modelConfig.snapshot();
     }finally{builtinChanging=false;}
   });
-  ipcMain.handle('yuki:model-config',event=>{guard(event);return modelConfig.snapshot();});
-  ipcMain.handle('yuki:model-config-set',(event,input)=>{guard(event);if(assistant.active||quickChat.busy)throw new Error('请等待当前对话结束后再更改模型');translation?.cancel();const result=modelConfig.set(input);assistant.configure(modelConfig);return result;});
+  ipcMain.handle('yuki:model-config',async event=>{guard(event);await modelConfig.ready;return modelConfig.snapshot();});
+  ipcMain.handle('yuki:model-config-set',async(event,input)=>{guard(event);if(assistant.active||quickChat.busy)throw new Error('请等待当前对话结束后再更改模型');translation?.cancel();const result=await modelConfig.set(input);assistant.configure(modelConfig);return result;});
+  ipcMain.handle('yuki:model-test',async(event,input)=>{guard(event);return modelConfig.test(input);});
+  ipcMain.handle('yuki:translation-config',async event=>{guard(event);await modelConfig.ready;return modelConfig.snapshot().translation;});
+  ipcMain.handle('yuki:translation-config-set',async(event,input)=>{guard(event);translation?.cancel();return (await modelConfig.setTranslation(input)).translation;});
+  ipcMain.handle('yuki:model-profile-save',async(event,input)=>{guard(event);if(assistant.active||quickChat.busy)throw new Error('请等待当前对话结束后再更改模型');return modelConfig.saveProfile(input);});
+  ipcMain.handle('yuki:model-profile-use',async(event,id)=>{guard(event);if(assistant.active||quickChat.busy)throw new Error('请等待当前对话结束后再更改模型');translation?.cancel();const result=await modelConfig.useProfile(id);assistant.configure(modelConfig);return result;});
+  ipcMain.handle('yuki:model-profile-delete',async(event,id)=>{guard(event);return modelConfig.deleteProfile(id);});
+  // Toggling this must not cancel a running reply, so the flag is pushed directly instead of re-configuring.
+  ipcMain.handle('yuki:model-attachments-set',async(event,enabled)=>{guard(event);const result=await modelConfig.setRemoteAttachments(enabled===true);assistant.allowRemoteAttachments=modelConfig.allowRemoteAttachments;assistant.attachmentReviews.clear();assistant.attachmentApprovals.clear();return result;});
+  // Loopback probe only: it never reaches a remote host, so it stays outside the model config.
+  ipcMain.handle('yuki:model-discover',async event=>{guard(event);await modelConfig.ready;return discoverLocalServices({current:modelConfig.value.endpoint,builtinEnabled:modelConfig.builtinEnabled});});
+  ipcMain.handle('yuki:ai-attach-mode',(event,input)=>{guard(event);if(!input||typeof input!=='object'||Array.isArray(input))throw Error('附件参数无效');const {id,mode}=input;return assistant.attachments.setMode(id,String(mode));});
+  ipcMain.handle('yuki:ai-attachment-review',(event,input)=>{guard(event);if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>!['ids','model'].includes(key)))throw Error('附件检查参数无效');return assistant.reviewAttachments(input.ids,input.model);});
+  ipcMain.handle('yuki:ai-attachment-approve',async(event,input)=>{guard(event);if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>!['reviewId','ids','model'].includes(key)))throw Error('附件确认参数无效');const review=assistant.validateAttachmentReview(input);if(!['localhost','127.0.0.1','[::1]'].includes(new URL(review.endpoint).hostname)&&!assistant.allowRemoteAttachments)throw Error('请先为此云端服务开启附件授权');if(['localhost','127.0.0.1','[::1]'].includes(new URL(review.endpoint).hostname))return {ticket:''};const result=await dialog.showMessageBox(window,{type:'warning',title:'确认发送附件到云端',message:`将 ${review.items.length} 个附件发送到 ${review.endpointHost}？`,detail:`模型：${review.model}\n图片会按需缩小至最长边 1536 px；已提取的 OCR/文档文字也会随对话发送。\n返回前端可逐项检查或移除附件。`,buttons:['返回检查','发送附件'],defaultId:0,cancelId:0});if(result.response!==1)throw Error('已取消云端附件发送；附件仍保留在输入框。');return assistant.approveAttachments(input,review.endpoint);});
+  ipcMain.handle('yuki:conversations',event=>{guard(event);return conversations.snapshot();});
+  ipcMain.handle('yuki:conversation-store',(event,input)=>{guard(event);if(!input||typeof input!=='object'||Array.isArray(input)||JSON.stringify(input).length>MAX_CONVERSATION_PAYLOAD)throw Error('这段对话已达到本机保存上限，请新建对话后继续。');return conversations.store(input.id,input.messages);});
+  ipcMain.handle('yuki:conversation-new',event=>{guard(event);return conversations.create();});
+  ipcMain.handle('yuki:conversation-open',(event,id)=>{guard(event);return conversations.open(id);});
+  ipcMain.handle('yuki:conversation-rename',(event,input)=>{guard(event);if(!input||typeof input!=='object'||Array.isArray(input))throw Error('会话参数无效');return conversations.rename(input.id,input.title);});
+  ipcMain.handle('yuki:conversation-delete',(event,id)=>{guard(event);return conversations.remove(id);});
+  ipcMain.handle('yuki:conversations-clear',event=>{guard(event);return conversations.clear();});
+  ipcMain.handle('yuki:conversations-persistence',(event,enabled)=>{guard(event);return conversations.setPersistence(enabled===true);});
   ipcMain.handle('yuki:ai-attach',async event=>{guard(event);
     if(assistant.active)throw Error('请等待回复结束后添加附件');
     const result=await dialog.showOpenDialog(window,{title:'添加图片或文档',properties:['openFile','multiSelections'],filters:[{name:'图片与文档',extensions:['png','jpg','jpeg','webp','pdf','docx','txt','md','csv','json','log']}]});
@@ -106,12 +161,13 @@ function configureIpc(){
     if(quickChat.busy)throw new Error('yuki 正在回复桌面快捷聊天，请稍等');
     if(sidecar?.ready)await sidecar.request('wake_sleep',{});
     if(sidecar?.ready)await sidecar.request('desktop_event',{kind:'thinking',text:'正在准备回复'}).catch(log);
-    let result;
-    try{result=await assistant.chat(payload,value=>send('yuki:ai-update',value));}
+    let result;const stream=coalesceUpdates(value=>send('yuki:ai-update',value));
+    try{result=await assistant.chat(payload,value=>stream.push(value));}
     catch(error){
       if(sidecar?.ready&&!/回复已停止|等待超时/.test(String(error?.message||error)))await sidecar.request('desktop_event',{kind:'error',text:'这次回复没有完成'}).catch(log);
       throw error;
     }
+    finally{stream.flush();}
     assistant.preferredModel=payload.model;
     if(sidecar?.ready)await sidecar.request('desktop_event',{kind:'done',text:'回复已准备好'}).catch(log);
     if(sidecar?.ready)await sidecar.request('speech_update',{id:payload.id,phase:'done',text:result.text.slice(0,6000)}).catch(log);
@@ -205,20 +261,34 @@ else {
     if(prototype){await require('./prototype.cjs').launch({app,BrowserWindow,uiRoot,smoke});return;}
     sidecar=new Sidecar(backendOptions());
     modelConfig=new ModelConfig(path.join(app.getPath('userData'),'model.json'),safeStorage);
+    await modelConfig.ready;
     localModel=new LocalModel({root:app.isPackaged?path.join(process.resourcesPath,'local-model/qwen'):path.resolve(__dirname,'../../../../local-model/qwen'),log});
     // Adopt the bundled model for the old default local connection; retain explicitly selected services.
-    if(localModel.available&&!modelConfig.key&&['http://127.0.0.1:1235/v1','http://127.0.0.1:1234/v1'].includes(modelConfig.value.endpoint)&&(!modelConfig.value.model||modelConfig.value.model===LOCAL_MODEL))modelConfig.set({endpoint:LOCAL_ENDPOINT,model:LOCAL_MODEL});
+    // Only when the built-in is switched on: otherwise a fresh install lands on a disabled endpoint
+    // while a perfectly good LM Studio is listening on the default port.
+    if(modelConfig.builtinEnabled&&localModel.available&&!modelConfig.key&&['http://127.0.0.1:1235/v1','http://127.0.0.1:1234/v1'].includes(modelConfig.value.endpoint)&&(!modelConfig.value.model||modelConfig.value.model===LOCAL_MODEL))await modelConfig.set({endpoint:LOCAL_ENDPOINT,model:LOCAL_MODEL});
     modelConfig.ensureReady=endpoint=>endpoint===LOCAL_ENDPOINT?(modelConfig.builtinEnabled?localModel.ensure():Promise.reject(Error('内置模型已关闭，请在设置 → 通用中开启，或切换云端 API。'))):Promise.resolve();
     if(modelConfig.builtinEnabled&&modelConfig.value.endpoint===LOCAL_ENDPOINT)void localModel.ensure().catch(error=>log('本地 Qwen：'+error.message));
     const {WorkbenchConfig}=require('./workbench-config.cjs');workbenchConfig=new WorkbenchConfig(path.join(app.getPath('userData'),'workbench.json'));
+    conversations=new Conversations(path.join(app.getPath('userData'),'conversations.json'),{log});
+    if(!conversations.sessions.length)conversations.create();
     assistant.configure(modelConfig);
-    desktopServices=new DesktopServices({app,clipboard,powerMonitor,react:async entry=>{
+    desktopServices=new DesktopServices({app,clipboard,powerMonitor,log,react:async entry=>{
       send('yuki:desktop-event',entry);
       if(sidecar?.ready)await sidecar.request('desktop_event',{kind:entry.kind,text:entry.text});
     }});
+    // Only a signal goes out: the renderer pulls a snapshot when it is actually looking,
+    // and nothing is produced at all while the workbench is hidden.
+    desktopServices.onChanged=()=>{if(window&&!window.isDestroyed()&&window.isVisible())send('yuki:desktop-changed',{at:Date.now()});};
     const {QuickTools}=require('./quick-tools.cjs');
-    quickTools=new QuickTools({desktop:desktopServices,deliver:payload=>sidecar.ready?sidecar.request('quick_tools_update',payload):Promise.resolve(),forward:value=>send('yuki:quick-tool',value)});
-    desktopServices.notify=text=>{if(Notification.isSupported())new Notification({title:'Yuki · 小提醒',body:text,silent:true}).show();};
+    quickTools=new QuickTools({desktop:desktopServices,deliver:payload=>sidecar.ready?sidecar.request('quick_tools_update',payload):Promise.resolve(),forward:value=>send('yuki:quick-tool',value),timers:()=>timers});
+    desktopServices.notify=notifyDesktop;
+    const {WorkbenchTimers}=require('./workbench-timers.cjs');
+    // Focus, todos and health reminders are scheduled here rather than in the page, so closing
+    // the workbench no longer stops the clock.
+    timers=new WorkbenchTimers({file:path.join(app.getPath('userData'),'workbench-timers.json'),notify:notifyDesktop,powerMonitor,log,
+      changed:()=>{if(window&&!window.isDestroyed())send('yuki:workbench-timers',timers.snapshot());}});
+    timers.start();
     const {Translation}=require('./translation.cjs');
     const {TranslationWindows}=require('./translation-windows.cjs');
     const {LocalOCR}=require('./ocr.cjs');
@@ -227,7 +297,7 @@ else {
       display:point=>{void translationWindows.show(point).catch(()=>translation.update({phase:'error',error:'无法打开翻译浮窗，请重启 Yuki。'}));},
       changed:value=>{send('yuki:translation-state',value);translationWindows?.update(value);if(value.enabled!==translationTrayEnabled){translationTrayEnabled=value.enabled;refreshTray();}if(!value.enabled){translationWindows?.dismiss();translationWindows?.closeOverlay();}}});
     translationWindows=new TranslationWindows({BrowserWindow,screen,desktopCapturer,ipcMain,nativeImage,clipboard,translation,ocr:new LocalOCR()});
-    sidecar.on('message',message=>{send('yuki:message',message);
+    sidecar.on('message',message=>{if('frame' in message)return;send('yuki:message',message);
       if(message.name==='quick_tool')void quickTools.action(message.tool,message.value).catch(log);
       if(message.name==='quick_chat')void quickChat.run(message.id,message.text).catch(log);
       if(message.name==='entered')markStarted();if(message.name==='open_console')showConsole();if(message.name==='exit_app')void stopAndQuit();
@@ -243,7 +313,7 @@ else {
     desktopServices.start();
     try{installShortcuts(workbenchConfig.value.shortcuts);}catch(e){log(e);translation.update({error:e.message});}
     await syncWorkbench();
-    if(smoke)await require(process.env.YUKI_WORKBENCH_SMOKE==='1'?'./workbench-smoke.cjs':'./smoke.cjs').run({app,window,sidecar,tray,stopAndQuit,log,translation,translationWindows,quickTools});
+    if(smoke)await require(process.env.YUKI_WORKBENCH_SMOKE==='1'?'./workbench-smoke.cjs':process.env.YUKI_AI_SMOKE==='1'?'./ai-smoke.cjs':process.env.YUKI_TIMERS_SMOKE==='1'?'./timers-smoke.cjs':'./smoke.cjs').run({app,window,sidecar,tray,stopAndQuit,log,translation,translationWindows,quickTools,timers,desktopReminders,notifyWindow:()=>notificationWindow});
   }).catch(async error=>{log(error.stack||error.message);
     if(smoke){console.error(error);process.exitCode=1;await sidecar?.stop();app.exit(1);}
     else {dialog.showErrorBox('yuki 启动失败',error.message);await stopAndQuit();}

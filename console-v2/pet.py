@@ -2,6 +2,7 @@
 import ctypes
 import math
 import random
+import sys
 import time
 from ctypes import wintypes as _wintypes
 from copy import copy
@@ -13,7 +14,7 @@ from action_player import ActionPlayer, catalog
 from action_life_motion import ActionLifeMotion
 from action_inbetweens import prefetch, sample_pose
 from frame_alignment import offset_for as action_frame_offset
-from idle_actions import IdleActions
+from idle_actions import IdleActions, SEATED_AMBIENT_ACTIONS
 from idle_states import STATES, posture_for
 from click_reaction import ClickReaction
 from pet_physics import PetPhysics, PointerVelocity
@@ -231,6 +232,9 @@ class PetAnimator:
             return
         ambient = state.ambient
         player = state.action_player
+        if (ambient.current is None and ambient.pending_action
+                and (player.action is None or player.action.get('id') != 'sit-neat')):
+            ambient.pending_action = None
         changed = state.routine.update()
         if changed or ambient.period_key != state.routine.period['key']:
             ambient.set_period(state.routine.period)
@@ -262,7 +266,25 @@ class PetAnimator:
                     player.stop()
                 ambient.current = None
                 ambient.defer(now, pet.preferences.activity)
+                if blocked or not completed:
+                    ambient.pending_action = None
+                if completed and ambient.pending_action:
+                    followup = ambient.pending_action
+                    ambient.pending_action = None
+                    follow_duration = ambient.play(player, followup, now, skip_entry=True)
+                    bridge = self._ambient_handover(
+                        player, ('sit-neat', 3), (followup, 0), now)
+                    ambient.current = (followup, player.started, float(pet.x()),
+                                       follow_duration+bridge)
+                    return
                 posture = catalog().get(key, {}).get('end_posture')
+                if completed and posture == 'sit' and key in SEATED_AMBIENT_ACTIONS:
+                    follow_duration = ambient.play(player, 'sit-neat', now, exit_only=True)
+                    bridge = self._ambient_handover(
+                        player, (key, catalog()[key]['frames']-1), ('sit-neat', 3), now)
+                    ambient.current = ('sit-neat', player.started, float(pet.x()),
+                                       follow_duration+bridge)
+                    return
                 if completed and posture in ('sit', 'prone'):
                     # Already seated after rolling: skip the lowering section,
                     # dwell in a living seated state, then play its rise once.
@@ -295,11 +317,30 @@ class PetAnimator:
         ambient.defer(now, pet.preferences.activity)
         if key is None:
             return
+        if key in SEATED_AMBIENT_ACTIONS:
+            ambient.pending_action = key
+            duration = ambient.play(player, 'sit-neat', now, entry_only=True)
+            ambient.current = ('sit-neat', now, float(pet.x()), duration)
+            state.walking = False
+            state.gait_until = 0
+            pet.state_changed.emit()
+            return
         duration = ambient.play(player, key, now)
         ambient.current = (key, now, float(pet.x()), duration)
         state.walking = False
         state.gait_until = 0
         pet.state_changed.emit()
+
+
+    @staticmethod
+    def _ambient_handover(player, before, after, now):
+        from action_inbetweens import manifest, pair_key, prefetch
+        if pair_key(before, after) not in manifest():
+            return 0.
+        duration = .34
+        player.begin_handover(before, after, now, duration)
+        prefetch(((before, after),))
+        return duration
 
     def jump(self):
         if not self.pet.isVisible():
@@ -351,7 +392,7 @@ class PetRenderer:
             return
         if self.pointer_hold_image is not None:
             painter.drawImage(0, 0, self.pointer_hold_image)
-            return
+            return self.pointer_hold_image
         now = time.monotonic()
         frame = state.action_player.frame(now)
         action = state.action_player.action
@@ -372,8 +413,13 @@ class PetRenderer:
         if state.physics.active:
             self.transition_image = None
         if self.last_pose is not None and pose != self.last_pose and not state.physics.active:
-            from motion_transition import handover_duration
-            self.transition_duration = handover_duration(self.last_pose,pose,self.last_image,image)
+            if state.action_player.handover:
+                # The authored warp is already the whole handover; a second
+                # canvas dissolve would create a translucent double silhouette.
+                self.transition_duration = 0.
+            else:
+                from motion_transition import handover_duration
+                self.transition_duration = handover_duration(self.last_pose,pose,self.last_image,image)
             if (pose[-1] == 'click-expression' or self.last_pose[-1] == 'click-expression') and pose[0] in ('idle','action'):
                 self.transition_duration = .18
             self.transition_image = self.last_image if self.transition_duration else None
@@ -435,6 +481,7 @@ class PetRenderer:
         display.end()
         self.last_display_image = displayed
         painter.drawImage(0, 0, displayed)
+        return displayed
 
     def motion_image(self, elapsed, eye_frame):
         first, second, fraction = motion_phase(elapsed)
@@ -484,7 +531,11 @@ class PetRenderer:
         # source resolution for as long as a non-identity transform is applied.
         reaction = state.click_reaction.transform(now)
         warp_size = 160 if reaction == (0., 0., 0., 1., 1., 0.) else 256
-        if (state.sleep.active or state.sleep.phase == 'waking') and state.drag_feedback is None:
+        sleep_action = state.action_player.action
+        authored_sleep = bool(sleep_action and sleep_action['id'] in
+                              ('sleep-enter', 'sleep', 'sleep-wake'))
+        if ((state.sleep.active or state.sleep.phase == 'waking')
+                and state.drag_feedback is None and not authored_sleep):
             painter.save()
             self.apply_click_reaction(painter, state, reaction)
             painted = state.sleep.paint(painter, now)
@@ -531,7 +582,8 @@ class PetRenderer:
                 atlas = self.action_atlas(visual_id)
                 source = QRect((visual_frame % visual_action['columns'])*256,
                                (visual_frame // visual_action['columns'])*256, 256, 256)
-            interpolated = None if action.get('authored_motion') else sample_pose(before, after, progress)
+            interpolated = (None if action.get('authored_motion') and not state.action_player.handover
+                            else sample_pose(before, after, progress))
             if interpolated is not None:
                 atlas, source = interpolated
             # A late decoder leaves the authored source pose on screen. Its
@@ -687,7 +739,17 @@ class DesktopPet(QWidget):
         self.drag_origin = None
         self.press_position = None
         self.dragged = False
+        self.temporary_foreground = False
+        self.appearance_preview = False
+        self._foreground_anchor = 0
+        self._appearance_preview_anchor = 0
+        self._effective_topmost = True
+        self._qt_topmost = True
         self.caught_flight = False
+        self._presence_dragging = False
+        self._exit_throw = False
+        self._preview_requested = False
+        self._preview_frame = None
         self.state = PetState()
         self.masker = WindowMask(self)
         self.presence = Presence()
@@ -721,6 +783,9 @@ class DesktopPet(QWidget):
         self.drag_follow_timer.setTimerType(Qt.TimerType.PreciseTimer)
         self.drag_follow_timer.setInterval(FRAME_INTERVAL_MS)
         self.drag_follow_timer.timeout.connect(self.follow_drag_cursor)
+        self.foreground_watch_timer = QTimer(self)
+        self.foreground_watch_timer.setInterval(250)
+        self.foreground_watch_timer.timeout.connect(self.check_temporary_foreground)
         from drag_feedback import warm_assets
         warm_assets()
         self.animator = PetAnimator(self)
@@ -960,10 +1025,10 @@ class DesktopPet(QWidget):
             self.bubble.sync_preferences()
         self.state.paused = preferences.paused
         visible = self.isVisible()
-        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, preferences.always_on_top)
+        self.apply_window_layer()
         if visible and not self.isVisible():
             self.show()
-        self.setWindowOpacity(preferences.opacity / 100)
+        self.set_opacity_visibility(preferences.opacity)
         bottom = self.y() + self.height()
         self.setFixedSize(round(180 * preferences.size / 100),
                           round(190 * preferences.size / 100))
@@ -986,19 +1051,121 @@ class DesktopPet(QWidget):
             self.advance_presence()
         self.state_changed.emit()
 
+    def set_opacity_visibility(self, opacity):
+        opacity = max(0, min(100, int(opacity)))
+        self.setWindowOpacity(opacity / 100)
+        if opacity <= 0:
+            self.presence_timer.stop()
+            self.presence.reset(False)
+            self.hide()
+        elif not self.isVisible():
+            self.show()
+
+    def _foreground_window(self):
+        if sys.platform != 'win32':
+            return 0
+        try:
+            return int(ctypes.windll.user32.GetForegroundWindow())
+        except (AttributeError, OSError):
+            return 0
+
+    def apply_window_layer(self):
+        """Apply the saved preference and any temporary drag foreground."""
+        preferred = bool(self.preferences.always_on_top)
+        effective = bool(preferred or self.temporary_foreground or self.appearance_preview)
+        if preferred != self._qt_topmost:
+            self.set_window_flag_preserving_idle(Qt.WindowType.WindowStaysOnTopHint, preferred)
+            self._qt_topmost = preferred
+        if effective == self._effective_topmost:
+            return
+        self._effective_topmost = effective
+        try:
+            from patrol_depth import set_pet_topmost
+            set_pet_topmost(int(self.winId()), effective)
+        except (ImportError, OSError, RuntimeError, ValueError):
+            pass
+
+    def set_window_flag_preserving_idle(self, flag, enabled):
+        """Re-show after a native flag rebuild without restarting the idle pose."""
+        visible = self.isVisible()
+        self._preserve_idle_on_show = visible
+        try:
+            self.setWindowFlag(flag, enabled)
+            if visible and not self.isVisible():
+                self.show()
+        finally:
+            self._preserve_idle_on_show = False
+
+    def begin_temporary_foreground(self):
+        if self.preferences.always_on_top or self.temporary_foreground:
+            return
+        current = self._foreground_window()
+        own = int(self.winId()) if self.winId() else 0
+        self._foreground_anchor = current if current and current != own else 0
+        self.temporary_foreground = True
+        self.apply_window_layer()
+        self.foreground_watch_timer.start()
+        self.state_changed.emit()
+
+    def clear_temporary_foreground(self):
+        if not self.temporary_foreground:
+            if not self.appearance_preview:
+                self.foreground_watch_timer.stop()
+            return
+        self.temporary_foreground = False
+        self._foreground_anchor = 0
+        if not self.appearance_preview:
+            self.foreground_watch_timer.stop()
+        self.apply_window_layer()
+
+    def set_appearance_preview(self, enabled):
+        """Temporarily lift the real pet above the workbench without saving a preference."""
+        enabled = bool(enabled)
+        if self.appearance_preview == enabled:
+            return
+        self.appearance_preview = enabled
+        self._appearance_preview_anchor = self._foreground_window() if enabled else 0
+        self.apply_window_layer()
+        if enabled:
+            self.foreground_watch_timer.start()
+        elif not self.temporary_foreground:
+            self.foreground_watch_timer.stop()
+        self.state_changed.emit()
+
+    def check_temporary_foreground(self):
+        if not self.temporary_foreground and not self.appearance_preview:
+            self.foreground_watch_timer.stop()
+            return
+        current = self._foreground_window()
+        own = int(self.winId()) if self.winId() else 0
+        if current and current != own and self._foreground_anchor and current != self._foreground_anchor:
+            self.clear_temporary_foreground()
+        if (current and current != own and self._appearance_preview_anchor
+                and current != self._appearance_preview_anchor):
+            self.set_appearance_preview(False)
+
     def showEvent(self, event):
         super().showEvent(event)
-        self.state.last_tick = time.monotonic()
-        self.state.idle.reset(self.state.last_tick)
+        now = time.monotonic()
+        self.state.last_tick = now
+        if getattr(self, '_preserve_idle_on_show', False):
+            self.state.idle.last_update = now
+        else:
+            self.state.idle.reset(now)
         self.animator.timer.start()
         self.state_changed.emit()
 
     def hideEvent(self, event):
+        self._preview_requested = False
+        self._preview_frame = None
+        self.clear_temporary_foreground()
         if hasattr(self, 'bubble'):
             self.bubble.hide()
         home = self.presence.home if self.presence.active else None
         self.presence_timer.stop()
         self.presence.reset(False)
+        self._presence_dragging = False
+        self._exit_throw = False
         if home is not None:
             self.move(*(round(v) for v in home))
         self.wake_icon_sleep()
@@ -1016,11 +1183,33 @@ class DesktopPet(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        self.paint_body(painter)
+        if self._preview_requested:
+            self._preview_requested = False
+            ratio = self.devicePixelRatioF()
+            image = QImage(round(self.width()*ratio), round(self.height()*ratio),
+                           QImage.Format.Format_ARGB32_Premultiplied)
+            image.setDevicePixelRatio(ratio)
+            image.fill(Qt.GlobalColor.transparent)
+            layer = QPainter(image)
+            rendered = self.paint_body(layer)
+            layer.end()
+            painter.drawImage(0, 0, image)
+            self._preview_frame = (time.monotonic(), rendered if rendered is not None else image)
+        else:
+            self.paint_body(painter)
         painter.end()
 
+    def take_preview_frame(self):
+        if not self.isVisible() or self.windowOpacity() <= 0:
+            return None
+        frame, self._preview_frame = self._preview_frame, None
+        # Capture on the next normal paint, with one pass through the renderer.
+        self._preview_requested = True
+        self.update()
+        return frame[1] if frame and time.monotonic() - frame[0] < .25 else None
+
     def paint_body(self, painter):
-        if self.presence.active and self.presence.paint(painter):
+        if self.presence.active and not self._presence_dragging and self.presence.paint(painter):
             return
         if self.state.edge_attachment and self.state.edge_attachment.paint(painter):
             return
@@ -1029,15 +1218,18 @@ class DesktopPet(QWidget):
         factor=self.preferences.size/100 if self.state.drag_feedback else None
         scale=factor if factor is not None else min(self.width()/180,self.height()/190)
         painter.scale(scale,scale)
-        self.renderer.draw(painter, self.state)
+        return self.renderer.draw(painter, self.state)
 
     def desired_visible(self):
-        return self.presence.target if self.presence.active else self.isVisible()
+        return self.presence.target if self.presence.active else self.preferences.opacity > 0 and self.isVisible()
 
     def present(self, visible):
         if visible == self.desired_visible():
             return
         self.cancel_click()
+        self._presence_dragging = False
+        self._exit_throw = False
+        self.clear_temporary_foreground()
         self.end_drag_feedback()
         self.drag_origin = None
         self.snap_preview.clear()
@@ -1103,6 +1295,21 @@ class DesktopPet(QWidget):
                 self.presence_entered.emit()
             self.state_changed.emit()
 
+    def _complete_exit_throw(self):
+        """Finish a departure when a user tosses the pet beyond the screen."""
+        if not self._exit_throw:
+            return
+        self._exit_throw = False
+        self._presence_dragging = False
+        self.presence_timer.stop()
+        self.state.physics.cancel()
+        home = self.presence.home
+        self.presence.reset(False)
+        self.hide()
+        self.move(*(round(v) for v in home))
+        self.presence_exited.emit()
+        self.state_changed.emit()
+
     @staticmethod
     def _skips_activation(lparam):
         # WM_MOUSEACTIVATE stores the activating mouse message in the high
@@ -1123,15 +1330,20 @@ class DesktopPet(QWidget):
         if self.state.patrol and self.desired_visible():
             self.state.patrol.record_pet_click()
         if event.button() == Qt.MouseButton.LeftButton:
-            if not self.desired_visible():
+            leaving = self.presence.active and not self.presence.target
+            if not self.desired_visible() and not leaving:
                 event.ignore()
                 return
             was_sleeping = self.state.sleep.transitioning
             self.state.sleep.wake(self, '点击或拖拽')
             if self.presence.active and self.presence.target:
                 self.presence_entered.emit()
-            self.presence_timer.stop()
-            self.presence.reset(True)
+            if leaving:
+                self._presence_dragging = True
+                self.presence_timer.stop()
+            else:
+                self.presence_timer.stop()
+                self.presence.reset(True)
             self.drag_follow_timer.stop()
             self.caught_flight = self.state.physics.active and self.state.physics.flying
             self.state.physics.cancel()
@@ -1243,6 +1455,7 @@ class DesktopPet(QWidget):
             if (point - self.press_position).manhattanLength() > QApplication.startDragDistance():
                 if not self.dragged:
                     self.cancel_click()
+                    self.begin_temporary_foreground()
                     self.state.sleep.interrupt_for_drag()
                     self.state.action_player.stop()
                     from drag_feedback import DragFeedback
@@ -1253,6 +1466,8 @@ class DesktopPet(QWidget):
                     # allowed Windows to present a stale resized buffer.
                     self.state.drag_feedback=DragFeedback(target,compact=True)
                     self.state.drag_feedback.image(0)
+                    if 'dragged' in catalog():
+                        self.state.action_player.play('dragged', now=time.monotonic())
                     self.animator.timer.setInterval(FRAME_INTERVAL_MS)
                     self.drag_follow_timer.start()
                 self.dragged = True
@@ -1302,7 +1517,8 @@ class DesktopPet(QWidget):
             self.end_drag_feedback()
             self.drag_origin = None
             if not self.dragged:
-                if not self.double_click and self.isVisible():
+                leaving = self._presence_dragging
+                if not leaving and not self.double_click and self.isVisible():
                     held = time.monotonic()-self.press_started
                     kind = ('headpat' if self.click_zone == 'shy' and held >= .45
                             else self.click_zone)
@@ -1317,13 +1533,28 @@ class DesktopPet(QWidget):
                 from drop_attachment import settle_drop
                 attached = settle_drop(self,self.drop_point,cached_only=True)
                 if not attached:
-                    self.start_throw(velocity)
+                    leaving = self.presence.active and not self.presence.target
+                    if leaving:
+                        area = self.screen_area()
+                        outward = ((self.presence.edge == 'left' and velocity[0] < -80)
+                                   or (self.presence.edge == 'right' and velocity[0] > 80))
+                        if outward:
+                            self._presence_dragging = False
+                            self.presence.reset(False)
+                            self._exit_throw = True
+                            self.start_throw(velocity)
+                        else:
+                            self._resume_presence_exit()
+                    else:
+                        self.start_throw(velocity)
                 self.snap_preview.clear()
                 self.drag_finished.emit()
             elif self.caught_flight:
                 # Catching a flying pet holds it only while the button is down.
                 # Releasing without moving must not leave it floating midair.
                 self.start_throw((0., 0.))
+            elif self._presence_dragging:
+                self._resume_presence_exit()
             self.caught_flight = False
             if not self.state.physics.active:
                 self.position_settled.emit()
@@ -1369,6 +1600,16 @@ class DesktopPet(QWidget):
         self.snap_preview.request_surfaces()
         self.animator.timer.start(FRAME_INTERVAL_MS)
 
+    def _resume_presence_exit(self):
+        if not self._presence_dragging:
+            return
+        self._presence_dragging = False
+        area = self.screen_area()
+        self.presence.begin(False, position=(self.x(), self.y()),
+                            area=area.getRect(), size=(self.width(), self.height()))
+        self.presence_timer.start()
+        self.update()
+
     def advance_physics(self, dt):
         area = self.screen_area()
         edge=self.state.edge_attachment
@@ -1377,14 +1618,22 @@ class DesktopPet(QWidget):
             self.snap_preview.request_surfaces()
             if time.monotonic()-self.snap_preview.surfaces_at<=.75:
                 targets=edge.flight_targets(self.snap_preview.surfaces)
-        settled = self.state.physics.step(dt, (area.left(), area.top(),
-            area.right()-self.width()+1, area.bottom()-self.height()+1),
+        bounds = (area.left(), area.top(), area.right()-self.width()+1,
+                  area.bottom()-self.height()+1)
+        if self._exit_throw:
+            bounds = (area.left()-self.width()-8, bounds[1],
+                      area.right()+self.width()+8, bounds[3])
+        settled = self.state.physics.step(dt, bounds,
             (lambda start,end:edge.catch_flight(start,end,targets)) if targets else None)
         if edge and edge.active:
             self.position_settled.emit()
             return
         self.move(round(self.state.physics.x), round(self.state.physics.y))
         self.state.position_x = float(self.x())
+        if self._exit_throw and (self.x() + self.width() < area.left()-4
+                                 or self.x() > area.right()+4):
+            self._complete_exit_throw()
+            return
         if settled:
             now = time.monotonic()
             self.state.ambient.defer(now, self.preferences.activity)

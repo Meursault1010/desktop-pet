@@ -139,7 +139,7 @@ export function ActionLibrary({initialId,reduced=false,disabled,visible,act}:Pro
   return <div className="action-library page-enter">
     <section className="card action-viewer">
       <div className="card-heading"><h2>{action?.name||'动作预览'}</h2><span className="subtle-badge">{action?.frames===1?'静态姿势':'逐帧动画'}</span></div>
-      <p className="action-state-note"><span>{currentState?currentState.name+'待机':action?.category}</span>{action?.idle_role||'互动触发'}<small>{action?.idle_state==='sleep'?'作息与唤醒自动衔接':action?.id==='eat'?'用餐与零食日程安排':action?.idle_automatic?'参与随机待机':action?.idle_state==='stand'&&action.id==='blink'?'默认待机自带眨眼':'可手动播放'}</small></p>
+      <p className="action-state-note"><span>{currentState?currentState.name+'待机':action?.category}</span>{action?.idle_role||'互动触发'}<small>{action?.idle_state==='sleep'?'作息与唤醒自动衔接':action?.id==='eat'?'用餐与零食日程安排':action?.id==='dragged'?'真实拖动时触发':action?.id==='play-lean'?'图标倚靠故事中触发':action?.id==='afraid'||action?.id==='angry'?'极低频插入清醒待机':action?.idle_automatic?'参与随机待机':action?.idle_state==='stand'&&action.id==='blink'?'默认待机自带眨眼':'可手动播放'}</small></p>
       <div className="action-canvas-stage"><canvas ref={canvas} width={256} height={256} aria-label={action?.name+'动画预览'}/><span>本地预览 · 不影响桌面宠物</span></div>
       {action?.physics_only&&<p className="note">此处预览物理动作。桌面上的动作由抛出、碰撞自动触发。</p>}
       {error&&<p role="alert" className="save-error">{error}</p>}

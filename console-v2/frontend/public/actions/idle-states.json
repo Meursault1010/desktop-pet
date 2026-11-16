@@ -26,7 +26,6 @@
         "comb",
         "dress",
         "read",
-        "reading-pose-3",
         "tea",
         "stretch",
         "wait",
@@ -41,7 +40,8 @@
         "warm-hands",
         "curtsy",
         "wave",
-        "star-wish"
+        "star-wish",
+        "reading-pose-3"
       ],
       "automatic": [
         "comb",
@@ -61,11 +61,11 @@
         "warm-hands",
         "curtsy",
         "wave",
-        "star-wish"
+        "star-wish",
+        "reading-pose-3"
       ],
       "roles": {
         "blink": "基础待机",
-        "reading-pose-3": "静态阅读姿势",
         "leap": "短暂活动后站立",
         "hum": "轻声哼唱",
         "hair-tuck": "整理鬓发",
@@ -77,13 +77,14 @@
         "wave": "向观众招手",
         "star-wish": "对星许愿",
         "screen": "持屏待机",
-        "read": "看书待机"
+        "read": "看书待机",
+        "reading-pose-3": "站立持书阅读"
       }
     },
     {
       "id": "sit",
       "name": "坐下",
-      "description": "端坐、放松坐与轻晃双腿，穿插坐着进食、工作和两种坐姿阅读。坐姿休息保留较长的安静停顿。",
+      "description": "端坐、放松坐与轻晃双腿，穿插坐着进食、工作、两种坐姿阅读和低频俏皮坐姿变化。坐姿休息保留较长的安静停顿。",
       "actions": [
         "sit-neat",
         "sit-relaxed",
@@ -92,7 +93,8 @@
         "work",
         "reading-pose-1",
         "reading-pose-2",
-        "dance-rest"
+        "dance-rest",
+        "play-sit"
       ],
       "automatic": [
         "sit-neat",
@@ -101,7 +103,8 @@
         "eat",
         "work",
         "reading-pose-1",
-        "reading-pose-2"
+        "reading-pose-2",
+        "play-sit"
       ],
       "roles": {
         "sit-neat": "端坐待机",
@@ -111,7 +114,8 @@
         "work": "坐着工作",
         "reading-pose-1": "坐姿阅读",
         "reading-pose-2": "坐姿阅读",
-        "dance-rest": "舞后恢复与坐姿呼吸"
+        "dance-rest": "舞后恢复与坐姿呼吸",
+        "play-sit": "俏皮坐姿变化"
       }
     },
     {

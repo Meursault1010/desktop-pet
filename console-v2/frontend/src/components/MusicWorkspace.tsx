@@ -10,8 +10,8 @@ export function MusicWorkspace({music,enabled,disabled,pending,onChange,lyric}:{
   return <div className="page-enter music-live">
     <section className="card music-listening">
       <div className="card-heading"><span className="eyebrow lyric-quote">{lyric.text}</span><small className="poem-source">{lyric.artist} · {lyric.song} · {lyric.album} · {lyric.year}</small><span className="subtle-badge">{live?'本机播放声音':'未监听'}</span></div>
-      <div className="music-heading"><AudioLines size={26}/><h2>让日常，有一点共鸣。</h2></div>
-      <p className="muted">节拍渐渐清晰，她会放下手边的小事；跳累了歇一会儿，再继续。</p>
+      <div className="music-heading"><AudioLines size={26}/><h2>随音乐舞动</h2></div>
+      <p className="muted">检测电脑声音，跟随节拍跳舞。</p>
       <div className="playback-envelope" role="meter" aria-label="系统播放音量" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(level*100)}>
         {Array.from({length:51},(_,i)=>{
           const band=live?(music?.bands[Math.min(2,Math.floor(i/17))]||0):0;

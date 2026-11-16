@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Yuki · 桌面上的一天</title>
+  <style>
+    @font-face{font-family:Reel;src:url('./fonts/yuki.woff2') format('woff2');font-weight:100 900;font-display:block}
+    @font-face{font-family:DM;src:url('./fonts/dm-sans.woff2') format('woff2');font-weight:100 900;font-display:block}
+    *{box-sizing:border-box}
+    html,body{margin:0;overflow:hidden;background:#f9f7f2}
+    body{font-family:Reel,"Microsoft YaHei",sans-serif}
+    #stage{position:absolute;width:1920px;height:1080px;transform-origin:0 0}
+    canvas{display:block}
+    #copy{position:absolute;left:128px;top:355px;width:680px;color:#233b5c}
+    #title{font-size:113px;font-weight:850;letter-spacing:-.075em;line-height:1.15;margin:0;white-space:pre-line}
+    #title.hello{font-family:DM,Reel,sans-serif;font-size:176px;letter-spacing:-.09em}
+    #subtitle{font-size:39px;font-weight:550;letter-spacing:.018em;margin:36px 0 0;color:#385979}
+    #wipe{position:absolute;inset:0;pointer-events:none}
+  </style>
+</head>
+<body>
+  <main id="stage">
+    <canvas id="art" width="1920" height="1080"></canvas>
+    <section id="copy"><h1 id="title"></h1><p id="subtitle"></p></section>
+    <canvas id="wipe" width="1920" height="1080" aria-hidden="true"></canvas>
+  </main>
+  <script type="module" src="./scene.js"></script>
+  <script type="module" src="./preview.js"></script>
+</body>
+</html>

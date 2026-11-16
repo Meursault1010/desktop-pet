@@ -9,6 +9,8 @@ class DanceRecovery:
         self.watched=None
         self.owned_start=None
         self.owned_generation=None
+        self.until=0.
+        self.exit_after_recovery=False
 
     def blocked(self):
         p=self.pet;s=p.state
@@ -31,6 +33,8 @@ class DanceRecovery:
         self.owned_start=player.started
         self.owned_generation=player.generation
         duration=sum(player.action['durations'])/1000
+        self.until=now+duration
+        self.exit_after_recovery=True
         s.ambient.defer(now,p.preferences.activity)
         if s.music:
             s.music.resting_until=max(s.music.resting_until,now+duration)
@@ -43,9 +47,26 @@ class DanceRecovery:
         if self.owned_start is not None:
             if (player.started!=self.owned_start or not action or action['id']!=ACTION_ID
                     or player.generation!=self.owned_generation):
+                completed=(player.started==self.owned_start and action is None
+                           and player.generation==self.owned_generation+1 and now>=self.until)
                 self.owned_start=None
+                if completed and self.exit_after_recovery and not self.blocked():
+                    self.exit_after_recovery=False
+                    duration=s.ambient.play(player,'sit-neat',now,exit_only=True)
+                    s.ambient.current=None
+                    from action_inbetweens import manifest, pair_key, prefetch
+                    before=('dance-rest',catalog()['dance-rest']['frames']-1)
+                    after=('sit-neat',3)
+                    if pair_key(before,after) in manifest():
+                        player.begin_handover(before,after,now,.34)
+                        prefetch(((before,after),))
+                    self.owned_start=player.started
+                    self.owned_generation=player.generation
+                    self.until=player.started+duration
+                    return
+                self.exit_after_recovery=False
             elif self.blocked():
-                player.stop();self.owned_start=None
+                player.stop();self.owned_start=None;self.exit_after_recovery=False
                 s.ambient.defer(now,self.pet.preferences.activity)
             return
         if self.blocked():

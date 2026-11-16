@@ -23,10 +23,11 @@
       "description": "默认是轻微呼吸与随机眨眼，间隔穿插梳头、整理衣服、喝茶和伸懒腰等日常小动作，也会哼歌、理鬓发、眺望、倾听、暖手、行礼、招手和许愿。看书会抬起书后停留约 20～35 秒，像阅读待机一样持续呼吸并偶尔抬眼看你。",
       "actions": [
         "blink",
+        "afraid",
+        "angry",
         "comb",
         "dress",
         "read",
-        "reading-pose-3",
         "tea",
         "stretch",
         "wait",
@@ -41,7 +42,8 @@
         "warm-hands",
         "curtsy",
         "wave",
-        "star-wish"
+        "star-wish",
+        "reading-pose-3"
       ],
       "automatic": [
         "comb",
@@ -61,11 +63,13 @@
         "warm-hands",
         "curtsy",
         "wave",
-        "star-wish"
+        "star-wish",
+        "reading-pose-3"
       ],
       "roles": {
         "blink": "基础待机",
-        "reading-pose-3": "静态阅读姿势",
+        "afraid": "偶尔受惊的俏皮表情",
+        "angry": "偶尔鼓起脸颊的俏皮表情",
         "leap": "短暂活动后站立",
         "hum": "轻声哼唱",
         "hair-tuck": "整理鬓发",
@@ -77,13 +81,14 @@
         "wave": "向观众招手",
         "star-wish": "对星许愿",
         "screen": "持屏待机",
-        "read": "看书待机"
+        "read": "看书待机",
+        "reading-pose-3": "站立持书阅读"
       }
     },
     {
       "id": "sit",
       "name": "坐下",
-      "description": "端坐、放松坐与轻晃双腿，穿插坐着进食、工作和两种坐姿阅读。坐姿休息保留较长的安静停顿。",
+      "description": "端坐、放松坐与轻晃双腿，穿插坐着进食、工作、两种坐姿阅读和低频俏皮坐姿变化。坐姿休息保留较长的安静停顿。",
       "actions": [
         "sit-neat",
         "sit-relaxed",
@@ -92,6 +97,7 @@
         "work",
         "reading-pose-1",
         "reading-pose-2",
+        "play-sit",
         "dance-rest"
       ],
       "automatic": [
@@ -101,7 +107,8 @@
         "eat",
         "work",
         "reading-pose-1",
-        "reading-pose-2"
+        "reading-pose-2",
+        "play-sit"
       ],
       "roles": {
         "sit-neat": "端坐待机",
@@ -111,6 +118,7 @@
         "work": "坐着工作",
         "reading-pose-1": "坐姿阅读",
         "reading-pose-2": "坐姿阅读",
+        "play-sit": "俏皮坐姿变化",
         "dance-rest": "舞后恢复与坐姿呼吸"
       }
     },

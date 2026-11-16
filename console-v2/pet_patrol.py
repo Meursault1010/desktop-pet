@@ -85,6 +85,8 @@ class Patrol:
         self.probe_at = 0.
         self.icon_started = None
         self.lean_pose = 'left'
+        self.lean_intro = False
+        self.lean_intro_done = False
         self.meal = None
         self.roll_origin = None
         self.policy = PlayPolicy()
@@ -94,6 +96,8 @@ class Patrol:
         self.owned_generation = None
         self.steps = []
         self.story = ''
+        self.last_story_action = None
+        self.pending_story_action = None
         self.last_tick = None
         self.last_speech = -float('inf')
         self.moving_since = None
@@ -123,51 +127,6 @@ class Patrol:
     @property
     def active(self):
         return self.phase != 'idle'
-
-    def start_once(self, now=None):
-        """Compatibility command: enter ongoing exploration, never a fixed route."""
-        now = time.monotonic() if now is None else now
-        if self.blocked(ignore_sleep=True,ignore_support=True):
-            raise ValueError('请先结束拖动、音乐动作、安静或暂停状态，再巡逻')
-        self.cancel(now)
-        self.release_depth()
-        if self.icons.target:
-            self.icons.wake('开始巡逻，离开当前图标')
-        if self.pet.state.edge_attachment and self.pet.state.edge_attachment.active:
-            self.pet.state.edge_attachment.release(cooldown=0)
-        self.exploring = True
-        self.pet.state.sleep.wake(self.pet, '开始巡逻', now)
-        self.pet.state.action_player.stop()
-        self.pet.state.ambient.current = None
-        self.pet.state.ambient.next_at = now+8
-        self.next_at = now+.25
-        self.first_walk = True
-        self.reason = '进入巡逻状态，根据附近空间随机选择走动或互动'
-        self.next_intent = '观察桌面，随机选择下一件小事'
-        self.pet.state_changed.emit()
-
-    def stop(self, now=None):
-        self.exploring = False
-        self.edge_retry_at = self.edge_retry_until = 0.
-        self.cancel(now, '巡逻已结束，恢复日常陪伴')
-        # Ending a patrol should flow into a nearby icon errand rather than a
-        # long stretch of canned idling while icons remain available.
-        if (self.pet.preferences.autonomous_icons and self.icons.icons
-                and not self.icons.error):
-            now = time.monotonic() if now is None else now
-            self.next_at = min(self.next_at, now+random.uniform(4, 8))
-            self.icon_followup = True
-            # The patrol's own rest bookkeeping must not swallow the follow-up:
-            # the user just ended patrol and expects a calm icon visit.
-            self.policy.quiet_until = min(self.policy.quiet_until, now)
-            # Keep the idle bag from claiming the gap first; otherwise a long
-            # ambient clip chains straight into the next one and the icon
-            # errand never gets a free slot.
-            self.pet.state.ambient.next_at = max(self.pet.state.ambient.next_at,
-                                                 self.next_at+1.)
-            self.reason = '巡逻结束，准备去桌面图标那里看看'
-            self.next_intent = '去附近的图标旁待着，而不是原地摆固定姿势'
-        self.pet.state_changed.emit()
 
     def suspend(self, now=None, reason=None):
         """Interrupt an errand and give up the back layer immediately.
@@ -294,6 +253,8 @@ class Patrol:
         self.phase, self.kind, self.label = 'idle', '', ''
         self.target = self.destination = self.owned_start = None
         self.icon_started = self.meal = self.roll_origin = None
+        self.lean_intro = False
+        self.lean_intro_done = False
         self.owned_generation = None
         self.steps = []
         self.waypoints = []
@@ -305,6 +266,8 @@ class Patrol:
         self.geometry = None
         self.replans = 0
         self.story = ''
+        self.last_story_action = None
+        self.pending_story_action = None
         self.moving_since = None
         self.arrive_at = self.step_at = None
         self.next_intent = '安静待机，稍后重新观察'
@@ -625,7 +588,7 @@ class Patrol:
         self.next_environment_reaction = now+random.uniform(35, 60)
         return self.react(now, key, '注意到变化', reason)
 
-    def play(self, key, now, duration=None):
+    def play(self, key, now, duration=None, handover=None):
         s = self.pet.state
         if self.geometry is None:
             self.geometry = self.capture_geometry()
@@ -642,6 +605,15 @@ class Patrol:
         self.owned_start = now
         self.owned_generation = s.action_player.generation
         self.until = now+(duration if duration is not None else sum(s.action_player.action['durations'])/1000)
+        if handover:
+            from action_inbetweens import manifest, pair_key, prefetch
+            before, after = handover
+            if pair_key(before, after) in manifest():
+                transition = .34
+                s.action_player.begin_handover(before, after, now, transition)
+                prefetch(((before, after),))
+                self.owned_start = s.action_player.started
+                self.until += transition
         self.phase = 'doing'
         self.pet.state_changed.emit()
 
@@ -665,12 +637,49 @@ class Patrol:
         if key not in catalog():
             self.complete(now)
             return
+        previous = self.last_story_action if self.story else None
+        if self.story == 'read' and previous is None and key in ('reading-pose-1', 'reading-pose-2'):
+            # Sit down with the authored neutral entry before holding a static
+            # seated reading sprite; the later sit-neat step is the exit.
+            self.pending_story_action = key
+            self.play('sit-neat', now)
+            player = self.pet.state.action_player
+            player.frame_order = [0, 1, 2, 3]
+            player.action = dict(player.action,
+                                 durations=[*catalog()['sit-neat']['durations'][:3], 1100])
+            self.until = now+sum(player.action['durations'])/1000
+            self.last_story_action = '__sit-entry__'
+            return
+        handovers = {
+            'reading-pose-1': (('reading-pose-1', 0), ('sit-neat', 3), True),
+            'reading-pose-2': (('reading-pose-2', 0), ('sit-neat', 3), True),
+            'reading-pose-3': (('reading-pose-3', 0), ('sit-neat', 0), False),
+            'stretch': (('stretch', catalog()['stretch']['frames']-1), ('tea', 0), False),
+            'tea': (('tea', catalog()['tea']['frames']-1), ('sit-neat', 0), False),
+            'play-peek': (('play-peek', catalog()['play-peek']['frames']-1), ('sit-relaxed', 0), False),
+        }
+        handover = handovers.get(previous) if self.story else None
+        if self.story and previous == '__sit-entry__' and key in ('reading-pose-1', 'reading-pose-2'):
+            handover = (('sit-neat', 3), (key, 0), False)
+        if handover and handover[0][0] != key:
+            handover = None
+        from action_inbetweens import manifest, pair_key, prefetch
+        if handover and pair_key(handover[0], handover[1]) not in manifest():
+            handover = None
+        skip_entry = bool(handover and handover[2])
         self.play(key, now)
         if catalog()[key].get('ground_idle') or catalog()[key]['frames'] == 1:
-            self.pet.state.ambient.play(self.pet.state.action_player, key, now)
+            self.pet.state.ambient.play(self.pet.state.action_player, key, now, skip_entry=skip_entry)
             self.pet.state.ambient.current = None
             self.owned_generation = self.pet.state.action_player.generation
             self.until = now+sum(self.pet.state.action_player.action['durations'])/1000
+        if handover:
+            before, after, _ = handover
+            duration = .34
+            self.pet.state.action_player.begin_handover(before, after, now, duration)
+            prefetch(((before, after),))
+            self.owned_start = self.pet.state.action_player.started
+            self.until += duration
         # Vary quiet holds, never slow down sitting down, blinking or rising.
         interval = ((20,50) if self.kind == 'read' and key.startswith('reading-pose-') else
                     (10,25) if key.startswith('sit-') else (15,35) if key == 'prone-rest' else None)
@@ -692,6 +701,10 @@ class Patrol:
                     durations[i] = hold/len(slots)
                 player.action = dict(player.action,durations=durations)
                 self.until = now+sum(durations)/1000
+                if handover:
+                    self.until += .34
+        if self.story:
+            self.last_story_action = key
 
     def arrived(self, now):
         self.moving_since = None
@@ -759,7 +772,7 @@ class Patrol:
         else:
             chains = {
                 'observe': ['sit-relaxed'],
-                'read': [random.choice(('reading-pose-1', 'reading-pose-2')), 'sit-neat'],
+                'read': [random.choice(('reading-pose-1', 'reading-pose-2', 'reading-pose-3')), 'sit-neat'],
                 'stroll': ['hair-tuck'] if random.uniform(0,1) < .55 else [],
                 'tea': ['stretch', 'tea', 'sit-neat'],
                 'rest': ['prone-rest'],
@@ -778,6 +791,12 @@ class Patrol:
 
     def start_icon_hold(self, now):
         if self.kind == 'lean':
+            if not self.lean_intro_done and 'play-lean' in catalog():
+                self.lean_intro = True
+                self.lean_intro_done = True
+                self.play('play-lean', now)
+                self.next_intent = '靠近图标，做一个短暂的依靠动作，再进入稳定倚靠姿势'
+                return
             try:
                 before = (self.pet.x(), self.pet.y())
                 self.icons.start(self.target['id'], instant=True, auto_pose=True, pose=self.lean_pose)
@@ -1169,6 +1188,10 @@ class Patrol:
                     and s.action_player.started == self.owned_start
                     and s.action_player.generation == self.owned_generation+1):
                 self.owned_start = self.owned_generation = None
+                if self.kind == 'lean' and self.lean_intro:
+                    self.lean_intro = False
+                    self.start_icon_hold(now)
+                    return
                 if self.kind == 'lean' and self.climb:
                     p.move(*self.climb[1])
                     s.position_x = float(p.x())
@@ -1187,20 +1210,26 @@ class Patrol:
                         else:
                             hold = (random.uniform(*BACKSTAGE_HOLD) if self.backstage
                                     else random.uniform(15,35))
-                            self.play('play-top-rest', now, hold)
+                            self.play('play-top-rest', now, hold,
+                                      handover=(('play-climb-up', catalog()['play-climb-up']['frames']-1),
+                                                ('play-top-rest', 0)))
                             s.action_player.loop = True
                             self.phase = 'perched'
                             self.next_intent = '坐稳休息，然后扶着边缘爬下'
                         return
+                if self.pending_story_action:
+                    key = self.pending_story_action
+                    self.pending_story_action = None
+                    self.queue_action(key, now)
+                    return
                 if self.steps:
                     if due_meal(at,self.completed) and self.story:
                         self.complete(now)
                         self.reason = '小动作收稳，接下来吃饭'
                     else:
-                        # Let the previous clip finish before the next body
-                        # pose begins; the beat reads as a breath, not a cut.
-                        self.step_at = now+random.uniform(.10, .22)
-                        self.reason = '收住动作，缓一下再继续'
+                        # Keep the final authored pose on screen until the
+                        # next step starts; the renderer handles its handover.
+                        self.queue_action(self.steps.pop(0), now)
                 else:
                     self.complete(now)
                 return
@@ -1210,7 +1239,9 @@ class Patrol:
                 return
             if now >= self.until:
                 if self.phase == 'perched':
-                    self.play('play-climb-down', now)
+                    last_frame = s.action_player.frame(now)
+                    bridge = (('play-top-rest', last_frame), ('play-climb-down', 0)) if last_frame in (0, 1) else None
+                    self.play('play-climb-down', now, handover=bridge)
                     self.climb = ((p.x(),p.y()),self.ground,now,self.until-now)
                     self.next_intent = '正在爬下，随后安静休息'
                 elif self.phase == 'resting':

@@ -6,6 +6,13 @@ class TranslationWindows {
  constructor({BrowserWindow,screen,desktopCapturer,ipcMain,nativeImage,clipboard,translation,ocr}){
   Object.assign(this,{BrowserWindow,screen,desktopCapturer,ipcMain,nativeImage,clipboard,translation,ocr});
   ipcMain.handle('yuki:translation-view',event=>{this.guard(event,this.popup);return translation.snapshot();});
+  ipcMain.handle('yuki:translation-edit',async(event,source)=>{
+   this.guard(event,this.popup);
+   if(typeof source!=='string'||source.length>4000)throw Error('原文长度无效');
+   const value=source.trim();
+   if(!value){translation.cancel();translation.update({source:'',text:'',error:'',target:'',phase:'idle'});return translation.snapshot();}
+   await translation.edit(value);return translation.snapshot();
+  });
   ipcMain.handle('yuki:translation-gesture',(event,input)=>{
    this.guard(event,this.popup);
    if(!input||Object.keys(input).some(key=>!['phase','kind','x','y'].includes(key))||!['start','update','end'].includes(input.phase))throw Error('窗口操作无效');
@@ -18,7 +25,15 @@ class TranslationWindows {
    if(!this.gesture)return;
    const {kind,point,bounds}=this.gesture,cursor={x:input.x,y:input.y},dx=cursor.x-point.x,dy=cursor.y-point.y;
    const area=screen.getDisplayNearestPoint(kind==='move'?cursor:{x:bounds.x,y:bounds.y}).workArea;
-   if(kind==='move')this.popup.setPosition(Math.round(Math.max(area.x-bounds.width+64,Math.min(bounds.x+dx,area.x+area.width-64))),Math.round(Math.max(area.y,Math.min(bounds.y+dy,area.y+area.height-40))));
+   if(kind==='move'){
+    const x=Math.round(Math.max(area.x-bounds.width+64,Math.min(bounds.x+dx,area.x+area.width-64))),y=Math.round(Math.max(area.y,Math.min(bounds.y+dy,area.y+area.height-40)));
+    // Keep the dimensions captured at pointerdown. Frameless Windows windows
+    // can report a transient size while moving (especially across DPI areas);
+    // setBounds makes a move incapable of changing the popup's size.
+    if(typeof this.popup.setBounds==='function')this.popup.setBounds({x,y,width:bounds.width,height:bounds.height});
+    else this.popup.setPosition(x,y);
+    this.popupSize={width:bounds.width,height:bounds.height};
+   }
    else{const width=Math.round(Math.max(320,Math.min(bounds.width+dx,area.x+area.width-bounds.x))),height=Math.round(Math.max(240,Math.min(bounds.height+dy,area.y+area.height-bounds.y)));this.popup.setSize(width,height);this.popupSize={width,height};}
   });
   ipcMain.handle('yuki:translation-control',async(event,name)=>{

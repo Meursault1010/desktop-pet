@@ -2,12 +2,12 @@
 const VERSION = 1;
 const MAX_LINE = 2_000_000;
 const MAX_REQUEST = 65_536;
-const COMMANDS = new Set(['get_state', 'set_preference', 'set_visible', 'toggle_visibility',
-  'toggle_pause', 'jump', 'go_home', 'go_corner', 'patrol_once', 'stop_patrol', 'set_focus', 'reset_defaults', 'shutdown', 'prepare_exit', 'play_action', 'stop_action',
+const COMMANDS = new Set(['get_state', 'get_preview_frame', 'set_preference', 'set_visible', 'toggle_visibility',
+  'toggle_pause', 'jump', 'go_home', 'go_corner', 'set_focus', 'set_appearance_preview', 'reset_defaults', 'shutdown', 'prepare_exit', 'play_action', 'stop_action',
   'refresh_desktop_icons', 'configure_icon_sleep', 'start_icon_sleep', 'stop_icon_sleep',
   'configure_ui', 'configure_edge_attachment', 'stop_edge_attachment', 'speech_update', 'wake_sleep', 'desktop_event', 'quick_tools_update',
   'reset_companion_memory', 'perch_window', 'stop_window_perch']);
-const empty = new Set([...COMMANDS].filter(c => !['set_focus','configure_ui','set_preference','set_visible','play_action',
+const empty = new Set([...COMMANDS].filter(c => !['set_focus','set_appearance_preview','configure_ui','set_preference','set_visible','play_action',
   'configure_icon_sleep','start_icon_sleep','configure_edge_attachment','speech_update','desktop_event','quick_tools_update'].includes(c)));
 function object(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
 function keys(v, allowed) { if (Object.keys(v).some(k => !allowed.includes(k))) throw new Error('未知参数'); }
@@ -28,6 +28,7 @@ function validate(name, payload = {}) {
     keys(payload,['enabled','phase','remaining']);
     if(typeof payload.enabled!=='boolean'||('phase' in payload&&!['focus','break'].includes(payload.phase))||('remaining' in payload&&!integer(payload.remaining,0,86400)))throw Error('专注状态无效');
   }
+  if(name==='set_appearance_preview'){keys(payload,['enabled']);if(typeof payload.enabled!=='boolean')throw Error('外观预览状态无效');}
   if(name==='configure_ui'){keys(payload,['theme','bubble','reduced','translation']);if(!['light','mist','dark'].includes(payload.theme)||!['light','mist','dark'].includes(payload.bubble)||typeof payload.reduced!=='boolean'||typeof payload.translation!=='boolean')throw Error('界面设置无效');}
   if(name==='desktop_event'){
     keys(payload,['kind','text']);

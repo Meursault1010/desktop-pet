@@ -92,11 +92,17 @@ class PetApplication(QObject):
         self.app.screenRemoved.connect(self.schedule_screen_check)
 
     def start(self):
-        self.pet.present(True)
+        self.pet.set_opacity_visibility(self.preferences.opacity)
         self.music.start()
-        self.pet.presence_entered.connect(self._entered)
-        if not self.pet.presence.active:
-            QTimer.singleShot(0, self._entered)
+        if self.preferences.opacity > 0:
+            # Start the pet outside the work area and let its authored entrance
+            # animation bring it to the saved desktop position.
+            self.pet.hide()
+            self.pet.presence.reset(False)
+            self.pet.presence_entered.connect(self._entered)
+            self.pet.present(True)
+        else:
+            self._entered()
 
     def _entered(self):
         if self.started:
@@ -115,6 +121,12 @@ class PetApplication(QObject):
         values = asdict(self.preferences)
         if name not in values:
             raise ValueError('Unknown preference: ' + name)
+        if name == 'opacity':
+            next_opacity = max(0, min(100, int(value)))
+            if next_opacity > 0:
+                values['visible_opacity'] = next_opacity
+            elif self.preferences.opacity > 0:
+                values['visible_opacity'] = self.preferences.opacity
         values[name] = value
         self.preferences = normalize(values)
         self.memory.set_enabled(self.preferences.relationship_memory)
@@ -122,6 +134,8 @@ class PetApplication(QObject):
             self.focus.end()
         elif self.focus.active:
             self.focus.sync()
+            if name == 'opacity':
+                self.pet.set_opacity_visibility(self.preferences.opacity)
         else:
             self.pet.apply_preferences(self.preferences)
         self.storage_error = not self.store.save(self.preferences)
@@ -131,8 +145,8 @@ class PetApplication(QObject):
     def toggle_visibility(self):
         if self.exit_requested or self.exit_animation_started:
             return
-        self.pet.present(not self.pet.desired_visible())
-        self.changed.emit()
+        target = self.preferences.visible_opacity if not self.pet.desired_visible() else 0
+        self.set_preference('opacity', target)
 
     def toggle_pause(self):
         self.set_preference('paused', not self.preferences.paused)
@@ -144,6 +158,7 @@ class PetApplication(QObject):
             self.focus.sync()
         else:
             self.pet.apply_preferences(self.preferences)
+        self.pet.set_opacity_visibility(self.preferences.opacity)
         self.pet.state.jump_started = None
         self.pet.state.message_until = 0
         self.pet.state.walking = False
@@ -156,7 +171,6 @@ class PetApplication(QObject):
         menu = CompanionMenu(parent, self.icon)
         menu.quick_chat(self)
         menu.command('translation', '划词翻译', self.toggle_translation, 'translate', checkable=True)
-        menu.command('demo_climb', '演示边缘攀爬', self.demo_climb, 'climb')
         menu.command('console', '打开工作台', self.open_console, 'console')
         menu.addSeparator()
         # PetService redirects the last action through Electron's exit handler.
@@ -167,15 +181,6 @@ class PetApplication(QObject):
 
     def toggle_translation(self, checked=False):
         self.pet.bubble.say('请在 Electron 中开启划词翻译。', 'error')
-
-    def demo_climb(self):
-        try:
-            self.patrol.demo_edge()
-        except ValueError as error:
-            self.pet.bubble.say(str(error), 'error')
-            return
-        self.pet.bubble.say('去最近的屏幕边缘爬给你看。', 'ambient')
-        self.changed.emit()
 
     def update_menu(self, menu):
         if isinstance(menu, CompanionMenu):
@@ -262,23 +267,16 @@ class PetApplication(QObject):
             self.window.hide()
 
     def begin_exit(self):
-        """Start the walk-out and return its remaining duration in seconds."""
+        """Play the pet's departure animation and return its remaining time."""
         if self.exit_animation_started:
-            if self.pet.presence.active:
-                return max(0., self.pet.presence.total-self.pet.presence.clock())
             return 0.
-        # Persist the last on-screen position before the pet leaves the screen.
         self.save_position()
         self.exit_animation_started = True
         self.save_timer.stop()
-        if not self.pet.isVisible():
+        if not self.pet.desired_visible():
             return 0.
-        was_active = self.pet.presence.active
-        was_entering = bool(self.pet.presence.entering) if was_active else False
         self.pet.present(False)
-        if was_active and not was_entering:
-            return max(0., self.pet.presence.total-self.pet.presence.clock())
-        return max(0., self.pet.presence.duration)
+        return self.pet.presence.duration if self.pet.presence.active else 0.
 
     def quit(self):
         if self.exit_requested:

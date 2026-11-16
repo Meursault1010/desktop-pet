@@ -11,12 +11,12 @@ async function run({app,window,sidecar,tray,stopAndQuit,translation,translationW
   await check('preload isolation and bounded API',async()=>{
     assert.equal(await window.webContents.executeJavaScript('typeof require'), 'undefined');
     assert.equal(await window.webContents.executeJavaScript('window.yukiHost.kind'), 'electron');
-    assert.equal(await window.webContents.executeJavaScript('Object.keys(window.yukiHost).sort().join(",")'), 'aiAttach,aiCancel,aiChat,aiModels,aiSubscribe,builtinModelSet,desktopAction,desktopSnapshot,desktopSubscribe,exit,kind,modelConfig,modelConfigSet,reconnect,request,subscribe,translationCapture,translationMode,translationSubscribe,windowMode,workbenchConfig,workbenchSet');
+    assert.equal(await window.webContents.executeJavaScript('Object.keys(window.yukiHost).sort().join(",")'), 'aiAttach,aiAttachMode,aiAttachmentApprove,aiAttachmentReview,aiCancel,aiChat,aiModels,aiSubscribe,builtinModelSet,clipboardRead,conversationDelete,conversationNew,conversationOpen,conversationRename,conversationStore,conversations,conversationsClear,conversationsPersistence,desktopAction,desktopSnapshot,desktopSubscribe,exit,kind,modelAttachmentsSet,modelConfig,modelConfigSet,modelDiscover,modelProfileDelete,modelProfileSave,modelProfileUse,modelTest,openExternal,quickToolsSubscribe,quickToolsSync,reconnect,request,subscribe,translationCapture,translationConfig,translationConfigSet,translationMode,windowMode,workbenchConfig,workbenchSet,workbenchTimers,workbenchTimersSet,workbenchTimersSubscribe');
     assert.equal(window.webContents.getLastWebPreferences().sandbox,true);
   });
   await check('React UI connected through Electron IPC',async()=>{
-    for(let i=0;i<100;i++){
-      if(await window.webContents.executeJavaScript('document.body.innerText.includes("本地已连接")'))return;
+    for(let i=0;i<300;i++){
+      if(await window.webContents.executeJavaScript(`document.querySelector('.nav-foot').textContent.includes('桌宠已连接')`))return;
       await wait(100);
     }
     throw new Error('React connection badge missing');
@@ -142,19 +142,21 @@ async function run({app,window,sidecar,tray,stopAndQuit,translation,translationW
       await ui(`document.querySelector('[aria-label="待发送附件"] button').click()`);
     }finally{dialog.showOpenDialog=original;window.setSize(1180,820);}
   });
-  await check('nine workbench pages, assets, planned capability boundaries',async()=>{
-    for(const label of ['总览','角色','动作库','动画','行为','音乐互动','AI 助手','桌面工具','设置']){
+  await check('five workbench sections, assets, planned capability boundaries',async()=>{
+    for(const label of ['总览','角色','AI 助手','工具','设置']){
       await navigate(label);
       assert.equal(await ui(`document.querySelector('nav [aria-current="page"]').getAttribute('aria-label')`),label);
       assert.ok(await ui('document.documentElement.scrollWidth <= innerWidth'),'horizontal overflow: '+label);
       const broken=await ui(`Promise.all([...document.images].map(image=>new Promise(resolve=>{image.loading='eager';if(image.complete)return resolve(!image.naturalWidth);image.onload=()=>resolve(false);image.onerror=()=>resolve(true);}))).then(items=>items.some(Boolean))`);
       assert.equal(broken,false,'missing image: '+label);
-      if(label==='桌面工具')assert.ok(await ui(`!!document.querySelector('.desktop-clock time') && !!document.querySelector('.clipboard-panel') && !!document.querySelector('.media-panel')`));
-      if(['总览','动作库','音乐互动','AI 助手','桌面工具','设置'].includes(label))await capture('light-'+label);
+      // The tools section carries its four sub-pages as tabs since the five-section IA.
+      if(label==='工具')assert.ok(await ui(`document.querySelectorAll('.subtabs [role=tab]').length`)>=4,'tools subtabs');
+      await capture('light-'+label);
     }
     await navigate('总览');
     assert.equal(await ui(`document.body.innerText.includes('跳一下') || document.body.innerText.includes('轻轻一跃')`),false);
-    assert.equal(await ui(`document.querySelectorAll('.featured-motion').length`),4);
+    // The overview carries fixed default widgets since the redesign; `.featured-motion` no longer exists.
+    assert.ok(await ui(`document.querySelectorAll('.workspace-widget').length`)>=3,'overview default widgets');
   });
   await check('four idle states classify real assets and filtering stays local',async()=>{
     await navigate('动作库');
@@ -331,42 +333,8 @@ async function run({app,window,sidecar,tray,stopAndQuit,translation,translationW
     assert.equal(await window.webContents.executeJavaScript('window.open("https://example.com") === null'),true);
     assert.equal(await window.webContents.executeJavaScript('fetch("https://example.com").then(()=>false,()=>true)'),true);
   });
-  if(process.env.YUKI_AI_SMOKE==='1'){
-    window.showInactive();
-    await navigate('AI 助手');
-    const ask=async text=>{
-      await ui(`(()=>{const input=document.querySelector('textarea[aria-label="对话输入"]');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(input,${JSON.stringify(text)});input.dispatchEvent(new Event('input',{bubbles:true}));})()`);
-      await wait(150);await ui(`document.querySelector('button[aria-label="发送消息"]').click()`);
-      for(let i=0;i<850;i++){
-        await wait(100);
-        if(await ui(`!document.querySelector('button[aria-label="停止回复"]')`)){
-          const failure=await ui(`document.querySelector('.chat-error')?.textContent||''`);assert.equal(failure,'');
-          return ui(`document.querySelector('.chat-turn.assistant:last-of-type p')?.textContent||[...document.querySelectorAll('.chat-turn.assistant p')].at(-1)?.textContent||''`);
-        }
-      }throw new Error('Local model reply timed out');
-    };
-    await check('local model discovery through guarded Electron IPC',async()=>{
-      const result=await ui('window.yukiHost.aiModels()');assert.ok(result.models.some(id=>id.includes('qwen3.8')));
-      for(let i=0;i<30;i++){if(await ui(`!!document.querySelector('#ai-model')?.value`))return;await wait(100);}throw Error('No selected model');
-    });
-    await check('real React chat receives a Chinese persona response',async()=>{
-      const answer=await ask('你好，你叫什么名字？用一句话介绍你自己。');assert.match(answer,/雪|yuki/i);assert.doesNotMatch(answer,/<think>/);await capture('ai-real-conversation');
-    },90000);
-    await check('multi-turn chat remembers information in current conversation',async()=>{
-      const answer=await ask('我给你准备了一杯茉莉花茶，请记住这个茶名，并用一句话回应。');assert.match(answer,/茉莉/);
-    },90000);
-    await check('chat survives page navigation and recalls the tea',async()=>{
-      await navigate('角色');await navigate('AI 助手');await wait(300);
-      assert.equal(await ui(`document.querySelectorAll('.chat-turn').length`),4);
-      const answer=await ask('刚刚我给你准备的是什么茶？只回答茶名。');assert.match(answer,/茉莉/);await capture('ai-memory');
-    },90000);
-    await check('stop generation returns the chat to an editable state',async()=>{
-      await ui(`(()=>{const input=document.querySelector('textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(input,'请详细介绍你喜欢的十种茶。');input.dispatchEvent(new Event('input',{bubbles:true}));})()`);
-      await wait(150);await ui(`document.querySelector('button[aria-label="发送消息"]').click()`);await wait(200);
-      await ui(`document.querySelector('button[aria-label="停止回复"]').click()`);
-      for(let i=0;i<50;i++){if(await ui(`!document.querySelector('textarea').disabled`))return;await wait(100);}throw Error('Cancellation did not release composer');
-    });
-  }
+  // The AI-assistant checks now live in ai-smoke.cjs and run on their own with
+  // --smoke-test plus YUKI_AI_SMOKE=1, so the legacy page checks below cannot block them.
   assert.deepEqual(errors,[],'renderer console errors');
   const child=sidecar.child;
   await sidecar.stop();assert.equal(sidecar.child,null);assert.notEqual(child.exitCode,null);

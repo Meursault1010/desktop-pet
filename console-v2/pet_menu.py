@@ -3,7 +3,7 @@ from html import escape
 from pet_quick_tools import QuickToolsPane
 from PySide6.QtCore import QSize, Qt, QTimer, QVariantAnimation, QPointF, QRectF
 from PySide6.QtGui import QColor, QCursor, QGuiApplication, QFont, QIcon, QPainter, QPen, QPixmap, QPainterPath
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMenu, QToolButton, QVBoxLayout, QWidget, QWidgetAction, QTextBrowser, QTabBar, QStackedWidget, QScrollArea, QFrame
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMenu, QToolButton, QVBoxLayout, QWidget, QWidgetAction, QTextBrowser, QTabBar, QStackedWidget, QScrollArea, QFrame, QSizePolicy
 
 
 def menu_icon(kind, color='#527b97'):
@@ -58,9 +58,12 @@ class CelestialHeader(QWidget):
     """One quiet reveal on opening; no timer runs while the menu is closed."""
     def __init__(self, parent):
         super().__init__(parent)
+        self.menu = parent
         self.setObjectName('menu-header')
-        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setCursor(Qt.CursorShape.OpenHandCursor)
+        self._drag_origin = None
+        self._menu_origin = None
         self.starlight = .65
         self.line_color = QColor('#c5d8e4')
         self.star_color = QColor('#7fa8c2')
@@ -70,6 +73,31 @@ class CelestialHeader(QWidget):
         self.reveal.setEndValue(.8)
         self.reveal.setDuration(1800)
         self.reveal.valueChanged.connect(self.set_starlight)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._drag_origin = event.globalPosition().toPoint()
+            self._menu_origin = self.menu.pos()
+            self.setCursor(Qt.CursorShape.ClosedHandCursor)
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self._drag_origin is not None and event.buttons() & Qt.MouseButton.LeftButton:
+            self.menu.move_menu_to(event.globalPosition().toPoint(), self._drag_origin, self._menu_origin)
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton and self._drag_origin is not None:
+            self._drag_origin = None
+            self._menu_origin = None
+            self.setCursor(Qt.CursorShape.OpenHandCursor)
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
 
     def set_starlight(self, value):
         self.starlight = float(value)
@@ -126,12 +154,61 @@ class CelestialHeader(QWidget):
         painter.end()
 
 
+class MenuResizeHandle(QWidget):
+    """Small, unobtrusive resize affordance matching the translation popup."""
+    def __init__(self, menu):
+        super().__init__(menu)
+        self.menu = menu
+        self.setObjectName('menu-resize-handle')
+        self.setFixedSize(19, 19)
+        self.setCursor(Qt.CursorShape.SizeFDiagCursor)
+        self._origin = None
+        self._size = None
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._origin = event.globalPosition().toPoint()
+            self._size = self.menu.size()
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self._origin is not None and event.buttons() & Qt.MouseButton.LeftButton:
+            delta = event.globalPosition().toPoint() - self._origin
+            self.menu.resize_from_handle(self._size.width() + delta.x(), self._size.height() + delta.y())
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._origin = self._size = None
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        color = QColor(getattr(self.menu, '_palette', {}).get('muted', '#8196a5'))
+        color.setAlpha(165)
+        painter.setPen(QPen(color, 1.25, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
+        for offset in (5, 9, 13):
+            painter.drawLine(self.width()-offset, self.height()-2, self.width()-2, self.height()-offset)
+        painter.end()
+
+
 class CompanionMenu(QMenu):
+    _last_size = QSize(328, 0)
+    _user_resized = False
+
     def __init__(self, parent, avatar):
         super().__init__(parent)
         self.setObjectName('yuki-menu')
         self.setFont(QFont('Microsoft YaHei UI', 10))
-        self.setFixedWidth(328)
+        self.setMinimumSize(280, 160)
+        self._applying_size = False
         self.setStyleSheet('''
             QMenu { background: #fcfdff; color: #253b4e; border: 1px solid #d4e0e9;
                     border-radius: 9px; padding: 7px; }
@@ -147,6 +224,8 @@ class CompanionMenu(QMenu):
         ''')
         header = CelestialHeader(self)
         self.celestial_header = header
+        for child in header.findChildren(QLabel):
+            child.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         row = QHBoxLayout(header)
         row.setContentsMargins(14, 10, 44, 14)
         row.setSpacing(12)
@@ -164,9 +243,25 @@ class CompanionMenu(QMenu):
         row.addLayout(copy, 1)
         action = QWidgetAction(self)
         action.setDefaultWidget(header)
-        action.setEnabled(False)
         self.addAction(action)
         self.apply_theme('mist')
+
+    def keyPressEvent(self, event):
+        # The popup menu also treats Enter as "activate and close". While the
+        # inline clock is being edited, consume it as an input commit instead.
+        clock = getattr(self, 'clock_editor', None)
+        if (event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter)
+                and clock is not None and clock.hasFocus() and not clock.isReadOnly()):
+            clock.commitRequested.emit()
+            event.accept()
+            return
+        custom_minutes = getattr(self, 'custom_minutes_editor', None)
+        if (event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter)
+                and custom_minutes is not None and custom_minutes.hasFocus()):
+            custom_minutes.commitRequested.emit()
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def apply_theme(self, theme):
         reduced = bool(getattr(getattr(self, 'chat_controller', None), 'ui_reduced', False))
@@ -223,7 +318,9 @@ class CompanionMenu(QMenu):
             QListWidget::item:hover {{ background:{p['hover']}; }}
             QListWidget::item:selected {{ background:{p['hover']}; color:{p['fg']}; }}
             QLabel#muted {{ color:{p['muted']}; font-size:11px; }}
-            QLabel#timer-reading {{ font:34px 'Segoe UI'; color:{p['accent']}; }}
+            QLineEdit#timer-reading {{ font:34px 'Segoe UI'; color:{p['accent']}; background:transparent;
+                                      border:1px solid transparent; padding:2px; selection-background-color:{p['accent']}; }}
+            QLineEdit#timer-reading:focus {{ border-color:{p['border']}; border-radius:8px; }}
             QLabel#tool-feedback {{ color:{p['muted']}; font-size:11px; }}
             QScrollArea, QScrollArea > QWidget > QWidget {{ background:transparent; border:none; }}
         ''')
@@ -234,7 +331,7 @@ class CompanionMenu(QMenu):
         ''')
         self._palette = p
         self._icon_color = p['accent']
-        icon_kinds = {'console': 'console', 'exit': 'exit', 'translation': 'translate', 'demo_climb': 'climb'}
+        icon_kinds = {'console': 'console', 'exit': 'exit', 'translation': 'translate'}
         for action in self.actions():
             kind = icon_kinds.get(action.objectName())
             if kind:
@@ -265,7 +362,7 @@ class CompanionMenu(QMenu):
         self.setAttribute(Qt.WidgetAttribute.WA_InputMethodEnabled, True)
         composer = QWidget(self)
         self.composer = composer
-        composer.setFixedWidth(308)
+        composer.setMinimumWidth(260)
         layout = QVBoxLayout(composer)
         layout.setContentsMargins(10, 6, 10, 9)
         layout.setSpacing(7)
@@ -291,6 +388,9 @@ class CompanionMenu(QMenu):
         self.tool_panes = []
         for kind in ('clipboard', 'focus', 'todos'):
             pane = QuickToolsPane(kind)
+            if kind == 'focus':
+                self.clock_editor = pane.clock
+                self.custom_minutes_editor = pane.custom_minutes
             pane.request.connect(controller.quick_tool_send)
             self.tool_panes.append(pane)
             scroll = QScrollArea()
@@ -355,6 +455,65 @@ class CompanionMenu(QMenu):
         self.chat_send.clicked.connect(submit)
         controller.changed.connect(self.refresh_chat)
 
+        self.resize_handle = MenuResizeHandle(self)
+        grip_row = QWidget(self)
+        grip_row.setMinimumWidth(260)
+        grip_row.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        grip_layout = QHBoxLayout(grip_row)
+        grip_layout.setContentsMargins(0, 0, 0, 0)
+        grip_layout.addStretch(1)
+        grip_layout.addWidget(self.resize_handle)
+        grip_action = QWidgetAction(self)
+        grip_action.setDefaultWidget(grip_row)
+        grip_action.setEnabled(True)
+        self.addAction(grip_action)
+        self.aboutToShow.connect(self.restore_menu_size)
+        self.resize_handle_action = grip_action
+
+    def restore_menu_size(self):
+        self._applying_size = True
+        saved = CompanionMenu._last_size
+        screen = QGuiApplication.screenAt(QCursor.pos()) or self.screen()
+        area = screen.availableGeometry()
+        width = min(area.width(), max(self.minimumWidth(), saved.width()))
+        height = min(area.height(), max(self.minimumHeight(), saved.height() if CompanionMenu._user_resized else self.height()))
+        self.resize(width, height)
+        self._applying_size = False
+        QTimer.singleShot(0, self.sync_resizable_content)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if not hasattr(self, 'composer'):
+            return
+        if CompanionMenu._user_resized and not self._applying_size:
+            CompanionMenu._last_size = QSize(self.width(), self.height())
+        self.sync_resizable_content()
+
+    def sync_resizable_content(self):
+        if not hasattr(self, 'composer'):
+            return
+        self.composer.setFixedWidth(max(260, self.width()-20))
+        if getattr(self, '_menu_chrome_height', 0):
+            self.composer.setFixedHeight(max(150, self.height()-self._menu_chrome_height))
+
+    def resize_from_handle(self, width, height):
+        screen = QGuiApplication.screenAt(QCursor.pos()) or self.screen()
+        area = screen.availableGeometry()
+        width = max(self.minimumWidth(), min(int(width), area.right()-self.x()+1))
+        height = max(self.minimumHeight(), min(int(height), area.bottom()-self.y()+1))
+        self.resize(width, height)
+        CompanionMenu._user_resized = True
+        CompanionMenu._last_size = QSize(self.width(), self.height())
+
+    def move_menu_to(self, point, origin, menu_origin):
+        delta = point-origin
+        target = menu_origin+delta
+        screen = QGuiApplication.screenAt(point) or self.screen()
+        area = screen.availableGeometry()
+        x = max(area.left()-self.width()+64, min(target.x(), area.right()-63))
+        y = max(area.top(), min(target.y(), area.bottom()-39))
+        self.move(x, y)
+
     def fit_available_height(self, available_height=None):
         # Keep tabs and menu commands reachable; only the tool body scrolls.
         if available_height is None:
@@ -364,8 +523,13 @@ class CompanionMenu(QMenu):
         chrome = getattr(self, '_menu_chrome_height', max(0, self.sizeHint().height()-self.composer.height()))
         self._menu_chrome_height = chrome
         height = max(180, min(300, available_height-chrome-20))
-        self.composer.setFixedHeight(height)
-        self.setFixedHeight(chrome+height)
+        if not CompanionMenu._user_resized:
+            self.composer.setFixedHeight(height)
+            self.setMinimumHeight(max(180, chrome+150))
+            self.resize(self.width(), chrome+height)
+            CompanionMenu._last_size = QSize(self.width(), chrome+height)
+        self._menu_chrome_height = chrome
+        self.sync_resizable_content()
 
     def focus_chat(self):
         if self.isVisible() and self.tabs.currentIndex() == 0 and self.chat_input.isEnabled():

@@ -7,9 +7,12 @@ from PySide6.QtCore import QPoint, QSettings, QStandardPaths
 
 @dataclass(frozen=True)
 class Preferences:
-    size: int = 100
+    size: int = 50
     opacity: int = 100
-    always_on_top: bool = True
+    visible_opacity: int = 100
+    # New installs stay in the ordinary desktop layer; existing saved true
+    # values continue to migrate through the legacy setting.
+    always_on_top: bool = False
     speed: int = 48
     activity: str = '默认'
     random_movement: bool = True
@@ -27,7 +30,7 @@ class Preferences:
     relationship_memory: bool = True
 
 
-LIMITS = {'size': (50, 200), 'opacity': (30, 100), 'speed': (10, 150)}
+LIMITS = {'size': (50, 200), 'opacity': (0, 100), 'visible_opacity': (1, 100), 'speed': (10, 150)}
 ACTIVITIES = ('少动', '默认', '活跃')
 
 
@@ -53,6 +56,8 @@ def normalize(values):
         elif field.name == 'activity' and value not in ACTIVITIES:
             value = default
         result[field.name] = value
+    if 'visible_opacity' not in values:
+        result['visible_opacity'] = result['opacity'] or defaults.visible_opacity
     return Preferences(**result)
 
 

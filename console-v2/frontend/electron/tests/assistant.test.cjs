@@ -22,6 +22,16 @@ test('model discovery filters embeddings and supports classic LM Studio fallback
   const a=new Assistant({fetchImpl:async url=>{addresses.push(url);if(url.includes(':1235'))throw Error('offline');return Response.json({data:[{id:'qwen3.8-4b-distill'},{id:'embedding-test'}]});}});
   const result=await a.models();assert.deepEqual(result.models,['qwen3.8-4b-distill']);assert.match(result.endpoint,/:1234/);assert.equal(addresses.length,2);
 });
+test('configured cloud model remains usable when provider omits model discovery',async()=>{
+  const a=new Assistant({fetchImpl:async url=>{
+    if(url.endsWith('/models'))return new Response('',{status:404});
+    return new Response('data: '+JSON.stringify({choices:[{delta:{content:'你好'}}]})+'\n\ndata: [DONE]\n\n');
+  }});
+  a.configure({value:{endpoint:'https://gateway.example/v1',model:'provider-model'},key:'test-key'});
+  const result=await a.models();
+  assert.deepEqual(result.models,['provider-model']);
+  assert.equal((await a.chat({id:'cloud-fallback',model:'provider-model',messages:[{role:'user',content:'你好'}]},()=>{})).text,'你好');
+});
 test('real SSE parsing across UTF-8 boundaries retains history and hides thoughts',async()=>{
   let body;
   const chunks=[{choices:[{delta:{reasoning_content:'private'}}]},{choices:[{delta:{content:'<think>secret</think>你好，'}}]},{choices:[{delta:{content:'我是雪。'}}]}];
@@ -52,6 +62,16 @@ test('cloud chat sends standard OpenAI fields and configured credentials',async(
   assert.equal(request.body.stream,true);
   assert.ok(!('top_k' in request.body));
   assert.ok(!('chat_template_kwargs' in request.body));
+});
+test('cloud reasoning effort is sent only when explicitly selected',async()=>{
+  let body;
+  const a=new Assistant({fetchImpl:async(_url,options)=>{body=JSON.parse(options.body);return new Response('data: '+JSON.stringify({choices:[{delta:{content:'认真回答'}}]})+'\n\ndata: [DONE]\n\n');}});
+  a.configure({value:{endpoint:'https://models.example/v1',model:'reasoning-model',reasoningEffort:'high'},key:'test-only-key'});
+  await a.chat({id:'cloud-reasoning',model:'reasoning-model',messages:[{role:'user',content:'请认真分析'}]},()=>{});
+  assert.equal(body.reasoning_effort,'high');
+  a.configure({value:{endpoint:'http://127.0.0.1:1235/v1',model:'local',reasoningEffort:'high'},key:''});
+  await a.chat({id:'local-reasoning',model:'local',messages:[{role:'user',content:'你好'}]},()=>{});
+  assert.equal(body.reasoning_effort,undefined);
 });
 test('HTTP failures and thinking-only truncation are reported explicitly',async()=>{
   const payload={id:'test-3',model:'qwen',messages:[{role:'user',content:'你好'}]};

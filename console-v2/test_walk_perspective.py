@@ -232,32 +232,33 @@ class WalkPerspectiveTests(unittest.TestCase):
                 self.assertGreaterEqual(int(yy.max()),239,(name,i))
 
     def test_walk_blink_swaps_only_the_idle_eyelids(self):
-        def frame(eye_frame):
+        def frame(name, eye_frame):
             image=QImage(256,256,QImage.Format.Format_RGBA8888);image.fill(0)
             painter=QPainter(image)
-            paint(painter,QRectF(0,0,256,256),'walk-right',0,shadows=False,
+            paint(painter,QRectF(0,0,256,256),name,0,shadows=False,
                   eye_frame=eye_frame)
             painter.end()
             return np.frombuffer(image.constBits(),np.uint8).reshape(256,256,4).copy()
-        opened=frame(1)
-        # Every idle frame other than half/closed keeps the open eyes.
-        self.assertTrue(np.array_equal(frame(6),opened))
-        self.assertTrue(np.array_equal(frame(11),opened))
-        face=(slice(64+int(BODY_LOWER),108+int(BODY_LOWER)),slice(110,194))
-        outside=np.ones((256,256),bool);outside[face]=False
-        for eye_frame,limit in ((4,.85),(10,.1)):
-            lid=frame(eye_frame)
-            # The torso now sways on a sub-pixel offset, so re-sampling leaves
-            # up to two levels of anti-aliasing noise outside the face.
-            self.assertLessEqual(np.abs(lid[outside].astype(int)-opened[outside].astype(int)).max(),2)
-            self.assertGreater(np.abs(lid[face].astype(int)-opened[face].astype(int)).max(),20)
-            sub=opened[face]
-            open_iris=((sub[:,:,0]<100)&(sub[:,:,2]>140)
-                       &(sub[:,:,2]-sub[:,:,1]>50)&(sub[:,:,1]<160)&(sub[:,:,3]>200)).sum()
-            sub=lid[face]
-            lid_iris=((sub[:,:,0]<100)&(sub[:,:,2]>140)
-                      &(sub[:,:,2]-sub[:,:,1]>50)&(sub[:,:,1]<160)&(sub[:,:,3]>200)).sum()
-            self.assertLess(lid_iris,open_iris*limit,(eye_frame,open_iris,lid_iris))
+        for name in ('walk-right','walk-left'):
+            opened=frame(name,1)
+            # Every idle frame other than half/closed keeps the open eyes.
+            self.assertTrue(np.array_equal(frame(name,6),opened))
+            self.assertTrue(np.array_equal(frame(name,11),opened))
+            face=(slice(64+int(BODY_LOWER),108+int(BODY_LOWER)),slice(58,198))
+            outside=np.ones((256,256),bool);outside[face]=False
+            for eye_frame,limit in ((4,.85),(10,.1)):
+                lid=frame(name,eye_frame)
+                # The torso now sways on a sub-pixel offset, so re-sampling leaves
+                # up to two levels of anti-aliasing noise outside the face.
+                self.assertLessEqual(np.abs(lid[outside].astype(int)-opened[outside].astype(int)).max(),2)
+                self.assertGreater(np.abs(lid[face].astype(int)-opened[face].astype(int)).max(),20)
+                sub=opened[face]
+                open_iris=((sub[:,:,0]<100)&(sub[:,:,2]>140)
+                           &(sub[:,:,2]-sub[:,:,1]>50)&(sub[:,:,1]<160)&(sub[:,:,3]>200)).sum()
+                sub=lid[face]
+                lid_iris=((sub[:,:,0]<100)&(sub[:,:,2]>140)
+                          &(sub[:,:,2]-sub[:,:,1]>50)&(sub[:,:,1]<160)&(sub[:,:,3]>200)).sum()
+                self.assertLess(lid_iris,open_iris*limit,(name,eye_frame,open_iris,lid_iris))
 
     def test_walk_blink_keeps_eye_line_anchored(self):
         """Blink variants must not inherit a translated idle eye position."""

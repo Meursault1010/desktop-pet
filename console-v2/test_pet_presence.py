@@ -18,10 +18,10 @@ class PresenceTests(unittest.TestCase):
         self.assertEqual(p.origin[0],3840)
         self.assertEqual(p.destination,(3300,500))
 
-    def test_peek_holds_before_walking(self):
+    def test_peek_does_not_pause_entry(self):
         p = Presence()
         p.begin(True,10,(1500,500),(0,0,1920,1080),(180,190))
-        self.assertEqual(p.position(10.4),p.position(10.8))
+        self.assertNotEqual(p.position(10.4),p.position(10.8))
         self.assertNotEqual(p.position(11.7),p.position(10.8))
 
     def test_reversal_preserves_pose_and_position(self):
@@ -56,6 +56,29 @@ class PresenceTests(unittest.TestCase):
         self.assertLess(effect.destination[0], 0)
         self.assertTrue(effect.update(10+effect.duration))
         self.assertEqual(effect.value, 0)
+
+    def test_walk_segment_uses_constant_speed(self):
+        effect = Presence()
+        effect.begin(True, 10, (1500, 500), (0, 0, 1920, 1080), (180, 190))
+        start = effect.walk_start
+        end = effect.walk_end
+        first = effect.position(10 + start + (end-start)*.25)[0]
+        second = effect.position(10 + start + (end-start)*.50)[0]
+        third = effect.position(10 + start + (end-start)*.75)[0]
+        self.assertAlmostEqual(second-first, third-second, delta=.01)
+
+    def test_edge_segments_are_continuous_and_constant_speed(self):
+        for visible in (True, False):
+            effect = Presence()
+            effect.begin(visible, 10, (1500, 500), (0, 0, 1920, 1080), (180, 190))
+            end = effect.walk_start if visible else effect.walk_end
+            a = effect.position(10 + end*.25)[0]
+            b = effect.position(10 + end*.50)[0]
+            c = effect.position(10 + end*.75)[0]
+            self.assertAlmostEqual(b-a, c-b, delta=.01)
+            before = effect.position(10 + end - .001)[0]
+            after = effect.position(10 + end + .001)[0]
+            self.assertLess(abs(after-before), 3.)
 
 
 class PresenceIntegration(unittest.TestCase):

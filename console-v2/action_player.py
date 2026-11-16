@@ -78,6 +78,7 @@ class ActionPlayer:
         self.speed=1.0
         self.frame_order=None
         self.generation = 0
+        self.handover = None
 
     def play(self, action_id, loop=False, speed=1.0, now=None):
         if not isinstance(action_id,str) or action_id not in catalog():
@@ -85,6 +86,7 @@ class ActionPlayer:
         if type(loop) is not bool or type(speed) not in (int,float) or not math.isfinite(speed) or not .25<=speed<=2:
             raise ValueError('动作播放参数不正确')
         self.generation += 1
+        self.handover = None
         self.action=catalog()[action_id]
         self.frame_order=None
         if self.action.get('lazy_roll'):
@@ -107,6 +109,12 @@ class ActionPlayer:
     def stop(self):
         self.generation += 1
         self.action=None
+        self.handover = None
+
+    def begin_handover(self, before, after, now, duration):
+        """Hold the next clip at its first pose while an approved warp plays."""
+        self.handover = (before, after, now, duration)
+        self.started = now + duration
 
     def frame(self, now=None):
         if self.action is None: return None
@@ -130,6 +138,13 @@ class ActionPlayer:
         with an intro wraps to loop_start rather than replaying that intro.
         """
         now = time.monotonic() if now is None else now
+        if self.handover is not None:
+            before, after, started, duration = self.handover
+            progress = (now-started)/duration if duration > 0 else 1.
+            if progress < 1.:
+                progress = max(0., min(1., progress))
+                return before, after, progress*progress*(3-2*progress)
+            self.handover = None
         if self.frame(now) is None:
             return None
         action = self.action

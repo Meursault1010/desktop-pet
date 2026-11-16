@@ -89,6 +89,24 @@
     "construction": "raw",
     "playback_peak": 111.193
   },
+  "dance-rest:9>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 78.3,
+    "largest_step": 30.793,
+    "switch": 0.65,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 37.607
+  },
+  "eat:72>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 89.766,
+    "largest_step": 40.319,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 47.724
+  },
   "lazy-roll-away:0>lazy-roll-away:1": {
     "accepted": true,
     "original_jump": 27.282,
@@ -97,6 +115,33 @@
     "area_ok": true,
     "construction": "raw",
     "playback_peak": 8.175
+  },
+  "lazy-roll-away:10>lazy-roll-away:0": {
+    "accepted": true,
+    "original_jump": 54.948,
+    "largest_step": 27.065,
+    "switch": 0.625,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 25.807
+  },
+  "lazy-roll-away:10>lazy-roll-away:11": {
+    "accepted": true,
+    "original_jump": 54.948,
+    "largest_step": 27.065,
+    "switch": 0.625,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 25.807
+  },
+  "lazy-roll-away:11>prone-rest:3": {
+    "accepted": false,
+    "original_jump": 72.005,
+    "largest_step": 66.356,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 67.135
   },
   "lazy-roll-away:1>lazy-roll-away:2": {
     "accepted": true,
@@ -179,33 +224,6 @@
     "construction": "raw",
     "playback_peak": 55.446
   },
-  "lazy-roll-away:10>lazy-roll-away:0": {
-    "accepted": true,
-    "original_jump": 54.948,
-    "largest_step": 27.065,
-    "switch": 0.625,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 25.807
-  },
-  "lazy-roll-away:10>lazy-roll-away:11": {
-    "accepted": true,
-    "original_jump": 54.948,
-    "largest_step": 27.065,
-    "switch": 0.625,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 25.807
-  },
-  "lazy-roll-away:11>prone-rest:3": {
-    "accepted": false,
-    "original_jump": 72.005,
-    "largest_step": 66.356,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 67.135
-  },
   "lazy-roll-toward:0>lazy-roll-toward:1": {
     "accepted": true,
     "original_jump": 54.948,
@@ -214,6 +232,33 @@
     "area_ok": true,
     "construction": "raw",
     "playback_peak": 26.812
+  },
+  "lazy-roll-toward:10>lazy-roll-toward:0": {
+    "accepted": true,
+    "original_jump": 27.282,
+    "largest_step": 9.089,
+    "switch": 0.65,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 8.175
+  },
+  "lazy-roll-toward:10>lazy-roll-toward:11": {
+    "accepted": true,
+    "original_jump": 27.282,
+    "largest_step": 9.089,
+    "switch": 0.65,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 8.175
+  },
+  "lazy-roll-toward:11>prone-rest:3": {
+    "accepted": false,
+    "original_jump": 72.005,
+    "largest_step": 66.356,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 67.135
   },
   "lazy-roll-toward:1>lazy-roll-toward:2": {
     "accepted": true,
@@ -296,33 +341,6 @@
     "construction": "raw",
     "playback_peak": 7.997
   },
-  "lazy-roll-toward:10>lazy-roll-toward:0": {
-    "accepted": true,
-    "original_jump": 27.282,
-    "largest_step": 9.089,
-    "switch": 0.65,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 8.175
-  },
-  "lazy-roll-toward:10>lazy-roll-toward:11": {
-    "accepted": true,
-    "original_jump": 27.282,
-    "largest_step": 9.089,
-    "switch": 0.65,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 8.175
-  },
-  "lazy-roll-toward:11>prone-rest:3": {
-    "accepted": false,
-    "original_jump": 72.005,
-    "largest_step": 66.356,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 67.135
-  },
   "music-waltz:0>music-waltz:1": {
     "accepted": true,
     "original_jump": 59.63,
@@ -332,86 +350,59 @@
     "construction": "raw",
     "playback_peak": 33.4
   },
-  "music-waltz:1>music-waltz:2": {
-    "accepted": true,
-    "original_jump": 62.348,
-    "largest_step": 30.548,
-    "switch": 0.65,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 31.054
-  },
-  "music-waltz:2>music-waltz:3": {
-    "accepted": true,
-    "original_jump": 59.371,
-    "largest_step": 49.551,
-    "switch": 0.5,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 49.246
-  },
-  "music-waltz:3>music-waltz:4": {
-    "accepted": true,
-    "original_jump": 40.707,
-    "largest_step": 21.258,
-    "switch": 0.417,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 23.852
-  },
-  "music-waltz:4>music-waltz:5": {
-    "accepted": true,
-    "original_jump": 51.61,
-    "largest_step": 27.523,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 26.336
-  },
-  "music-waltz:5>music-waltz:6": {
+  "music-waltz:100>music-waltz:101": {
     "accepted": true,
     "original_jump": 50.159,
     "largest_step": 18.515,
-    "switch": 0.3,
+    "switch": 0.7,
     "area_ok": true,
     "construction": "raw",
     "playback_peak": 28.54
   },
-  "music-waltz:6>music-waltz:7": {
+  "music-waltz:101>music-waltz:102": {
     "accepted": true,
-    "original_jump": 41.326,
-    "largest_step": 17.532,
-    "switch": 0.542,
+    "original_jump": 51.61,
+    "largest_step": 27.523,
+    "switch": 0.3,
     "area_ok": true,
     "construction": "raw",
-    "playback_peak": 17.927
+    "playback_peak": 26.336
   },
-  "music-waltz:7>music-waltz:8": {
+  "music-waltz:102>music-waltz:103": {
     "accepted": true,
-    "original_jump": 50.151,
-    "largest_step": 31.321,
-    "switch": 0.5,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 45.32
-  },
-  "music-waltz:8>music-waltz:9": {
-    "accepted": true,
-    "original_jump": 47.834,
-    "largest_step": 20.797,
-    "switch": 0.5,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 19.542
-  },
-  "music-waltz:9>music-waltz:10": {
-    "accepted": true,
-    "original_jump": 47.994,
-    "largest_step": 21.549,
+    "original_jump": 40.707,
+    "largest_step": 21.119,
     "switch": 0.625,
     "area_ok": true,
     "construction": "raw",
-    "playback_peak": 20.336
+    "playback_peak": 23.716
+  },
+  "music-waltz:103>music-waltz:104": {
+    "accepted": true,
+    "original_jump": 59.371,
+    "largest_step": 49.499,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 49.438
+  },
+  "music-waltz:104>music-waltz:105": {
+    "accepted": true,
+    "original_jump": 62.348,
+    "largest_step": 30.548,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 31.054
+  },
+  "music-waltz:105>music-waltz:0": {
+    "accepted": true,
+    "original_jump": 59.63,
+    "largest_step": 33.432,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 33.4
   },
   "music-waltz:10>music-waltz:11": {
     "accepted": true,
@@ -503,6 +494,15 @@
     "construction": "raw",
     "playback_peak": 14.738
   },
+  "music-waltz:1>music-waltz:2": {
+    "accepted": true,
+    "original_jump": 62.348,
+    "largest_step": 30.548,
+    "switch": 0.65,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 31.054
+  },
   "music-waltz:20>music-waltz:21": {
     "accepted": true,
     "original_jump": 44.504,
@@ -592,6 +592,15 @@
     "area_ok": true,
     "construction": "raw",
     "playback_peak": 32.774
+  },
+  "music-waltz:2>music-waltz:3": {
+    "accepted": true,
+    "original_jump": 59.371,
+    "largest_step": 49.551,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 49.246
   },
   "music-waltz:30>music-waltz:31": {
     "accepted": true,
@@ -683,6 +692,15 @@
     "construction": "raw",
     "playback_peak": 23.335
   },
+  "music-waltz:3>music-waltz:4": {
+    "accepted": true,
+    "original_jump": 40.707,
+    "largest_step": 21.258,
+    "switch": 0.417,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 23.852
+  },
   "music-waltz:40>music-waltz:41": {
     "accepted": true,
     "original_jump": 62.262,
@@ -772,6 +790,15 @@
     "area_ok": true,
     "construction": "raw",
     "playback_peak": 33.781
+  },
+  "music-waltz:4>music-waltz:5": {
+    "accepted": true,
+    "original_jump": 51.61,
+    "largest_step": 27.523,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 26.336
   },
   "music-waltz:50>music-waltz:51": {
     "accepted": true,
@@ -863,6 +890,15 @@
     "construction": "raw",
     "playback_peak": 15.413
   },
+  "music-waltz:5>music-waltz:6": {
+    "accepted": true,
+    "original_jump": 50.159,
+    "largest_step": 18.515,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 28.54
+  },
   "music-waltz:60>music-waltz:61": {
     "accepted": true,
     "original_jump": 35.302,
@@ -952,6 +988,15 @@
     "area_ok": true,
     "construction": "raw",
     "playback_peak": 48.542
+  },
+  "music-waltz:6>music-waltz:7": {
+    "accepted": true,
+    "original_jump": 41.326,
+    "largest_step": 17.532,
+    "switch": 0.542,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 17.927
   },
   "music-waltz:70>music-waltz:71": {
     "accepted": true,
@@ -1043,6 +1088,15 @@
     "construction": "raw",
     "playback_peak": 10.003
   },
+  "music-waltz:7>music-waltz:8": {
+    "accepted": true,
+    "original_jump": 50.151,
+    "largest_step": 31.321,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 45.32
+  },
   "music-waltz:80>music-waltz:81": {
     "accepted": true,
     "original_jump": 44.801,
@@ -1132,6 +1186,15 @@
     "area_ok": true,
     "construction": "raw",
     "playback_peak": 66.332
+  },
+  "music-waltz:8>music-waltz:9": {
+    "accepted": true,
+    "original_jump": 47.834,
+    "largest_step": 20.797,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 19.542
   },
   "music-waltz:90>music-waltz:91": {
     "accepted": true,
@@ -1223,761 +1286,14 @@
     "construction": "raw",
     "playback_peak": 17.927
   },
-  "music-waltz:100>music-waltz:101": {
+  "music-waltz:9>music-waltz:10": {
     "accepted": true,
-    "original_jump": 50.159,
-    "largest_step": 18.515,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 28.54
-  },
-  "music-waltz:101>music-waltz:102": {
-    "accepted": true,
-    "original_jump": 51.61,
-    "largest_step": 27.523,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 26.336
-  },
-  "music-waltz:102>music-waltz:103": {
-    "accepted": true,
-    "original_jump": 40.707,
-    "largest_step": 21.119,
+    "original_jump": 47.994,
+    "largest_step": 21.549,
     "switch": 0.625,
     "area_ok": true,
     "construction": "raw",
-    "playback_peak": 23.716
-  },
-  "music-waltz:103>music-waltz:104": {
-    "accepted": true,
-    "original_jump": 59.371,
-    "largest_step": 49.499,
-    "switch": 0.5,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 49.438
-  },
-  "music-waltz:104>music-waltz:105": {
-    "accepted": true,
-    "original_jump": 62.348,
-    "largest_step": 30.548,
-    "switch": 0.35,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 31.054
-  },
-  "music-waltz:105>music-waltz:0": {
-    "accepted": true,
-    "original_jump": 59.63,
-    "largest_step": 33.432,
-    "switch": 0.35,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 33.4
-  },
-  "prone-chin:0>prone-chin:1": {
-    "accepted": true,
-    "original_jump": 135.306,
-    "largest_step": 102.503,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 126.712
-  },
-  "prone-chin:1>prone-chin:2": {
-    "accepted": true,
-    "original_jump": 105.714,
-    "largest_step": 82.725,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 81.317
-  },
-  "prone-chin:2>prone-chin:3": {
-    "accepted": true,
-    "original_jump": 88.739,
-    "largest_step": 39.52,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 59.247
-  },
-  "prone-chin:3>prone-chin:4": {
-    "accepted": true,
-    "original_jump": 33.489,
-    "largest_step": 14.293,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 16.639
-  },
-  "prone-chin:3>prone-chin:5": {
-    "accepted": true,
-    "original_jump": 34.409,
-    "largest_step": 16.707,
-    "switch": 0.5,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 16.699
-  },
-  "prone-chin:3>prone-chin:6": {
-    "accepted": true,
-    "original_jump": 59.773,
-    "largest_step": 11.466,
-    "switch": 0.625,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 38.062
-  },
-  "prone-chin:3>prone-chin:7": {
-    "accepted": true,
-    "original_jump": 52.199,
-    "largest_step": 21.31,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 22.265
-  },
-  "prone-chin:3>prone-chin:8": {
-    "accepted": true,
-    "original_jump": 37.882,
-    "largest_step": 14.429,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 14.424
-  },
-  "prone-chin:3>prone-chin:33": {
-    "accepted": true,
-    "original_jump": 89.167,
-    "largest_step": 41.367,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 52.045
-  },
-  "prone-chin:4>prone-chin:3": {
-    "accepted": true,
-    "original_jump": 33.489,
-    "largest_step": 14.293,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 16.639
-  },
-  "prone-chin:5>prone-chin:3": {
-    "accepted": true,
-    "original_jump": 34.409,
-    "largest_step": 16.454,
-    "switch": 0.5,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 16.448
-  },
-  "prone-chin:6>prone-chin:3": {
-    "accepted": true,
-    "original_jump": 59.773,
-    "largest_step": 11.34,
-    "switch": 0.5,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 39.473
-  },
-  "prone-chin:7>prone-chin:3": {
-    "accepted": true,
-    "original_jump": 52.199,
-    "largest_step": 21.31,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 22.265
-  },
-  "prone-chin:8>prone-chin:3": {
-    "accepted": true,
-    "original_jump": 37.882,
-    "largest_step": 14.429,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 14.424
-  },
-  "prone-chin:33>prone-chin:34": {
-    "accepted": true,
-    "original_jump": 70.377,
-    "largest_step": 23.709,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 34.249
-  },
-  "prone-chin:34>prone-chin:35": {
-    "accepted": true,
-    "original_jump": 101.66,
-    "largest_step": 51.087,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 70.743
-  },
-  "prone-rest:0>prone-rest:1": {
-    "accepted": true,
-    "original_jump": 130.94,
-    "largest_step": 109.462,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 116.61
-  },
-  "prone-rest:1>prone-rest:2": {
-    "accepted": true,
-    "original_jump": 87.453,
-    "largest_step": 44.414,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 53.264
-  },
-  "prone-rest:2>prone-rest:4": {
-    "accepted": true,
-    "original_jump": 81.322,
-    "largest_step": 29.177,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 45.901
-  },
-  "prone-rest:4>lazy-roll-away:0": {
-    "accepted": false,
-    "original_jump": 74.152,
-    "largest_step": 75.991,
-    "switch": 0.417,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 77.543
-  },
-  "prone-rest:4>lazy-roll-toward:0": {
-    "accepted": false,
-    "original_jump": 74.152,
-    "largest_step": 75.991,
-    "switch": 0.417,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 77.543
-  },
-  "prone-rest:4>prone-rest:5": {
-    "accepted": true,
-    "original_jump": 18.367,
-    "largest_step": 8.682,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 7.945
-  },
-  "prone-rest:4>prone-rest:6": {
-    "accepted": true,
-    "original_jump": 45.276,
-    "largest_step": 11.676,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 10.716
-  },
-  "prone-rest:4>prone-rest:7": {
-    "accepted": true,
-    "original_jump": 25.337,
-    "largest_step": 7.333,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 7.049
-  },
-  "prone-rest:4>prone-rest:8": {
-    "accepted": true,
-    "original_jump": 71.449,
-    "largest_step": 27.377,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 30.476
-  },
-  "prone-rest:4>prone-rest:39": {
-    "accepted": true,
-    "original_jump": 131.137,
-    "largest_step": 99.123,
-    "switch": 0.35,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 101.854
-  },
-  "prone-rest:5>prone-rest:4": {
-    "accepted": true,
-    "original_jump": 18.367,
-    "largest_step": 8.682,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 7.945
-  },
-  "prone-rest:6>prone-rest:4": {
-    "accepted": true,
-    "original_jump": 45.276,
-    "largest_step": 11.676,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 10.716
-  },
-  "prone-rest:7>prone-rest:4": {
-    "accepted": true,
-    "original_jump": 25.337,
-    "largest_step": 7.273,
-    "switch": 0.542,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 7.049
-  },
-  "prone-rest:8>prone-rest:4": {
-    "accepted": true,
-    "original_jump": 71.449,
-    "largest_step": 27.377,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 30.476
-  },
-  "prone-rest:39>prone-rest:40": {
-    "accepted": true,
-    "original_jump": 106.236,
-    "largest_step": 73.055,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 86.91
-  },
-  "prone-rest:40>prone-rest:41": {
-    "accepted": true,
-    "original_jump": 67.954,
-    "largest_step": 29.093,
-    "switch": 0.35,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 52.656
-  },
-  "sit-neat:0>sit-neat:1": {
-    "accepted": true,
-    "original_jump": 73.312,
-    "largest_step": 19.359,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 18.949
-  },
-  "sit-neat:1>sit-neat:2": {
-    "accepted": true,
-    "original_jump": 104.605,
-    "largest_step": 47.115,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 62.252
-  },
-  "sit-neat:2>sit-neat:3": {
-    "accepted": true,
-    "original_jump": 48.569,
-    "largest_step": 10.589,
-    "switch": 0.35,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 32.576
-  },
-  "sit-neat:3>sit-neat:4": {
-    "accepted": true,
-    "original_jump": 25.797,
-    "largest_step": 6.159,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 9.986
-  },
-  "sit-neat:3>sit-neat:5": {
-    "accepted": true,
-    "original_jump": 47.088,
-    "largest_step": 8.464,
-    "switch": 0.417,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 12.019
-  },
-  "sit-neat:3>sit-neat:6": {
-    "accepted": true,
-    "original_jump": 31.052,
-    "largest_step": 7.502,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 7.498
-  },
-  "sit-neat:3>sit-neat:7": {
-    "accepted": true,
-    "original_jump": 24.482,
-    "largest_step": 5.64,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 5.631
-  },
-  "sit-neat:3>sit-neat:8": {
-    "accepted": true,
-    "original_jump": 30.786,
-    "largest_step": 5.978,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 6.573
-  },
-  "sit-neat:3>sit-neat:33": {
-    "accepted": true,
-    "original_jump": 95.802,
-    "largest_step": 61.952,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 63.988
-  },
-  "sit-neat:4>sit-neat:3": {
-    "accepted": true,
-    "original_jump": 25.797,
-    "largest_step": 6.159,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 9.986
-  },
-  "sit-neat:5>sit-neat:3": {
-    "accepted": true,
-    "original_jump": 47.088,
-    "largest_step": 8.464,
-    "switch": 0.542,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 12.019
-  },
-  "sit-neat:6>sit-neat:3": {
-    "accepted": true,
-    "original_jump": 31.052,
-    "largest_step": 7.502,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 7.498
-  },
-  "sit-neat:7>sit-neat:3": {
-    "accepted": true,
-    "original_jump": 24.482,
-    "largest_step": 5.64,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 5.631
-  },
-  "sit-neat:8>sit-neat:3": {
-    "accepted": true,
-    "original_jump": 30.786,
-    "largest_step": 6.207,
-    "switch": 0.625,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 6.573
-  },
-  "sit-neat:33>sit-neat:34": {
-    "accepted": true,
-    "original_jump": 122.079,
-    "largest_step": 78.133,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 94.985
-  },
-  "sit-neat:34>sit-neat:35": {
-    "accepted": true,
-    "original_jump": 90.847,
-    "largest_step": 34.88,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 40.928
-  },
-  "sit-relaxed:0>sit-relaxed:1": {
-    "accepted": true,
-    "original_jump": 102.615,
-    "largest_step": 53.727,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 78.355
-  },
-  "sit-relaxed:1>sit-relaxed:2": {
-    "accepted": true,
-    "original_jump": 61.412,
-    "largest_step": 21.207,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 51.176
-  },
-  "sit-relaxed:2>sit-relaxed:3": {
-    "accepted": true,
-    "original_jump": 53.046,
-    "largest_step": 14.98,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 14.959
-  },
-  "sit-relaxed:3>sit-relaxed:4": {
-    "accepted": true,
-    "original_jump": 26.948,
-    "largest_step": 8.989,
-    "switch": 0.417,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 8.986
-  },
-  "sit-relaxed:3>sit-relaxed:6": {
-    "accepted": true,
-    "original_jump": 25.654,
-    "largest_step": 8.845,
-    "switch": 0.35,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 7.973
-  },
-  "sit-relaxed:3>sit-relaxed:7": {
-    "accepted": true,
-    "original_jump": 44.481,
-    "largest_step": 8.821,
-    "switch": 0.625,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 8.814
-  },
-  "sit-relaxed:3>sit-relaxed:8": {
-    "accepted": true,
-    "original_jump": 32.531,
-    "largest_step": 7.011,
-    "switch": 0.542,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 10.768
-  },
-  "sit-relaxed:3>sit-relaxed:39": {
-    "accepted": true,
-    "original_jump": 79.781,
-    "largest_step": 53.812,
-    "switch": 0.5,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 51.806
-  },
-  "sit-relaxed:4>sit-relaxed:3": {
-    "accepted": true,
-    "original_jump": 26.948,
-    "largest_step": 8.989,
-    "switch": 0.542,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 8.986
-  },
-  "sit-relaxed:6>sit-relaxed:3": {
-    "accepted": true,
-    "original_jump": 25.654,
-    "largest_step": 8.845,
-    "switch": 0.65,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 7.973
-  },
-  "sit-relaxed:7>sit-relaxed:3": {
-    "accepted": true,
-    "original_jump": 44.481,
-    "largest_step": 8.846,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 8.836
-  },
-  "sit-relaxed:8>sit-relaxed:3": {
-    "accepted": true,
-    "original_jump": 32.531,
-    "largest_step": 7.011,
-    "switch": 0.417,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 10.768
-  },
-  "sit-relaxed:39>sit-relaxed:40": {
-    "accepted": true,
-    "original_jump": 114.067,
-    "largest_step": 87.745,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 98.366
-  },
-  "sit-relaxed:40>sit-relaxed:41": {
-    "accepted": true,
-    "original_jump": 82.82,
-    "largest_step": 28.139,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 39.902
-  },
-  "sit-swing:0>sit-swing:1": {
-    "accepted": true,
-    "original_jump": 88.89,
-    "largest_step": 26.049,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 27.223
-  },
-  "sit-swing:1>sit-swing:2": {
-    "accepted": true,
-    "original_jump": 92.952,
-    "largest_step": 47.513,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 85.333
-  },
-  "sit-swing:2>sit-swing:3": {
-    "accepted": true,
-    "original_jump": 57.028,
-    "largest_step": 16.813,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 15.585
-  },
-  "sit-swing:3>sit-swing:4": {
-    "accepted": true,
-    "original_jump": 43.615,
-    "largest_step": 10.481,
-    "switch": 0.35,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 10.467
-  },
-  "sit-swing:3>sit-swing:5": {
-    "accepted": true,
-    "original_jump": 41.342,
-    "largest_step": 11.249,
-    "switch": 0.5,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 10.272
-  },
-  "sit-swing:3>sit-swing:6": {
-    "accepted": true,
-    "original_jump": 47.067,
-    "largest_step": 14.504,
-    "switch": 0.65,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 13.403
-  },
-  "sit-swing:3>sit-swing:7": {
-    "accepted": true,
-    "original_jump": 52.177,
-    "largest_step": 13.016,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 20.139
-  },
-  "sit-swing:3>sit-swing:8": {
-    "accepted": true,
-    "original_jump": 44.256,
-    "largest_step": 13.825,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 30.829
-  },
-  "sit-swing:3>sit-swing:27": {
-    "accepted": true,
-    "original_jump": 73.352,
-    "largest_step": 32.485,
-    "switch": 0.7,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 63.692
-  },
-  "sit-swing:4>sit-swing:3": {
-    "accepted": true,
-    "original_jump": 43.615,
-    "largest_step": 10.481,
-    "switch": 0.65,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 10.467
-  },
-  "sit-swing:5>sit-swing:3": {
-    "accepted": true,
-    "original_jump": 41.342,
-    "largest_step": 11.263,
-    "switch": 0.5,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 10.289
-  },
-  "sit-swing:6>sit-swing:3": {
-    "accepted": true,
-    "original_jump": 47.067,
-    "largest_step": 14.254,
-    "switch": 0.625,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 13.157
-  },
-  "sit-swing:7>sit-swing:3": {
-    "accepted": true,
-    "original_jump": 52.177,
-    "largest_step": 13.016,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 20.139
-  },
-  "sit-swing:8>sit-swing:3": {
-    "accepted": true,
-    "original_jump": 44.256,
-    "largest_step": 13.825,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 30.829
-  },
-  "sit-swing:27>sit-swing:28": {
-    "accepted": true,
-    "original_jump": 102.29,
-    "largest_step": 63.307,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 85.698
-  },
-  "sit-swing:28>sit-swing:29": {
-    "accepted": true,
-    "original_jump": 96.928,
-    "largest_step": 59.858,
-    "switch": 0.3,
-    "area_ok": true,
-    "construction": "raw",
-    "playback_peak": 68.842
+    "playback_peak": 20.336
   },
   "play-climb-down:0>play-climb-down:1": {
     "accepted": true,
@@ -2123,6 +1439,42 @@
     "construction": "aligned",
     "playback_peak": 74.501
   },
+  "play-climb-up:9>play-top-rest:0": {
+    "accepted": false,
+    "original_jump": 0.0,
+    "largest_step": 0.0,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 18.107
+  },
+  "play-peek:19>sit-relaxed:0": {
+    "accepted": true,
+    "original_jump": 164.26,
+    "largest_step": 31.944,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "aligned",
+    "playback_peak": 15.671
+  },
+  "play-sit:21>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 155.272,
+    "largest_step": 53.735,
+    "switch": 0.65,
+    "area_ok": true,
+    "construction": "aligned",
+    "playback_peak": 69.944
+  },
+  "play-top-rest:0>play-climb-down:0": {
+    "accepted": false,
+    "original_jump": 0.0,
+    "largest_step": 0.0,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 18.107
+  },
   "play-top-rest:0>play-top-rest:1": {
     "accepted": false,
     "original_jump": 2.469,
@@ -2132,6 +1484,15 @@
     "construction": "raw",
     "playback_peak": 2.441
   },
+  "play-top-rest:1>play-climb-down:0": {
+    "accepted": false,
+    "original_jump": 2.469,
+    "largest_step": 2.47,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 18.424
+  },
   "play-top-rest:1>play-top-rest:0": {
     "accepted": false,
     "original_jump": 2.469,
@@ -2140,5 +1501,806 @@
     "area_ok": true,
     "construction": "raw",
     "playback_peak": 2.441
+  },
+  "prone-chin:0>prone-chin:1": {
+    "accepted": true,
+    "original_jump": 135.306,
+    "largest_step": 102.503,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 126.712
+  },
+  "prone-chin:1>prone-chin:2": {
+    "accepted": true,
+    "original_jump": 105.714,
+    "largest_step": 82.725,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 81.317
+  },
+  "prone-chin:2>prone-chin:3": {
+    "accepted": true,
+    "original_jump": 88.739,
+    "largest_step": 39.52,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 59.247
+  },
+  "prone-chin:33>prone-chin:34": {
+    "accepted": true,
+    "original_jump": 70.377,
+    "largest_step": 23.709,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 34.249
+  },
+  "prone-chin:34>prone-chin:35": {
+    "accepted": true,
+    "original_jump": 101.66,
+    "largest_step": 51.087,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 70.743
+  },
+  "prone-chin:3>prone-chin:33": {
+    "accepted": true,
+    "original_jump": 89.167,
+    "largest_step": 41.367,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 52.045
+  },
+  "prone-chin:3>prone-chin:4": {
+    "accepted": true,
+    "original_jump": 33.489,
+    "largest_step": 14.293,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 16.639
+  },
+  "prone-chin:3>prone-chin:5": {
+    "accepted": true,
+    "original_jump": 34.409,
+    "largest_step": 16.707,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 16.699
+  },
+  "prone-chin:3>prone-chin:6": {
+    "accepted": true,
+    "original_jump": 59.773,
+    "largest_step": 11.466,
+    "switch": 0.625,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 38.062
+  },
+  "prone-chin:3>prone-chin:7": {
+    "accepted": true,
+    "original_jump": 52.199,
+    "largest_step": 21.31,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 22.265
+  },
+  "prone-chin:3>prone-chin:8": {
+    "accepted": true,
+    "original_jump": 37.882,
+    "largest_step": 14.429,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 14.424
+  },
+  "prone-chin:4>prone-chin:3": {
+    "accepted": true,
+    "original_jump": 33.489,
+    "largest_step": 14.293,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 16.639
+  },
+  "prone-chin:5>prone-chin:3": {
+    "accepted": true,
+    "original_jump": 34.409,
+    "largest_step": 16.454,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 16.448
+  },
+  "prone-chin:6>prone-chin:3": {
+    "accepted": true,
+    "original_jump": 59.773,
+    "largest_step": 11.34,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 39.473
+  },
+  "prone-chin:7>prone-chin:3": {
+    "accepted": true,
+    "original_jump": 52.199,
+    "largest_step": 21.31,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 22.265
+  },
+  "prone-chin:8>prone-chin:3": {
+    "accepted": true,
+    "original_jump": 37.882,
+    "largest_step": 14.429,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 14.424
+  },
+  "prone-rest:0>prone-rest:1": {
+    "accepted": true,
+    "original_jump": 130.94,
+    "largest_step": 109.462,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 116.61
+  },
+  "prone-rest:1>prone-rest:2": {
+    "accepted": true,
+    "original_jump": 87.453,
+    "largest_step": 44.414,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 53.264
+  },
+  "prone-rest:2>prone-rest:4": {
+    "accepted": true,
+    "original_jump": 81.322,
+    "largest_step": 29.177,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 45.901
+  },
+  "prone-rest:39>prone-rest:40": {
+    "accepted": true,
+    "original_jump": 106.236,
+    "largest_step": 73.055,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 86.91
+  },
+  "prone-rest:40>prone-rest:41": {
+    "accepted": true,
+    "original_jump": 67.954,
+    "largest_step": 29.093,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 52.656
+  },
+  "prone-rest:4>lazy-roll-away:0": {
+    "accepted": false,
+    "original_jump": 74.152,
+    "largest_step": 75.991,
+    "switch": 0.417,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 77.543
+  },
+  "prone-rest:4>lazy-roll-toward:0": {
+    "accepted": false,
+    "original_jump": 74.152,
+    "largest_step": 75.991,
+    "switch": 0.417,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 77.543
+  },
+  "prone-rest:4>prone-rest:39": {
+    "accepted": true,
+    "original_jump": 131.137,
+    "largest_step": 99.123,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 101.854
+  },
+  "prone-rest:4>prone-rest:5": {
+    "accepted": true,
+    "original_jump": 18.367,
+    "largest_step": 8.682,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 7.945
+  },
+  "prone-rest:4>prone-rest:6": {
+    "accepted": true,
+    "original_jump": 45.276,
+    "largest_step": 11.676,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 10.716
+  },
+  "prone-rest:4>prone-rest:7": {
+    "accepted": true,
+    "original_jump": 25.337,
+    "largest_step": 7.333,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 7.049
+  },
+  "prone-rest:4>prone-rest:8": {
+    "accepted": true,
+    "original_jump": 71.449,
+    "largest_step": 27.377,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 30.476
+  },
+  "prone-rest:5>prone-rest:4": {
+    "accepted": true,
+    "original_jump": 18.367,
+    "largest_step": 8.682,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 7.945
+  },
+  "prone-rest:6>prone-rest:4": {
+    "accepted": true,
+    "original_jump": 45.276,
+    "largest_step": 11.676,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 10.716
+  },
+  "prone-rest:7>prone-rest:4": {
+    "accepted": true,
+    "original_jump": 25.337,
+    "largest_step": 7.273,
+    "switch": 0.542,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 7.049
+  },
+  "prone-rest:8>prone-rest:4": {
+    "accepted": true,
+    "original_jump": 71.449,
+    "largest_step": 27.377,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 30.476
+  },
+  "reading-pose-1:0>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 65.696,
+    "largest_step": 33.419,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 33.457
+  },
+  "reading-pose-2:0>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 63.307,
+    "largest_step": 42.386,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 49.13
+  },
+  "reading-pose-3:0>sit-neat:0": {
+    "accepted": true,
+    "original_jump": 53.252,
+    "largest_step": 18.597,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 21.086
+  },
+  "sit-neat:0>sit-neat:1": {
+    "accepted": true,
+    "original_jump": 73.312,
+    "largest_step": 19.359,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 18.949
+  },
+  "sit-neat:1>sit-neat:2": {
+    "accepted": true,
+    "original_jump": 104.605,
+    "largest_step": 47.115,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 62.252
+  },
+  "sit-neat:2>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 48.569,
+    "largest_step": 10.589,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 32.576
+  },
+  "sit-neat:33>sit-neat:34": {
+    "accepted": true,
+    "original_jump": 122.079,
+    "largest_step": 78.133,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 94.985
+  },
+  "sit-neat:34>sit-neat:35": {
+    "accepted": true,
+    "original_jump": 90.847,
+    "largest_step": 34.88,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 40.928
+  },
+  "sit-neat:3>eat:0": {
+    "accepted": true,
+    "original_jump": 89.739,
+    "largest_step": 42.499,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 47.875
+  },
+  "sit-neat:3>play-sit:0": {
+    "accepted": true,
+    "original_jump": 175.235,
+    "largest_step": 58.412,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "aligned",
+    "playback_peak": 65.224
+  },
+  "sit-neat:3>reading-pose-1:0": {
+    "accepted": true,
+    "original_jump": 65.696,
+    "largest_step": 33.419,
+    "switch": 0.65,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 33.457
+  },
+  "sit-neat:3>reading-pose-2:0": {
+    "accepted": true,
+    "original_jump": 63.307,
+    "largest_step": 42.386,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 49.13
+  },
+  "sit-neat:3>sit-neat:33": {
+    "accepted": true,
+    "original_jump": 95.802,
+    "largest_step": 61.952,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 63.988
+  },
+  "sit-neat:3>sit-neat:4": {
+    "accepted": true,
+    "original_jump": 25.797,
+    "largest_step": 6.159,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 9.986
+  },
+  "sit-neat:3>sit-neat:5": {
+    "accepted": true,
+    "original_jump": 47.088,
+    "largest_step": 8.464,
+    "switch": 0.417,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 12.019
+  },
+  "sit-neat:3>sit-neat:6": {
+    "accepted": true,
+    "original_jump": 31.052,
+    "largest_step": 7.502,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 7.498
+  },
+  "sit-neat:3>sit-neat:7": {
+    "accepted": true,
+    "original_jump": 24.482,
+    "largest_step": 5.64,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 5.631
+  },
+  "sit-neat:3>sit-neat:8": {
+    "accepted": true,
+    "original_jump": 30.786,
+    "largest_step": 5.978,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 6.573
+  },
+  "sit-neat:3>work:0": {
+    "accepted": true,
+    "original_jump": 100.913,
+    "largest_step": 57.878,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 74.939
+  },
+  "sit-neat:4>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 25.797,
+    "largest_step": 6.159,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 9.986
+  },
+  "sit-neat:5>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 47.088,
+    "largest_step": 8.464,
+    "switch": 0.542,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 12.019
+  },
+  "sit-neat:6>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 31.052,
+    "largest_step": 7.502,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 7.498
+  },
+  "sit-neat:7>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 24.482,
+    "largest_step": 5.64,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 5.631
+  },
+  "sit-neat:8>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 30.786,
+    "largest_step": 6.207,
+    "switch": 0.625,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 6.573
+  },
+  "sit-relaxed:0>sit-relaxed:1": {
+    "accepted": true,
+    "original_jump": 102.615,
+    "largest_step": 53.727,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 78.355
+  },
+  "sit-relaxed:1>sit-relaxed:2": {
+    "accepted": true,
+    "original_jump": 61.412,
+    "largest_step": 21.207,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 51.176
+  },
+  "sit-relaxed:2>sit-relaxed:3": {
+    "accepted": true,
+    "original_jump": 53.046,
+    "largest_step": 14.98,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 14.959
+  },
+  "sit-relaxed:39>sit-relaxed:40": {
+    "accepted": true,
+    "original_jump": 114.067,
+    "largest_step": 87.745,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 98.366
+  },
+  "sit-relaxed:3>sit-relaxed:39": {
+    "accepted": true,
+    "original_jump": 79.781,
+    "largest_step": 53.812,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 51.806
+  },
+  "sit-relaxed:3>sit-relaxed:4": {
+    "accepted": true,
+    "original_jump": 26.948,
+    "largest_step": 8.989,
+    "switch": 0.417,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 8.986
+  },
+  "sit-relaxed:3>sit-relaxed:6": {
+    "accepted": true,
+    "original_jump": 25.654,
+    "largest_step": 8.845,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 7.973
+  },
+  "sit-relaxed:3>sit-relaxed:7": {
+    "accepted": true,
+    "original_jump": 44.481,
+    "largest_step": 8.821,
+    "switch": 0.625,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 8.814
+  },
+  "sit-relaxed:3>sit-relaxed:8": {
+    "accepted": true,
+    "original_jump": 32.531,
+    "largest_step": 7.011,
+    "switch": 0.542,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 10.768
+  },
+  "sit-relaxed:40>sit-relaxed:41": {
+    "accepted": true,
+    "original_jump": 82.82,
+    "largest_step": 28.139,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 39.902
+  },
+  "sit-relaxed:4>sit-relaxed:3": {
+    "accepted": true,
+    "original_jump": 26.948,
+    "largest_step": 8.989,
+    "switch": 0.542,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 8.986
+  },
+  "sit-relaxed:6>sit-relaxed:3": {
+    "accepted": true,
+    "original_jump": 25.654,
+    "largest_step": 8.845,
+    "switch": 0.65,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 7.973
+  },
+  "sit-relaxed:7>sit-relaxed:3": {
+    "accepted": true,
+    "original_jump": 44.481,
+    "largest_step": 8.846,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 8.836
+  },
+  "sit-relaxed:8>sit-relaxed:3": {
+    "accepted": true,
+    "original_jump": 32.531,
+    "largest_step": 7.011,
+    "switch": 0.417,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 10.768
+  },
+  "sit-swing:0>sit-swing:1": {
+    "accepted": true,
+    "original_jump": 88.89,
+    "largest_step": 26.049,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 27.223
+  },
+  "sit-swing:1>sit-swing:2": {
+    "accepted": true,
+    "original_jump": 92.952,
+    "largest_step": 47.513,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 85.333
+  },
+  "sit-swing:27>sit-swing:28": {
+    "accepted": true,
+    "original_jump": 102.29,
+    "largest_step": 63.307,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 85.698
+  },
+  "sit-swing:28>sit-swing:29": {
+    "accepted": true,
+    "original_jump": 96.928,
+    "largest_step": 59.858,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 68.842
+  },
+  "sit-swing:2>sit-swing:3": {
+    "accepted": true,
+    "original_jump": 57.028,
+    "largest_step": 16.813,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 15.585
+  },
+  "sit-swing:3>sit-swing:27": {
+    "accepted": true,
+    "original_jump": 73.352,
+    "largest_step": 32.485,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 63.692
+  },
+  "sit-swing:3>sit-swing:4": {
+    "accepted": true,
+    "original_jump": 43.615,
+    "largest_step": 10.481,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 10.467
+  },
+  "sit-swing:3>sit-swing:5": {
+    "accepted": true,
+    "original_jump": 41.342,
+    "largest_step": 11.249,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 10.272
+  },
+  "sit-swing:3>sit-swing:6": {
+    "accepted": true,
+    "original_jump": 47.067,
+    "largest_step": 14.504,
+    "switch": 0.65,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 13.403
+  },
+  "sit-swing:3>sit-swing:7": {
+    "accepted": true,
+    "original_jump": 52.177,
+    "largest_step": 13.016,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 20.139
+  },
+  "sit-swing:3>sit-swing:8": {
+    "accepted": true,
+    "original_jump": 44.256,
+    "largest_step": 13.825,
+    "switch": 0.7,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 30.829
+  },
+  "sit-swing:4>sit-swing:3": {
+    "accepted": true,
+    "original_jump": 43.615,
+    "largest_step": 10.481,
+    "switch": 0.65,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 10.467
+  },
+  "sit-swing:5>sit-swing:3": {
+    "accepted": true,
+    "original_jump": 41.342,
+    "largest_step": 11.263,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 10.289
+  },
+  "sit-swing:6>sit-swing:3": {
+    "accepted": true,
+    "original_jump": 47.067,
+    "largest_step": 14.254,
+    "switch": 0.625,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 13.157
+  },
+  "sit-swing:7>sit-swing:3": {
+    "accepted": true,
+    "original_jump": 52.177,
+    "largest_step": 13.016,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 20.139
+  },
+  "sit-swing:8>sit-swing:3": {
+    "accepted": true,
+    "original_jump": 44.256,
+    "largest_step": 13.825,
+    "switch": 0.3,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 30.829
+  },
+  "stretch:40>tea:0": {
+    "accepted": true,
+    "original_jump": 31.261,
+    "largest_step": 9.308,
+    "switch": 0.5,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 9.064
+  },
+  "tea:5>sit-neat:0": {
+    "accepted": true,
+    "original_jump": 36.055,
+    "largest_step": 10.842,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 10.25
+  },
+  "work:26>sit-neat:3": {
+    "accepted": true,
+    "original_jump": 99.44,
+    "largest_step": 62.061,
+    "switch": 0.35,
+    "area_ok": true,
+    "construction": "raw",
+    "playback_peak": 73.971
   }
 }

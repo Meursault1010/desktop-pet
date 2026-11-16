@@ -3,6 +3,9 @@ import random
 from idle_states import AUTOMATIC_ACTIONS, STATES, posture_for
 
 IDLE_ACTIONS = AUTOMATIC_ACTIONS
+SEATED_AMBIENT_ACTIONS = frozenset((
+    'eat', 'work', 'play-sit', 'reading-pose-1', 'reading-pose-2',
+))
 
 
 class IdleActions:
@@ -14,6 +17,8 @@ class IdleActions:
         self.period = None
         self.previous = None
         self.state_bag = []
+        self.next_rare_at = 0.
+        self.pending_action = None
 
     @property
     def posture(self):
@@ -26,7 +31,7 @@ class IdleActions:
         preferred = self.period['preferred'] if self.period else ()
         return tuple(dict.fromkeys(key for key in (*pool, *preferred) if key in IDLE_ACTIONS))
 
-    def play(self, player, key, now):
+    def play(self, player, key, now, skip_entry=False, entry_only=False, exit_only=False):
         player.play(key, now=now)
         action = player.action
         if action.get('ground_idle'):
@@ -37,6 +42,17 @@ class IdleActions:
             extra = max(0, random.uniform(24, 38)*1000-sum(durations))
             for slot in slots:
                 durations[slot] += extra/max(1, len(slots))
+            if entry_only:
+                player.frame_order = [0, 1, 2, 3]
+                durations = [*durations[:3], random.uniform(900, 1400)]
+            elif exit_only:
+                player.frame_order = [3, *player.frame_order[-3:]]
+                durations = [random.uniform(700, 1100), *durations[-3:]]
+            elif skip_entry:
+                # A seated story pose already supplies the entry. Start from
+                # the neutral seated keyframe and keep the randomized idle loop.
+                player.frame_order = [player.frame_order[3], *player.frame_order[4:]]
+                durations = [durations[3], *durations[4:]]
             player.action = dict(action, durations=durations)
         elif action['frames'] == 1:
             # Static reading poses still receive the continuous breathing warp.
@@ -58,6 +74,12 @@ class IdleActions:
         self.period = period
 
     def choose(self, available):
+        # Expressive reactions are ambient flavor, not emotional inference.
+        # Keep them rare and separated so they never dominate everyday poses.
+        rare = [key for key in ('afraid', 'angry') if key in available]
+        if rare and time.monotonic() >= self.next_rare_at and random.random() < .006:
+            self.next_rare_at = time.monotonic() + random.uniform(900, 1500)
+            return random.choice(rare)
         self.bag = [key for key in self.bag if key in available]
         if not self.bag:
             pool = self.eligible()

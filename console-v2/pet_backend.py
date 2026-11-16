@@ -58,6 +58,7 @@ class PetService(PetApplication):
         self.started_at = time.monotonic()
         self.entered_sent = False
         self.exit_event_sent = False
+        self.pet.presence_exited.connect(self._exit_complete)
         self.reader = InputReader(self)
         self.reader.message.connect(self.receive)
         self.reader.oversized.connect(self.reject_oversized)
@@ -71,15 +72,19 @@ class PetService(PetApplication):
         self.preview_token = None
 
     def start(self):
-        self.pet.present(True)
+        self.pet.set_opacity_visibility(self.preferences.opacity)
         self.music.start()
         self.reader.start()
         self.events.start()
         self.send({'type': 'ready', 'protocol': 1, 'state': self.snapshot(),
                    'preview': self.ensure_preview()[0]})
-        self.pet.presence_entered.connect(self._entered)
-        if not self.pet.presence.active:
-            QTimer.singleShot(0, self._entered)
+        if self.preferences.opacity > 0:
+            self.pet.hide()
+            self.pet.presence.reset(False)
+            self.pet.presence_entered.connect(self._entered)
+            self.pet.present(True)
+        else:
+            self._entered()
 
     def _entered(self):
         if (self.entered_sent or self.shutting_down or self.exit_requested
@@ -249,8 +254,15 @@ class PetService(PetApplication):
         self.pet.state.routine.update()
         screen = QApplication.screenAt(self.pet.frameGeometry().center()) or QApplication.primaryScreen()
         activity = self.pet.activity()
+        layer_mode = 'always_on_top' if self.preferences.always_on_top else 'occludable'
+        effective_layer = ('always_on_top' if self.preferences.always_on_top
+                           else 'temporary_foreground' if (self.pet.temporary_foreground or self.pet.appearance_preview)
+                           else 'occludable')
         return {'preferences': asdict(self.preferences), 'status': activity['label'], 'activity': activity,
                 'visible': self.pet.desired_visible(), 'position': {'x': self.pet.x(), 'y': self.pet.y()},
+                'window_layer': {'mode': layer_mode, 'effective': effective_layer,
+                                 'temporary_foreground': self.pet.temporary_foreground,
+                                 'appearance_preview': self.pet.appearance_preview},
                 'screen': screen.name(), 'storage_error': self.storage_error,
                 'icon_sleep': self.icon_sleep.snapshot(),
                 'edge_attachment': self.edge_attachment.snapshot(),
@@ -304,7 +316,10 @@ class PetService(PetApplication):
         painter.scale(2, 2)
         self.preview_renderer.draw_pose(painter, state, at)
         painter.end()
-        image = self.fit_preview(image)
+        return self.encode_preview(self.fit_preview(image))
+
+    @staticmethod
+    def encode_preview(image):
         data = QByteArray()
         buffer = QBuffer(data)
         buffer.open(QIODevice.OpenModeFlag.WriteOnly)
@@ -363,6 +378,18 @@ class PetService(PetApplication):
             payload = request.get('payload') or {}
             if not isinstance(payload, dict):
                 raise ValueError('参数格式不正确')
+            if command == 'get_preview_frame':
+                if payload:
+                    raise ValueError('参数无效')
+                image = self.pet.take_preview_frame()
+                if image is not None and max(image.width(), image.height()) > 380:
+                    image = image.scaled(380, 380, Qt.AspectRatioMode.KeepAspectRatio,
+                                         Qt.TransformationMode.SmoothTransformation)
+                if image is not None:
+                    image = image.convertToFormat(QImage.Format.Format_ARGB32)
+                self.send({'type': 'response', 'id': request_id, 'ok': True,
+                           'frame': self.encode_preview(image) if image is not None else None})
+                return
             if command == 'set_focus':
                 if set(payload)-{'enabled','phase','remaining'} or type(payload.get('enabled')) is not bool:
                     raise ValueError('专注状态无效')
@@ -374,6 +401,10 @@ class PetService(PetApplication):
                                               or not 0 <= remaining <= 86400):
                     raise ValueError('专注时间无效')
                 self.focus.set(payload['enabled'], phase, remaining)
+            elif command == 'set_appearance_preview':
+                if set(payload)!={'enabled'} or type(payload.get('enabled')) is not bool:
+                    raise ValueError('外观预览状态无效')
+                self.pet.set_appearance_preview(payload['enabled'])
             elif command == 'configure_ui':
                 if (set(payload)-{'theme','bubble','reduced','translation'} or payload.get('theme') not in ('light','mist','dark') or payload.get('bubble') not in ('light','mist','dark') or type(payload.get('reduced')) is not bool or type(payload.get('translation')) is not bool):
                     raise ValueError('界面设置无效')
@@ -466,10 +497,6 @@ class PetService(PetApplication):
                 self.pet.wake_icon_sleep()
                 self.pet.state.action_player.stop()
                 self.pet.update()
-            elif command == 'patrol_once':
-                self.patrol.start_once()
-            elif command == 'stop_patrol':
-                self.patrol.stop()
             elif command == 'demo_climb':
                 self.patrol.demo_edge()
             elif command == 'go_home':

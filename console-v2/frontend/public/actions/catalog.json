@@ -94,6 +94,7 @@
     "idle_state": "sit",
     "idle_role": "坐着进食",
     "idle_automatic": true,
+    "end_posture": "sit",
     "authored_motion": true,
     "smoothed": true,
     "keyframes": 12,
@@ -750,7 +751,10 @@
       200,
       230,
       260
-    ]
+    ],
+    "idle_state": "stand",
+    "idle_role": "偶尔受惊的俏皮表情",
+    "idle_automatic": true
   },
   {
     "id": "angry",
@@ -796,7 +800,10 @@
       360,
       260,
       240
-    ]
+    ],
+    "idle_state": "stand",
+    "idle_role": "偶尔鼓起脸颊的俏皮表情",
+    "idle_automatic": true
   },
   {
     "id": "clicked",
@@ -988,7 +995,10 @@
       220,
       220,
       450
-    ]
+    ],
+    "idle_state": null,
+    "idle_role": "桌面拖动时触发",
+    "idle_automatic": false
   },
   {
     "id": "dress",
@@ -1625,6 +1635,7 @@
     "idle_state": "sit",
     "idle_role": "坐着工作",
     "idle_automatic": true,
+    "end_posture": "sit",
     "authored_motion": true,
     "smoothed": true,
     "keyframes": 6,
@@ -1724,6 +1735,7 @@
     "idle_state": "sit",
     "idle_role": "坐姿阅读",
     "idle_automatic": true,
+    "end_posture": "sit",
     "idle_life": {
       "bob": 1.5,
       "lean": 0.5,
@@ -1754,6 +1766,7 @@
     "idle_state": "sit",
     "idle_role": "坐姿阅读",
     "idle_automatic": true,
+    "end_posture": "sit",
     "idle_life": {
       "bob": 1.5,
       "lean": 0.5,
@@ -1782,8 +1795,8 @@
     "review": "静态素材，非完整动作",
     "scale_calibrated": true,
     "idle_state": "stand",
-    "idle_role": "静态阅读姿势",
-    "idle_automatic": false,
+    "idle_role": "站立持书阅读",
+    "idle_automatic": true,
     "idle_life": {
       "bob": 1.5,
       "lean": 0.5,
@@ -3618,7 +3631,7 @@
       "action-work/autoplay/keyframes.png"
     ],
     "review": "本地抠图与尺寸检查；程序衔接",
-    "idle_automatic": false,
+    "idle_automatic": true,
     "autoplay_only": true,
     "scale_calibrated": true,
     "authored_motion": true,
@@ -3629,7 +3642,10 @@
       750,
       850,
       650
-    ]
+    ],
+    "idle_state": "sit",
+    "idle_role": "俏皮坐姿变化",
+    "end_posture": "sit"
   },
   {
     "id": "play-lean",
@@ -3666,7 +3682,9 @@
       450
     ],
     "body_locked": true,
-    "body_lock": "baked-foot-lock"
+    "body_lock": "baked-foot-lock",
+    "idle_state": null,
+    "idle_role": "图标倚靠互动时触发"
   },
   {
     "id": "play-climb-up",

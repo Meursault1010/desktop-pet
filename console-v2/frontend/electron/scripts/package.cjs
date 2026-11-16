@@ -35,7 +35,7 @@ async function main(){
     for(const dep of Object.keys(meta.dependencies||{}))copyDependency(dep,source,dep in (meta.optionalDependencies||{}));
     for(const dep of Object.keys(meta.optionalDependencies||{}))copyDependency(dep,source,true);
   }
-  for(const dep of ['pdf-parse','mammoth'])copyDependency(dep);
+  for(const dep of ['pdf-parse','mammoth','pinyin-pro'])copyDependency(dep);
   const {packager}=await import('@electron/packager');
   const paths=await packager({dir:stage,name:'yuki',platform:'win32',arch:'x64',
     electronVersion:require('electron/package.json').version,

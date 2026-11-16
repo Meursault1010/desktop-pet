@@ -20,6 +20,7 @@
     "lucide-react": "^0.468.0",
     "mammoth": "1.13.0",
     "pdf-parse": "2.4.5",
+    "pinyin-pro": "^3.29.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

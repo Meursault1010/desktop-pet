@@ -102,6 +102,27 @@ class ProtocolTests(unittest.TestCase):
         self.assertEqual(reset['state']['preferences']['speed'], 48)
         self.assertFalse(reset['state']['preferences']['quiet'])
 
+    def test_live_preview_captures_current_action_and_clears_when_hidden(self):
+        self.assertFalse(self.request('get_preview_frame', {'extra': True})['ok'])
+        self.assertTrue(self.request('play_action', {'action_id': 'wave', 'loop': True})['ok'])
+        frames = set()
+        for _ in range(12):
+            reply = self.request('get_preview_frame')
+            self.assertTrue(reply['ok'])
+            self.assertNotIn('state', reply)
+            if reply['frame']:
+                self.assertTrue(reply['frame'].startswith('data:image/png;base64,'))
+                frames.add(reply['frame'])
+            if len(frames) >= 3:
+                break
+            time.sleep(.07)
+        self.assertGreaterEqual(len(frames), 3)
+
+        self.assertTrue(self.request('set_visible', {'visible': False})['ok'])
+        self.wait_for(lambda message: message.get('name') == 'state_changed'
+                      and message['state']['status'] == '已隐藏')
+        self.assertIsNone(self.request('get_preview_frame')['frame'])
+
     def test_shutdown_and_restart_persistence(self):
         self.request('set_preference', {'key': 'size', 'value': 125})
         self.request('set_preference', {'key': 'quiet', 'value': True})
