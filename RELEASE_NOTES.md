@@ -7,7 +7,7 @@
 - 云端模型需用户自备服务地址与 API 密钥。选择云端后，对话内容会发送给所选服务。
 - Windows x64；未签名，Windows 可能显示未知发布者提示。
 - 目前为便携版，不含自动更新；更新时先正常退出，再安装新版本，用户设置保存在本机。
-- 下载文件：应用包 `yuki-win32-x64-v1.1.1.tar.gz`，可选模型卷 `yuki-model-v1.1.1.part01` 与 `part02`。解压应用包即可使用轻量版。
+- 下载文件：应用包 `yuki-win32-x64-v1.1.1.zip`，可选模型卷 `yuki-model-v1.1.1.part01` 与 `part02`。解压应用包即可使用轻量版。
 
 依赖和模型来源见仓库 `local-model/qwen/README.md`、`build-llama-runtime.ps1` 与 `THIRD-PARTY-NOTICES.md`。
 ## 安装本地模型

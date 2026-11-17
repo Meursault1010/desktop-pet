@@ -4,7 +4,7 @@ yuki 是一只运行在 Windows 桌面上的白发蓝裙桌宠。当前发布候
 
 ## 下载与使用
 
-从[GitHub Releases](https://github.com/Meursault1010/desktop-pet/releases/latest)下载 Windows x64 版本。发布文件共三件：不含模型的应用包，以及可选本地模型的两个分卷。只用轻量版时，解压应用包并运行 `yuki.exe`；要安装内置 Qwen，三件下载到同一目录，解压应用包后运行 `./install-yuki.ps1 -AssetsPath "下载目录" -IncludeModel`。未签名版本可能触发 Windows 未知发布者提示。
+从[GitHub Releases](https://github.com/Meursault1010/desktop-pet/releases/latest)下载 Windows x64 版本。发布文件共三件：不含模型的应用 ZIP 包，以及可选本地模型的两个分卷。只用轻量版时，解压应用包并运行 `yuki.exe`；要安装内置 Qwen，三件下载到同一目录，解压应用包后运行 `./install-yuki.ps1 -AssetsPath "下载目录" -IncludeModel`。未签名版本可能触发 Windows 未知发布者提示。
 
 桌宠和工作台开箱可用；内置 Qwen 可选安装。也可连接兼容的本地模型或自行配置云端 API。云端聊天内容会发送到所选服务；OCR 与文档解析在本机完成。能力说明见 [PRODUCT.md](PRODUCT.md)。
 

@@ -6,7 +6,7 @@ $modelName='Qwen3.8-4B-Q4_K_M.gguf'
 $modelSource=Join-Path $PSScriptRoot "local-model/qwen/$modelName"
 $modelTemp=Join-Path $output $modelName
 $chunkSize=1500000000L
-$archive=Join-Path $output "yuki-win32-x64-$Version.tar.gz"
+$archive=Join-Path $output "yuki-win32-x64-$Version.zip"
 if(-not(Test-Path (Join-Path $Candidate 'yuki.exe'))){throw "Candidate not found: $Candidate"}
 if(-not(Test-Path $modelSource)){throw "Local model not found: $modelSource"}
 New-Item -ItemType Directory -Path $output -Force | Out-Null
@@ -21,10 +21,9 @@ $modelHash=(Get-FileHash -LiteralPath $modelTemp -Algorithm SHA256).Hash.ToLower
 $manifest=[ordered]@{version=$Version;modelFile=$modelName;modelSha256=$modelHash}
 $manifest | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $Candidate 'release-manifest.json') -Encoding ascii
 if(Test-Path $archive){Remove-Item -LiteralPath $archive -Force}
-$stale=Get-ChildItem -LiteralPath $output -File | Where-Object {$_.Name -like "yuki-win32-x64-$Version.tar.gz.part*" -or $_.Name -like "yuki-model-$Version.part*"}
+$stale=Get-ChildItem -LiteralPath $output -File | Where-Object {$_.Name -like "yuki-win32-x64-$Version.tar.gz*" -or $_.Name -like "yuki-model-$Version.part*"}
 if($stale){$stale|Remove-Item -Force}
-& tar.exe -czf $archive -C (Split-Path -Parent $Candidate) (Split-Path -Leaf $Candidate)
-if($LASTEXITCODE -ne 0){throw "Application archive creation failed ($LASTEXITCODE)"}
+Compress-Archive -Path $Candidate -DestinationPath $archive -CompressionLevel Optimal -Force
 $partNames=@("yuki-model-$Version.part01","yuki-model-$Version.part02")
 foreach($name in $partNames){$old=Join-Path $output $name;if(Test-Path $old){Remove-Item -LiteralPath $old -Force}}
 $source=[IO.File]::OpenRead($modelTemp);$buffer=New-Object byte[] (8MB);$part=0

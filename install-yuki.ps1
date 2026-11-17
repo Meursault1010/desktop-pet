@@ -1,18 +1,19 @@
 param([string]$AssetsPath=(Get-Location).Path,[string]$InstallRoot='',[switch]$IncludeModel,[switch]$NoLaunch)
 $ErrorActionPreference='Stop'
-$archive=Get-ChildItem -LiteralPath $AssetsPath -Filter 'yuki-win32-x64-v*.tar.gz' -File | Select-Object -First 1
+$archive=Get-ChildItem -LiteralPath $AssetsPath -Filter 'yuki-win32-x64-v*.zip' -File | Select-Object -First 1
 if(-not $archive){throw 'Place the Yuki application archive beside this script.'}
-$tag=[regex]::Match($archive.Name,'yuki-win32-x64-(v\d+\.\d+\.\d+)\.tar\.gz').Groups[1].Value
+$tag=[regex]::Match($archive.Name,'yuki-win32-x64-(v\d+\.\d+\.\d+)\.zip').Groups[1].Value
 if(-not $tag){throw 'Could not identify the Yuki version.'}
 if(-not $InstallRoot){$InstallRoot=Join-Path $env:LOCALAPPDATA "Programs\Yuki\$tag"}
 if(Test-Path $InstallRoot){throw "This version is already installed at $InstallRoot"}
 $tempRoot=Join-Path $env:TEMP ("yuki-install-"+[guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 try{
-    $listing=& tar.exe -tzf $archive.FullName
-    if($LASTEXITCODE -ne 0 -or @($listing | Where-Object {$_ -match '^(?:/|[a-zA-Z]:|\.\.(?:/|\\)|[^/]+/\.\.(?:/|\\))'}).Count){throw 'The application archive is invalid.'}
-    & tar.exe -xzf $archive.FullName -C $tempRoot
-    if($LASTEXITCODE -ne 0){throw 'The application archive could not be extracted.'}
+    $zip=[IO.Compression.ZipFile]::OpenRead($archive.FullName)
+    try{
+        foreach($entry in $zip.Entries){if($entry.FullName -match '^(?:/|[a-zA-Z]:|\.\.(?:/|\\)|[^/]+/\.\.(?:/|\\))'){throw 'The application archive contains an unsafe path.'}}
+        [IO.Compression.ZipFileExtensions]::ExtractToDirectory($zip,$tempRoot)
+    }finally{$zip.Dispose()}
     $application=Join-Path $tempRoot 'yuki-win32-x64'
     if(-not(Test-Path (Join-Path $application 'yuki.exe'))){throw 'The archive does not contain yuki.exe.'}
     if($IncludeModel){

@@ -44,7 +44,7 @@ jobs:
           Remove-Item -LiteralPath '.electron-build' -Recurse -Force
           Remove-Item -LiteralPath 'console-v2/frontend/node_modules' -Recurse -Force
           Remove-Item -LiteralPath 'console-v2/frontend/dist' -Recurse -Force
-      - name: Prepare checksum-verified release parts
+      - name: Create three release downloads
         shell: pwsh
         run: ./package-release-assets.ps1 -Version ${{ inputs.tag || github.ref_name }}
       - name: Publish release
@@ -55,7 +55,7 @@ jobs:
           $version = '${{ inputs.tag || github.ref_name }}'
           $assets = "releases/electron/release-assets-v$($version.TrimStart('v'))"
           gh release create $version @(
-            "$assets/yuki-win32-x64-$version.tar.gz",
+            "$assets/yuki-win32-x64-$version.zip",
             "$assets/yuki-model-$version.part01",
             "$assets/yuki-model-$version.part02"
           ) --title "Yuki $version" --notes-file RELEASE_NOTES.md
