@@ -44,7 +44,6 @@ jobs:
           Remove-Item -LiteralPath '.electron-build' -Recurse -Force
           Remove-Item -LiteralPath 'console-v2/frontend/node_modules' -Recurse -Force
           Remove-Item -LiteralPath 'console-v2/frontend/dist' -Recurse -Force
-          Remove-Item -LiteralPath 'local-model/qwen/Qwen3.8-4B-Q4_K_M.gguf' -Force
       - name: Prepare checksum-verified release parts
         shell: pwsh
         run: ./package-release-assets.ps1 -Version ${{ inputs.tag || github.ref_name }}
@@ -54,4 +53,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $version = '${{ inputs.tag || github.ref_name }}'
-          gh release create $version (Get-ChildItem "releases/electron/release-assets-v$($version.TrimStart('v'))" -File | ForEach-Object FullName) --title "Yuki $version" --notes-file RELEASE_NOTES.md
+          $assets = "releases/electron/release-assets-v$($version.TrimStart('v'))"
+          gh release create $version @(
+            "$assets/yuki-win32-x64-$version.tar.gz",
+            "$assets/yuki-model-$version.part01",
+            "$assets/yuki-model-$version.part02"
+          ) --title "Yuki $version" --notes-file RELEASE_NOTES.md
