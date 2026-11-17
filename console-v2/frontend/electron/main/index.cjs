@@ -3,7 +3,6 @@ const {app,BrowserWindow,Tray,Menu,Notification,ipcMain,protocol,session,dialog,
 const path=require('node:path');
 const fs=require('node:fs');
 const smoke=process.argv.includes('--smoke-test');
-const prototype=process.argv.includes('--pet-prototype');
 const updateReadyFile=process.env.YUKI_UPDATE_READY_FILE;
 delete process.env.YUKI_UPDATE_READY_FILE;
 app.setName('yuki');
@@ -265,7 +264,6 @@ else {
   app.on('window-all-closed',()=>{});
   app.whenReady().then(async()=>{
     await registerResources();
-    if(prototype){await require('./prototype.cjs').launch({app,BrowserWindow,uiRoot,smoke});return;}
     updater=new Updater({
       app, log, enabled:app.isPackaged && process.platform==='win32' && process.arch==='x64' && !smoke,
       changed:value=>send('yuki:update-status',value), quit:()=>void stopAndQuit(),

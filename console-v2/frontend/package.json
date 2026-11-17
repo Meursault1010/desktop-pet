@@ -9,7 +9,6 @@
     "preview": "vite preview --host 127.0.0.1",
     "tauri": "tauri",
     "electron": "electron electron/main/index.cjs",
-    "electron:prototype": "electron electron/main/index.cjs --pet-prototype",
     "test": "node --experimental-strip-types --test tests/*.test.mjs electron/tests/*.test.cjs",
     "package:electron": "node electron/scripts/package.cjs"
   },

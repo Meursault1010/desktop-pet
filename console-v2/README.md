@@ -6,7 +6,7 @@
 
 在仓库根目录首次运行 `install-electron.bat`，之后运行 `start-workbench.bat`。开发入口使用 `console-v2/frontend/dist`、`node_modules` 中的 Electron，以及 `console-v2/.venv` Python 环境。日常入口为 `start.bat`：本机有便携版时优先运行便携版，否则使用已安装的源码环境。
 
-在 `frontend/` 目录可运行 `npm test`、`npm run build` 和 `npm run electron`。`npm run electron:prototype` 启动独立的 Canvas 桌宠原型，不是正式桌宠窗口。
+在 `frontend/` 目录可运行 `npm test`、`npm run build` 和 `npm run electron`。
 
 ## 旧版 Tauri 路径
 
