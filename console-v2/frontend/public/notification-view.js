@@ -5,10 +5,13 @@
   document.querySelector('.close')?.addEventListener('click', close);
   window.yukiNotification?.onUpdate?.(value => {
     root.dataset.kind = value.kind || 'reminder';
-    root.dataset.theme = value.theme || 'mist';
-    message.textContent = value.text || 'Yuki 有一条新的提醒。';
-    document.title = value.title || 'yuki · 小提醒';
+    const theme = ['light','mist','dark'].includes(value.theme) ? value.theme : 'mist';
+    root.dataset.theme = theme;
+    document.documentElement.dataset.theme = theme;
+    message.textContent = value.text || '有一条新提醒。';
+    document.title = value.title || 'Yuki · 提醒';
+    document.querySelector('h1').textContent = value.title || '桌面提醒';
     const track = document.querySelector('.notification-track i');
-    if (track) { track.style.animation = 'none'; void track.offsetWidth; track.style.animation = 'expire 7s linear forwards'; }
+    if (track) { track.style.animation = 'none'; void track.offsetWidth; track.style.animation = ''; }
   });
 })();

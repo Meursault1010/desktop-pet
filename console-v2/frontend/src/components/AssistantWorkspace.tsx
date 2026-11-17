@@ -3,6 +3,7 @@ import {Bot,RefreshCw,Send,Square,Trash2} from './Icons';
 import {host} from '../host';
 import type {AttachmentMode,AttachmentReview,ChatAttachment,ConversationSnapshot,ReasoningEffort,ModelConfigSnapshot} from '../host/types';
 import {Paperclip,X,FileText,Pencil,Plus,PanelLeft} from 'lucide-react';
+import {ComposerModelPicker} from './ComposerModelPicker';
 import {parseMarkdown} from '../markdown';
 import type {Inline} from '../markdown';
 import '../assistant.css';
@@ -75,7 +76,7 @@ const TurnRow=memo(function TurnRow({item,last,busy,ready,onCopy,onRegenerate,on
     </div>
   </div>;
 });
-export function AssistantWorkspace({lyric=workbenchLyrics[0]}:{lyric?:WorkbenchLyric}){
+export function AssistantWorkspace({lyric=workbenchLyrics[0],active:visible=true}:{lyric?:WorkbenchLyric;active?:boolean}){
   const [messages,setMessages]=useState<Turn[]>(session),[draft,setDraft]=useState(''),[models,setModels]=useState<string[]>([]);
   const [model,setModel]=useState(selectedModel),[busy,setBusy]=useState(false),[connecting,setConnecting]=useState(false);
   const [error,setError]=useState(''),[connectionMessage,setConnectionMessage]=useState(''),[phase,setPhase]=useState(''),[partial,setPartial]=useState('');
@@ -314,7 +315,8 @@ export function AssistantWorkspace({lyric=workbenchLyrics[0]}:{lyric?:WorkbenchL
       {!!files.length&&<div className="chat-file-list composer-attachments" aria-label="待发送附件">{files.map(file=><div className="chat-file" key={file.id}>{file.preview?<img src={file.preview} alt={file.name}/>:<FileText size={18}/>}<span title={file.name}>{file.name}<small>{file.kind==='image'?`图片 · ${file.characters?`OCR 提取 ${file.characters} 字符`:'未识别到文字'}`:`${file.characters} 字符${file.truncated?' · 已截取':''}`}</small></span>{file.kind==='image'&&<select className="chat-file-mode" aria-label={`${file.name} 的发送方式`} value={file.imageMode||'both'} disabled={busy||attachmentChecking||!!attachmentReview||!host?.aiAttachMode} onChange={e=>void changeMode(file.id,e.target.value as AttachmentMode)}><option value="both">文字 + 图片</option><option value="text">只发文字</option><option value="image">只发图片</option></select>}<button className="icon-button" disabled={busy||attachmentChecking||!!attachmentReview} aria-label={`移除 ${file.name}`} onClick={()=>{setAttachmentReview(null);setFiles(list=>list.filter(f=>f.id!==file.id));}}><X size={14}/></button></div>)}</div>}
       <textarea aria-label="对话输入" value={draft} maxLength={2000} disabled={!supported||attachmentChecking} onChange={e=>{setAttachmentReview(null);setDraft(e.target.value);}} placeholder={model?'想对雪说些什么？':'连接模型后，开始聊天…'} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing&&!busy){e.preventDefault();void send();}}}/>
       <div className="chat-composer-tools"><div className="composer-left"><button className="icon-button" title="添加图片或文档" aria-label="添加图片或文档" disabled={busy||attachmentChecking||!!attachmentReview||attaching||!host?.aiAttach||files.length>=4} onClick={()=>void addFiles()}><Paperclip size={17}/></button><span>{attaching?'正在读取附件…':attachmentChecking?'正在检查附件…':'Enter 发送 · Shift + Enter 换行'}</span></div><div className="composer-right">
-        <label className="composer-model"><span className="sr-only">当前模型</span><select aria-label="当前模型" value={model} disabled={busy||attachmentChecking||!models.length} onChange={e=>{setAttachmentReview(null);setModel(e.target.value);selectedModel=e.target.value;setError('');}}><option value="">选择模型</option>{models.map(id=><option key={id} value={id}>{id}</option>)}</select></label>
+        <ComposerModelPicker models={models} value={model} disabled={busy||attachmentChecking||!models.length} active={visible}
+          onChange={id=>{setAttachmentReview(null);setModel(id);selectedModel=id;setError('');}}/>
         {modelConfig?.endpoint.startsWith('https:')&&<label className="reasoning-inline"><span>思考</span><select aria-label="思考程度" value={reasoningEffort} disabled={busy||reasoningBusy||!host?.modelConfigSet} onChange={e=>void changeReasoningEffort(e.target.value as ReasoningEffort)}><option value="auto">自动</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label>}
         {busy?<button className="icon-button composer-send" aria-label="停止回复" title="中止雪当前生成的回复；已经显示的内容会保留。" onClick={()=>void host?.aiCancel?.()}><Square size={16}/></button>:<button className="icon-button composer-send" aria-label={attachmentChecking?'正在检查附件':'发送消息'} title={attachmentChecking?'正在检查附件内容及发送方式…':attachmentReview?'完成附件发送前检查后即可发送。':'发送输入内容和已添加附件，Enter 也可直接发送。'} disabled={attachmentChecking||!!attachmentReview||(!draft.trim()&&!files.length)||attaching||!model||!supported} onClick={()=>void send()}><Send size={18}/></button>}
       </div></div>

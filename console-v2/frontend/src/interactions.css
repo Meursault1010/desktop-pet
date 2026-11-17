@@ -1,0 +1,28 @@
+/* Shared interaction feedback. Surface and type roles come from the active theme. */
+.workbench-tooltip{
+ position:fixed;z-index:10000;max-width:min(280px,calc(100vw - 20px));max-height:calc(100vh - 20px);
+ width:max-content;overflow:auto;padding:8px 11px;border-radius:8px;
+ color:var(--text);background:var(--surface);border:1px solid var(--control-line,var(--hairline));
+ box-shadow:0 5px 18px #142a4020;font-size:12px;line-height:1.6;font-weight:400;
+ overflow-wrap:anywhere;text-align:start;user-select:none;cursor:default;
+ animation:yuki-hint-in 120ms cubic-bezier(.16,1,.3,1) both;
+}
+.workbench-tooltip[data-ready=false]{visibility:hidden}
+[data-theme=dark] .workbench-tooltip{box-shadow:0 5px 18px #0005}
+@keyframes yuki-hint-in{from{opacity:0;translate:0 2px}to{opacity:1;translate:0 0}}
+.observatory :is(button,a,input,select,textarea,summary,[tabindex]):focus-visible,
+.dialog-content :is(button,input,select,textarea):focus-visible{
+ outline:2px solid var(--accent);outline-offset:3px;
+}
+.observatory :is(button,input,select,textarea):disabled{cursor:not-allowed}
+.setting-row[aria-busy=true] .toggle{cursor:progress}
+.setting-row .pending-icon{flex:none;color:var(--accent)}
+.range-setting .field-error:empty{display:none}
+.range-setting input[aria-invalid=true]{border-color:var(--danger,#ad4b59)}
+.range-setting input[aria-invalid=true]:focus-visible{outline-color:var(--danger,#ad4b59)}
+.observatory :is(button,input,select,textarea),.dialog-content :is(button,input,select,textarea){
+ -webkit-tap-highlight-color:transparent;
+}
+[data-motion=reduced] .workbench-tooltip{animation:none}
+@media(prefers-reduced-motion:reduce){.workbench-tooltip{animation:none}}
+@media(forced-colors:active){.workbench-tooltip{border:1px solid CanvasText;box-shadow:none}}

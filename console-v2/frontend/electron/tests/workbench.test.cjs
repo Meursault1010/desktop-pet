@@ -40,8 +40,7 @@ test('companion preferences and window commands stay bounded',()=>{
  assert.throws(()=>validate('desktop_event',{kind:'unknown',text:'工具状态'}));
 });
 
-test('persistent patrol has bounded start and stop commands',()=>{
- assert.doesNotThrow(()=>validate('patrol_once',{}));
- assert.doesNotThrow(()=>validate('stop_patrol',{}));
- assert.throws(()=>validate('stop_patrol',{x:10}));
+test('removed patrol commands stay unavailable',()=>{
+ assert.throws(()=>validate('patrol_once',{}),/不支持/);
+ assert.throws(()=>validate('stop_patrol',{}),/不支持/);
 });

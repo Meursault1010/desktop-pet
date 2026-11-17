@@ -184,10 +184,7 @@ function configureIpc(){
 }
 function createTray(){
   try {
-    const icon=nativeImage.createFromPath(path.join(__dirname,'../../src-tauri/icons/icon.ico'));
-    // Packaging places a copy beside the host; keep the source-tree fallback.
-    const bundled=nativeImage.createFromPath(path.join(__dirname,'../icon.ico'));
-    tray=new Tray(!bundled.isEmpty()?bundled:icon);
+    tray=new Tray(path.join(__dirname,'../icons/yuki-tray.ico'));
     tray.setToolTip('yuki · 桌面小屋');
     refreshTray();
     tray.on('click',showConsole);tray.on('double-click',showConsole);
@@ -243,6 +240,7 @@ async function registerResources(){
 }
 async function createConsole(){
   window=new BrowserWindow({title:'yuki · 桌面小屋',width:900,height:740,minWidth:520,minHeight:420,resizable:true,movable:true,
+    icon:path.join(__dirname,'../icons/yuki-taskbar.ico'),
     show:false,backgroundColor:'#E8EEF3',webPreferences:{...webPreferences(path.join(__dirname,'../preload/console.cjs')),backgroundThrottling:false}});
   harden(window);window.setMenuBarVisibility(false);
   window.on('close',event=>{const behavior=closeBehavior({quitting,trayReady:!!tray});

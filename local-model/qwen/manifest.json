@@ -2,8 +2,9 @@
   "copiedOn": "2026-10-23",
   "model": "qwen3.8-4b-distill",
   "file": "Qwen3.8-4B-Q4_K_M.gguf",
-  "runtime": "llama.cpp-win-x86_64-vulkan-avx2-2.55.0",
+  "runtime": "ggml-org/llama.cpp b12464 win-vulkan-x64",
   "bytes": 2783446304,
   "sha256": "DEC96E8CF2E11B613BB46513DEC485377F9CA5A351E71712EE0E244F287C6790",
-  "source": "Local LM Studio installation"
+  "source": "https://huggingface.co/empero-ai/Qwen3.8-4B-Distill-GGUF/tree/391fc7d",
+  "license": "Apache-2.0"
 }

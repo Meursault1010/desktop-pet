@@ -1,9 +1,10 @@
 """Non-activating, pointer-transparent companion speech window."""
 import random
 import time
-from PySide6.QtCore import QPointF, Qt, QTimer
-from PySide6.QtGui import QColor, QFont, QPainter, QPen, QPolygonF
+from PySide6.QtCore import QPointF, QRectF, Qt, QTimer
+from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen, QPolygonF
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from pet_ui_style import palette
 
 
 def pages(text, limit=120):
@@ -33,10 +34,9 @@ class SpeechBubble(QWidget):
         self.sync_preferences()
         self.setFixedWidth(278)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(17, 12, 17, 23)
-        layout.setSpacing(7)
-        self.heading = QLabel('YUKI · 心声')
-        self.heading.setStyleSheet('color:#6990a9; font-size:10px; letter-spacing:1px;')
+        layout.setContentsMargins(17, 14, 17, 24)
+        layout.setSpacing(8)
+        self.heading = QLabel('yuki')
         self.copy = QLabel()
         self.copy.setTextFormat(Qt.TextFormat.PlainText)
         self.copy.setWordWrap(True)
@@ -48,6 +48,7 @@ class SpeechBubble(QWidget):
         layout.addWidget(self.heading)
         layout.addWidget(self.copy)
         layout.addWidget(self.counter)
+        self.apply_theme('mist')
         self.text = ''
         self.kind = 'ambient'
         self.streaming = False
@@ -92,7 +93,7 @@ class SpeechBubble(QWidget):
         self.index = min(self.index, len(self.parts)-1)
         self.page_age = 0.
         self.next_ambient = time.monotonic()+random.uniform(90, 180)*self.pet.state.routine.period['speech']
-        self.heading.setText('YUKI · 心声' if kind == 'ambient' else 'YUKI · 与你说话')
+        self.heading.setText('提示' if kind == 'error' else 'yuki')
         self.layout_page()
 
     def layout_page(self):
@@ -102,6 +103,7 @@ class SpeechBubble(QWidget):
         height = max(24, self.copy.heightForWidth(244))
         self.copy.setFixedHeight(height)
         self.counter.setText(f'{self.index+1} / {len(self.parts)}' if len(self.parts)>1 else ' ')
+        self.counter.setVisible(len(self.parts) > 1)
         self.adjustSize()
         self.copy.setText(page[:int(self.shown_chars)])
 
@@ -159,14 +161,15 @@ class SpeechBubble(QWidget):
         hold = max(6., len(page)*.075)
         if self.shown_chars >= len(page) and not self.streaming:
             self.page_age += dt
-        fade = min(1., self.elapsed/.2)
+        reduced = bool(getattr(self.pet.controller, 'ui_reduced', False))
+        fade = 1. if reduced else min(1., self.elapsed/.2)
         if self.page_age > hold:
             if self.index+1 < len(self.parts):
                 self.index += 1
                 self.shown_chars = self.page_age = 0.
                 self.layout_page()
             else:
-                fade *= max(0., 1-(self.page_age-hold)/.35)
+                fade *= 0. if reduced else max(0., 1-(self.page_age-hold)/.35)
                 if fade <= 0:
                     self.clear()
                     return
@@ -178,21 +181,25 @@ class SpeechBubble(QWidget):
 
     def apply_theme(self, theme):
         self.bubble_theme = theme
-        dark = theme == 'dark'
-        self.copy.setStyleSheet('color:' + ('#e1eaf3' if dark else '#2c485d') + '; background:transparent;')
-        for label in (self.heading, self.counter):
-            label.setStyleSheet('color:' + ('#a6b8c9' if dark else '#53697a') + ';font-size:10px;')
+        p = palette(theme)
+        self.copy.setStyleSheet(f"color:{p['fg']};background:transparent;font-size:13px;")
+        self.heading.setStyleSheet(f"color:{p['accent']};background:transparent;font-size:12px;font-weight:600;")
+        self.counter.setStyleSheet(f"color:{p['muted']};background:transparent;font-size:11px;")
         self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        theme = getattr(self, 'bubble_theme', 'mist')
-        painter.setPen(QPen(QColor('#34485d' if theme == 'dark' else '#c7dce9'), 1))
-        painter.setBrush(QColor('#192838' if theme == 'dark' else '#fcfdfe' if theme == 'light' else '#e3eff7'))
-        painter.drawRoundedRect(1, 1, self.width()-2, self.height()-12, 13, 13)
-        painter.setPen(Qt.PenStyle.NoPen)
+        p = palette(getattr(self, 'bubble_theme', 'mist'))
+        painter.setPen(QPen(QColor(p['control']), 1))
+        painter.setBrush(QColor(p['bg']))
+        shape = QPainterPath()
+        shape.addRoundedRect(QRectF(1, 1, self.width()-2, self.height()-12), 12, 12)
         if not self.below:
-            painter.drawPolygon(QPolygonF([QPointF(self.tail-7, self.height()-12),
+            tail = QPainterPath()
+            tail.addPolygon(QPolygonF([QPointF(self.tail-7, self.height()-12),
                 QPointF(self.tail, self.height()-3), QPointF(self.tail+7, self.height()-12)]))
+            tail.closeSubpath()
+            shape = shape.united(tail)
+        painter.drawPath(shape)
         painter.end()

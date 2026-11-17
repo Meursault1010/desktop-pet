@@ -1,0 +1,57 @@
+name: Windows release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to build and publish (for example v1.1.1)
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: console-v2/frontend/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check source and frontend
+        shell: pwsh
+        run: |
+          Push-Location console-v2/frontend
+          npm ci --no-audit --no-fund
+          npm test
+          Pop-Location
+      - name: Build self-contained Windows app
+        shell: pwsh
+        run: |
+          $env:YUKI_PACKAGE_OUTPUT = Join-Path $PWD 'releases/electron/yuki-win32-x64-release-candidate-v2'
+          ./build-electron.ps1 -Python python
+      - name: Free build caches before archiving
+        shell: pwsh
+        run: |
+          Remove-Item -LiteralPath '.electron-build' -Recurse -Force
+          Remove-Item -LiteralPath 'console-v2/frontend/node_modules' -Recurse -Force
+          Remove-Item -LiteralPath 'console-v2/frontend/dist' -Recurse -Force
+          Remove-Item -LiteralPath 'local-model/qwen/Qwen3.8-4B-Q4_K_M.gguf' -Force
+      - name: Prepare checksum-verified release parts
+        shell: pwsh
+        run: ./package-release-assets.ps1 -Version ${{ inputs.tag || github.ref_name }}
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = '${{ inputs.tag || github.ref_name }}'
+          gh release create $version (Get-ChildItem "releases/electron/release-assets-v$($version.TrimStart('v'))" -File | ForEach-Object FullName) --title "Yuki $version" --notes-file RELEASE_NOTES.md

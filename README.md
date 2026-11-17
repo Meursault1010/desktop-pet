@@ -1,6 +1,12 @@
 # yuki
 
-yuki 是一只运行在 Windows 桌面上的白发蓝裙桌宠，也是本项目的正式名称。当前版本：**yuki v1.1.0 · Electron 兼容迁移版**。
+yuki 是一只运行在 Windows 桌面上的白发蓝裙桌宠。当前发布候选：**yuki v1.1.1 · Windows x64 便携版**。
+
+## 下载与使用
+
+发布后可在[GitHub Releases](https://github.com/Meursault1010/desktop-pet/releases/latest)下载。运行 `install-yuki.ps1` 会自动下载、校验并安装分段发行包，无需单独安装 Python、Node 或模型服务。首次下载约 4 GB，建议预留 6 GB 空间。未签名版本可能触发 Windows 未知发布者提示。
+
+桌宠和工作台开箱可用；内置 Qwen 默认关闭，开启后使用本机模型。也可连接兼容的本地模型或自行配置云端 API。云端聊天内容会发送到所选服务；OCR 与文档解析在本机完成。能力说明见 [PRODUCT.md](PRODUCT.md)。
 
 她可以持续呼吸和眨眼、走动、播放动作，坐靠或趴在桌面图标上，抓住窗口边框爬行，在下沿悬挂，在上沿坐卧；拖动时会看向抓取点并伸手阻挡，松手后可即时吸附。
 
@@ -15,7 +21,7 @@ yuki 是一只运行在 Windows 桌面上的白发蓝裙桌宠，也是本项目
 
 ## 从仓库运行
 
-本地已生成 Windows x64 便携目录 `releases/electron/yuki-win32-x64/`。运行根目录 `start.bat` 或其中的 `yuki.exe`；整个便携目录一起保留，无需全局 Python、Node、Rust 或 WebView2。`start.bat` 优先启动这个正式便携目录；克隆源码后安装开发依赖但本机没有便携目录时，它会回退到源码运行环境。不要同时运行旧桌面安装版。
+本机验证过的 Windows x64 候选包位于 `releases/electron/yuki-win32-x64-release-candidate-v2/`，运行目录里的 `yuki.exe` 即可启动；完整目录需一起保留。
 
 便携产物与构建缓存不上传 Git。克隆仓库后，安装 Python 3.10+、Node 22.12+ 与 npm，运行 `install-electron.bat`，再运行 `start.bat`；或使用 `build-electron.ps1` 构建内含 Python/PySide6 的便携版。首次构建需要下载依赖。
 

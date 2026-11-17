@@ -48,7 +48,7 @@ test('cloud endpoints require an explicit one-time attachment approval after the
   const a=new Attachments();const doc=await a.add(file);
   let body;const bot=new Assistant({endpoint:'https://example.com/v1',fetchImpl:async(url,options)=>{body=JSON.parse(options.body);return new Response('data: '+JSON.stringify({choices:[{delta:{content:'ok'}}]})+String.fromCharCode(10,10)+'data: [DONE]'+String.fromCharCode(10,10));}});
   bot.attachments=a;const input={id:'cloud-attach',model:'vision',messages:[{role:'user',content:'读',attachments:[doc.id]}]};
-  await assert.rejects(bot.chat(input,()=>{}),/云端/);
+  await assert.rejects(bot.chat(input,()=>{}),/附件发送已阻止.*开启附件授权/);
   assert.equal(bot.allowRemoteAttachments,false);
   bot.allowRemoteAttachments=true;
   const review=bot.reviewAttachments([doc.id],'vision'),approval=bot.approveAttachments({reviewId:review.reviewId,ids:[doc.id],model:'vision'});

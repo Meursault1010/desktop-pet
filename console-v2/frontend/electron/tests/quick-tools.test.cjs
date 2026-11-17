@@ -2,15 +2,17 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {QuickTools,project,validateAction}=require('../main/quick-tools.cjs');
 const focus={end:null,remaining:1500,duration:25,mode:'focus',completed:0};
-test('native popup projects bounded previews and forwards shared tool changes',async()=>{
+test('native popup projects bounded previews and applies shared timer changes',async()=>{
  const deliveries=[],actions=[],forward=[];
  const desktop={snapshot:()=>({clipboard:[{id:'clip',preview:'文'.repeat(600),at:1}],clipboardPaused:false}),action:async v=>actions.push(v)};
- const q=new QuickTools({desktop,deliver:v=>deliveries.push(v),forward:v=>forward.push(v)});
+ let timerFocus={...focus},timerNow=1000;const timerChanges=[];
+ const timers={snapshot:()=>({focus:timerFocus}),now:()=>timerNow,apply:value=>{timerFocus=value.focus;timerChanges.push(value.focus);},changed:()=>timerChanges.push('changed')};
+ const q=new QuickTools({desktop,timers,deliver:v=>deliveries.push(v),forward:v=>forward.push(v)});
  await q.sync({focus,todos:[{id:'todo',text:'任务',done:false,due:''}]});
  assert.equal(deliveries.at(-1).clipboard[0].text.length,240);
  await q.action('clipboard-copy','clip');assert.deepEqual(actions,[{name:'clipboard-copy',value:'clip'}]);
- await q.action('focus-toggle',null);assert.deepEqual(forward,[{name:'focus-toggle',value:null}]);
- await q.action('todo-add',{text:'喝水',minutes:30});assert.equal(forward.at(-1).name,'todo-add');
+ await q.action('focus-toggle',null);assert.equal(timerFocus.end,1501000);assert.equal(timerChanges.at(-1),'changed');
+ await q.action('todo-add',{text:'喝水',minutes:30});assert.deepEqual(forward,[{name:'todo-add',value:{text:'喝水',minutes:30}}]);
  await q.action('exec','anything');assert.match(deliveries.at(-1).error,/无效/);
 });
 test('any whole-minute focus length reaches the popup, not only the four preset buttons',async()=>{

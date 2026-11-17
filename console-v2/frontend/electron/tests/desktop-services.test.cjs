@@ -82,7 +82,7 @@ test('weather accepts an explicit city only and clears a legacy IP-guessed city'
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'yuki-weather-legacy-'));
   const downloads=path.join(root,'downloads');fs.mkdirSync(downloads);
   fs.writeFileSync(path.join(root,'desktop.json'),JSON.stringify({city:'Changzhou',cityMode:'ip',clipboardPaused:false}));
-  const service=new DesktopServices({app:{getPath:name=>name==='downloads'?downloads:root},powerMonitor:new EventEmitter(),clipboard:{readText:async()=>'',writeText:async()=>{}},log:()=>{},spawnImpl:()=>({stdout:{setEncoding(){},on(){},resume(){}},stderr:{resume(){}},on(){},kill(){}})});
+  const service=new DesktopServices({app:{getPath:name=>name==='downloads'?downloads:root},powerMonitor:new EventEmitter(),clipboard:{readText:async()=>'',writeText:async()=>{}},fetchImpl:async url=>url.includes('geocoding')?Response.json({results:[{name:'杭州',latitude:30,longitude:120}]}):Response.json({current:{temperature_2m:20},daily:{temperature_2m_max:[25],temperature_2m_min:[15]}}),log:()=>{},spawnImpl:()=>({stdout:{setEncoding(){},on(){},resume(){}},stderr:{resume(){}},on(){},kill(){}})});
   t.after(()=>{service.stop();fs.rmSync(root,{recursive:true,force:true});});
   assert.equal(service.snapshot().city,'');
   assert.equal(JSON.parse(fs.readFileSync(service.settingsPath,'utf8')).city,'');
@@ -164,7 +164,7 @@ test('model config encrypts credentials, never exposes them, and clears on desti
   for(const value of ['http://example.com/v1','file:///bad','https://user:password@example.com','https://example.com/?token=secret'])assert.throws(()=>endpoint(value));
   assert.equal(endpoint('http://127.0.0.1:1234/v1/'),'http://127.0.0.1:1234/v1');
 });
-test('the cloud attachment switch defaults to off, survives reloads and other config writes',async t=>{
+test('cloud attachment approval persists for a service and resets when its destination changes',async t=>{
   const {root}=fixture(t);const file=path.join(root,'attachments.json');
   const storage={isAsyncEncryptionAvailable:async()=>true,encryptStringAsync:async s=>Buffer.from('encrypted-'+s),decryptStringAsync:async b=>({result:b.toString().slice(10),shouldReEncrypt:false})};
   const config=new ModelConfig(file,storage);
@@ -173,8 +173,13 @@ test('the cloud attachment switch defaults to off, survives reloads and other co
   assert.equal((await config.setRemoteAttachments(true)).allowRemoteAttachments,true);
   const reloaded=new ModelConfig(file,storage);await reloaded.ready;assert.equal(reloaded.allowRemoteAttachments,true);
   await assert.rejects(config.setRemoteAttachments('yes'),/开关无效/);
-  await config.set({endpoint:'https://example.com/v1',model:'m'});
-  const afterSave=new ModelConfig(file,storage);await afterSave.ready;assert.equal(afterSave.allowRemoteAttachments,true);
+  await config.set({endpoint:'https://127.0.0.1:9000/v1',model:'m'});
+  await config.setRemoteAttachments(true);
+  const reloadedService=new ModelConfig(file,storage);await reloadedService.ready;assert.equal(reloadedService.allowRemoteAttachments,true);
+  await config.set({endpoint:'https://127.0.0.1:9000/v1',model:'m'});
+  const sameService=new ModelConfig(file,storage);await sameService.ready;assert.equal(sameService.allowRemoteAttachments,true);
+  await config.set({endpoint:'https://other.example/v1',model:'m'});
+  const afterSave=new ModelConfig(file,storage);await afterSave.ready;assert.equal(afterSave.allowRemoteAttachments,false);
   await config.setRemoteAttachments(false);
   const afterDisable=new ModelConfig(file,storage);await afterDisable.ready;assert.equal(afterDisable.allowRemoteAttachments,false);
 });

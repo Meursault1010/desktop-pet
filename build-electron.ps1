@@ -1,6 +1,8 @@
 param([string]$Python = 'python', [switch]$SkipInstall)
 $ErrorActionPreference='Stop'
 & (Join-Path $PSScriptRoot 'build-selection.ps1')
+& (Join-Path $PSScriptRoot 'build-llama-runtime.ps1')
+& (Join-Path $PSScriptRoot 'build-qwen-model.ps1')
 & (Join-Path $PSScriptRoot 'build-ocr.ps1') -Python $Python -SkipInstall:$SkipInstall
 if($LASTEXITCODE){throw 'Offline OCR build failed'}
 $petRoot=Join-Path $PSScriptRoot 'console-v2'

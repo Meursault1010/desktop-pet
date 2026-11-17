@@ -8,12 +8,13 @@ export function Toggle({ label, description, checked, disabled, pending, reason,
   pending?: boolean; reason?: string; onChange: (value: boolean) => void;
 }) {
   const id = useId();
+  const hint = reason || description;
   return <div className={`setting-row ${disabled ? 'is-disabled' : ''}`} aria-busy={pending}>
     <span><label htmlFor={id} className="setting-label">{label}</label>
-      <span id={`${id}-hint`} className="setting-description">{reason || description}</span></span>
-    {pending && <LoaderCircle className="spin pending-icon" size={15} aria-label="正在应用"/>}
+      {hint && <span id={`${id}-hint`} className="setting-description">{hint}</span>}</span>
+    {pending && <span className="pending-icon" role="status" aria-label="正在应用"><LoaderCircle className="spin" size={15} aria-hidden="true"/></span>}
     <Switch.Root id={id} className="toggle" checked={checked} disabled={disabled || pending}
-      onCheckedChange={onChange} aria-label={label} aria-describedby={`${id}-hint`}>
+      onCheckedChange={onChange} aria-label={label} aria-describedby={hint ? `${id}-hint` : undefined}>
       <Switch.Thumb className="toggle-thumb"/>
     </Switch.Root>
   </div>;
@@ -73,7 +74,7 @@ export function Range({ label, description, value, min, max, unit, disabled, pen
   return <div className="range-setting" aria-busy={pending}>
     <div className="range-heading"><label htmlFor={id}>{label}</label>
       <div className="range-tools"><span className="number-control">
-        <input type="number" aria-label={`${label}数值`} aria-describedby={`${id}-hint ${id}-error`}
+        <input type="number" aria-label={`${label}数值`} aria-describedby={[description && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined}
           aria-invalid={!!error} min={min} max={max} step={1} value={text} disabled={disabled}
           onChange={event => { edited.current = event.target.value; setText(event.target.value); setError(''); }}
           onBlur={commitText} onKeyDown={event => {
@@ -84,10 +85,10 @@ export function Range({ label, description, value, min, max, unit, disabled, pen
           onClick={() => commit(defaultValue)} aria-label={`恢复${label}默认值 ${defaultValue}${unit}`}
           title={`恢复默认：${defaultValue}${unit}`}><RotateCcw size={14}/>默认</button>
       </div></div>
-    <p id={`${id}-hint`}>{description}</p>
+    {description && <p id={`${id}-hint`}>{description}</p>}
     <input id={id} type="range" min={min} max={max} step={1} value={draft} disabled={disabled}
-      aria-describedby={`${id}-hint`} aria-valuetext={`${draft}${unit}`}
-      style={{ '--progress': `${(draft - min) / (max - min) * 100}%` } as CSSProperties}
+      aria-describedby={description ? `${id}-hint` : undefined} aria-valuetext={`${draft}${unit}`}
+      style={{ '--progress': `${max > min ? (draft - min) / (max - min) * 100 : 0}%` } as CSSProperties}
       onChange={event => commit(Number(event.target.value))}/>
     <div className="range-limits"><span>{min}{unit}</span><span className="range-state">
       {pending ? <><LoaderCircle className="spin" size={12}/>正在应用</> : `默认 ${defaultValue}${unit}`}

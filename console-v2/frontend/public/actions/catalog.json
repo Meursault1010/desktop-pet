@@ -3664,7 +3664,7 @@
       450
     ],
     "atlas": "actions/play-lean/atlas.webp",
-    "poster": "actions/play-lean/poster.png",
+    "poster": "actions/play-lean/poster.webp",
     "sources": [
       "action-work/autoplay/keyframes.png"
     ],

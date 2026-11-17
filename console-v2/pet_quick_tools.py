@@ -97,9 +97,11 @@ class QuickToolsPane(QWidget):
             self.items.setTextElideMode(Qt.TextElideMode.ElideRight)
             self.items.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
             self.items.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
-            self.empty = QLabel('复制文字后会显示在这里。' if kind=='clipboard' else '没有未完成的事，慢慢来。')
+            self.empty = QLabel('复制文字后显示在这里' if kind=='clipboard' else '暂无待办')
             self.empty.setObjectName('muted')
             self.empty.setWordWrap(True)
+            self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.empty.setMinimumHeight(56)
             layout.addWidget(self.empty)
             layout.addWidget(self.items,1)
             if kind=='clipboard':
@@ -114,12 +116,13 @@ class QuickToolsPane(QWidget):
                 self.items.itemChanged.connect(self.complete_item)
                 row=QHBoxLayout()
                 self.entry=QLineEdit()
-                self.entry.setPlaceholderText('下一件要做的事…')
+                self.entry.setPlaceholderText('添加待办')
                 self.entry.setMinimumWidth(0)
                 self.entry.setMaxLength(200)
                 self.entry.setAccessibleName('快捷添加待办')
                 self.entry.setAttribute(Qt.WidgetAttribute.WA_InputMethodEnabled,True)
                 self.add=self.button('添加',self.add_todo)
+                self.add.setObjectName('primary-action')
                 row.addWidget(self.entry,1);row.addWidget(self.add)
                 layout.addLayout(row)
                 self.due=QComboBox()
@@ -130,6 +133,7 @@ class QuickToolsPane(QWidget):
         else:
             layout.addStretch()
             self.phase=QLabel('专注时间')
+            self.phase.setObjectName('tool-phase')
             self.phase.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.clock=EditableClock('25:00')
             self.clock.setObjectName('timer-reading')
@@ -163,6 +167,7 @@ class QuickToolsPane(QWidget):
             layout.addLayout(custom_row)
             row=QHBoxLayout();row.addStretch()
             self.toggle=self.button('开始',lambda:self.request.emit('focus-toggle',None))
+            self.toggle.setObjectName('primary-action')
             self.reset=self.button('重置',lambda:self.request.emit('focus-reset',None))
             row.addWidget(self.toggle);row.addWidget(self.reset);row.addStretch()
             layout.addLayout(row);layout.addStretch()
@@ -230,7 +235,7 @@ class QuickToolsPane(QWidget):
         self.feedback.setText(state.get('error',''))
         ready=state.get('ready',False)
         if self.kind=='focus':
-            self.caption.setText('共享计时 · 点击时间输入分钟或分:秒' if ready else '正在连接工作台…')
+            self.caption.setText('点击时间可编辑' if ready else '正在连接工作台…')
             self.clock.setEnabled(ready);self.toggle.setEnabled(ready);self.reset.setEnabled(ready)
             if not self.custom_minutes.hasFocus() and not self.custom_minutes.isModified():
                 focus=state.get('focus') or {}
@@ -251,7 +256,7 @@ class QuickToolsPane(QWidget):
                 if count>pending[2] or any(e['text']==pending[0] and e['id'] not in pending[1] for e in data):
                     self.entry.clear();self.pending_add=None
                 elif state.get('error'):self.pending_add=None
-            self.caption.setText(f'{count} 项待办 · 优先显示近期 5 项' if ready else '正在连接工作台…')
+            self.caption.setText(f'{count} 项待办 · 最近 5 项' if ready else '正在连接工作台…')
             self.entry.setEnabled(ready and count<200);self.add.setEnabled(ready and count<200 and not getattr(self,'pending_add',None))
             self.due.setEnabled(ready)
         self.empty.setVisible(not bool(data))

@@ -317,3 +317,94 @@
 @media(hover:none) {
   .chat-turn-actions {opacity:1}
 }
+.composer-model-picker {
+  min-width: 0;
+}
+
+.composer-model-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(31vw, 220px);
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.composer-model-trigger span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composer-model-trigger svg {
+  flex: none;
+  color: var(--muted);
+}
+
+.composer-model-trigger:hover:not(:disabled),
+.composer-model-trigger[aria-expanded=true] {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.composer-model-menu {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 5px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-panel);
+  box-shadow: var(--shadow-2);
+  scrollbar-width: thin;
+}
+
+.composer-model-label {
+  margin: 0;
+  padding: 5px 9px 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.composer-model-menu button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 9px;
+  border-radius: 8px;
+  color: var(--text);
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.composer-model-menu button:hover,
+.composer-model-menu button:focus-visible {
+  background: var(--hover);
+}
+
+.composer-model-menu button:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.composer-model-menu button[aria-checked=true] {
+  font-weight: 600;
+}
+
+.composer-model-menu button svg {
+  color: var(--accent);
+}

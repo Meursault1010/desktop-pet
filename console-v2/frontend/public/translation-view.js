@@ -4,11 +4,12 @@ function render(state){
  current=state;const loading=['loading','ocr'].includes(state.phase),error=state.phase==='error';
  $('direction').textContent=state.target==='English'?'中文 → English':state.target?'外语 → 中文':'划线翻译';
  $('status').className='status'+(loading?' loading':error?' error':'');
-  $('status').textContent=state.error||(state.phase==='ocr'?'正在识别框选区域…':loading?'雪正在翻译…':'');
+  $('status').textContent=state.error||(state.phase==='ocr'?'正在识别文字…':loading?'正在翻译…':'');
+  $('result').setAttribute('aria-busy',String(loading));
   $('status').hidden=!loading&&!state.error;$('result').textContent=state.text||'';
   if(document.activeElement!==$('source')&&$('source').value!==state.source)$('source').value=state.source||'';
  $('original').hidden=false;$('copy').disabled=state.phase!=='done'||!state.text;$('copy').querySelector('span').textContent='复制译文';
- $('retry').hidden=!error||!state.source;$('method').textContent=(state.method==='ocr'?'本地 OCR + Qwen':'本地 Qwen')+' · 仅本次显示';
+ $('retry').hidden=!error||!state.source;$('method').textContent=(state.method==='ocr'?'本地 OCR + Qwen':'本地 Qwen')+' · 不保存';
 }
 window.translation.subscribe(render);window.translation.snapshot().then(state=>{if(!current)render(state);});
 async function control(name){try{await window.translation.control(name);if(name==='copy')$('copy').querySelector('span').textContent='已复制';}catch{$('status').hidden=false;$('status').textContent='操作失败，请重试';}}
