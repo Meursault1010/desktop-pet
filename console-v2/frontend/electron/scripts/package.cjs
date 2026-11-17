@@ -5,6 +5,10 @@ const {spawnSync}=require('node:child_process');
 
 async function main(){
   const frontend=path.resolve(__dirname,'../..'),project=path.resolve(frontend,'../..');
+  const version = fs.readFileSync(path.join(project, 'VERSION'), 'utf8').trim();
+  if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
+    throw new Error('VERSION must be a stable version such as 1.1.2.');
+  }
   const root=path.dirname(frontend),work=path.join(project,'.electron-build');
   const backend=path.join(work,'python-dist/yuki-backend');
   if(!fs.existsSync(path.join(backend,'yuki-backend.exe')))throw new Error('Build the frozen Python backend first (build-electron.ps1).');
@@ -17,7 +21,7 @@ async function main(){
   if(!fs.existsSync(path.join(selection,'yuki-selection.exe')))throw Error('Build Windows selection helper first (build-selection.ps1).');
   if(!fs.existsSync(path.join(ocr,'yuki-ocr.exe')))throw new Error('Build offline OCR first (build-ocr.ps1).');
   const stage=path.join(work,'app-'+Date.now());fs.mkdirSync(stage,{recursive:true});
-  fs.writeFileSync(path.join(stage,'package.json'),JSON.stringify({name:'yuki',version:'1.1.1',main:'electron/main/index.cjs',description:'yuki Windows desktop pet',author:'Meursault',private:true},null,2));
+  fs.writeFileSync(path.join(stage,'package.json'),JSON.stringify({name:'yuki',version,main:'electron/main/index.cjs',description:'yuki Windows desktop pet',author:'Meursault',private:true},null,2));
   fs.copyFileSync(path.join(project,'THIRD-PARTY-NOTICES.md'),path.join(stage,'THIRD-PARTY-NOTICES.txt'));
   fs.cpSync(path.join(project,'licenses'),path.join(stage,'licenses'),{recursive:true});
   for(const name of ['main','preload','shared','icons'])fs.cpSync(path.join(frontend,'electron',name),path.join(stage,'electron',name),{recursive:true});
@@ -44,7 +48,7 @@ async function main(){
     electronVersion:require('electron/package.json').version,
     out:process.env.YUKI_PACKAGE_OUTPUT?path.resolve(process.env.YUKI_PACKAGE_OUTPUT):path.join(project,'releases/electron/yuki-win32-x64-workbench'),
     overwrite:true,asar:false,prune:false,icon:path.join(frontend,'electron/icons/yuki-desktop-large.ico'),
-    appVersion:'1.1.1',buildVersion:'1.1.1',win32metadata:{CompanyName:'Meursault',FileDescription:'yuki Electron desktop pet',ProductName:'yuki'}});
+    appVersion:version,buildVersion:version,win32metadata:{CompanyName:'Meursault',FileDescription:'yuki Electron desktop pet',ProductName:'yuki'}});
   for(const output of paths){
     const bundledModel=path.join(output,'resources/local-model/qwen');
     fs.mkdirSync(bundledModel,{recursive:true});

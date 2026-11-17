@@ -4,12 +4,15 @@ const path=require('node:path');
 const fs=require('node:fs');
 const smoke=process.argv.includes('--smoke-test');
 const prototype=process.argv.includes('--pet-prototype');
+const updateReadyFile=process.env.YUKI_UPDATE_READY_FILE;
+delete process.env.YUKI_UPDATE_READY_FILE;
 app.setName('yuki');
 if(process.env.YUKI_USER_DATA)app.setPath('userData',path.resolve(process.env.YUKI_USER_DATA));
 const {createMainLogger}=require('./logging.cjs');
 const logger=createMainLogger({file:path.join(app.getPath('logs'),'yuki.log'),mirror:smoke});
 global.console=logger.console;
 const log=logger.log;
+const {Updater}=require('./updater.cjs');
 const {Sidecar}=require('./sidecar.cjs');
 const {CSP,resourcePath,trusted,webPreferences,harden,closeBehavior}=require('./security.cjs');
 const {validate}=require('../shared/protocol.cjs');
@@ -31,6 +34,7 @@ const ownsLock=app.requestSingleInstanceLock();
 let window=null,tray=null,sidecar=null,quitting=false,exitWork=null,started=false,startFallback=null,notificationWindow=null,notificationReady=null,notificationTimer=null,timers=null;
 let runtimeRoot,uiRoot;
 let desktopServices,modelConfig,workbenchConfig,quickTools,conversations;
+let updater;
 let registeredShortcuts={};
 function shortcutAction(id){return {console:showConsole,visibility:()=>void sidecar.request('toggle_visibility',{}).catch(log),translation:()=>{try{translationMode(!translation.enabled);}catch(e){translation.update({error:String(e.message||e)});}},capture:()=>void startTranslationCapture()}[id];}
 function installShortcuts(next){
@@ -85,13 +89,18 @@ function waitForExitAnimation(){
 async function stopAndQuit(){
   if(exitWork)return exitWork;
   quitting=true;
+  updater?.stop();
   clearTimeout(startFallback);startFallback=null;
   assistant.cancel();
   quickChat.cancel();
-  exitWork=(async()=>{await waitForExitAnimation();globalShortcut.unregisterAll();clearTimeout(notificationTimer);notificationWindow?.destroy();notificationWindow=null;timers?.stop();translation?.stop();translationWindows?.stop();desktopServices?.stop();await Promise.all([sidecar?.stop(),localModel?.stop()]);tray?.destroy();tray=null;app.quit();})();
+  exitWork=(async()=>{await waitForExitAnimation();globalShortcut.unregisterAll();clearTimeout(notificationTimer);notificationWindow?.destroy();notificationWindow=null;timers?.stop();translation?.stop();translationWindows?.stop();desktopServices?.stop();const results=await Promise.allSettled([sidecar?.stop(),localModel?.stop()]);for(const result of results)if(result.status==='rejected')log(result.reason);tray?.destroy();tray=null;app.quit();})();
   return exitWork;
 }
 function configureIpc(){
+  ipcMain.handle('yuki:update-status',event=>{guard(event);return updater.snapshot();});
+  ipcMain.handle('yuki:update-check',event=>{guard(event);return updater.check();});
+  ipcMain.handle('yuki:update-download',event=>{guard(event);return updater.download();});
+  ipcMain.handle('yuki:update-install',event=>{guard(event);return updater.install();});
   ipcMain.handle('yuki:notification-close',event=>{if(notificationWindow&&!notificationWindow.isDestroyed()&&event.sender===notificationWindow.webContents){notificationWindow.hide();clearTimeout(notificationTimer);}});
   ipcMain.handle('yuki:open-external',(event,url)=>{guard(event);const parsed=new URL(String(url));if(parsed.protocol!=='https:')throw new Error('只允许打开 HTTPS 来源');return shell.openExternal(parsed.href);});
   ipcMain.handle('yuki:workbench-config',event=>{guard(event);return {...workbenchConfig.snapshot(),shortcutStatus:{...registeredShortcuts}};});
@@ -257,6 +266,10 @@ else {
   app.whenReady().then(async()=>{
     await registerResources();
     if(prototype){await require('./prototype.cjs').launch({app,BrowserWindow,uiRoot,smoke});return;}
+    updater=new Updater({
+      app, log, enabled:app.isPackaged && process.platform==='win32' && process.arch==='x64' && !smoke,
+      changed:value=>send('yuki:update-status',value), quit:()=>void stopAndQuit(),
+    });
     sidecar=new Sidecar(backendOptions());
     modelConfig=new ModelConfig(path.join(app.getPath('userData'),'model.json'),safeStorage);
     await modelConfig.ready;
@@ -311,6 +324,7 @@ else {
     desktopServices.start();
     try{installShortcuts(workbenchConfig.value.shortcuts);}catch(e){log(e);translation.update({error:e.message});}
     await syncWorkbench();
+    void updater.start(updateReadyFile).catch(error=>log('初始化 Yuki 更新：'+error.message));
     if(smoke)await require(process.env.YUKI_WORKBENCH_SMOKE==='1'?'./workbench-smoke.cjs':process.env.YUKI_AI_SMOKE==='1'?'./ai-smoke.cjs':process.env.YUKI_TIMERS_SMOKE==='1'?'./timers-smoke.cjs':'./smoke.cjs').run({app,window,sidecar,tray,stopAndQuit,log,translation,translationWindows,quickTools,timers,desktopReminders,notifyWindow:()=>notificationWindow});
   }).catch(async error=>{log(error.stack||error.message);
     if(smoke){console.error(error);process.exitCode=1;await sidecar?.stop();app.exit(1);}

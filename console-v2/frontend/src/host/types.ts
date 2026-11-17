@@ -31,7 +31,21 @@ export type ChatAttachment={id:string;name:string;size:number;kind:'image'|'docu
 export type AttachmentReviewItem={id:string;name:string;size:number;kind:'image'|'document';imagePreview?:string;characters?:number;truncated:boolean;imageMode?:AttachmentMode;imageIncluded:boolean;textIncluded:boolean;textPreview:string};
 export type AttachmentReview={reviewId:string;endpoint:string;endpointHost:string;model:string;remote:boolean;authorized:boolean;items:AttachmentReviewItem[]};
 
+export type UpdateStatus = {
+  phase: 'idle' | 'checking' | 'current' | 'available' | 'downloading' | 'ready' | 'installing' | 'error' | 'unsupported';
+  currentVersion: string;
+  version?: string;
+  progress?: number;
+  size?: number;
+  message?: string;
+};
+
 export interface DesktopHost {
+  updateStatus?():Promise<UpdateStatus>;
+  updateCheck?():Promise<UpdateStatus>;
+  updateDownload?():Promise<UpdateStatus>;
+  updateInstall?():Promise<UpdateStatus>;
+  onUpdateStatus?(listener:(status:UpdateStatus)=>void):()=>void;
   quickToolsSync?(value:{focus:import('../workspaceModel').Focus;todos:import('../workspaceModel').Todo[]}):Promise<void>;
   quickToolsSubscribe?(listener:(value:{name:string;value?:unknown})=>void):()=>void;
   workbenchConfig?():Promise<WorkbenchConfig>;

@@ -109,6 +109,10 @@ input::placeholder,textarea::placeholder{opacity:1;color:var(--muted)}
 .setting-row:hover{background:transparent}
 .setting-row strong,.setting-label{font-size:14px;font-weight:500}
 .setting-row small,.setting-description{font-size:12px;line-height:1.6}
+.app-update-row .app-update-error{color:var(--danger)}
+.app-update-progress{display:flex;align-items:center;gap:8px;margin-top:6px;width:min(100%,240px)}
+.app-update-progress progress{width:100%;min-width:0;height:8px;accent-color:var(--accent)}
+.app-update-progress small{margin:0;font-variant-numeric:tabular-nums}
 .text-link{font-size:12px}
 .content-section{padding:24px 0}
 .content-section>h2{font-size:16px;letter-spacing:0;margin-bottom:16px}

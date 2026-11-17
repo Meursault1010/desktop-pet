@@ -2,6 +2,15 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('yukiHost',Object.freeze({
   kind:'electron',
+  updateStatus:()=>ipcRenderer.invoke('yuki:update-status'),
+  updateCheck:()=>ipcRenderer.invoke('yuki:update-check'),
+  updateDownload:()=>ipcRenderer.invoke('yuki:update-download'),
+  updateInstall:()=>ipcRenderer.invoke('yuki:update-install'),
+  onUpdateStatus:listener=>{
+    const update=(_event,value)=>listener(value);
+    ipcRenderer.on('yuki:update-status',update);
+    return ()=>ipcRenderer.removeListener('yuki:update-status',update);
+  },
   quickToolsSync:value=>ipcRenderer.invoke('yuki:quick-tools-sync',value),
   quickToolsSubscribe:listener=>{const update=(_event,value)=>listener(value);ipcRenderer.on('yuki:quick-tool',update);return()=>ipcRenderer.removeListener('yuki:quick-tool',update);},
   workbenchConfig:()=>ipcRenderer.invoke('yuki:workbench-config'),

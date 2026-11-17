@@ -1,6 +1,11 @@
-param([string]$Version='v1.1.1',[string]$Candidate=(Join-Path $PSScriptRoot 'releases/electron/yuki-win32-x64-release-candidate-v2/yuki-win32-x64'))
+param([string]$Version,[string]$Candidate=(Join-Path $PSScriptRoot 'releases/electron/yuki-win32-x64-release-candidate-v2/yuki-win32-x64'))
 $ErrorActionPreference='Stop'
-$tag=$Version.TrimStart('v')
+$tag = (Get-Content -LiteralPath (Join-Path $PSScriptRoot 'VERSION') -Raw).Trim()
+if ($tag -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') {
+    throw 'VERSION must be a stable version such as 1.1.2.'
+}
+if (-not $Version) { $Version = "v$tag" }
+if ($Version -cne "v$tag") { throw "Release tag must match VERSION (v$tag)." }
 $output=Join-Path $PSScriptRoot "releases/electron/release-assets-v$tag"
 $modelName='Qwen3.8-4B-Q4_K_M.gguf'
 $modelSource=Join-Path $PSScriptRoot "local-model/qwen/$modelName"
@@ -8,6 +13,10 @@ $modelTemp=Join-Path $output $modelName
 $chunkSize=1500000000L
 $archive=Join-Path $output "yuki-win32-x64-$Version.zip"
 if(-not(Test-Path (Join-Path $Candidate 'yuki.exe'))){throw "Candidate not found: $Candidate"}
+$candidatePackage = Get-Content -LiteralPath (Join-Path $Candidate 'resources/app/package.json') -Raw | ConvertFrom-Json
+if ($candidatePackage.version -cne $tag) {
+    throw "Candidate app version ($($candidatePackage.version)) must match VERSION ($tag)."
+}
 if(-not(Test-Path $modelSource)){throw "Local model not found: $modelSource"}
 New-Item -ItemType Directory -Path $output -Force | Out-Null
 if(Test-Path $modelTemp){Remove-Item -LiteralPath $modelTemp -Force}

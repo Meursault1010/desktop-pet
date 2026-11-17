@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing version tag to build and publish (for example v1.1.1)
+        description: Existing version tag to build and publish (for example v1.1.2)
         required: true
         type: string
 permissions:
@@ -17,7 +17,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.ref }}
+      - name: Check release tag
+        shell: pwsh
+        env:
+          YUKI_RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          $version = (Get-Content -LiteralPath VERSION -Raw).Trim()
+          if ($env:YUKI_RELEASE_TAG -cne "v$version") {
+            throw "Release tag must match VERSION (v$version)."
+          }
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -46,16 +55,19 @@ jobs:
           Remove-Item -LiteralPath 'console-v2/frontend/dist' -Recurse -Force
       - name: Create three release downloads
         shell: pwsh
-        run: ./package-release-assets.ps1 -Version ${{ inputs.tag || github.ref_name }}
+        env:
+          YUKI_RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: ./package-release-assets.ps1 -Version $env:YUKI_RELEASE_TAG
       - name: Publish release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          YUKI_RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          $version = '${{ inputs.tag || github.ref_name }}'
+          $version = $env:YUKI_RELEASE_TAG
           $assets = "releases/electron/release-assets-v$($version.TrimStart('v'))"
           gh release create $version @(
             "$assets/yuki-win32-x64-$version.zip",
             "$assets/yuki-model-$version.part01",
             "$assets/yuki-model-$version.part02"
-          ) --title "Yuki $version" --notes-file RELEASE_NOTES.md
+          ) --verify-tag --title "Yuki $version" --notes-file RELEASE_NOTES.md

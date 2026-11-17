@@ -6,14 +6,22 @@
 
 前往 [GitHub Releases](https://github.com/Meursault1010/desktop-pet/releases/latest) 下载 Windows x64 版本。
 
-- **轻量版：**下载 `yuki-win32-x64-v1.1.1.zip`，解压后运行 `yuki.exe`。无需另装 Python 或 Node，解压后的文件夹需要完整保留。
-- **本地模型版：**额外下载 `yuki-model-v1.1.1.part01` 和 `part02`，与应用 ZIP 放在同一下载目录。解压应用包后，在 PowerShell 运行：
+- **轻量版**下载发布页的 Windows 应用 ZIP，解压后运行 `yuki.exe`。请完整保留解压后的文件夹。
+- **本地模型版**额外下载同一发布页的两个模型分卷，与应用 ZIP 放在同一个下载目录。在解压出的应用文件夹打开 PowerShell：
 
   ```powershell
   .\install-yuki.ps1 -AssetsPath "$HOME\Downloads" -IncludeModel
   ```
 
   将 `$HOME\Downloads` 替换成实际下载目录。安装完成后，内置模型默认关闭，可在“设置 → 通用”中开启。安装脚本会合并并校验模型。
+
+## 更新
+
+从 v1.1.2 起，Yuki 会自动检查正式版。打开「设置 → 通用 → 应用与数据」可手动检查。发现新版后，点击「下载更新」，再点击「重启并安装」。应用内安装保留本机设置、聊天、待办和兼容的已安装模型。
+
+v1.1.1 用户需要先从发布页手动安装一次支持更新的版本。只使用轻量版时，下载应用 ZIP 即可。
+
+安装成功后，旧程序目录会保存在安装目录旁的 `.yuki-previous-…` 文件夹。新版使用正常后，可清理这个备份以释放空间。
 
 ## yuki 可以做什么
 
@@ -27,7 +35,7 @@
 
 - AI 助手不会联网搜索。使用云端 API 时，发送的对话内容会交给你配置的服务；发送附件前可以检查并确认。
 - OCR 和文档解析在本机完成。剪贴板记录保存在本机，不会自动发给 AI。
-- 当前提供 Windows x64 便携版，尚无自动更新。软件未签名，Windows 可能显示发布者提示。
+- 当前提供 Windows x64 便携版。软件未签名，Windows 可能显示发布者提示。
 - yuki 使用 PNG 动作素材与程序微动，不是 Live2D 模型。
 
 更多说明：[产品介绍](PRODUCT.md) · [本地模型安装与设置](docs/本地模型接入说明.md) · [版本记录](CHANGELOG.md) · [第三方许可](THIRD-PARTY-NOTICES.md)
