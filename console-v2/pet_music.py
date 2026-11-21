@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QApplication
 from audio_rhythm import RhythmAnalyzer
 from music_timing import dance_speed, follow_tempo
 from music_dance_asset import ACTION_ID as DANCE_ACTION, preload as preload_dance, ready as dance_ready
+from pet_ui_style import companion_menu_for
 
 
 LABELS = dict(silent='等待声音',rhythm='节奏渐渐清晰',sudden='突然响了一声',soft='轻柔的声音',active='活跃的声音')
@@ -196,10 +197,12 @@ class MusicCompanion(QObject):
 
     def blocked(self):
         p,s = self.pet,self.pet.state
+        popup = QApplication.activePopupWidget()
         return (s.sleep.active or s.sleep.transitioning or not p.preferences.music_reactions or p.preferences.quiet or p.preferences.paused
                 or not p.isVisible() or not p.desired_visible() or p.presence.active
                 or p.drag_origin is not None or s.physics.active or s.travel_target is not None
-                or bool(s.patrol and s.patrol.active) or QApplication.activePopupWidget() is not None
+                or bool(s.patrol and s.patrol.active)
+                or (popup is not None and companion_menu_for(p, popup) is None)
                 or bool(s.icon_sleep and s.icon_sleep.target)
                 or bool(s.edge_attachment and s.edge_attachment.active)
                 or bool(getattr(p.controller,'quick_pending',None))
@@ -226,6 +229,8 @@ class MusicCompanion(QObject):
                     or s.action_player.started != self.owned_start or s.action_player.action is None
                     or s.action_player.generation != self.owned_generation):
                 self.cancel(now, rest=now >= self.until)
+            return
+        if companion_menu_for(self.pet, QApplication.activePopupWidget()) is not None:
             return
         ambient = s.ambient.current
         ambient_owned = bool(ambient and s.action_player.action

@@ -8,6 +8,7 @@ from ctypes import wintypes as W
 import math
 import sys
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 from PySide6.QtCore import QRect
 from PySide6.QtGui import QGuiApplication, QRegion
 from edge_attachment import logical_surface
@@ -23,6 +24,12 @@ def _scan_surfaces():
     try:return visible_surfaces(limit=80,opaque_only=True),''
     except (OSError,RuntimeError,ValueError):
         return [],'窗口位置暂不可用，继续从前方经过'
+
+
+@lru_cache(maxsize=160)
+def _clip_rectangle(x, y, width, height):
+    left, top = math.floor(x), math.floor(y)
+    return QRect(left, top, math.ceil(x+width)-left, math.ceil(y+height)-top)
 
 
 def set_pet_topmost(handle, enabled):
@@ -95,21 +102,20 @@ class PatrolDepth:
                 self.applied = layer
             except OSError as error:
                 self.error = str(error)
-        body = QRect(p.x(), p.y(), p.width(), p.height())
-        region = QRegion(QRect(0, 0, p.width(), p.height()))
-        behind = False
-        for handle, (bounds, _, screen) in self.surfaces:
-            if screen != p.screen():
-                continue
-            x, y, w, h = bounds
-            window = QRect(math.floor(x), math.floor(y),
-                           math.ceil(x+w)-math.floor(x), math.ceil(y+h)-math.floor(y))
-            if not body.intersects(window):
-                continue
-            if self.mode == 'back':
-                behind = True
-                region = region.subtracted(QRegion(window.translated(-p.x(), -p.y())))
-        if behind:
+        region = None
+        if self.mode == 'back' and self.surfaces:
+            x, y, width, height = p.x(), p.y(), p.width(), p.height()
+            body = QRect(x, y, width, height)
+            pet_screen = p.screen()
+            for _, (bounds, _, screen) in self.surfaces:
+                if screen != pet_screen:
+                    continue
+                window = _clip_rectangle(*bounds)
+                if body.intersects(window):
+                    if region is None:
+                        region = QRegion(QRect(0, 0, width, height))
+                    region = region.subtracted(QRegion(window.translated(-x, -y)))
+        if region is not None:
             if self.region != region:
                 p.masker.set('depth', region)
             self.region = region

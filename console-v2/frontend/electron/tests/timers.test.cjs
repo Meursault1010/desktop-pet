@@ -112,7 +112,25 @@ test('only one wake-up is armed at a time and it always points at the nearest de
   assert.equal(scheduled.length,1,'re-arming replaces the old timer');
   assert.equal(scheduled[0].ms,5050);
   service.apply({todos:[],health:{enabled:false}});
-  assert.equal(scheduled.length,0,'nothing left to wait for');
+  const midnight=new Date(START);
+  midnight.setHours(24,0,0,0);
+  assert.equal(scheduled.length,1,'only the daily reset remains scheduled');
+  assert.equal(scheduled[0].ms,midnight.getTime()-START+50);
+});
+
+test('individual todo edits keep other rows and only a changed deadline re-arms a reminder',t=>{
+  const {service,advanceTo}=fixture(t);
+  const due=new Date(START+1000).toISOString();
+  const a=service.changeTodo({kind:'add',text:'交周报',due}).todos[0];
+  const b=service.changeTodo({kind:'add',text:'买牛奶',due:''}).todos[1];
+  advanceTo(START+1001);
+  const updated=service.changeTodo({kind:'update',id:b.id,done:true});
+  assert.deepEqual(updated.todos.map(item=>[item.id,item.done,item.notified]),[[a.id,false,true],[b.id,true,false]]);
+  const newDue=new Date(START+3000).toISOString();
+  const rescheduled=service.changeTodo({kind:'update',id:a.id,due:newDue});
+  assert.equal(rescheduled.todos[0].notified,false);
+  assert.equal(rescheduled.todos[1].done,true);
+  assert.equal(advanceTo(START+3001).length,1);
 });
 
 test('bad patches are rejected and out-of-range numbers fall back',t=>{

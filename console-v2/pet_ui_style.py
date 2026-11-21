@@ -1,5 +1,17 @@
 """Visual roles shared by the native companion surfaces and the workbench."""
 
+PET_MENU_NAME = 'yuki-menu'
+
+
+def companion_menu_for(pet, popup):
+    """Identify the pet's own menu, including popups owned by its controls."""
+    while popup is not None:
+        if popup.objectName() == PET_MENU_NAME and popup.parentWidget() is pet:
+            return popup
+        popup = popup.parentWidget()
+    return None
+
+
 PALETTES = {
     'light': dict(bg='#ffffff', canvas='#f0f4f8', fg='#25394b', muted='#617486',
                   hover='#e8eff5', border='#dfe7ee', control='#b9c9d5',

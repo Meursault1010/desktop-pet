@@ -697,16 +697,12 @@ class PetMenu:
         self.pet = pet
 
     def show(self, event):
-        if self.pet.controller is not None:
-            if self.pet.state.music:
-                self.pet.state.music.cancel()
-            if self.pet.state.patrol:
-                self.pet.state.patrol.interrupt('menu')
-            menu = self.pet.controller.create_menu(self.pet)
-            menu.exec(event.globalPos())
-            menu.deleteLater()
-            if self.pet.state.patrol:
-                self.pet.state.patrol.settle_interruption(time.monotonic())
+        if self.pet.controller is None:
+            return
+        event.accept()
+        menu = self.pet.controller.create_menu(self.pet)
+        menu.aboutToHide.connect(menu.deleteLater)
+        menu.popup(event.globalPos())
 
 
 class DesktopPet(QWidget):
@@ -1327,9 +1323,9 @@ class DesktopPet(QWidget):
         return super().nativeEvent(eventType, message)
 
     def mousePressEvent(self, event):
-        if self.state.patrol and self.desired_visible():
-            self.state.patrol.record_pet_click()
         if event.button() == Qt.MouseButton.LeftButton:
+            if self.state.patrol and self.desired_visible():
+                self.state.patrol.record_pet_click()
             leaving = self.presence.active and not self.presence.target
             if not self.desired_visible() and not leaving:
                 event.ignore()

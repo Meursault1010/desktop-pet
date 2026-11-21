@@ -1,7 +1,8 @@
 'use strict';
-const {app,BrowserWindow,Tray,Menu,Notification,ipcMain,protocol,session,dialog,nativeImage,clipboard,powerMonitor,safeStorage,screen,desktopCapturer,globalShortcut,shell}=require('electron');
+const {app,BrowserWindow,Tray,Menu,Notification,ipcMain,protocol,session,dialog,nativeImage,nativeTheme,clipboard,powerMonitor,safeStorage,screen,desktopCapturer,globalShortcut,shell}=require('electron');
 const path=require('node:path');
 const fs=require('node:fs');
+const {spawn}=require('node:child_process');
 const smoke=process.argv.includes('--smoke-test');
 const updateReadyFile=process.env.YUKI_UPDATE_READY_FILE;
 delete process.env.YUKI_UPDATE_READY_FILE;
@@ -20,7 +21,7 @@ const assistant=new Assistant();
 assistant.imagePreview=data=>{try{const image=nativeImage.createFromDataURL(data);return image.isEmpty()?undefined:image.resize({width:240,quality:'good'}).toDataURL();}catch{return undefined;}};
 const {DesktopServices}=require('./desktop-services.cjs');
 const {ModelConfig}=require('./model-config.cjs');
-const {Conversations,MAX_CONVERSATION_PAYLOAD}=require('./conversations.cjs');
+const {Conversations}=require('./conversations.cjs');
 const {coalesceUpdates}=require('./stream-coalesce.cjs');
 const {discoverLocalServices}=require('./local-services.cjs');
 const {LocalModel,ENDPOINT:LOCAL_ENDPOINT,MODEL:LOCAL_MODEL}=require('./local-model.cjs');
@@ -44,9 +45,11 @@ function installShortcuts(next){
 }
 async function syncWorkbench(){const c=workbenchConfig.snapshot();assistant.workbenchContext=c.persona+String.fromCharCode(10)+c.memory;if(sidecar?.ready)await sidecar.request('configure_ui',{theme:c.theme,bubble:c.bubble,reduced:c.reduced,translation:!!translation?.enabled}).catch(log);}
 let translation,translationWindows,translationTrayEnabled=false;
+let avatarIconState='frozen',desktopShortcutWork=Promise.resolve();
 function translationMode(enabled){const result=translation.setEnabled(enabled);if(!enabled){translationWindows.dismiss();translationWindows.closeOverlay();}refreshTray();if(workbenchConfig)void syncWorkbench();return result;}
 function startTranslationCapture(){return translationWindows.capture().catch(error=>{translation.update({error:String(error.message||error)});});}
-function showConsole(){if(window&&!window.isDestroyed()){if(window.isMinimized())window.restore();window.show();window.focus();}}
+function showConsole(){if(window&&!window.isDestroyed()){if(window.isMinimized())window.restore();window.show();window.focus();setAvatarIconState('active');}}
+function workbenchVisible(){return !!(window&&!window.isDestroyed()&&window.isVisible()&&!window.isMinimized());}
 function send(channel,value){if(window&&!window.isDestroyed())window.webContents.send(channel,value);}
 function guard(event){if(!trusted(event,window))throw new Error('拒绝未知页面的桌面请求');}
 async function showDesktopNotification(text){
@@ -92,7 +95,16 @@ async function stopAndQuit(){
   clearTimeout(startFallback);startFallback=null;
   assistant.cancel();
   quickChat.cancel();
-  exitWork=(async()=>{await waitForExitAnimation();globalShortcut.unregisterAll();clearTimeout(notificationTimer);notificationWindow?.destroy();notificationWindow=null;timers?.stop();translation?.stop();translationWindows?.stop();desktopServices?.stop();const results=await Promise.allSettled([sidecar?.stop(),localModel?.stop()]);for(const result of results)if(result.status==='rejected')log(result.reason);tray?.destroy();tray=null;app.quit();})();
+  exitWork=(async()=>{
+    await waitForExitAnimation();setAvatarIconState('frozen');await desktopShortcutWork;globalShortcut.unregisterAll();
+    clearTimeout(notificationTimer);notificationWindow?.destroy();notificationWindow=null;
+    timers?.stop();translation?.stop();translationWindows?.stop();desktopServices?.stop();
+    const results=await Promise.allSettled([sidecar?.stop(),localModel?.stop()]);
+    for(const result of results)if(result.status==='rejected')log(result.reason);
+    tray?.destroy();tray=null;
+    await conversations?.flush();
+    app.quit();
+  })();
   return exitWork;
 }
 function configureIpc(){
@@ -104,7 +116,8 @@ function configureIpc(){
   ipcMain.handle('yuki:open-external',(event,url)=>{guard(event);const parsed=new URL(String(url));if(parsed.protocol!=='https:')throw new Error('只允许打开 HTTPS 来源');return shell.openExternal(parsed.href);});
   ipcMain.handle('yuki:workbench-config',event=>{guard(event);return {...workbenchConfig.snapshot(),shortcutStatus:{...registeredShortcuts}};});
   ipcMain.handle('yuki:workbench-set',async(event,input)=>{guard(event);const next=workbenchConfig.validate(input),previous=workbenchConfig.snapshot();if(input.shortcuts)installShortcuts(next.shortcuts);try{workbenchConfig.write(next);}catch(e){if(input.shortcuts)installShortcuts(previous.shortcuts);throw e;}await syncWorkbench();refreshTray();return {...workbenchConfig.snapshot(),shortcutStatus:{...registeredShortcuts}};});
-  ipcMain.handle('yuki:window-mode',(event,wide)=>{guard(event);if(typeof wide!=='boolean')throw Error('窗口模式无效');return require('./workbench-window.cjs').setWindowMode(window,screen,wide);});
+  ipcMain.handle('yuki:window-mode',(event,wide,animate=false)=>{guard(event);if(typeof wide!=='boolean'||typeof animate!=='boolean')throw Error('窗口模式无效');return require('./workbench-window.cjs').setWindowMode(window,screen,wide,animate);});
+  ipcMain.handle('yuki:workbench-visibility',event=>{guard(event);return workbenchVisible();});
   ipcMain.handle('yuki:translation-mode',(event,value)=>{guard(event);return value===undefined?translation.snapshot():translationMode(value);});
   ipcMain.handle('yuki:translation-capture',event=>{guard(event);return startTranslationCapture();});
   ipcMain.handle('yuki:quick-tools-sync',async(event,value)=>{guard(event);await quickTools.sync(value);});
@@ -116,7 +129,19 @@ function configureIpc(){
   // Clipboard bodies stay in the main process; the detail pane asks for one by id.
   ipcMain.handle('yuki:clipboard-read',(event,id)=>{guard(event);return desktopServices.clipboardBody(id);});
   ipcMain.handle('yuki:workbench-timers',event=>{guard(event);return timers.snapshot();});
-  ipcMain.handle('yuki:workbench-timers-set',(event,input)=>{guard(event);const value=timers.apply(input);send('yuki:workbench-timers',value);return value;});
+  ipcMain.handle('yuki:workbench-timers-set',(event,input,onlyIfPristine=false)=>{
+    guard(event);
+    if(typeof onlyIfPristine!=='boolean')throw Error('计时状态无效');
+    // The legacy renderer cache may arrive after the native menu made an edit.
+    if(onlyIfPristine){
+      const current=timers.snapshot();
+      if(current.todos.length||current.focus.completed||current.focus.end||current.health.enabled)return current;
+    }
+    const value=timers.apply(input);
+    timers.changed(value);
+    return value;
+  });
+  ipcMain.handle('yuki:workbench-todo-change',(event,change)=>{guard(event);return timers.changeTodo(change);});
   let builtinChanging=false;
   ipcMain.handle('yuki:builtin-model-set',async(event,enabled)=>{
     guard(event);
@@ -150,7 +175,7 @@ function configureIpc(){
   ipcMain.handle('yuki:ai-attachment-review',(event,input)=>{guard(event);if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>!['ids','model'].includes(key)))throw Error('附件检查参数无效');return assistant.reviewAttachments(input.ids,input.model);});
   ipcMain.handle('yuki:ai-attachment-approve',async(event,input)=>{guard(event);if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>!['reviewId','ids','model'].includes(key)))throw Error('附件确认参数无效');const review=assistant.validateAttachmentReview(input);if(!['localhost','127.0.0.1','[::1]'].includes(new URL(review.endpoint).hostname)&&!assistant.allowRemoteAttachments)throw Error('请先为此云端服务开启附件授权');if(['localhost','127.0.0.1','[::1]'].includes(new URL(review.endpoint).hostname))return {ticket:''};const result=await dialog.showMessageBox(window,{type:'warning',title:'确认发送附件到云端',message:`将 ${review.items.length} 个附件发送到 ${review.endpointHost}？`,detail:`模型：${review.model}\n图片会按需缩小至最长边 1536 px；已提取的 OCR/文档文字也会随对话发送。\n返回前端可逐项检查或移除附件。`,buttons:['返回检查','发送附件'],defaultId:0,cancelId:0});if(result.response!==1)throw Error('已取消云端附件发送；附件仍保留在输入框。');return assistant.approveAttachments(input,review.endpoint);});
   ipcMain.handle('yuki:conversations',event=>{guard(event);return conversations.snapshot();});
-  ipcMain.handle('yuki:conversation-store',(event,input)=>{guard(event);if(!input||typeof input!=='object'||Array.isArray(input)||JSON.stringify(input).length>MAX_CONVERSATION_PAYLOAD)throw Error('这段对话已达到本机保存上限，请新建对话后继续。');return conversations.store(input.id,input.messages);});
+  ipcMain.handle('yuki:conversation-store',(event,input)=>{guard(event);if(!input||typeof input!=='object'||Array.isArray(input))throw Error('这段对话已达到本机保存上限，请新建对话后继续。');return conversations.store(input.id,input.messages,input);});
   ipcMain.handle('yuki:conversation-new',event=>{guard(event);return conversations.create();});
   ipcMain.handle('yuki:conversation-open',(event,id)=>{guard(event);return conversations.open(id);});
   ipcMain.handle('yuki:conversation-rename',(event,input)=>{guard(event);if(!input||typeof input!=='object'||Array.isArray(input))throw Error('会话参数无效');return conversations.rename(input.id,input.title);});
@@ -192,12 +217,40 @@ function configureIpc(){
 }
 function createTray(){
   try {
-    tray=new Tray(path.join(__dirname,'../icons/yuki-tray.ico'));
+    tray=new Tray(iconPathForState('frozen'));
     tray.setToolTip('yuki · 桌面小屋');
     refreshTray();
     tray.on('click',showConsole);tray.on('double-click',showConsole);
   }catch(error){log(`托盘不可用：${error.message}`);tray=null;}
 }
+function iconPathForState(state){
+ const stem=state==='frozen'?'yuki-desktop-frozen-block-v10':'yuki-desktop-active-neat-v8';
+ return path.join(__dirname,`../icons/${stem}.ico`);
+}
+function refreshAvatarIcons(){setAvatarIconState(avatarIconState);}
+function updateDesktopShortcutIcon(state){
+ if(process.platform!=='win32'||!app.isPackaged)return Promise.resolve(false);
+ const helper=path.join(__dirname,'desktop-shortcut-icon.ps1');
+ const iconPath=iconPathForState(state);
+ const run=()=>new Promise(resolve=>{
+  const powershell=path.join(process.env.SystemRoot||'C:\\Windows','System32','WindowsPowerShell','v1.0','powershell.exe');
+  const child=spawn(powershell,['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',helper,'-TargetExe',process.execPath,'-IconPath',iconPath],{windowsHide:true,stdio:'ignore'});
+  child.once('error',error=>{log(`更新桌面快捷方式图标失败：${error.message}`);resolve(false);});
+  child.once('close',code=>{if(code!==0)log(`更新桌面快捷方式图标失败，退出代码 ${code}`);resolve(code===0);});
+ });
+ desktopShortcutWork=desktopShortcutWork.then(run,run);
+ return desktopShortcutWork;
+}
+function setAvatarIconState(state){
+ avatarIconState=state;
+ const image=nativeImage.createFromPath(iconPathForState(state));
+ if(!image.isEmpty()){
+  if(tray&&!tray.isDestroyed())tray.setImage(image);
+  if(window&&!window.isDestroyed())window.setIcon(image);
+ }
+ void updateDesktopShortcutIcon(state);
+}
+
 function refreshTray(){
  if(!tray||tray.isDestroyed())return;
  const perform=(name,payload={})=>sidecar.request(name,payload).catch(error=>{log(error);send('yuki:disconnected',error.message);});
@@ -248,9 +301,14 @@ async function registerResources(){
 }
 async function createConsole(){
   window=new BrowserWindow({title:'yuki · 桌面小屋',width:900,height:740,minWidth:520,minHeight:420,resizable:true,movable:true,
-    icon:path.join(__dirname,'../icons/yuki-taskbar.ico'),
+    icon:iconPathForState('frozen'),
     show:false,backgroundColor:'#E8EEF3',webPreferences:{...webPreferences(path.join(__dirname,'../preload/console.cjs')),backgroundThrottling:false}});
   harden(window);window.setMenuBarVisibility(false);
+  let visible=workbenchVisible();
+  for(const event of ['show','hide','minimize','restore'])window.on(event,()=>{
+    const next=workbenchVisible();
+    if(next!==visible){visible=next;send('yuki:workbench-visibility',next);}
+  });
   window.on('close',event=>{const behavior=closeBehavior({quitting,trayReady:!!tray});
     if(behavior!=='close'){event.preventDefault();if(behavior==='hide')window.hide();else window.minimize();}});
   window.webContents.on('render-process-gone',(_event,details)=>{log(`界面进程退出：${details.reason}`);if(!quitting)showConsole();});
@@ -264,6 +322,8 @@ else {
   app.on('window-all-closed',()=>{});
   app.whenReady().then(async()=>{
     await registerResources();
+    await updateDesktopShortcutIcon('frozen');
+    nativeTheme.on('updated',refreshAvatarIcons);
     updater=new Updater({
       app, log, enabled:app.isPackaged && process.platform==='win32' && process.arch==='x64' && !smoke,
       changed:value=>send('yuki:update-status',value), quit:()=>void stopAndQuit(),
@@ -279,8 +339,8 @@ else {
     modelConfig.ensureReady=endpoint=>endpoint===LOCAL_ENDPOINT?(modelConfig.builtinEnabled?localModel.ensure():Promise.reject(Error('内置模型已关闭，请在设置 → 通用中开启，或切换云端 API。'))):Promise.resolve();
     if(modelConfig.builtinEnabled&&modelConfig.value.endpoint===LOCAL_ENDPOINT)void localModel.ensure().catch(error=>log('本地 Qwen：'+error.message));
     const {WorkbenchConfig}=require('./workbench-config.cjs');workbenchConfig=new WorkbenchConfig(path.join(app.getPath('userData'),'workbench.json'));
-    conversations=new Conversations(path.join(app.getPath('userData'),'conversations.json'),{log});
-    if(!conversations.sessions.length)conversations.create();
+    conversations=await Conversations.loadAsync(path.join(app.getPath('userData'),'conversations.json'),{log});
+    if(!conversations.sessions.length)await conversations.create();
     assistant.configure(modelConfig);
     desktopServices=new DesktopServices({app,clipboard,powerMonitor,log,react:async entry=>{
       send('yuki:desktop-event',entry);
@@ -288,7 +348,7 @@ else {
     }});
     // Only a signal goes out: the renderer pulls a snapshot when it is actually looking,
     // and nothing is produced at all while the workbench is hidden.
-    desktopServices.onChanged=()=>{if(window&&!window.isDestroyed()&&window.isVisible())send('yuki:desktop-changed',{at:Date.now()});};
+    desktopServices.onChanged=()=>{if(workbenchVisible())send('yuki:desktop-changed',{at:Date.now()});};
     const {QuickTools}=require('./quick-tools.cjs');
     quickTools=new QuickTools({desktop:desktopServices,deliver:payload=>sidecar.ready?sidecar.request('quick_tools_update',payload):Promise.resolve(),forward:value=>send('yuki:quick-tool',value),timers:()=>timers});
     desktopServices.notify=notifyDesktop;
@@ -296,7 +356,10 @@ else {
     // Focus, todos and health reminders are scheduled here rather than in the page, so closing
     // the workbench no longer stops the clock.
     timers=new WorkbenchTimers({file:path.join(app.getPath('userData'),'workbench-timers.json'),notify:notifyDesktop,powerMonitor,log,
-      changed:()=>{if(window&&!window.isDestroyed())send('yuki:workbench-timers',timers.snapshot());}});
+      changed:(value=timers.snapshot())=>{
+        send('yuki:workbench-timers',value);
+        if(timers&&sidecar?.ready)void quickTools.publish().catch(log);
+      }});
     timers.start();
     const {Translation}=require('./translation.cjs');
     const {TranslationWindows}=require('./translation-windows.cjs');

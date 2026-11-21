@@ -7,6 +7,7 @@ const {spawn}=require('node:child_process');
 const {pinyin}=require('pinyin-pro');
 
 const CLIPBOARD_PREVIEW=240,CLIPBOARD_LIMIT=256000;
+function localDateKey(timestamp){const value=new Date(timestamp);return `${value.getFullYear()}-${String(value.getMonth()+1).padStart(2,'0')}-${String(value.getDate()).padStart(2,'0')}`;}
 class ClipboardHistory {
   constructor(){this.entries=[];this.paused=false;this.last='';}
   capture(text){
@@ -99,8 +100,9 @@ class DesktopServices {
   }
   event(kind,text){
     if(!['usb','charging','download','success','failure','thinking','working','waiting','done','error'].includes(kind))return;
+    const now=Date.now(),today=localDateKey(now);this.events=this.events.filter(item=>localDateKey(item.at)===today);
     const last=this.events[0];if(last&&last.kind===kind&&last.text===text&&Date.now()-last.at<10000)return;
-    const entry={kind,text:String(text).slice(0,180),at:Date.now()};this.events=[entry,...this.events].slice(0,20);
+    const entry={kind,text:String(text).slice(0,180),at:now};this.events=[entry,...this.events].slice(0,20);
     Promise.resolve(this.react(entry)).catch(error=>this.fail('事件转发',error));
     this.changed();
   }
@@ -204,10 +206,12 @@ class DesktopServices {
     this.system={cpu,memoryUsed,memoryTotal:os.totalmem()};this.cpuPrevious=next;
     if(moved)this.changed();
   }
+  clipboardSnapshot(){return {clipboard:this.history.payload(),clipboardPaused:this.history.paused};}
   snapshot(){
+    const today=localDateKey(Date.now());this.events=this.events.filter(item=>localDateKey(item.at)===today);
     let autostart;
     try{autostart=!!this.app.getLoginItemSettings?.().openAtLogin;}catch(error){this.fail('开机自启读取',error);}
-    return {clipboard:this.history.payload(),clipboardPaused:this.history.paused,media:this.media,battery:this.battery,drives:this.drives,events:this.events,weather:this.weather,city:this.city,inbox:this.inbox,system:this.system,autostart};
+    return {...this.clipboardSnapshot(),media:this.media,battery:this.battery,drives:this.drives,events:this.events,weather:this.weather,city:this.city,inbox:this.inbox,system:this.system,autostart};
   }
   clipboardBody(id){
     if(typeof id!=='string'||!/^[a-f0-9]{64}$/.test(id))throw new Error('记录编号无效');

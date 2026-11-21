@@ -1,5 +1,10 @@
 'use strict';
 // Native popup is a projection of existing workbench state, never a second store.
+function dueAfter(now,minutes){
+  if(!minutes)return '';
+  const due=new Date(now+minutes*60_000);
+  return new Date(due.getTime()-due.getTimezoneOffset()*60_000).toISOString().slice(0,16);
+}
 function validateWorkbench(value){
   if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).some(k=>!['focus','todos'].includes(k)))throw Error('快捷工具状态无效');
   const {focus,todos}=value;
@@ -26,10 +31,20 @@ function validateAction(name,value){
 }
 class QuickTools{
   constructor({desktop,deliver,forward,timers=()=>null}){Object.assign(this,{desktop,deliver,forward,timers});this.work=null;}
+  timerService(){return typeof this.timers==='function'?this.timers():this.timers;}
   async sync(value){this.work=validateWorkbench(value);await this.publish();}
-  async publish(error=''){return this.deliver(project(this.desktop.snapshot(),this.work,error));}
+  async publish(error=''){
+    const timers=this.timerService();
+    let work=this.work;
+    if(timers?.changeTodo){
+      const {focus,todos}=timers.snapshot();
+      work=validateWorkbench({focus,todos});
+    }
+    const clipboard=this.desktop.clipboardSnapshot?.()??this.desktop.snapshot();
+    return this.deliver(project(clipboard,work,error));
+  }
   applyFocus(name,value){
-    const timers=typeof this.timers==='function'?this.timers():this.timers;
+    const timers=this.timerService();
     if(!timers)throw Error('计时器正在连接，请稍后重试');
     const {focus}=timers.snapshot(),now=timers.now();let next;
     if(name==='focus-toggle')next=focus.end?{...focus,remaining:Math.max(0,Math.ceil((focus.end-now)/1000)),end:null}:{...focus,end:now+focus.remaining*1000};
@@ -47,6 +62,12 @@ class QuickTools{
       if(name==='snapshot')return await this.publish();
       if(name.startsWith('clipboard-')){await this.desktop.action({name,value});return await this.publish();}
       if(name.startsWith('focus-')){this.applyFocus(name,value);return await this.publish();}
+      const timers=this.timerService();
+      if(timers?.changeTodo){
+        if(name==='todo-done')timers.changeTodo({kind:'update',id:value,done:true});
+        else timers.changeTodo({kind:'add',text:value.text,due:dueAfter(timers.now(),value.minutes)});
+        return;
+      }
       if(!this.work)throw Error('工作台正在连接，请稍后重试');
       if(name==='todo-add'&&this.work.todos.length>=200)throw Error('待办已满，请在工作台清理已完成条目');
       this.forward({name,value});

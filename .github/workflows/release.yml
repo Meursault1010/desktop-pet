@@ -46,6 +46,7 @@ jobs:
         shell: pwsh
         run: |
           $env:YUKI_PACKAGE_OUTPUT = Join-Path $PWD 'releases/electron/yuki-win32-x64-release-candidate-v2'
+          $env:YUKI_SPLIT_RELEASE = '1'
           ./build-electron.ps1 -Python python
       - name: Free build caches before archiving
         shell: pwsh

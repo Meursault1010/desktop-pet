@@ -50,7 +50,9 @@ export interface DesktopHost {
   quickToolsSubscribe?(listener:(value:{name:string;value?:unknown})=>void):()=>void;
   workbenchConfig?():Promise<WorkbenchConfig>;
   workbenchSet?(input:Partial<WorkbenchConfig>):Promise<WorkbenchConfig>;
-  windowMode?(wide:boolean):Promise<{wide:boolean}>;
+  windowMode?(wide:boolean,animate?:boolean):Promise<{wide:boolean}>;
+  workbenchVisibility?():Promise<boolean>;
+  workbenchVisibilitySubscribe?(listener:(visible:boolean)=>void):()=>void;
   readonly kind: 'electron' | 'tauri';
   request(name: string, payload: Record<string, unknown>): Promise<Message>;
   subscribe(onMessage: (message: Message) => void, onDisconnect: (reason: string) => void): Promise<() => void>;
@@ -81,8 +83,9 @@ export interface DesktopHost {
   desktopSubscribe?(listener:(event:DesktopEvent)=>void):()=>void;
   clipboardRead?(id:string):Promise<string>;
   workbenchTimers?():Promise<TimersSnapshot>;
-  workbenchTimersSet?(patch:{focus?:Partial<TimersFocus>;todos?:TimersTodo[];health?:Partial<TimersHealth>}):Promise<TimersSnapshot>;
+  workbenchTimersSet?(patch:{focus?:Partial<TimersFocus>;todos?:TimersTodo[];health?:Partial<TimersHealth>},onlyIfPristine?:boolean):Promise<TimersSnapshot>;
   workbenchTimersSubscribe?(listener:(value:TimersSnapshot)=>void):()=>void;
+  workbenchTodoChange?(change:TimersTodoChange):Promise<TimersSnapshot>;
   builtinModelSet?(enabled:boolean):Promise<ModelConfigSnapshot>;
   modelDiscover?():Promise<LocalService[]>;
   modelConfig?():Promise<ModelConfigSnapshot>;
@@ -97,10 +100,14 @@ export interface DesktopHost {
 }
 export type WorkbenchConfig={theme:'light'|'mist'|'dark';reduced:boolean;particles:boolean;buttonHints:boolean;bubble:'light'|'mist'|'dark';persona:string;memory:string;shortcuts:Record<string,string>;shortcutStatus?:Record<string,string>};
 // Focus, todos and health reminders live in the main process; these are the shapes it owns.
-export type TimersFocus={end:number|null;remaining:number;duration:number;breakDuration:number;completed:number;mode:'focus'|'break'};
+export type TimersFocus={end:number|null;remaining:number;duration:number;breakDuration:number;completed:number;completedDate?:string;mode:'focus'|'break'};
 export type TimersTodo={id:string;text:string;due:string;done:boolean;notified?:boolean};
+export type TimersTodoChange=
+ | {kind:'add';text:string;due:string}
+ | {kind:'update';id:string;done?:boolean;due?:string}
+ | {kind:'remove';id:string};
 export type TimersHealth={enabled:boolean;minutes:number;next:number};
-export type TimersSnapshot={focus:TimersFocus;todos:TimersTodo[];health:TimersHealth;serverTime:number};
+export type TimersSnapshot={focus:TimersFocus;todos:TimersTodo[];health:TimersHealth;serverTime:number;revision?:number};
 
 declare global {
   interface Window { yukiHost?: DesktopHost }

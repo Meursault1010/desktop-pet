@@ -1,0 +1,101 @@
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-motion="reduced"]) :is(.observatory, .dialog-content) button:not(:disabled, [aria-disabled="true"]) {
+    transition: scale 160ms var(--ease-out), background-color 160ms, border-color 160ms;
+  }
+
+  :root:not([data-motion="reduced"]) :is(.observatory, .dialog-content) button:active:not(:disabled, [aria-disabled="true"]) {
+    scale: .97;
+  }
+
+  :root:not([data-motion="reduced"]) .observatory input[type="range"]::-webkit-slider-thumb {
+    transition: scale 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+  }
+
+  :root:not([data-motion="reduced"]) .observatory input[type="range"]:active:not(:disabled)::-webkit-slider-thumb {
+    scale: 1.35;
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  .observatory[data-startup-motion] > :is(.window-bar, .observatory-nav) {
+    animation: workbench-startup-chrome 240ms var(--ease-out) 60ms backwards;
+  }
+
+  .observatory[data-startup-motion] .main-heading {
+    animation: workbench-startup-content 260ms var(--ease-out) 130ms backwards;
+  }
+
+  .observatory[data-startup-motion] .widget-grid > .workspace-widget {
+    animation: workbench-startup-content 260ms var(--ease-out) var(--entrance-delay, 180ms) backwards;
+  }
+
+  .observatory[data-startup-motion] .widget-grid > .workspace-widget:nth-child(2) { --entrance-delay: 260ms; }
+  .observatory[data-startup-motion] .widget-grid > .workspace-widget:nth-child(3) { --entrance-delay: 340ms; }
+  .observatory[data-startup-motion] .widget-grid > .workspace-widget:nth-child(4) { --entrance-delay: 420ms; }
+
+  @keyframes workbench-startup-chrome {
+    from { opacity: .55; }
+    to { opacity: 1; }
+  }
+
+  @keyframes workbench-startup-content {
+    from { opacity: .42; translate: 0 6px; }
+    to { opacity: 1; translate: 0 0; }
+  }
+}
+
+@property --workbench-pull {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+.observatory [data-scroll-pull] > :not(.workspace-stars) {
+  translate: 0 var(--workbench-pull);
+}
+
+.observatory [data-selection-track] {
+  position: relative;
+  isolation: isolate;
+}
+
+.observatory [data-selection-track]::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: var(--selection-width);
+  height: var(--selection-height);
+  translate: var(--selection-x) var(--selection-y);
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+.observatory [data-selection-track="nav"]::after {
+  background: linear-gradient(var(--accent), var(--accent)) left center / 3px 48% no-repeat, var(--surface);
+}
+
+.observatory [data-selection-track="tab"]::after {
+  background: linear-gradient(var(--accent), var(--accent)) bottom / 100% 2px no-repeat;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.observatory .observatory-nav [data-selection-track] button.active,
+.observatory [data-selection-track="pill"] button.selected {
+  background: transparent;
+  box-shadow: none;
+}
+
+.observatory .observatory-nav [data-selection-track] button.active::before,
+.observatory [data-selection-track="tab"] button[aria-selected="true"]::after {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-motion="reduced"]) .observatory [data-selection-track]::after {
+    --selection-spring: linear(0,.10 8%,.43 20%,.76 34%,.95 52%,1.016 74%,1);
+    transition: translate 330ms var(--selection-spring), width 330ms var(--selection-spring), height 330ms var(--selection-spring);
+  }
+}

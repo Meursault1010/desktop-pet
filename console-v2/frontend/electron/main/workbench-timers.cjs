@@ -10,6 +10,8 @@ const {randomUUID}=require('node:crypto');
 const MAX_TODOS=200,MAX_TEXT=200,MAX_FOCUS=180,MAX_BREAK=60,MAX_HEALTH=240,MAX_END_AHEAD=21600000;
 
 function bounded(value,min,max,fallback){return Number.isFinite(value)&&Math.round(value)>=min&&Math.round(value)<=max?Math.round(value):fallback;}
+function localDateKey(timestamp){const value=new Date(timestamp);return `${value.getFullYear()}-${String(value.getMonth()+1).padStart(2,'0')}-${String(value.getDate()).padStart(2,'0')}`;}
+function nextLocalMidnight(timestamp){const value=new Date(timestamp);value.setHours(24,0,0,0);return value.getTime();}
 
 function focusValue(input,previous,now){
   const merged={...previous,...(input&&typeof input==='object'&&!Array.isArray(input)?input:{})};
@@ -18,25 +20,54 @@ function focusValue(input,previous,now){
   const mode=merged.mode==='break'?'break':'focus';
   const end=Number.isFinite(merged.end)&&merged.end>0?Math.round(Math.min(merged.end,now+MAX_END_AHEAD)):null;
   const limit=(mode==='break'?breakDuration:duration)*60;
+  const today=localDateKey(now),completed=merged.completedDate===today&&Number.isFinite(merged.completed)?Math.max(0,Math.floor(merged.completed)):0;
   return {duration,breakDuration,mode,end,
-    completed:Number.isFinite(merged.completed)?Math.max(0,Math.floor(merged.completed)):0,
+    completed,completedDate:today,
     remaining:Number.isFinite(merged.remaining)?Math.max(0,Math.min(limit,Math.round(merged.remaining))):limit};
 }
 
-// The renderer edits the list, but only this module marks a reminder as spent, so a stale
-// patch can never re-arm one that already fired. Editing the time is a fresh intent.
-function todoValue(list,previous){
+function normalizeTodo(item,previous){
+  if(!item||typeof item!=='object'||Array.isArray(item))throw new Error('待办事项无效');
+  const text=typeof item.text==='string'?item.text.replace(/\s+/g,' ').trim().slice(0,MAX_TEXT):'';
+  if(!text)throw new Error('待办内容不能为空');
+  const id=typeof item.id==='string'&&item.id?item.id.slice(0,80):randomUUID();
+  const due=typeof item.due==='string'&&Number.isFinite(Date.parse(item.due))?item.due:'';
+  return {id,text,due,done:item.done===true,notified:!!(previous?.due===due&&previous.notified===true)};
+}
+
+// Whole-list inputs are retained for migration and old callers. Only the store
+// marks reminders as spent, and a changed deadline is a fresh reminder.
+function todoValue(list,previous,{loading=false}={}){
   if(!Array.isArray(list))throw new Error('待办列表无效');
   const known=new Map(previous.map(item=>[item.id,item]));
   return list.slice(0,MAX_TODOS).map(item=>{
-    if(!item||typeof item!=='object'||Array.isArray(item))throw new Error('待办事项无效');
-    const text=typeof item.text==='string'?item.text.replace(/\s+/g,' ').trim().slice(0,MAX_TEXT):'';
-    if(!text)throw new Error('待办内容不能为空');
-    const id=typeof item.id==='string'&&item.id?item.id.slice(0,80):randomUUID();
-    const due=typeof item.due==='string'&&Number.isFinite(Date.parse(item.due))?item.due:'';
-    const was=known.get(id);
-    return {id,text,due,done:item.done===true,notified:was&&was.due===due?was.notified===true:false};
+    const id=typeof item?.id==='string'?item.id.slice(0,80):null;
+    return normalizeTodo(item,loading?item:known.get(id));
   });
+}
+
+function changeTodoList(list,change){
+  if(!change||typeof change!=='object'||Array.isArray(change))throw new Error('待办操作无效');
+  const validKeys=keys=>Object.keys(change).every(key=>keys.includes(key));
+  if(change.kind==='add'&&validKeys(['kind','text','due'])
+      &&typeof change.text==='string'&&change.text.length<=MAX_TEXT&&typeof change.due==='string'&&change.due.length<=40){
+    if(list.length>=MAX_TODOS)throw new Error('待办已满，请在工作台清理已完成条目');
+    return [...list,normalizeTodo({text:change.text,due:change.due})];
+  }
+  if(typeof change.id!=='string'||!change.id||change.id.length>160)throw new Error('待办编号无效');
+  const index=list.findIndex(item=>item.id===change.id);
+  if(change.kind==='remove'&&validKeys(['kind','id']))return index===-1?list:list.filter((_,i)=>i!==index);
+  if(change.kind==='update'&&validKeys(['kind','id','done','due'])
+      &&(change.done!==undefined||change.due!==undefined)
+      &&(change.done===undefined||typeof change.done==='boolean')
+      &&(change.due===undefined||typeof change.due==='string'&&change.due.length<=40)){
+    if(index===-1)return list;
+    const before=list[index];
+    const next=normalizeTodo({...before,done:change.done??before.done,due:change.due??before.due},before);
+    if(next.due===before.due&&next.done===before.done)return list;
+    return list.map((item,i)=>i===index?next:item);
+  }
+  throw new Error('待办操作无效');
 }
 
 function healthValue(input,previous){
@@ -49,9 +80,9 @@ class WorkbenchTimers {
   constructor({file,notify=()=>{},changed=()=>{},powerMonitor=null,log=()=>{},now=Date.now,
     setTimeoutImpl=(fn,ms)=>setTimeout(fn,ms),clearTimeoutImpl=timer=>clearTimeout(timer)}={}) {
     Object.assign(this,{file,notify,changed,powerMonitor,log,now,setTimeoutImpl,clearTimeoutImpl});
-    this.focus={end:null,remaining:1500,duration:25,breakDuration:5,completed:0,mode:'focus'};
+    this.focus={end:null,remaining:1500,duration:25,breakDuration:5,completed:0,completedDate:localDateKey(this.now()),mode:'focus'};
     this.todos=[];this.health={enabled:false,minutes:50,next:0};
-    this.timer=null;this.paused=false;this.history=[];this.listening=[];
+    this.timer=null;this.paused=false;this.history=[];this.listening=[];this.revision=0;
     this.load();
   }
   load(){
@@ -60,8 +91,9 @@ class WorkbenchTimers {
     try{saved=JSON.parse(fs.readFileSync(this.file,'utf8'));}catch{return;}
     if(!saved||typeof saved!=='object'||Array.isArray(saved))return;
     const now=this.now();
-    this.focus=focusValue(saved.focus,this.focus,now);
-    try{this.todos=todoValue(Array.isArray(saved.todos)?saved.todos:[],[]);}catch{this.todos=[];}
+    const today=localDateKey(now),savedFocus=saved.focus&&typeof saved.focus==='object'?saved.focus:{};
+    this.focus=focusValue({...savedFocus,completed:savedFocus.completedDate===today?savedFocus.completed:0,completedDate:today},this.focus,now);
+    try{this.todos=todoValue(Array.isArray(saved.todos)?saved.todos:[],[],{loading:true});}catch{this.todos=[];}
     this.health=healthValue(saved.health,this.health);
   }
   save(){
@@ -73,11 +105,29 @@ class WorkbenchTimers {
       fs.renameSync(temp,this.file);
     }catch(error){this.log('计时状态写入失败：'+String(error.message||error));}
   }
-  snapshot(){return {focus:{...this.focus},todos:this.todos.map(item=>({...item})),health:{...this.health},serverTime:this.now()};}
+  rollFocusDay(now=this.now()){
+    const today=localDateKey(now);
+    if(this.focus.completedDate===today)return false;
+    this.focus={...this.focus,completed:0,completedDate:today};
+    return true;
+  }
+  snapshot(){const now=this.now();if(this.rollFocusDay(now))this.save();return {focus:{...this.focus},todos:this.todos.map(item=>({...item})),health:{...this.health},serverTime:now,revision:++this.revision};}
+  changeTodo(change){
+    const next=changeTodoList(this.todos,change);
+    if(next===this.todos)return this.snapshot();
+    this.todos=next;
+    this.rollFocusDay();
+    this.save();
+    this.arm();
+    const value=this.snapshot();
+    this.changed(value);
+    return value;
+  }
   apply(input){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>!['focus','todos','health'].includes(key)))throw new Error('计时状态无效');
     const now=this.now();
-    if(input.focus!==undefined)this.focus=focusValue(input.focus,this.focus,now);
+    this.rollFocusDay(now);
+    if(input.focus!==undefined){const focusPatch={...input.focus};if(typeof focusPatch.completedDate!=='string'){focusPatch.completed=this.focus.completed;focusPatch.completedDate=this.focus.completedDate;}this.focus=focusValue(focusPatch,this.focus,now);}
     if(input.todos!==undefined)this.todos=todoValue(input.todos,this.todos);
     if(input.health!==undefined)this.health=healthValue(input.health,this.health);
     this.save();this.arm();
@@ -86,7 +136,7 @@ class WorkbenchTimers {
   // A rest deadline is only interesting while no focus session is running; leaving it out
   // keeps the scheduled wake-up from firing every 50ms on a `next` we deliberately ignore.
   nextDeadline(){
-    const at=[];
+    const at=[nextLocalMidnight(this.now())];
     if(this.focus.end)at.push(this.focus.end);
     for(const item of this.todos)if(!item.done&&!item.notified&&item.due){const due=Date.parse(item.due);if(Number.isFinite(due))at.push(due);}
     if(!this.focus.end&&this.health.enabled&&this.health.next)at.push(this.health.next);
@@ -100,7 +150,7 @@ class WorkbenchTimers {
     this.timer=this.setTimeoutImpl(()=>{this.timer=null;this.advance();this.arm();},Math.max(0,next-this.now())+50);
   }
   advance(){
-    const now=this.now(),fired=[];
+    const now=this.now(),fired=[],dayChanged=this.rollFocusDay(now);
     if(this.focus.end&&now>=this.focus.end){
       const focusEnded=this.focus.mode==='focus',breakMinutes=this.focus.breakDuration;
       this.focus={...this.focus,end:null,mode:focusEnded?'break':'focus',
@@ -118,6 +168,7 @@ class WorkbenchTimers {
       fired.push({kind:'rest',at:now,text:'休息一下，喝点水，看看远处。雪陪你缓一缓。'});
     }
     if(fired.length){this.save();this.deliver(fired);}
+    else if(dayChanged){this.save();this.changed();}
     return fired;
   }
   deliver(fired){

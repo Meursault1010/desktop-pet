@@ -1,5 +1,6 @@
 """Ambient actions use a shuffled bag so every available pose gets a turn."""
 import random
+import time
 from idle_states import AUTOMATIC_ACTIONS, STATES, posture_for
 
 IDLE_ACTIONS = AUTOMATIC_ACTIONS

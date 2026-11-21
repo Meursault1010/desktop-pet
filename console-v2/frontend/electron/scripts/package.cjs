@@ -52,7 +52,8 @@ async function main(){
   for(const output of paths){
     const bundledModel=path.join(output,'resources/local-model/qwen');
     fs.mkdirSync(bundledModel,{recursive:true});
-    fs.copyFileSync(path.join(localModel,'Qwen3.8-4B-Q4_K_M.gguf'),path.join(bundledModel,'Qwen3.8-4B-Q4_K_M.gguf'));
+    // GitHub ships the identical weights separately; local full builds still carry them.
+    if(process.env.YUKI_SPLIT_RELEASE!=='1')fs.copyFileSync(path.join(localModel,'Qwen3.8-4B-Q4_K_M.gguf'),path.join(bundledModel,'Qwen3.8-4B-Q4_K_M.gguf'));
     fs.cpSync(llamaRuntime,path.join(bundledModel,'runtime'),{recursive:true});
     fs.copyFileSync(path.join(localModel,'README.md'),path.join(bundledModel,'MODEL-NOTICE.txt'));
     fs.cpSync(selection,path.join(output,'resources/selection'),{recursive:true});

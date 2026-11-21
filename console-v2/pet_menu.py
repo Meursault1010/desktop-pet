@@ -1,7 +1,7 @@
 """Shared, keyboard-accessible menu for the pet and the system tray."""
 from html import escape
 from pet_quick_tools import QuickToolsPane
-from pet_ui_style import palette, motion_allowed
+from pet_ui_style import PET_MENU_NAME, palette, motion_allowed
 from PySide6.QtCore import QSize, Qt, QTimer, QVariantAnimation, QPropertyAnimation, QEasingCurve, QPointF, QRectF
 from PySide6.QtGui import QColor, QCursor, QGuiApplication, QFont, QIcon, QPainter, QPen, QPixmap, QPainterPath
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMenu, QToolButton, QVBoxLayout, QWidget, QWidgetAction, QTextBrowser, QTabBar, QStackedWidget, QScrollArea, QFrame, QSizePolicy, QGraphicsOpacityEffect
@@ -70,9 +70,10 @@ class CelestialHeader(QWidget):
         self.star_color = QColor('#7fa8c2')
         self.accent_color = QColor('#638fae')
         self.reveal = QVariantAnimation(self)
-        self.reveal.setStartValue(.25)
-        self.reveal.setEndValue(.8)
-        self.reveal.setDuration(1800)
+        self.reveal.setStartValue(.32)
+        self.reveal.setEndValue(.72)
+        self.reveal.setDuration(220)
+        self.reveal.setEasingCurve(QEasingCurve.Type.OutCubic)
         self.reveal.valueChanged.connect(self.set_starlight)
 
     def mousePressEvent(self, event):
@@ -125,7 +126,7 @@ class CelestialHeader(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         # One small brand mark leaves the status and drag area uncluttered.
         painter.save()
-        painter.translate(self.width()-24, 25)
+        painter.translate(self.width()-23, self.height()*.46)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setOpacity(self.starlight)
         path = QPainterPath()
@@ -137,7 +138,7 @@ class CelestialHeader(QWidget):
         painter.drawPath(path)
         painter.restore()
         painter.setPen(QPen(self.line_color, 1))
-        painter.drawLine(12, self.height()-1, self.width()-12, self.height()-1)
+        painter.drawLine(8, self.height()-1, self.width()-8, self.height()-1)
         painter.end()
 
 
@@ -186,55 +187,120 @@ class MenuResizeHandle(QWidget):
         painter.end()
 
 
+class QuickTabs(QTabBar):
+    """Move one selection surface while keeping native tab navigation."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._pill = QRectF()
+        self._palette = palette('mist')
+        self._reduced = False
+        self._travel = QVariantAnimation(self)
+        ease = QEasingCurve(QEasingCurve.Type.OutBack)
+        ease.setOvershoot(.42)
+        self._travel.setEasingCurve(ease)
+        self._travel.setDuration(280)
+        self._travel.valueChanged.connect(self._set_pill)
+        self.currentChanged.connect(self._track_tab)
+
+    def set_theme(self, colors, reduced):
+        self._palette = colors
+        self._reduced = reduced
+        if reduced:
+            self._track_tab(self.currentIndex(), animate=False)
+        self.update()
+
+    def _set_pill(self, bounds):
+        self._pill = QRectF(bounds)
+        self.update()
+
+    def _track_tab(self, index, animate=True):
+        self._travel.stop()
+        target = QRectF(self.tabRect(index)).adjusted(1., 0., -1., 0.)
+        if (animate and self.isVisible() and not self._pill.isEmpty()
+                and motion_allowed(self._reduced)):
+            self._travel.setStartValue(self._pill)
+            self._travel.setEndValue(target)
+            self._travel.start()
+        else:
+            self._set_pill(target)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._track_tab(self.currentIndex(), animate=False)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._track_tab(self.currentIndex(), animate=False)
+
+    def hideEvent(self, event):
+        self._travel.stop()
+        super().hideEvent(event)
+
+    def paintEvent(self, event):
+        if not self._pill.isEmpty():
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            painter.setPen(QPen(QColor(self._palette['line']), 1))
+            painter.setBrush(QColor(self._palette['bg']))
+            painter.drawRoundedRect(self._pill.adjusted(.5, .5, -.5, -.5), 7, 7)
+            painter.end()
+        super().paintEvent(event)
+
+
 class CompanionMenu(QMenu):
     _last_size = QSize(328, 0)
     _user_resized = False
 
     def __init__(self, parent, avatar):
         super().__init__(parent)
-        self.setObjectName('yuki-menu')
+        self.setObjectName(PET_MENU_NAME)
         self.setFont(QFont('Microsoft YaHei UI', 10))
         self.setMinimumSize(280, 160)
         self._applying_size = False
-        self.setStyleSheet('''
-            QMenu { background: #fcfdff; color: #253b4e; border: 1px solid #d4e0e9;
-                    border-radius: 9px; padding: 7px; }
-            QMenu::item { padding: 11px 22px 11px 14px; border-radius: 5px; }
-            QMenu::item:selected { background: #eaf3f8; color: #306f96; }
-            QMenu::item:disabled { color: #96a5af; }
-            QMenu::separator { height: 1px; background: #e2e9ef; margin: 7px 10px; }
-            QMenu::indicator { width: 14px; height: 14px; margin-left: 10px;
-                               border: 1px solid #b9cad7; border-radius: 3px; }
-            QMenu::indicator:checked { background: #6293b4; border-color: #6293b4; }
-            QWidget#menu-header { background: transparent; }
-            QLabel { background: transparent; color: #253b4e; border: none; }
-        ''')
+        self._open_reveal = QPropertyAnimation(self, b'windowOpacity', self)
+        self._open_reveal.setStartValue(.74)
+        self._open_reveal.setEndValue(1.)
+        self._open_reveal.setDuration(185)
+        self._open_reveal.setEasingCurve(QEasingCurve.Type.OutCubic)
         header = CelestialHeader(self)
         self.celestial_header = header
-        for child in header.findChildren(QLabel):
-            child.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         row = QHBoxLayout(header)
-        row.setContentsMargins(14, 10, 36, 14)
-        row.setSpacing(12)
+        row.setContentsMargins(12, 8, 37, 12)
+        row.setSpacing(10)
+        portrait = QLabel(header)
+        portrait.setObjectName('menu-portrait')
+        portrait.setFixedSize(42, 42)
+        portrait.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        portrait.setPixmap(avatar.pixmap(34, 34))
+        row.addWidget(portrait)
         copy = QVBoxLayout()
-        copy.setSpacing(3)
+        copy.setSpacing(1)
         name = QLabel('yuki')
         name.setObjectName('wordmark')
         self.status = QLabel()
-        self.status.setStyleSheet('font-size: 11px; color: #657887;')
         copy.addWidget(name)
         copy.addWidget(self.status)
         self.routine = QLabel()
         self.routine.setWordWrap(True)
-        self.routine.setStyleSheet('font-size: 10px; color: #8196a5;')
         copy.addWidget(self.routine)
         row.addLayout(copy, 1)
-        for label in (name, self.status, self.routine):
+        for label in (portrait, name, self.status, self.routine):
             label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         action = QWidgetAction(self)
         action.setDefaultWidget(header)
         self.addAction(action)
         self.apply_theme('mist')
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if motion_allowed(getattr(getattr(self, 'chat_controller', None), 'ui_reduced', False)):
+            self._open_reveal.start()
+
+    def hideEvent(self, event):
+        self._open_reveal.stop()
+        self.setWindowOpacity(1.)
+        super().hideEvent(event)
 
     def keyPressEvent(self, event):
         # The popup menu also treats Enter as "activate and close". While the
@@ -261,9 +327,9 @@ class CompanionMenu(QMenu):
         p = palette(theme)
         self.setStyleSheet(f'''
             QWidget {{ font-family:'Microsoft YaHei UI'; }}
-            QMenu {{ background:{p['bg']}; color:{p['fg']}; border:1px solid {p['border']};
-                    border-radius:14px; padding:9px; font-size:13px; }}
-            QMenu::item {{ padding:10px 20px 10px 12px; border-radius:7px; margin:1px 0; }}
+            QMenu {{ background:{p['bg']}; color:{p['fg']}; border:1px solid {p['control']};
+                    border-radius:16px; padding:9px; font-size:13px; }}
+            QMenu::item {{ padding:8px 18px 8px 12px; border-radius:8px; margin:1px 0; }}
             QMenu::item:selected {{ background:{p['hover']}; color:{p['fg']}; }}
             QMenu::item:disabled {{ color:{p['muted']}; }}
             QMenu::separator {{ height:1px; background:{p['border']}; margin:6px 10px; }}
@@ -271,15 +337,16 @@ class CompanionMenu(QMenu):
                                border:1px solid {p['control']}; border-radius:3px; }}
             QMenu::indicator:checked {{ background:{p['accent']}; border-color:{p['accent']}; }}
             QWidget#menu-header, QLabel {{ background:transparent; color:{p['fg']}; border:none; }}
-            QLabel#wordmark {{ font:italic 26px 'Georgia'; color:{p['accent']}; }}
-            QTabBar {{ background:{p['inset']}; border-radius:8px; padding:3px; }}
-            QTabBar::tab {{ color:{p['muted']}; padding:7px 9px; margin:0 1px;
-                           border:1px solid transparent; border-radius:6px; font-size:12px; }}
-            QTabBar::tab:hover {{ color:{p['fg']}; background:{p['hover']}; }}
-            QTabBar::tab:selected {{ color:{p['fg']}; background:{p['bg']}; font-weight:600; }}
+            QLabel#wordmark {{ font:italic 24px 'Georgia'; color:{p['accent']}; }}
+            QLabel#menu-portrait {{ background:{p['inset']}; border:1px solid {p['line']}; border-radius:13px; }}
+            QTabBar {{ background:{p['inset']}; border:1px solid {p['line']}; border-radius:10px; padding:3px; }}
+            QTabBar::tab {{ color:{p['muted']}; padding:7px 8px; margin:0 1px; background:transparent;
+                           border:1px solid transparent; border-radius:7px; font-size:12px; }}
+            QTabBar::tab:hover {{ color:{p['fg']}; }}
+            QTabBar::tab:selected {{ color:{p['accent']}; font-weight:600; }}
             QTabBar:focus {{ border:1px solid {p['accent']}; }}
-            QTextBrowser {{ background:{p['inset']}; color:{p['fg']}; border:0;
-                           border-radius:10px; padding:12px; font-size:13px;
+            QTextBrowser {{ background:{p['inset']}; color:{p['fg']}; border:1px solid {p['line']};
+                           border-radius:12px; padding:12px; font-size:13px;
                            selection-background-color:{p['accent']}; selection-color:{p['on_accent']}; }}
             QLineEdit {{ background:{p['bg']}; color:{p['fg']}; border:1px solid {p['control']};
                         border-radius:8px; padding:8px 10px; font-size:13px;
@@ -333,9 +400,16 @@ class CompanionMenu(QMenu):
         self.status.setStyleSheet(f"font-size:12px;color:{p['fg']};")
         self.routine.setStyleSheet(f"font-size:12px;color:{p['muted']};")
         self.celestial_header.set_palette(p['line'], p['star'], p['accent'])
-        self.celestial_header.reveal.setDuration(200)
         self.celestial_header.reduced = reduced
+        if reduced:
+            self._open_reveal.stop()
+            self.setWindowOpacity(1.)
+            self.celestial_header.reveal.stop()
+            self.celestial_header.set_starlight(.65)
+            if hasattr(self, 'page_reveal'):
+                self.finish_page_reveal()
         if hasattr(self, 'chat_input'):
+            self.tabs.set_theme(p, reduced)
             self.chat_input.setStyleSheet('')
             self.chat_send.setStyleSheet('')
             self.chat_send.setIcon(menu_icon('send', p['on_accent']))
@@ -361,7 +435,7 @@ class CompanionMenu(QMenu):
         layout.setContentsMargins(10, 6, 10, 9)
         layout.setSpacing(7)
         composer.setFixedHeight(300)
-        self.tabs = QTabBar()
+        self.tabs = QuickTabs()
         self.tabs.setDrawBase(False)
         self.tabs.setExpanding(True)
         for title in ('对话', '剪贴板', '时间', '待办'): self.tabs.addTab(title)
@@ -372,7 +446,7 @@ class CompanionMenu(QMenu):
         self.page_opacity.setEnabled(False)
         self.pages.setGraphicsEffect(self.page_opacity)
         self.page_reveal = QPropertyAnimation(self.page_opacity, b'opacity', self)
-        self.page_reveal.setDuration(140)
+        self.page_reveal.setDuration(205)
         self.page_reveal.setEasingCurve(QEasingCurve.Type.OutCubic)
         self.page_reveal.finished.connect(lambda: self.page_opacity.setEnabled(False))
         self.aboutToHide.connect(self.finish_page_reveal)
@@ -484,7 +558,7 @@ class CompanionMenu(QMenu):
         self.finish_page_reveal()
         if self.isVisible() and motion_allowed(getattr(self.chat_controller, 'ui_reduced', False)):
             self.page_opacity.setEnabled(True)
-            self.page_reveal.setStartValue(.82)
+            self.page_reveal.setStartValue(.56)
             self.page_reveal.setEndValue(1.)
             self.page_reveal.start()
 

@@ -9,6 +9,7 @@ from locomotion import walking_speed
 from patrol_depth import PatrolDepth
 from patrol_passage import ScreenPassage
 from input_activity import idle_seconds
+from pet_ui_style import companion_menu_for
 
 from desktop_icons import desktop_exposed
 from action_player import catalog, lazy_roll_timeline
@@ -131,7 +132,7 @@ class Patrol:
     def suspend(self, now=None, reason=None):
         """Interrupt an errand and give up the back layer immediately.
 
-        Click, menu, drag, hide/show, quiet/pause, screen changes and tool
+        Click, drag, hide/show, quiet/pause, screen changes and tool
         reactions all take over the pet. A mask or z-order override from an
         abandoned backstage route must never outlive that plan.
         """
@@ -312,6 +313,7 @@ class Patrol:
 
     def blocked(self, *, ignore_sleep=False, ignore_support=False):
         p, s = self.pet, self.pet.state
+        popup = QApplication.activePopupWidget()
         return ((s.sleep.transitioning and not ignore_sleep) or not p.isVisible() or not p.desired_visible() or p.presence.active
                 or p.drag_origin is not None or s.physics.active or p.preferences.quiet
                 or p.preferences.paused or not p.preferences.random_movement
@@ -325,7 +327,7 @@ class Patrol:
                 or bool(p.bubble.parts and p.bubble.kind != 'ambient')
                 or bool(not ignore_support and s.edge_attachment and s.edge_attachment.active
                         and not (self.edge_started is not None and s.edge_attachment.started == self.edge_started))
-                or QApplication.activePopupWidget() is not None
+                or (popup is not None and companion_menu_for(p, popup) is None)
                 or bool(not ignore_support and self.icons.target and not (self.kind == 'lean' and self.icons.target is self.target
                                                    and self.icon_started == self.icons.started)))
 
@@ -339,7 +341,11 @@ class Patrol:
                     round((size or (self.pet.width(),self.pet.height()))[0]*scale),
                     round((size or (self.pet.width(),self.pet.height()))[1]*scale))
         try:
-            return desktop_exposed(physical, int(self.pet.winId()), (int(self.pet.bubble.winId()),))
+            ignored = (int(self.pet.bubble.winId()),)
+            menu = companion_menu_for(self.pet, QApplication.activePopupWidget())
+            if menu is not None:
+                ignored += (int(menu.winId()),)
+            return desktop_exposed(physical, int(self.pet.winId()), ignored)
         except (OSError, RuntimeError):
             return False
         finally:
@@ -1026,6 +1032,9 @@ class Patrol:
                 self.reason = ('安静或暂停模式，原地陪伴' if p.preferences.quiet or p.preferences.paused
                            else '睡眠或用户交互优先，暂不玩耍')
             return
+        menu_open = companion_menu_for(p, QApplication.activePopupWidget()) is not None
+        if menu_open and not self.active:
+            return
         self.settle_interruption(now)
         if (not self.active and not self.exploring and not self.demo
                 and p.preferences.autonomous_windows and now >= self.next_window_scan):
@@ -1125,8 +1134,8 @@ class Patrol:
                                       '目标或路径刚刚变了，停下来看看')
                     return
                 pointer = QCursor.pos()
-                if math.hypot(pointer.x()-self.destination[0]-p.width()/2,
-                              pointer.y()-self.destination[1]-p.height()/2) < max(120,p.height()*.65):
+                if not menu_open and math.hypot(pointer.x()-self.destination[0]-p.width()/2,
+                                                pointer.y()-self.destination[1]-p.height()/2) < max(120,p.height()*.65):
                     self.cancel(now, '鼠标来到附近，先让开活动空间')
                     return
             elif (self.phase == 'walking' or self.roll_origin) and now >= self.probe_at:
@@ -1140,7 +1149,7 @@ class Patrol:
                     self.react_change(now, 'listen', '前面的路被挡住了，先停一下')
                     return
                 pointer = QCursor.pos()
-                if self.phase == 'walking' and math.hypot(pointer.x()-p.x()-p.width()/2,
+                if not menu_open and self.phase == 'walking' and math.hypot(pointer.x()-p.x()-p.width()/2,
                                                         pointer.y()-p.y()-p.height()/2) < max(100,p.height()*.5):
                     self.cancel(now, '鼠标来到附近，停下让出空间')
                     return

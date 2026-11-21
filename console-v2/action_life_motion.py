@@ -5,7 +5,7 @@ from functools import lru_cache
 import cv2
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtGui import QImage
 
 
 @lru_cache(maxsize=4)
@@ -36,6 +36,15 @@ class ActionLifeMotion:
     def render(self, atlas, source, action_id, elapsed, target_size=None, scale=1., center=None, spread=.19, bob=0., sway=0., period=3.8, lean=0.):
         if action_id in self.EXCLUDED or action_id in {'sleep', 'sleep-enter', 'sleep-wake'}:
             return None
+        # The secondary motion is slow; recomputing it at 60Hz doubles paint
+        # cost for no visible gain. Check the 30Hz bucket before touching pixels.
+        bucket = round(elapsed*30)
+        width = source.width() if target_size is None else target_size
+        frame_key = (action_id, width, atlas.cacheKey(), source.getRect())
+        motion_key = (bucket, scale, center, spread, bob, sway, period, lean)
+        key = (frame_key, motion_key)
+        if key == self.last_key:
+            return self.last_image
         frame = (atlas.copy(source) if isinstance(atlas, QImage) else atlas.copy(source).toImage()).convertToFormat(
             QImage.Format.Format_RGBA8888_Premultiplied)
         if target_size is not None and target_size != frame.width():
@@ -43,24 +52,16 @@ class ActionLifeMotion:
                                  Qt.AspectRatioMode.IgnoreAspectRatio,
                                  Qt.TransformationMode.SmoothTransformation)
         size = frame.width()
-        # The secondary motion is slow; recomputing it at 60Hz doubles paint
-        # cost for no visible gain. Reuse the 30Hz bucket on alternate frames.
-        bucket = round(elapsed*30)
-        key = (action_id, size, atlas.cacheKey(), source.x(), source.y(), bucket,
-               scale, center, spread, bob, sway, period, lean)
-        if key == self.last_key:
-            return self.last_image
         unit = size/256
         rgba = np.frombuffer(frame.bits(), dtype=np.uint8,
                              count=size * size * 4).reshape(size, size, 4)
-        cache_key = (action_id, size, atlas.cacheKey(), source.x(), source.y())
-        bounds = self.cache.get(cache_key)
+        bounds = self.cache.get(frame_key)
         if bounds is None:
             ys, xs = np.nonzero(rgba[:, :, 3] > 12)
             if not len(xs):
                 return frame
             bounds = (int(xs.min()), int(ys.min()), int(xs.max()+1), int(ys.max()+1))
-            self.cache[cache_key] = bounds
+            self.cache[frame_key] = bounds
             if len(self.cache) > 256:
                 self.cache.pop(next(iter(self.cache)))
         x0, y0, x1, y1 = bounds
