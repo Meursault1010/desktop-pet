@@ -4,7 +4,7 @@
 
 ## 下载
 
-前往 [GitHub Releases](https://github.com/Meursault1010/desktop-pet/releases/latest) 下载 Windows x64 版本。
+点击release即可下载 Windows 最新版本。
 
 - **轻量版**下载发布页的 Windows 应用 ZIP，解压后运行 `yuki.exe`。请完整保留解压后的文件夹。
 - **本地模型版**额外下载同一发布页的两个模型分卷，与应用 ZIP 放在同一个下载目录。在解压出的应用文件夹打开 PowerShell：
