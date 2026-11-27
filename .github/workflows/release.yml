@@ -40,6 +40,7 @@ jobs:
         run: |
           Push-Location console-v2/frontend
           npm ci --no-audit --no-fund
+          if ($LASTEXITCODE) { throw "npm ci failed" }
           npm test
           Pop-Location
       - name: Build self-contained Windows app
