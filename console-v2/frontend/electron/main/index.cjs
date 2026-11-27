@@ -13,6 +13,9 @@ const logger=createMainLogger({file:path.join(app.getPath('logs'),'yuki.log'),mi
 global.console=logger.console;
 const log=logger.log;
 const {Updater}=require('./updater.cjs');
+const {GithubStar,githubAppClientId}=require('./github-star.cjs');
+const githubStar=new GithubStar(githubAppClientId(app.isPackaged
+  ? require('../../package.json').githubAppClientId : process.env.YUKI_GITHUB_APP_CLIENT_ID));
 const {Sidecar}=require('./sidecar.cjs');
 const {CSP,resourcePath,trusted,webPreferences,harden,closeBehavior}=require('./security.cjs');
 const {validate}=require('../shared/protocol.cjs');
@@ -26,6 +29,48 @@ const {coalesceUpdates}=require('./stream-coalesce.cjs');
 const {discoverLocalServices}=require('./local-services.cjs');
 const {LocalModel,ENDPOINT:LOCAL_ENDPOINT,MODEL:LOCAL_MODEL}=require('./local-model.cjs');
 let localModel;
+let builtinParts,builtinTask,builtinError='';
+const modelImportAbort=new AbortController();
+function builtinSnapshot(){
+  return {...modelConfig.snapshot(),builtinImporting:!!builtinTask,builtinImportError:builtinError};
+}
+function defaultLocalConnection(){
+  return !modelConfig.configUnavailable&&!modelConfig.connectionConfigured&&!modelConfig.key
+    &&['http://127.0.0.1:1235/v1','http://127.0.0.1:1234/v1'].includes(modelConfig.value.endpoint);
+}
+async function enableBuiltin(){
+  modelImportAbort.signal.throwIfAborted();
+  await modelConfig.setBuiltinEnabled(true);
+  try{
+    modelImportAbort.signal.throwIfAborted();
+    await localModel.resume();
+    modelImportAbort.signal.throwIfAborted();
+    if(defaultLocalConnection()&&!assistant.active&&!quickChat.busy){
+      await modelConfig.set({endpoint:LOCAL_ENDPOINT,model:LOCAL_MODEL});
+      assistant.configure(modelConfig);
+    }
+  }catch(error){
+    await modelConfig.setBuiltinEnabled(false);
+    await localModel.stop();
+    throw error;
+  }
+}
+function downloadedModelParts(){
+  return [path.dirname(process.execPath),path.dirname(path.dirname(process.execPath)),app.getPath('downloads')]
+    .reduce((found,folder)=>found||builtinParts.find(folder),null);
+}
+function autoImportBuiltin(){
+  if(!builtinParts||localModel.available)return;
+  let files;
+  try{files=downloadedModelParts();}catch(error){log('查找本地模型分卷：'+error.message);return;}
+  if(!files)return;
+  builtinTask=(async()=>{
+    await builtinParts.install(files,modelImportAbort.signal);
+    if(defaultLocalConnection())await enableBuiltin();
+  })().catch(error=>{
+    if(!quitting){builtinError=error.message;log('内置模型安装：'+error.message);}
+  }).finally(()=>{builtinTask=undefined;});
+}
 const {QuickChat}=require('./quick-chat.cjs');
 const quickChat=new QuickChat(assistant, payload=>sidecar.request('speech_update',payload));
 
@@ -70,7 +115,8 @@ async function showDesktopNotification(text){
 // Every delivery is recorded so the smoke run can prove a reminder reached the desktop while
 // the workbench window was hidden.
 const desktopReminders=[];
-function notifyDesktop(text){
+function notifyDesktop(text,kind){
+  if(kind==='todo')shell.beep();
   void showDesktopNotification(text).then(()=>{
     desktopReminders.push({text,at:Date.now(),shown:!!(notificationWindow&&!notificationWindow.isDestroyed()&&notificationWindow.isVisible())});
     if(desktopReminders.length>20)desktopReminders.shift();
@@ -83,7 +129,8 @@ function waitForExitAnimation(){
     let done=false;
     const finish=()=>{if(done)return;done=true;clearTimeout(timer);sidecar.off('message',onMessage);resolve();};
     const onMessage=message=>{if(message.type==='event'&&message.name==='exit_complete')finish();};
-    const timer=setTimeout(finish,20000);
+    // A slower walk can take more than 20 seconds from the middle of an 8K display.
+    const timer=setTimeout(finish,40000);
     sidecar.on('message',onMessage);
     sidecar.request('prepare_exit',{}).catch(finish);
   });
@@ -92,6 +139,8 @@ async function stopAndQuit(){
   if(exitWork)return exitWork;
   quitting=true;
   updater?.stop();
+  modelImportAbort.abort();
+  githubStar.stop();
   clearTimeout(startFallback);startFallback=null;
   assistant.cancel();
   quickChat.cancel();
@@ -99,7 +148,7 @@ async function stopAndQuit(){
     await waitForExitAnimation();setAvatarIconState('frozen');await desktopShortcutWork;globalShortcut.unregisterAll();
     clearTimeout(notificationTimer);notificationWindow?.destroy();notificationWindow=null;
     timers?.stop();translation?.stop();translationWindows?.stop();desktopServices?.stop();
-    const results=await Promise.allSettled([sidecar?.stop(),localModel?.stop()]);
+    const results=await Promise.allSettled([sidecar?.stop(),localModel?.stop(),builtinTask]);
     for(const result of results)if(result.status==='rejected')log(result.reason);
     tray?.destroy();tray=null;
     await conversations?.flush();
@@ -114,6 +163,13 @@ function configureIpc(){
   ipcMain.handle('yuki:update-install',event=>{guard(event);return updater.install();});
   ipcMain.handle('yuki:notification-close',event=>{if(notificationWindow&&!notificationWindow.isDestroyed()&&event.sender===notificationWindow.webContents){notificationWindow.hide();clearTimeout(notificationTimer);}});
   ipcMain.handle('yuki:open-external',(event,url)=>{guard(event);const parsed=new URL(String(url));if(parsed.protocol!=='https:')throw new Error('只允许打开 HTTPS 来源');return shell.openExternal(parsed.href);});
+  ipcMain.handle('yuki:github-star',(event,action)=>{
+    guard(event);
+    if(action==='status')return githubStar.state;
+    if(action==='start')return githubStar.start();
+    if(action==='cancel')return githubStar.cancel();
+    throw new Error('无效的 GitHub 加星操作');
+  });
   ipcMain.handle('yuki:workbench-config',event=>{guard(event);return {...workbenchConfig.snapshot(),shortcutStatus:{...registeredShortcuts}};});
   ipcMain.handle('yuki:workbench-set',async(event,input)=>{guard(event);const next=workbenchConfig.validate(input),previous=workbenchConfig.snapshot();if(input.shortcuts)installShortcuts(next.shortcuts);try{workbenchConfig.write(next);}catch(e){if(input.shortcuts)installShortcuts(previous.shortcuts);throw e;}await syncWorkbench();refreshTray();return {...workbenchConfig.snapshot(),shortcutStatus:{...registeredShortcuts}};});
   ipcMain.handle('yuki:window-mode',(event,wide,animate=false)=>{guard(event);if(typeof wide!=='boolean'||typeof animate!=='boolean')throw Error('窗口模式无效');return require('./workbench-window.cjs').setWindowMode(window,screen,wide,animate);});
@@ -146,20 +202,31 @@ function configureIpc(){
   ipcMain.handle('yuki:builtin-model-set',async(event,enabled)=>{
     guard(event);
     if(typeof enabled!=='boolean')throw Error('内置模型开关无效');
-    if(builtinChanging)throw Error('内置模型正在切换，请稍候');
+    if(builtinChanging||builtinTask)throw Error('内置模型正在准备，请稍候');
     builtinChanging=true;
     try{
-      await modelConfig.setBuiltinEnabled(enabled);
+      builtinError='';
       if(!enabled){
+        await modelConfig.setBuiltinEnabled(false);
         if(modelConfig.value.endpoint===LOCAL_ENDPOINT){assistant.cancel();quickChat.cancel();translation?.cancel();}
         await localModel.stop();
       }else{
-        try{await localModel.resume();}catch(error){await modelConfig.setBuiltinEnabled(false);await localModel.stop();throw error;}
+        if(!localModel.available&&builtinParts){
+          let files=downloadedModelParts();
+          if(!files){
+            const choice=await dialog.showOpenDialog(window,{title:'选择两个本地模型分卷所在的文件夹',defaultPath:app.getPath('downloads'),properties:['openDirectory']});
+            if(choice.canceled)return builtinSnapshot();
+            files=builtinParts.find(choice.filePaths[0]);
+            if(!files)throw Error('这个文件夹没有当前版本的两个模型分卷。请把 part01 和 part02 放在一起后重试。');
+          }
+          await builtinParts.install(files,modelImportAbort.signal);
+        }
+        await enableBuiltin();
       }
-      return modelConfig.snapshot();
+      return builtinSnapshot();
     }finally{builtinChanging=false;}
   });
-  ipcMain.handle('yuki:model-config',async event=>{guard(event);await modelConfig.ready;return modelConfig.snapshot();});
+  ipcMain.handle('yuki:model-config',async event=>{guard(event);await modelConfig.ready;return builtinSnapshot();});
   ipcMain.handle('yuki:model-config-set',async(event,input)=>{guard(event);if(assistant.active||quickChat.busy)throw new Error('请等待当前对话结束后再更改模型');translation?.cancel();const result=await modelConfig.set(input);assistant.configure(modelConfig);return result;});
   ipcMain.handle('yuki:model-test',async(event,input)=>{guard(event);return modelConfig.test(input);});
   ipcMain.handle('yuki:translation-config',async event=>{guard(event);await modelConfig.ready;return modelConfig.snapshot().translation;});
@@ -190,6 +257,16 @@ function configureIpc(){
     const items=[];for(const file of result.filePaths)items.push(await assistant.attachments.add(file,{imageReader:async buffer=>{const image=nativeImage.createFromBuffer(buffer);if(image.isEmpty())throw Error('图片无法解码');const size=image.getSize();if(size.width*size.height>24000000)throw Error('图片不能超过 2400 万像素');const scale=Math.min(1,1536/Math.max(size.width,size.height));return (scale<1?image.resize({width:Math.max(1,Math.round(size.width*scale)),height:Math.max(1,Math.round(size.height*scale)),quality:'best'}):image).toDataURL();}}));return items;
   });
   ipcMain.handle('yuki:ai-models',async event=>{guard(event);return assistant.models();});
+  ipcMain.handle('yuki:ai-local-model-select',async(event,input)=>{
+    guard(event);
+    if(assistant.active||quickChat.busy)throw Error('请等待当前对话结束后再更改模型');
+    if(input?.endpoint!==assistant.endpoint)throw Error('模型服务已更改，请重新连接后选择');
+    if(!['127.0.0.1','localhost','[::1]'].includes(new URL(assistant.endpoint).hostname))throw Error('只支持保存本机模型的选择');
+    if(typeof input.model!=='string'||!input.model.trim())throw Error('请选择模型');
+    const result=await modelConfig.set({endpoint:assistant.endpoint,model:input.model,reasoningEffort:modelConfig.value.reasoningEffort});
+    assistant.configure(modelConfig);
+    return result;
+  });
   ipcMain.handle('yuki:ai-chat',async(event,payload)=>{guard(event);
     if(quickChat.busy)throw new Error('yuki 正在回复桌面快捷聊天，请稍等');
     if(sidecar?.ready)await sidecar.request('wake_sleep',{});
@@ -332,11 +409,15 @@ else {
     modelConfig=new ModelConfig(path.join(app.getPath('userData'),'model.json'),safeStorage);
     await modelConfig.ready;
     localModel=new LocalModel({root:app.isPackaged?path.join(process.resourcesPath,'local-model/qwen'):path.resolve(__dirname,'../../../../local-model/qwen'),log});
+    if(app.isPackaged&&!smoke&&fs.existsSync(path.join(path.dirname(process.execPath),'release-manifest.json'))){
+      try{builtinParts=require('./model-parts.cjs').modelParts(path.dirname(process.execPath),app.getVersion());}
+      catch(error){log('读取内置模型清单：'+error.message);}
+    }
     // Adopt the bundled model for the old default local connection; retain explicitly selected services.
     // Only when the built-in is switched on: otherwise a fresh install lands on a disabled endpoint
     // while a perfectly good LM Studio is listening on the default port.
-    if(modelConfig.builtinEnabled&&localModel.available&&!modelConfig.key&&['http://127.0.0.1:1235/v1','http://127.0.0.1:1234/v1'].includes(modelConfig.value.endpoint)&&(!modelConfig.value.model||modelConfig.value.model===LOCAL_MODEL))await modelConfig.set({endpoint:LOCAL_ENDPOINT,model:LOCAL_MODEL});
-    modelConfig.ensureReady=endpoint=>endpoint===LOCAL_ENDPOINT?(modelConfig.builtinEnabled?localModel.ensure():Promise.reject(Error('内置模型已关闭，请在设置 → 通用中开启，或切换云端 API。'))):Promise.resolve();
+    if(modelConfig.builtinEnabled&&localModel.available&&defaultLocalConnection())await modelConfig.set({endpoint:LOCAL_ENDPOINT,model:LOCAL_MODEL});
+    modelConfig.ensureReady=endpoint=>endpoint===LOCAL_ENDPOINT?(modelConfig.builtinEnabled?localModel.ensure():Promise.reject(Error('内置模型已关闭。请在设置 → 通用中开启，或选用其他模型。'))):Promise.resolve();
     if(modelConfig.builtinEnabled&&modelConfig.value.endpoint===LOCAL_ENDPOINT)void localModel.ensure().catch(error=>log('本地 Qwen：'+error.message));
     const {WorkbenchConfig}=require('./workbench-config.cjs');workbenchConfig=new WorkbenchConfig(path.join(app.getPath('userData'),'workbench.json'));
     conversations=await Conversations.loadAsync(path.join(app.getPath('userData'),'conversations.json'),{log});
@@ -378,8 +459,13 @@ else {
     sidecar.on('disconnected',reason=>{quickChat.cancel();send('yuki:disconnected',reason);if(!quitting)showConsole();});
     sidecar.on('log',log);
     configureIpc();
+    autoImportBuiltin();
     createTray();
     await createConsole();
+    if(process.platform==='win32'){
+      const handle=window.getNativeWindowHandle();
+      sidecar.env.PET_WORKBENCH_HWND=(handle.length===8?handle.readBigUInt64LE():handle.readUInt32LE()).toString();
+    }
     await sidecar.start();
     startFallback=setTimeout(markStarted,20000);
     desktopServices.start();

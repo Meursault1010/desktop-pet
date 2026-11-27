@@ -110,6 +110,14 @@ input::placeholder,textarea::placeholder{opacity:1;color:var(--muted)}
 .setting-row strong,.setting-label{font-size:14px;font-weight:500}
 .setting-row small,.setting-description{font-size:12px;line-height:1.6}
 .app-update-row .app-update-error{color:var(--danger)}
+.github-star-row{flex-wrap:wrap}
+.github-star-row>span:first-child{flex:1 1 180px}
+.github-star-row .github-star-error{color:var(--danger)}
+.github-star-row [role="status"]:empty{margin:0}
+.github-star-row code{user-select:text;white-space:nowrap}
+.github-star-row>.github-star-actions{display:flex;flex:none;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;margin-inline-start:auto;max-width:100%}
+.github-star-confirmed{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;min-height:36px;border:1px solid var(--control-line);border-radius:var(--r-control);background:var(--accent-soft);color:var(--deep);font-size:13px;white-space:nowrap}
+.github-star-confirmed>svg{color:var(--accent)}
 .app-update-progress{display:flex;align-items:center;gap:8px;margin-top:6px;width:min(100%,240px)}
 .app-update-progress progress{width:100%;min-width:0;height:8px;accent-color:var(--accent)}
 .app-update-progress small{margin:0;font-variant-numeric:tabular-nums}
@@ -165,6 +173,18 @@ button,input,textarea,select{transition:color var(--dur-fast),background-color v
  .is-compact .companion-content{padding:24px;min-height:0;gap:16px 24px}
  .is-compact .time-reading time{font-size:52px}
  .is-compact .journal-metric strong{font-size:32px}
+}
+/* Wide workbench: keep related controls in reach and give chat more room. */
+.observatory main{--workspace-content-width:1160px}
+.observatory main[data-section=assistant]{--workspace-content-width:1220px}
+.observatory main[data-section=tools]{--workspace-content-width:1040px}
+.observatory main[data-section=settings]{--workspace-content-width:960px}
+@container workspace (min-width:1100px){
+ .observatory main>:is(.main-heading,.notice,.preview-notice,.subtabs,.section-content,.workbench-footer){
+  max-width:var(--workspace-content-width);
+  margin-inline:auto;
+ }
+ .observatory main[data-section=tools] .two-column{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @container workspace (min-width:850px){
  .companion-content,.is-compact .companion-content{grid-template-columns:minmax(0,1fr) 180px 150px;grid-template-rows:auto auto}

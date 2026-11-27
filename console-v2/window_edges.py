@@ -70,7 +70,13 @@ def inspect_foreground(excluded_processes=(), handle=None):
     hwnd=user.GetAncestor(hwnd,2) or hwnd  # GA_ROOT; respect the active modal.
     if not user.IsWindowVisible(hwnd) or user.IsIconic(hwnd): return None
     pid=W.DWORD();user.GetWindowThreadProcessId(hwnd,C.byref(pid))
-    if pid.value in {os.getpid(),*excluded_processes}: return None
+    if pid.value == os.getpid(): return None
+    if pid.value in excluded_processes:
+        # The Electron workbench is the one eligible surface in its process.
+        # Reminder popups, overlays and other host windows stay excluded.
+        if (str(pid.value) != os.environ.get('PET_CONTROL_PID') or
+                str(int(hwnd)) != os.environ.get('PET_WORKBENCH_HWND')):
+            return None
     name=C.create_unicode_buffer(256)
     user.GetClassNameW(hwnd,name,len(name))
     if name.value in ('Progman','WorkerW','Shell_TrayWnd','Shell_SecondaryTrayWnd',

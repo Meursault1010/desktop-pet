@@ -27,10 +27,10 @@ async function probe(target, fetchImpl, timeout) {
 // `current` is the saved endpoint: a hand-typed loopback port is worth keeping in the list.
 async function discoverLocalServices({ fetchImpl = fetch, timeout = 1500, current = '', builtinEnabled = false } = {}) {
   const wanted = [...LOCAL_SERVICES];
-  if (LOOPBACK.test(String(current || ''))) wanted.unshift({ label: '当前配置', endpoint: current });
-  const seen = new Set();
-  const targets = wanted.filter(item => !seen.has(item.endpoint) && seen.add(item.endpoint));
-  return Promise.all(targets.map(async target => {
+  if (LOOPBACK.test(String(current || '')) && !wanted.some(item => item.endpoint === current)) {
+    wanted.unshift({ label: '当前配置', endpoint: current });
+  }
+  return Promise.all(wanted.map(async target => {
     const base = { label: target.label, endpoint: target.endpoint, port: portOf(target.endpoint), builtin: target.builtin === true, running: false, models: [], note: '' };
     try {
       const models = await probe(target, fetchImpl, timeout);

@@ -17,7 +17,7 @@ export type DesktopSnapshot = {
 export type ReasoningEffort = 'auto'|'low'|'medium'|'high';
 export type LocalService={label:string;endpoint:string;port:string;builtin:boolean;running:boolean;models:string[];note:string};
 export type ModelProfileSnapshot = {id:string;name:string;endpoint:string;model:string;reasoningEffort?:ReasoningEffort;keyPresent:boolean};
-export type ModelConfigSnapshot = {builtinEnabled?:boolean;allowRemoteAttachments?:boolean;endpoint:string;model:string;reasoningEffort?:ReasoningEffort;keyPresent:boolean;keyPersistent:boolean;secretUnavailable?:boolean;configUnavailable?:boolean;profiles?:ModelProfileSnapshot[]};
+export type ModelConfigSnapshot = {builtinEnabled?:boolean;builtinImporting?:boolean;builtinImportError?:string;allowRemoteAttachments?:boolean;endpoint:string;model:string;reasoningEffort?:ReasoningEffort;keyPresent:boolean;keyPersistent:boolean;secretUnavailable?:boolean;configUnavailable?:boolean;profiles?:ModelProfileSnapshot[]};
 export type ModelConnectionTest = {endpoint:string;models:string[];listingAvailable:boolean;keyVerified:boolean;modelListed?:boolean|null;message:string};
 export type TranslationConfigSnapshot = {mode:'system'|'custom';provider:'local'|'cloud';endpoint:string;model:string;reasoningEffort?:ReasoningEffort;keyPresent:boolean};
 export type TranslationSnapshot={enabled:boolean;phase:string;source:string;text:string;error:string;target:string;method:string};
@@ -39,8 +39,13 @@ export type UpdateStatus = {
   size?: number;
   message?: string;
 };
+export type GithubStarStatus =
+  | {phase:'manual'|'idle'|'requesting'|'starring'|'starred'}
+  | {phase:'pending';code:string}
+  | {phase:'error';message:string};
 
 export interface DesktopHost {
+  githubStar?(action:'status'|'start'|'cancel'):Promise<GithubStarStatus>;
   updateStatus?():Promise<UpdateStatus>;
   updateCheck?():Promise<UpdateStatus>;
   updateDownload?():Promise<UpdateStatus>;
@@ -74,6 +79,7 @@ export interface DesktopHost {
   conversationsClear?():Promise<ConversationSnapshot>;
   conversationsPersistence?(enabled:boolean):Promise<ConversationSnapshot>;
   aiModels?(): Promise<{endpoint:string;models:string[];preferredModel?:string}>;
+  aiLocalModelSelect?(input:{endpoint:string;model:string}):Promise<ModelConfigSnapshot>;
   aiChat?(payload: {id:string;model:string;messages:{role:'user'|'assistant';content:string;attachments?:string[]}[];attachmentApproval?:string}): Promise<{text:string}>;
   aiCancel?(): Promise<void>;
   aiSubscribe?(listener:(update:{id:string;phase:string;text:string})=>void):()=>void;

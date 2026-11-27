@@ -2,10 +2,12 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const {spawnSync}=require('node:child_process');
+const {githubAppClientId}=require('../main/github-star.cjs');
 
 async function main(){
   const frontend=path.resolve(__dirname,'../..'),project=path.resolve(frontend,'../..');
   const version = fs.readFileSync(path.join(project, 'VERSION'), 'utf8').trim();
+  const clientId = githubAppClientId(process.env.YUKI_GITHUB_APP_CLIENT_ID);
   if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
     throw new Error('VERSION must be a stable version such as 1.1.2.');
   }
@@ -21,7 +23,7 @@ async function main(){
   if(!fs.existsSync(path.join(selection,'yuki-selection.exe')))throw Error('Build Windows selection helper first (build-selection.ps1).');
   if(!fs.existsSync(path.join(ocr,'yuki-ocr.exe')))throw new Error('Build offline OCR first (build-ocr.ps1).');
   const stage=path.join(work,'app-'+Date.now());fs.mkdirSync(stage,{recursive:true});
-  fs.writeFileSync(path.join(stage,'package.json'),JSON.stringify({name:'yuki',version,main:'electron/main/index.cjs',description:'yuki Windows desktop pet',author:'Meursault',private:true},null,2));
+  fs.writeFileSync(path.join(stage,'package.json'),JSON.stringify({name:'yuki',version,main:'electron/main/index.cjs',description:'yuki Windows desktop pet',author:'Meursault',private:true,...(clientId&&{githubAppClientId:clientId})},null,2));
   fs.copyFileSync(path.join(project,'THIRD-PARTY-NOTICES.md'),path.join(stage,'THIRD-PARTY-NOTICES.txt'));
   fs.cpSync(path.join(project,'licenses'),path.join(stage,'licenses'),{recursive:true});
   for(const name of ['main','preload','shared','icons'])fs.cpSync(path.join(frontend,'electron',name),path.join(stage,'electron',name),{recursive:true});
@@ -69,7 +71,8 @@ async function main(){
       '工作台包含总览、角色、AI 助手、工具、设置；支持雪白、银雾、星夜主题和宽窄窗口切换。',
       '总览采用固定布局，显示雪的状态、今日足迹、陪伴节奏与电脑状态。右键宠物可快捷聊天、使用常用工具、打开工作台和退出。',
       '宠物设置继续保存在 %LOCALAPPDATA%\\XiaoJu\\DesktopPet\\settings.ini；工作台设置保存在 Electron 用户数据目录。',
-      '内置本地模型默认关闭，可在设置中启用；也可连接兼容的本地服务或用户选择的云端 API。云端服务会收到用户发送的内容；AI 助手不提供联网检索。',
+      '本地模型分卷下载到同一文件夹后，启动 Yuki 可自动合并校验；找不到分卷时，可在设置中开启内置模型并选择分卷所在文件夹。也可连接兼容的本地服务或用户选择的云端 API。',
+      '云端服务会收到用户发送的内容；AI 助手不提供联网检索。',
       '今日摘要依据运行期间的实际事件；音乐互动只检测本机播放声音并驱动舞动，不提供播放器控制；提醒需要保持 Yuki 运行。',
       '工作台由 Electron 管理，透明宠物窗口保留 PySide6；未签名的便携版，不是安装器。',
       '更新前请先通过旧版 Yuki 菜单保存并退出，再运行新版。',

@@ -18,6 +18,10 @@ function readableError(value:unknown){
   const raw=value instanceof Error?value.message:String(value);
   return raw.replace(/^Error invoking remote method '[^']+':\s*(?:Error:\s*)?/,'');
 }
+function isLocalEndpoint(endpoint:string){
+  try{return ['127.0.0.1','localhost','[::1]'].includes(new URL(endpoint).hostname);}
+  catch{return false;}
+}
 function connectionError(value:unknown,endpoint:string){
   const raw=readableError(value),lower=raw.toLowerCase();
   if(/模型服务返回\s*401|\b401\b/.test(raw))return `连接失败：服务拒绝了 API 密钥（401）。请检查密钥是否正确、是否已过期，以及它是否属于 ${endpoint}。`;
@@ -76,11 +80,13 @@ const TurnRow=memo(function TurnRow({item,last,busy,ready,onCopy,onRegenerate,on
     </div>
   </div>;
 });
-export function AssistantWorkspace({lyric=workbenchLyrics[0],active:visible=true}:{lyric?:WorkbenchLyric;active?:boolean}){
+export function AssistantWorkspace({lyric=workbenchLyrics[0],active:visible=true,connectionRevision=0}:{lyric?:WorkbenchLyric;active?:boolean;connectionRevision?:number}){
   const [messages,setMessages]=useState<Turn[]>(session),[draft,setDraft]=useState(''),[models,setModels]=useState<string[]>([]);
   const [model,setModel]=useState(selectedModel),[busy,setBusy]=useState(false),[connecting,setConnecting]=useState(false);
   const [error,setError]=useState(''),[connectionMessage,setConnectionMessage]=useState(''),[phase,setPhase]=useState(''),[partial,setPartial]=useState('');
-  const [endpoint,setEndpoint]=useState('127.0.0.1:1235');
+  const [endpoint,setEndpoint]=useState('');
+  const [savingModel,setSavingModel]=useState(false);
+  const connectionAttempt=useRef(0);
   const [historyOpen,setHistoryOpen]=useState(false);
   const [modelConfig,setModelConfig]=useState<ModelConfigSnapshot|null>(null),[reasoningEffort,setReasoningEffort]=useState<ReasoningEffort>('auto'),[reasoningBusy,setReasoningBusy]=useState(false);
   const [files,setFiles]=useState<ChatAttachment[]>([]),[attaching,setAttaching]=useState(false);
@@ -150,22 +156,54 @@ export function AssistantWorkspace({lyric=workbenchLyrics[0],active:visible=true
   }
   async function connect(){
     if(!host?.aiModels)return;
+    const attempt=++connectionAttempt.current;
+    const isCurrent=()=>mounted.current&&attempt===connectionAttempt.current;
     setConnecting(true);setError('');setConnectionMessage('正在连接模型服务…');
-    try{const result=await host.aiModels();if(!mounted.current)return;const list=result.models;setModels(list);setEndpoint(new URL(result.endpoint).host);void host.modelConfig?.().then(value=>{if(mounted.current){setModelConfig(value);setReasoningEffort(value.reasoningEffort||'auto');}}).catch(()=>{});
+    const config=await host.modelConfig?.().catch(()=>null);
+    if(!isCurrent())return;
+    if(config){setModelConfig(config);setReasoningEffort(config.reasoningEffort||'auto');}
+    try{
+      const result=await host.aiModels();
+      if(!isCurrent())return;
+      const list=result.models;
+      setModels(list);
+      setEndpoint(result.endpoint);
       const chosen=list.includes(result.preferredModel||'')?result.preferredModel!:list.includes(selectedModel)?selectedModel:list.find(id=>/qwen3[._-]?8[-_ ]?4b/i.test(id))||list[0]||'';
       setAttachmentReview(null);setModel(chosen);selectedModel=chosen;
       if(!list.length){setConnectionMessage('连接成功，但没有找到可聊天的模型。请先在模型服务中加载一个聊天模型。');return;}
       setConnectionMessage('');
-      
-    }catch(e){if(mounted.current){setConnectionMessage('');setError(connectionError(e,endpoint));}}
-    finally{if(mounted.current)setConnecting(false);}
+    }catch(e){
+      if(!isCurrent())return;
+      setModels([]);setModel('');setAttachmentReview(null);setConnectionMessage('');
+      setError(connectionError(e,config?.endpoint||endpoint||'模型服务'));
+    }finally{if(isCurrent())setConnecting(false);}
   }
   useEffect(()=>{
-    mounted.current=true;void connect();
-    void host?.modelConfig?.().then(value=>{if(mounted.current){setModelConfig(value);setReasoningEffort(value.reasoningEffort||'auto');}}).catch(()=>{});
+    mounted.current=true;
     const unsubscribe=host?.aiSubscribe?.(update=>{if(update.id===active.current){setPartial(update.text);setPhase(update.phase==='thinking'?'yuki 正在想一想…':'yuki 正在回复…');}});
     return ()=>{mounted.current=false;unsubscribe?.();if(active.current)void host?.aiCancel?.();};
   },[]);
+  useEffect(()=>{void connect();},[connectionRevision]);
+  const savesLocalSelection=isLocalEndpoint(endpoint)&&!!host?.aiLocalModelSelect;
+  async function selectModel(id:string){
+    if(id===model&&(!savesLocalSelection||id===modelConfig?.model&&endpoint===modelConfig.endpoint))return;
+    setAttachmentReview(null);
+    setError('');
+    if(savesLocalSelection&&host?.aiLocalModelSelect){
+      const attempt=connectionAttempt.current;
+      setSavingModel(true);
+      try{
+        const saved=await host.aiLocalModelSelect({endpoint,model:id});
+        if(!mounted.current||attempt!==connectionAttempt.current)return;
+        setModelConfig(saved);
+      }catch(e){
+        if(mounted.current)setError(`保存模型失败：${readableError(e)}`);
+        return;
+      }finally{if(mounted.current)setSavingModel(false);}
+    }
+    setModel(id);
+    selectedModel=id;
+  }
   useEffect(()=>{
     if(!historyOpen)return;
     historyPanelRef.current?.querySelector<HTMLElement>('button:not(:disabled),input:not(:disabled)')?.focus();
@@ -187,7 +225,8 @@ export function AssistantWorkspace({lyric=workbenchLyrics[0],active:visible=true
     const atBottom=el.scrollHeight-el.scrollTop-el.clientHeight<80;
     if(atBottom!==stick)setStick(atBottom);
   }
-  const live=useRef({model,busy});live.current={model,busy};
+  const modelReady=!!model&&supported&&!connecting&&!savingModel;
+  const live=useRef({model,busy,modelReady});live.current={model,busy,modelReady};
   async function requestReply(history:Turn[],attachmentApproval?:string,omittedIds:string[]=[]){
     if(!host?.aiChat||!live.current.model)throw new Error('请先连接模型服务');
     const id=crypto.randomUUID();active.current=id;
@@ -204,7 +243,7 @@ export function AssistantWorkspace({lyric=workbenchLyrics[0],active:visible=true
     catch(e){session=previous;if(mounted.current){setMessages(previous);setDraft(text);setFiles(sentFiles);setAttachmentReview(null);setRetry({kind:'send'});setError(readableError(e));}}
   }
   async function send(){
-    const text=draft.trim()||(files.length?'请识别并说明这些附件的内容。':'');if(!text||busy||attachmentChecking||attaching||!model||!host?.aiChat)return;
+    const text=draft.trim()||(files.length?'请识别并说明这些附件的内容。':'');if(!text||busy||attachmentChecking||attaching||!modelReady||!host?.aiChat)return;
     const sentFiles=files;
     const next:Turn[]=[...session,{id:crypto.randomUUID(),role:'user',content:text,...(sentFiles.length?{attachments:sentFiles.map(f=>f.id),files:sentFiles}: {})}];
     const requestContext=boundedHistory(next),ids=[...new Set(requestContext.flatMap(item=>item.attachments||[]))];
@@ -246,7 +285,7 @@ export function AssistantWorkspace({lyric=workbenchLyrics[0],active:visible=true
   // Regenerating replaces the last answer in place: the stored turn count stays the same and
   // the context we send never contains the answer being replaced.
   async function regenerate(id:string){
-    if(live.current.busy||!live.current.model||!host?.aiChat)return;
+    if(live.current.busy||!live.current.modelReady||!host?.aiChat)return;
     const index=session.findIndex(item=>item.id===id);
     const kept=session.slice(0,index);
     if(index<1||session.length-1!==index||kept[kept.length-1]?.role!=='user'){setError('只能重新生成最后一条回答。');return;}
@@ -293,13 +332,13 @@ export function AssistantWorkspace({lyric=workbenchLyrics[0],active:visible=true
     <header className="assistant-toolbar">
       <div className="assistant-toolbar-left"><button ref={historyToggleRef} type="button" className="assistant-history-toggle" aria-label="查看历史对话" aria-expanded={historyOpen} aria-controls="assistant-history-panel" title="展开或收起最近对话列表，可切换、重命名或删除已保存的聊天。" onClick={()=>setHistoryOpen(v=>!v)}><PanelLeft size={17}/></button><div className="assistant-current"><div className="assistant-current-title">{activeTitle||'新对话'}</div><div className="assistant-current-meta"><span className={'assistant-state-dot'+(models.length?' connected':'')}/><span>{busy?'正在回复':connecting?'正在连接':model?'已连接':models.length?'选择模型':'未连接'}</span></div></div></div>
     </header>
-    <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{busy?phase:''}</div>
+    <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{busy?phase:savingModel?'正在保存本地模型':''}</div>
     <div className="chat-transcript" ref={transcript} onScroll={trackScroll}>
-      {!messages.length&&!busy?<div className="chat-empty"><div className="assistant-portrait"><img src="/pet-preview.png" alt="雪"/></div><span className="assistant-empty-lyric">{lyric.text}<small>{lyric.artist} · {lyric.song}</small></span><h2>想和雪聊些什么？</h2><p>聊聊今天，也可以发来图片或文档。</p><div className="suggestion-chips">{['今天过得怎么样？','陪我休息一会儿','介绍一下你自己'].map(text=><button key={text} disabled={!supported||busy} onClick={()=>setDraft(text)}>{text}</button>)}</div></div>:messages.map((item,i)=><TurnRow key={item.id} item={item} last={i===messages.length-1} busy={busy} ready={!!model&&supported} onCopy={onCopy} onRegenerate={onRegenerate} onRemove={onRemove}/>)}
+      {!messages.length&&!busy?<div className="chat-empty"><div className="assistant-portrait"><img src="/pet-preview.png" alt="雪"/></div><span className="assistant-empty-lyric">{lyric.text}<small>{lyric.artist} · {lyric.song}</small></span><h2>想和雪聊些什么？</h2><p>聊聊今天，也可以发来图片或文档。</p><div className="suggestion-chips">{['今天过得怎么样？','陪我休息一会儿','介绍一下你自己'].map(text=><button key={text} disabled={!supported||busy} onClick={()=>setDraft(text)}>{text}</button>)}</div></div>:messages.map((item,i)=><TurnRow key={item.id} item={item} last={i===messages.length-1} busy={busy} ready={modelReady} onCopy={onCopy} onRegenerate={onRegenerate} onRemove={onRemove}/>)}
       {busy&&<div className="chat-turn assistant"><span>{phase}</span><div className="chat-body"><p>{partial||'…'}</p></div></div>}<div ref={end}/>
       {!stick&&<button type="button" className="chat-jump" onClick={()=>{setStick(true);end.current?.scrollIntoView({block:'nearest'});}}>回到最新</button>}
     </div>
-    {(error||connectionMessage)&&<p className={(error?'chat-error save-error ':'')+'connection-feedback'} role={error?'alert':'status'}>{error||connectionMessage}{error&&retry&&<span className="chat-retry-row"><button type="button" className="text-link chat-retry" disabled={busy||!model||!supported} onClick={retryFailed}><RefreshCw size={12}/>重试</button><small>{retry.kind==='send'?'会把你刚写的内容原样再发一次':'会用同一条提问替换刚才的回答'}</small></span>}</p>}
+    {(error||connectionMessage)&&<p className={(error?'chat-error save-error ':'')+'connection-feedback'} role={error?'alert':'status'}>{error||connectionMessage}{error&&retry&&modelReady&&<span className="chat-retry-row"><button type="button" className="text-link chat-retry" disabled={busy} onClick={retryFailed}><RefreshCw size={12}/>重试</button><small>{retry.kind==='send'?'会把你刚写的内容原样再发一次':'会用同一条提问替换刚才的回答'}</small></span>}{supported&&!connecting&&!models.length&&<span className="chat-retry-row"><button type="button" className="text-link chat-retry" disabled={busy} onClick={()=>void connect()}><RefreshCw size={12}/>重新连接模型</button></span>}</p>}
     <div className="chat-composer">
       {attachmentReview&&<section className="chat-attachment-review" aria-label="云端附件发送检查">
         <div className="chat-attachment-review-head"><strong>发送前检查</strong><span>附件尚未发送</span></div>
@@ -315,10 +354,10 @@ export function AssistantWorkspace({lyric=workbenchLyrics[0],active:visible=true
       {!!files.length&&<div className="chat-file-list composer-attachments" aria-label="待发送附件">{files.map(file=><div className="chat-file" key={file.id}>{file.preview?<img src={file.preview} alt={file.name}/>:<FileText size={18}/>}<span title={file.name}>{file.name}<small>{file.kind==='image'?`图片 · ${file.characters?`OCR 提取 ${file.characters} 字符`:'未识别到文字'}`:`${file.characters} 字符${file.truncated?' · 已截取':''}`}</small></span>{file.kind==='image'&&<select className="chat-file-mode" aria-label={`${file.name} 的发送方式`} value={file.imageMode||'both'} disabled={busy||attachmentChecking||!!attachmentReview||!host?.aiAttachMode} onChange={e=>void changeMode(file.id,e.target.value as AttachmentMode)}><option value="both">文字 + 图片</option><option value="text">只发文字</option><option value="image">只发图片</option></select>}<button className="icon-button" disabled={busy||attachmentChecking||!!attachmentReview} aria-label={`移除 ${file.name}`} onClick={()=>{setAttachmentReview(null);setFiles(list=>list.filter(f=>f.id!==file.id));}}><X size={14}/></button></div>)}</div>}
       <textarea aria-label="对话输入" value={draft} maxLength={2000} disabled={!supported||attachmentChecking} onChange={e=>{setAttachmentReview(null);setDraft(e.target.value);}} placeholder={model?'想对雪说些什么？':'连接模型后，开始聊天…'} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing&&!busy){e.preventDefault();void send();}}}/>
       <div className="chat-composer-tools"><div className="composer-left"><button className="icon-button" title="添加图片或文档" aria-label="添加图片或文档" disabled={busy||attachmentChecking||!!attachmentReview||attaching||!host?.aiAttach||files.length>=4} onClick={()=>void addFiles()}><Paperclip size={17}/></button><span>{attaching?'正在读取附件…':attachmentChecking?'正在检查附件…':'Enter 发送 · Shift + Enter 换行'}</span></div><div className="composer-right">
-        <ComposerModelPicker models={models} value={model} disabled={busy||attachmentChecking||!models.length} active={visible}
-          onChange={id=>{setAttachmentReview(null);setModel(id);selectedModel=id;setError('');}}/>
+        <ComposerModelPicker models={models} value={model} disabled={busy||connecting||savingModel||attachmentChecking||!models.length} active={visible}
+          savesSelection={savesLocalSelection} onChange={id=>void selectModel(id)}/>
         {modelConfig?.endpoint.startsWith('https:')&&<label className="reasoning-inline"><span>思考</span><select aria-label="思考程度" value={reasoningEffort} disabled={busy||reasoningBusy||!host?.modelConfigSet} onChange={e=>void changeReasoningEffort(e.target.value as ReasoningEffort)}><option value="auto">自动</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label>}
-        {busy?<button className="icon-button composer-send" aria-label="停止回复" title="中止雪当前生成的回复；已经显示的内容会保留。" onClick={()=>void host?.aiCancel?.()}><Square size={16}/></button>:<button className="icon-button composer-send" aria-label={attachmentChecking?'正在检查附件':'发送消息'} title={attachmentChecking?'正在检查附件内容及发送方式…':attachmentReview?'完成附件发送前检查后即可发送。':'发送输入内容和已添加附件，Enter 也可直接发送。'} disabled={attachmentChecking||!!attachmentReview||(!draft.trim()&&!files.length)||attaching||!model||!supported} onClick={()=>void send()}><Send size={18}/></button>}
+        {busy?<button className="icon-button composer-send" aria-label="停止回复" title="中止雪当前生成的回复；已经显示的内容会保留。" onClick={()=>void host?.aiCancel?.()}><Square size={16}/></button>:<button className="icon-button composer-send" aria-label={attachmentChecking?'正在检查附件':'发送消息'} title={attachmentChecking?'正在检查附件内容及发送方式…':attachmentReview?'完成附件发送前检查后即可发送。':'发送输入内容和已添加附件，Enter 也可直接发送。'} disabled={attachmentChecking||!!attachmentReview||(!draft.trim()&&!files.length)||attaching||!modelReady} onClick={()=>void send()}><Send size={18}/></button>}
       </div></div>
     </div>
   </section>

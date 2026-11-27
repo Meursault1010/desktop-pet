@@ -1,0 +1,14 @@
+[
+  {"label":"OpenAI","endpoint":"https://api.openai.com/v1","model":"gpt-4.1-mini"},
+  {"label":"DeepSeek","endpoint":"https://api.deepseek.com/v1","model":"deepseek-flash"},
+  {"label":"Claude","endpoint":"https://api.anthropic.com/v1","model":"claude-haiku-5-5"},
+  {"label":"Gemini","endpoint":"https://generativelanguage.googleapis.com/v1beta/openai","model":"gemini-4-hydrogen"},
+  {"label":"Kimi","endpoint":"https://api.moonshot.cn/v1","model":"kimi-k3.1-pro"},
+  {"label":"通义千问","endpoint":"https://dashscope.aliyuncs.com/compatible-mode/v1","model":"qwen-plus"},
+  {"label":"智谱 GLM","endpoint":"https://open.bigmodel.cn/api/paas/v4","model":"glm-5.3"},
+  {"label":"硅基流动","endpoint":"https://api.siliconflow.cn/v1","model":"Qwen/Qwen3.5-4B"},
+  {"label":"OpenRouter","endpoint":"https://openrouter.ai/api/v1","model":"openrouter/auto"},
+  {"label":"Groq","endpoint":"https://api.groq.com/openai/v1","model":"openai/gpt-oss-20b"},
+  {"label":"Mistral","endpoint":"https://api.mistral.ai/v1","model":"mistral-small-latest"},
+  {"label":"Grok","endpoint":"https://api.x.ai/v1","model":"grok-4.6"}
+]

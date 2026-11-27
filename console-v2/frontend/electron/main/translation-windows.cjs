@@ -60,6 +60,8 @@ class TranslationWindows {
   });
   this.captureGeneration=0;
   this.popupSize={width:420,height:360};
+  this.onPointerDown=point=>this.dismissOutside(point);
+  this.translation.watcher?.on('pointer-down',this.onPointerDown);
  }
  guard(event,window){if(!trusted(event,window))throw Error('拒绝未知页面的翻译请求');}
  async createPopup(){
@@ -79,6 +81,13 @@ class TranslationWindows {
   this.popup.setBounds(popupBounds(at,area,this.popupSize));this.popup.showInactive();this.update(this.translation.snapshot());
  }
  update(state){if(this.popup&&!this.popup.isDestroyed())this.popup.webContents.send('yuki:translation-result',state);}
+ dismissOutside(point){
+  const popup=this.popup;
+  if(!popup||popup.isDestroyed()||!popup.isVisible()||this.gesture||this.translation.snapshot().phase!=='done')return;
+  const {x,y}=this.screen.screenToDipPoint(point);
+  const bounds=popup.getBounds();
+  if(x<bounds.x||y<bounds.y||x>=bounds.x+bounds.width||y>=bounds.y+bounds.height)this.dismiss();
+ }
  dismiss(){this.captureGeneration++;this.gesture=null;this.translation.cancel();this.popup?.hide();}
  closeOverlay(){this.overlay?.destroy();this.overlay=null;this.captureImage=null;}
  async capture(){
@@ -100,6 +109,6 @@ class TranslationWindows {
    const overlay=this.overlay;await overlay.loadURL('yuki://app/capture.html');if(!overlay.isDestroyed()&&generation===this.captureGeneration&&this.translation.enabled){overlay.show();overlay.focus();}
   }finally{this.capturing=false;}
  }
- stop(){this.captureGeneration++;this.closeOverlay();this.popup?.destroy();this.popup=null;}
+ stop(){this.translation.watcher?.off('pointer-down',this.onPointerDown);this.captureGeneration++;this.closeOverlay();this.popup?.destroy();this.popup=null;}
 }
 module.exports={TranslationWindows};

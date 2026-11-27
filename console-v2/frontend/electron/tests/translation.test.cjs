@@ -44,3 +44,15 @@ test('translation input bounds and model failures are visible',async()=>{
  await bot.translate('a'.repeat(4001),{x:0,y:0});assert.match(bot.state.error,/4000/);
  await bot.translate('Hello again',{x:0,y:0});assert.equal(bot.state.error,'offline');
 });
+test('translation retries an echoed sentence once and never presents it as a translation',async()=>{
+ const source='Please close the window before leaving.';let calls=0;
+ const engine={cancel(){},configure(){},async models(){return {models:['qwen-test']};},async chat(_request,stream){
+  const text=++calls===1?'“Please close the window before leaving.”':'离开前请关窗。';
+  stream({phase:'answer',text});return {text};
+ }};
+ const bot=setup(engine), displayed=[];bot.changed=state=>displayed.push(state.text);
+ bot.setEnabled(true);await bot.translate(source,{x:0,y:0});
+ assert.equal(calls,2);assert.equal(bot.state.text,'离开前请关窗。');assert.ok(!displayed.some(text=>text.includes(source)));
+ engine.chat=async()=>({text:source});await bot.retry();
+ assert.equal(bot.state.phase,'error');assert.equal(bot.state.text,'');assert.match(bot.state.error,/原文/);
+});

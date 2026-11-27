@@ -1,4 +1,5 @@
 'use strict';
+const {modelListHeaders,completionOptions}=require('./cloud-providers.cjs');
 const fs=require('node:fs');
 const {Attachments,contentWithAttachments}=require('./attachments.cjs');
 const {LocalOCR}=require('./ocr.cjs');
@@ -35,27 +36,56 @@ function visibleAnswer(raw){
   return raw.replace(/<\|im_end\|>/g,'').trimStart();
 }
 class Assistant {
+  configurationRevision=0;
   constructor({fetchImpl=fetch,endpoint=ENDPOINT,ocr=new LocalOCR(),systemPrompt=PERSONA}={}){this.systemPrompt=systemPrompt;this.fetch=fetchImpl;this.endpoint=endpoint;this.active=null;this.attachments=new Attachments({ocr});this.apiKey='';this.configured=false;this.allowRemoteAttachments=false;this.attachmentApprovals=new Map();this.attachmentReviews=new Map();}
-  configure(config){const endpointChanged=this.endpoint!==config.value.endpoint,permissionChanged=this.allowRemoteAttachments!==(config.allowRemoteAttachments===true);this.cancel();if(endpointChanged||permissionChanged){this.attachmentApprovals.clear();this.attachmentReviews.clear();}this.endpoint=config.value.endpoint;this.preferredModel=config.value.model;this.reasoningEffort=config.value.reasoningEffort||'auto';this.apiKey=config.key;this.ensureReady=config.ensureReady;this.allowRemoteAttachments=config.allowRemoteAttachments===true;this.configured=true;}
+  configure(config){
+    const endpointChanged=this.endpoint!==config.value.endpoint;
+    const permissionChanged=this.allowRemoteAttachments!==(config.allowRemoteAttachments===true);
+    this.cancel();
+    if(endpointChanged||permissionChanged){
+      this.attachmentApprovals.clear();
+      this.attachmentReviews.clear();
+    }
+    this.endpoint=config.value.endpoint;
+    this.preferredModel=config.value.model;
+    this.reasoningEffort=config.value.reasoningEffort||'auto';
+    this.apiKey=config.key;
+    this.ensureReady=config.ensureReady;
+    this.allowRemoteAttachments=config.allowRemoteAttachments===true;
+    this.connectionConfigured=config.connectionConfigured===true;
+    this.configured=true;
+    this.configurationRevision++;
+  }
   headers(){return this.apiKey?{Authorization:'Bearer '+this.apiKey}:{};}
   async models(){
-    await this.ensureReady?.(this.endpoint);
-    let response;
-    const localDefault=!this.apiKey&&[ENDPOINT,'http://127.0.0.1:1234/v1'].includes(this.endpoint);
-    for(const endpoint of [...new Set(localDefault?[this.endpoint,ENDPOINT,'http://127.0.0.1:1234/v1']:[this.endpoint])]){
-      try{response=await this.fetch(endpoint+'/models',{headers:this.headers(),signal:AbortSignal.timeout(8000),redirect:'error'});this.endpoint=endpoint;break;}catch{}
+    const revision=this.configurationRevision,requestedEndpoint=this.endpoint;
+    const localDefault=!this.connectionConfigured&&!this.apiKey&&[ENDPOINT,'http://127.0.0.1:1234/v1'].includes(requestedEndpoint);
+    await this.ensureReady?.(requestedEndpoint);
+    let response,connectedEndpoint=requestedEndpoint;
+    for(const endpoint of [...new Set(localDefault?[requestedEndpoint,ENDPOINT,'http://127.0.0.1:1234/v1']:[requestedEndpoint])]){
+      if(revision!==this.configurationRevision)break;
+      try{
+        const headers=modelListHeaders(endpoint,this.apiKey);
+        response=await this.fetch(endpoint+'/models',{headers,signal:AbortSignal.timeout(8000),redirect:'error'});
+        connectedEndpoint=endpoint;
+        break;
+      }catch{}
     }
+    if(revision!==this.configurationRevision)throw Error('模型服务已更改，请重新连接');
     if(!response)throw new Error('未连接模型服务，请检查 AI 助手中的模型服务设置，并确认服务已经启动。');
     // Some OpenAI-compatible cloud gateways intentionally omit GET /models.
     // A saved model name is enough to use their chat endpoint.
     if(!response.ok){
       if([404,405].includes(response.status)&&this.preferredModel){
-        return {endpoint:this.endpoint,preferredModel:this.preferredModel,models:[this.preferredModel]};
+        this.endpoint=connectedEndpoint;
+        return {endpoint:connectedEndpoint,preferredModel:this.preferredModel,models:[this.preferredModel]};
       }
       throw new Error(`模型服务返回 ${response.status}，请检查地址与 API 密钥`);
     }
     const data=await response.json();
-    return {endpoint:this.endpoint,preferredModel:this.preferredModel||'',models:[...new Set([this.preferredModel,...(data.data||[]).map(item=>item.id)].filter(id=>typeof id==='string'&&id.length>0&&id.length<=300&&!/embed/i.test(id)))]};
+    if(revision!==this.configurationRevision)throw Error('模型服务已更改，请重新连接');
+    this.endpoint=connectedEndpoint;
+    return {endpoint:connectedEndpoint,preferredModel:this.preferredModel||'',models:[...new Set([this.preferredModel,...(data.data||[]).map(item=>item.id)].filter(id=>typeof id==='string'&&id.length>0&&id.length<=300&&!/embed/i.test(id)))]};
   }
   cancel(){this.active?.abort();}
   attachmentFingerprint(ids){
@@ -115,7 +145,7 @@ class Assistant {
       if(hasAttachments&&remote&&(!this.allowRemoteAttachments||approval?.endpoint!==this.endpoint||this.attachmentFingerprint(approval.ids)!==approval.fingerprint))throw new Error('云端附件授权或内容已变化，已取消发送。请重新检查后再试。');
       const response=await this.fetch(this.endpoint+'/chat/completions',{
         method:'POST',redirect:'error',signal:controller.signal,headers:{'Content-Type':'application/json',...this.headers()},
-        body:JSON.stringify({model,messages:[{role:'system',content:system},...prepared],temperature:0.6,top_p:0.95,max_tokens:this.strictCompletion?4096:1536,stream:true,
+        body:JSON.stringify({model,messages:[{role:'system',content:system},...prepared],...completionOptions(this.endpoint,model,this.strictCompletion?4096:1536),stream:true,
           ...(this.reasoningEffort!=='auto'&&!['localhost','127.0.0.1','[::1]'].includes(new URL(this.endpoint).hostname)?{reasoning_effort:this.reasoningEffort}:{}),
           // GGUF template options are local-runtime extensions. Cloud OpenAI
           // compatible servers may reject unknown request fields.
@@ -127,7 +157,7 @@ class Assistant {
       const line=value=>{
         if(!value.startsWith('data:'))return;
         const payload=value.slice(5).trim();if(!payload||payload==='[DONE]')return;
-        const event=JSON.parse(payload);if(event.error)throw new Error('本地模型返回推理错误');
+        const event=JSON.parse(payload);if(event.error)throw new Error('模型服务返回推理错误');
         const choice=event.choices?.[0],delta=choice?.delta||{};
         if(choice?.finish_reason==='length')truncated=true;
         if(delta.reasoning_content||delta.reasoning){reasoning=true;emit({id,phase:'thinking',text:answer});}

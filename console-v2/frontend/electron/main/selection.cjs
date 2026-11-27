@@ -27,7 +27,12 @@ class SelectionWatcher extends EventEmitter {
   this.child=this.launch(exe,['watch',[process.pid,...this.exclude()].join(',')],{windowsHide:true,stdio:['ignore','pipe','ignore']});
   let pending='';this.child.stdout.setEncoding('utf8');this.child.stdout.on('data',chunk=>{
    pending+=chunk;if(pending.length>65536){pending='';return;}
-   const lines=pending.split('\n');pending=lines.pop();for(const line of lines){try{const event=JSON.parse(line);if(event.kind==='selection'&&/^\d{1,20}$/.test(event.hwnd)&&Number.isFinite(event.x)&&Number.isFinite(event.y))void this.capture(exe,event,generation);}catch{}}
+   const lines=pending.split('\n');pending=lines.pop();for(const line of lines){try{
+    const event=JSON.parse(line);
+    if(generation!==this.generation||!Number.isFinite(event.x)||!Number.isFinite(event.y))continue;
+    if(event.kind==='pointer-down')this.emit('pointer-down',{x:event.x,y:event.y});
+    else if(event.kind==='selection'&&/^\d{1,20}$/.test(event.hwnd))void this.capture(exe,event,generation);
+   }catch{}}
   });
   this.child.once('error',()=>{this.child=null;this.emit('unavailable');});
   this.child.once('exit',()=>{if(generation===this.generation){this.child=null;this.emit('unavailable');}});

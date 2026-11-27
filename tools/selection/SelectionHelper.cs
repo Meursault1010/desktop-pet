@@ -93,11 +93,13 @@ class SelectionHelper {
         Emit(new {text=text,skipped=false,restored=restored});
     }
     static void Watch(int[] exclude){
-        bool previous=false;Point start=new Point(),lastRelease=new Point();IntPtr origin=IntPtr.Zero;
+        bool previous=false,rightPrevious=false,middlePrevious=false;Point start=new Point(),lastRelease=new Point();IntPtr origin=IntPtr.Zero;
         long lastTime=0;
         var parent=Process.GetProcessById(exclude[0]);
         while(!parent.HasExited){
-            bool down=Down(1);Point now;GetCursorPos(out now);
+            bool down=Down(1),right=Down(2),middle=Down(4);Point now;GetCursorPos(out now);
+            if((down&&!previous)||(right&&!rightPrevious)||(middle&&!middlePrevious))
+                Emit(new {kind="pointer-down",x=now.X,y=now.Y});
             if(down&&!previous){start=now;origin=GetForegroundWindow();}
             if(!down&&previous){
                 long tick=DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
@@ -108,7 +110,7 @@ class SelectionHelper {
                     Emit(new {kind="selection",hwnd=origin.ToInt64().ToString(),x=now.X,y=now.Y,pid=pid});
                 lastTime=tick;lastRelease=now;
             }
-            previous=down;Thread.Sleep(20);
+            previous=down;rightPrevious=right;middlePrevious=middle;Thread.Sleep(20);
         }
     }
     [STAThread] static void Main(string[] args){

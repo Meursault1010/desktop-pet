@@ -7,10 +7,11 @@ type Props = {
   value:string;
   disabled:boolean;
   active:boolean;
+  savesSelection?:boolean;
   onChange:(value:string)=>void;
 };
 
-export function ComposerModelPicker({models,value,disabled,active,onChange}:Props){
+export function ComposerModelPicker({models,value,disabled,active,savesSelection,onChange}:Props){
   const id=useId();
   const trigger=useRef<HTMLButtonElement>(null);
   const menu=useRef<HTMLDivElement>(null);
@@ -96,7 +97,7 @@ export function ComposerModelPicker({models,value,disabled,active,onChange}:Prop
         }
       }}
       onKeyDown={moveFocus}>
-      <p className="composer-model-label" role="presentation">模型</p>
+      <p className="composer-model-label" role="presentation">{savesSelection?'本地模型 · 自动保存':'模型'}</p>
       {models.map(model=><button key={model} type="button" tabIndex={-1} role="menuitemradio" aria-checked={model===value}
         onClick={()=>{if(!disabled){onChange(model);closeAndFocus();}}}>
         <span>{model}</span>{model===value&&<Check aria-hidden="true" size={15}/>}

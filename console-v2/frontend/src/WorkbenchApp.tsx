@@ -19,7 +19,7 @@ import {ModelSettings} from './components/ModelSettings';
 import {SelectionTranslation} from './components/SelectionTranslation';
 import {LiveStatus} from './components/LiveStatus';
 import {GeneralSettings,MemorySettings,ShortcutSettings,ThemeSettings} from './components/WorkbenchSettings';
-import {WorkspaceStars} from './components/StarField';
+
 import {readAppearance,writeAppearance} from './workbenchPreferences';
 import type {WidgetType} from './workspaceModel';
 import {workbenchLyrics} from './lyricPool';
@@ -40,6 +40,7 @@ export default function WorkbenchApp(){
  const pet=usePetController(),work=useWorkbench(section==='overview'||section==='character'||section==='tools'),pref=pet.state?.preferences??defaults,disabled=!pet.connected||pet.connecting;
  const [lyric,setLyric]=useState(()=>workbenchLyrics[Math.floor(Math.random()*workbenchLyrics.length)]);
  const [assistantOpened,setAssistantOpened]=useState(false);
+ const [modelConnectionRevision,setModelConnectionRevision]=useState(0);
  useEffect(()=>{if(section==='assistant')setAssistantOpened(true);},[section]);
  useEffect(()=>{
   // Fetch the code during idle time, without opening history or contacting a model.
@@ -50,9 +51,9 @@ export default function WorkbenchApp(){
  useEffect(()=>{const onVisibility=()=>{if(document.visibilityState==='visible')setLyric(workbenchLyrics[Math.floor(Math.random()*workbenchLyrics.length)]);};document.addEventListener('visibilitychange',onVisibility);return()=>document.removeEventListener('visibilitychange',onVisibility);},[]);
  const main=useRef<HTMLElement>(null);
  useWorkbenchFeedback(main,appearance.reduced);
- useEffect(()=>{let active=true;if(!host?.workbenchConfig)return;void host.workbenchConfig().then(c=>{if(active){setAppearance(a=>({...a,theme:c.theme,reduced:c.reduced,particles:c.particles}));setButtonHints(c.buttonHints!==false);}}).catch(e=>work.setError(String(e))).finally(()=>{if(active)setAppearanceReady(true);});return()=>{active=false;};},[]);
+ useEffect(()=>{let active=true;if(!host?.workbenchConfig)return;void host.workbenchConfig().then(c=>{if(active){setAppearance(a=>({...a,theme:c.theme,reduced:c.reduced}));setButtonHints(c.buttonHints!==false);}}).catch(e=>work.setError(String(e))).finally(()=>{if(active)setAppearanceReady(true);});return()=>{active=false;};},[]);
 
- useEffect(()=>{writeAppearance(appearance);if(appearanceReady)void host?.workbenchSet?.({theme:appearance.theme,reduced:appearance.reduced,particles:appearance.particles,buttonHints}).catch(e=>work.setError(String(e)));},[appearance,appearanceReady,buttonHints]);
+ useEffect(()=>{writeAppearance(appearance);if(appearanceReady)void host?.workbenchSet?.({theme:appearance.theme,reduced:appearance.reduced,buttonHints}).catch(e=>work.setError(String(e)));},[appearance,appearanceReady,buttonHints]);
  const focusRunning=useRef(false);
  useEffect(()=>{const running=!!work.focus.end,phase=work.focus.mode;const enabled=running&&phase==='focus';document.documentElement.dataset.focus=enabled?'true':'false';if(pet.connected){if(running){const remaining=Math.max(1,Math.ceil((work.focus.end!-Date.now())/1000));void pet.act('set_focus',{enabled:true,phase,remaining});}else if(focusRunning.current&&phase==='break'){void pet.act('set_focus',{enabled:true,phase:'break',remaining:work.focus.remaining});}else if(focusRunning.current||phase==='focus'){void pet.act('set_focus',{enabled:false});}}focusRunning.current=running;},[!!work.focus.end,work.focus.mode,pet.connected]);
  useEffect(()=>{setNavOpen(false);main.current?.scrollTo({top:0});},[section]);
@@ -108,12 +109,12 @@ export default function WorkbenchApp(){
   const direction=Math.sign(
    order.indexOf(sectionChanged?section:String(tab))-order.indexOf(sectionChanged?previous.section:String(previous.tab)),
   )||1;
-  const duration=appearance.slow?415:330;
+  const duration=appearance.slow?620:330;
   const offset=sectionChanged?`0 ${direction*16}px`:`${direction*12}px 0`;
   const headingMotion=heading?.animate([{opacity:.55,translate:`0 ${direction*9}px`},{opacity:1,translate:'0 0'}],{duration,easing:workbenchSpring});
   const contentMotion=content?.animate(
    [{opacity:.35,translate:offset},{opacity:1,offset:.55},{opacity:1,translate:'0 0'}],
-   {duration,delay:sectionChanged?24:0,easing:workbenchSpring,fill:'backwards'},
+   {duration,delay:sectionChanged?24:0,easing:appearance.slow?'cubic-bezier(.22,.61,.36,1)':workbenchSpring,fill:'backwards'},
   );
   return()=>{headingMotion?.cancel();contentMotion?.cancel();};
  },[section,tab,appearance.reduced,appearance.slow]);
@@ -127,7 +128,7 @@ export default function WorkbenchApp(){
  function widget(type:WidgetType){switch(type){case 'companion':return <CompanionStrip work={work} pet={petProps}/>;case 'journal':return <Journal work={work} lyric={lyric}/>;case 'rhythm':return <Rhythm work={work} pet={petProps}/>;case 'system':return <SystemStatus work={work}/>;case 'focus':return <FocusTimer work={work}/>;case 'todos':return <Todos work={work} compact/>;case 'clipboard':return <ClipboardView work={work} compact/>;case 'translation':return <SelectionTranslation/>;}}
  const saved=<span className={'save-state '+(pet.failedKeys.length?'save-error':'')}>{pet.pending.length?<LoaderCircle className="spin" size={13}/>:<Check size={13}/>} {pet.saveLabel}</span>;
  return <div className={'observatory '+(wide?'is-wide':'is-compact')}><WorkbenchInteractions hints={buttonHints}/><a className="skip-link" href="#main-content">跳到主要内容</a><header className="window-bar"><div className="window-brand"><span>yuki</span><small>工作台</small></div><span className={'window-caption'+(demo?'':' lyric-quote')}>{demo?'界面预览 · 示例宠物状态':lyric.text}</span><LiveStatus state={pet.state} connected={pet.connected} connecting={pet.connecting}/><ThemePicker value={appearance.theme} disabled={!appearanceReady} onChange={theme=>setAppearance(a=>({...a,theme}))}/><button className="window-size" aria-label={wide?'切换紧凑窗口':'展开工作台'} onClick={()=>void windowSize()}>{wide?<Minimize2 size={14}/>:<Maximize2 size={14}/>}<span>{wide?'紧凑窗口':'展开工作台'}</span></button></header><aside className={'observatory-nav '+(navOpen?'open':'')}><nav aria-label="主导航"><SortableGroup scope="main-navigation" navigation sortable label="主栏目">{sections.map(s=><button key={s.id} title={s.name} aria-label={s.name} aria-current={section===s.id?'page':undefined} className={section===s.id?'active':''} onClick={()=>{setSection(s.id);setNavOpen(false);}}><s.icon size={19}/><span>{s.name}</span></button>)}</SortableGroup></nav><div className="nav-foot"><span><i className={pet.connected?'online-dot':''}/>{demo?'演示模式':pet.connected?'桌宠已连接':'等待连接'}</span><small>yuki · 冰银工作区</small></div></aside>{navOpen&&<button className="nav-scrim" aria-label="关闭导航" onClick={()=>setNavOpen(false)}/>}
- <main id="main-content" ref={main} data-section={section} tabIndex={-1}><WorkspaceStars/><div className="main-heading"><div className="main-heading-copy"><button className="icon-button mobile-nav" aria-label="切换导航" onClick={()=>setNavOpen(!navOpen)}><Menu size={19}/></button><div><h1>{sections.find(s=>s.id===section)?.name}</h1><p className="page-subtitle">{pageSubtitles[section]}</p></div></div><TodayLabel/></div>
+ <main id="main-content" ref={main} data-section={section} tabIndex={-1}><div className="main-heading"><div className="main-heading-copy"><button className="icon-button mobile-nav" aria-label="切换导航" onClick={()=>setNavOpen(!navOpen)}><Menu size={19}/></button><div><h1>{sections.find(s=>s.id===section)?.name}</h1><p className="page-subtitle">{pageSubtitles[section]}</p></div></div><TodayLabel/></div>
  {!pet.connected&&!demo&&<div className="notice" role="status"><span>{pet.connecting?'正在连接桌宠…':pet.failure||'请通过 Electron 启动 Yuki，以使用桌面功能。'}</span><button disabled={pet.connecting} onClick={()=>void pet.retry()}><RefreshCw size={14}/>重新连接</button></div>}
  {demo&&<p className="preview-notice">界面预览 · 桌面功能需在应用中使用</p>}
  {work.error&&<div className="notice error" role="alert"><span>{work.error}</span><button onClick={()=>work.setError('')} aria-label="关闭错误提示"><X size={15}/></button></div>}
@@ -136,14 +137,14 @@ export default function WorkbenchApp(){
  <SectionErrorBoundary key={section+':'+tab} section={section}>
  {section==='overview'&&<WorkspaceBoard render={widget}/>}
  {section==='character'&&<CharacterWorkspace tab={tab} pet={pet} work={work} lyric={lyric}/>}
- {section==='assistant'&&tab===1&&<section className="content-section connection-page"><h2>模型连接</h2><p className="muted">配置聊天使用的本地或云端模型。</p><ModelSettings/><p className="muted">本地：LM Studio / Ollama 的兼容接口。云端：HTTPS 地址、模型名称和 API 密钥。文档解析与 OCR 在本机完成；云端聊天会将你发送的文字和附件内容交给所选服务。</p></section>}
+ {section==='assistant'&&tab===1&&<section className="content-section connection-page"><h2>模型连接</h2><ModelSettings onSaved={()=>setModelConnectionRevision(value=>value+1)}/></section>}
  {section==='tools'&&<div className="subpage-motion" key={tab}>{tab===0&&<SortableGroup scope="time-panels" className="two-column"><section key="focus" className="content-section"><h2>专注计时</h2><FocusTimer work={work}/></section><section key="rhythm" className="content-section"><h2>休息提醒</h2><Rhythm work={work} pet={petProps}/><p className="muted">关闭工作台后继续计时；重启后恢复，错过的提醒不补发。</p></section></SortableGroup>}{tab===1&&<section className="content-section"><h2>最近的十次复制</h2><ClipboardView work={work}/></section>}{tab===2&&<section className="content-section"><h2>待办事项</h2><Todos work={work}/><p className="muted">事项保存在本机，一次性到时提醒需要 Yuki 保持运行。</p></section>}{tab===3&&<SelectionTranslation/>}</div>}
  {section==='settings'&&<div className="subpage-motion settings-v2" key={tab}>{tab===0&&<GeneralSettings pet={pet} work={work} buttonHints={buttonHints} onButtonHintsChange={setButtonHints} onReset={()=>setDialog('reset')} onExit={()=>setDialog('exit')}/ >}{tab===1&&<ThemeSettings appearance={appearance} onChange={setAppearance}/ >}{tab===2&&<ShortcutSettings/>}{tab===3&&<MemorySettings/>}</div>}
  </SectionErrorBoundary>
  <div hidden={section!=='assistant'||tab!==0} className="persistent-assistant">
   {(assistantOpened||section==='assistant')&&<SectionErrorBoundary section="assistant-chat">
    <Suspense fallback={<p className="muted" role="status">正在打开对话…</p>}>
-    <AssistantWorkspace lyric={lyric} active={section==='assistant'&&tab===0}/>
+    <AssistantWorkspace lyric={lyric} active={section==='assistant'&&tab===0} connectionRevision={modelConnectionRevision}/>
    </Suspense>
   </SectionErrorBoundary>}
  </div>

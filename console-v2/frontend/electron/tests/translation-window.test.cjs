@@ -28,3 +28,16 @@ test('window gesture rejects malformed coordinates and unauthorized bounds field
  const {gesture}=setup();
  for(const input of [null,{phase:'start',kind:'exec',x:0,y:0},{phase:'update',x:Infinity,y:0},{phase:'update',x:'10',y:0},{phase:'start',kind:'move',x:0,y:0,width:9999}])assert.throws(()=>gesture(input),/窗口/);
 });
+test('outside clicks dismiss completed inactive popups using logical screen coordinates',()=>{
+ const {windows}=setup();let phase='loading',closed=0;
+ windows.translation.snapshot=()=>({phase});
+ windows.screen.screenToDipPoint=({x,y})=>({x:x/2,y:y/2});
+ Object.assign(windows.popup,{isDestroyed:()=>false,isVisible:()=>true,hide:()=>{closed++;}});
+ windows.dismissOutside({x:200,y:200});assert.equal(closed,0);
+ phase='done';
+ windows.dismissOutside({x:600,y:400});assert.equal(closed,0);
+ windows.gesture={kind:'move'};
+ windows.dismissOutside({x:200,y:200});assert.equal(closed,0);
+ windows.gesture=null;
+ windows.dismissOutside({x:200,y:200});assert.equal(closed,1);
+});

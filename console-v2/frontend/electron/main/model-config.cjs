@@ -2,6 +2,7 @@
 const fs=require('node:fs/promises');
 const path=require('node:path');
 const {randomUUID}=require('node:crypto');
+const {modelListHeaders}=require('./cloud-providers.cjs');
 
 const REASONING_EFFORTS=new Set(['auto','low','medium','high']);
 function reasoningEffort(value){return REASONING_EFFORTS.has(value)?value:'auto';}
@@ -26,6 +27,7 @@ class ModelConfig {
   constructor(file,safeStorage){
     this.file=file;this.storage=safeStorage;
     this.value={endpoint:'http://127.0.0.1:1235/v1',model:'',reasoningEffort:'auto'};
+    this.connectionConfigured=false;
     this.translation={mode:'system',provider:'local',endpoint:'http://127.0.0.1:1235/v1',model:'',reasoningEffort:'auto',key:''};
     this.builtinEnabled=false;this.allowRemoteAttachments=false;this.key='';this.profiles=[];this.encryptionAvailable=false;this.secretUnavailable=false;this.configUnavailable=false;
     this.ready=this.load();
@@ -44,6 +46,10 @@ class ModelConfig {
       try{let value=await this.storage.decryptStringAsync(Buffer.from(secret,'base64'));if(value.shouldReEncrypt)value=await this.storage.decryptStringAsync(Buffer.from(secret,'base64'));return value.result;}catch{this.secretUnavailable=true;return '';}
     };
     this.key=await decrypt(saved.secret);
+    // Older files did not distinguish the default address from an explicitly saved connection.
+    this.connectionConfigured=typeof saved.connectionConfigured==='boolean'
+      ?saved.connectionConfigured
+      :!/^(http:\/\/127\.0\.0\.1:123[45]\/v1)$/.test(this.value.endpoint)||!!(this.value.model||saved.secret);
     const t=saved.translation&&typeof saved.translation==='object'?saved.translation:{};
     try{
       const translationEndpoint=endpoint(t.endpoint||this.translation.endpoint);
@@ -62,7 +68,7 @@ class ModelConfig {
     const secret=await this.secret(this.key);
     const translation={mode:this.translation.mode,provider:this.translation.provider,endpoint:this.translation.endpoint,model:this.translation.model,reasoningEffort:this.translation.reasoningEffort,secret:await this.secret(this.translation.key)};
     const profiles=await Promise.all(this.profiles.map(async profile=>({id:profile.id,name:profile.name,endpoint:profile.endpoint,model:profile.model,reasoningEffort:profile.reasoningEffort,secret:await this.secret(profile.key)})));
-    return {...this.value,secret,builtinEnabled:this.builtinEnabled,allowRemoteAttachments:this.allowRemoteAttachments,translation,profiles};
+    return {...this.value,connectionConfigured:this.connectionConfigured,secret,builtinEnabled:this.builtinEnabled,allowRemoteAttachments:this.allowRemoteAttachments,translation,profiles};
   }
   async persist(){
     await this.ready;
@@ -92,14 +98,14 @@ class ModelConfig {
     const value={endpoint:endpoint(input.endpoint),model:checkedModel(input.model),reasoningEffort:reasoningEffort(input.reasoningEffort)};
     if(input.clearKey!==undefined&&typeof input.clearKey!=='boolean')throw new Error('密钥清除参数无效');
     let key=value.endpoint===this.value.endpoint?this.key:'';if(input.clearKey)key='';key=checkedKey(input.apiKey)||key;if(key&&!this.encryptionAvailable)throw new Error('系统加密不可用，API 密钥不会保存；请先启用系统密钥存储。');
-    const previous={value:this.value,key:this.key,allowRemoteAttachments:this.allowRemoteAttachments};this.value=value;this.key=key;if(value.endpoint!==previous.value.endpoint)this.allowRemoteAttachments=false;try{await this.persist();}catch(error){this.value=previous.value;this.key=previous.key;this.allowRemoteAttachments=previous.allowRemoteAttachments;throw error;}return this.snapshot();
+    return this.saveConnection(value,key);
   }
   async test(input,fetchImpl=fetch){
     await this.ready;
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['endpoint','model','apiKey'].includes(k)))throw new Error('连接测试参数无效');
     const target=endpoint(input.endpoint),model=checkedModel(input.model),supplied=checkedKey(input.apiKey);
     const key=supplied||(target===this.value.endpoint?this.key:'');
-    const response=await fetchImpl(target+'/models',{headers:key?{Authorization:`Bearer ${key}`}:{},signal:AbortSignal.timeout(12000),redirect:'error'}).catch(()=>{throw new Error('无法连接服务，请检查地址、网络和服务状态');});
+    const response=await fetchImpl(target+'/models',{headers:modelListHeaders(target,key),signal:AbortSignal.timeout(12000),redirect:'error'}).catch(()=>{throw new Error('无法连接服务，请检查地址、网络和服务状态');});
     if(!response.ok){
       if([404,405].includes(response.status))return {endpoint:target,models:model?[model]:[],listingAvailable:false,keyVerified:false,modelListed:null,message:'服务未提供模型列表，密钥尚未验证；请按服务文档填写模型 ID 后保存。'};
       if(response.status===401||response.status===403)throw new Error('服务拒绝访问，请检查 API 密钥和账号权限');
@@ -109,7 +115,14 @@ class ModelConfig {
     if(!payload||!Array.isArray(payload.data))throw new Error('服务已响应，但没有返回可识别的模型列表');
     const models=[...new Set(payload.data.map(item=>item?.id).filter(id=>typeof id==='string'&&id.length>0&&id.length<=300&&!/embed/i.test(id)))];
     const modelListed=model?models.includes(model):null;
+    const local=['127.0.0.1','localhost','[::1]'].includes(new URL(target).hostname);
+    const localCount=models.length;
     if(model&&!modelListed)models.unshift(model);
+    if(local&&!key){
+      const message=modelListed===false?'连接成功，但填写的模型 ID 不在列表中。请核对后再保存。'
+        :localCount?`已读取 ${localCount} 个模型。`:'未读取到模型，请先在本地服务中加载模型。';
+      return {endpoint:target,models,listingAvailable:true,keyVerified:false,modelListed,message};
+    }
     return {endpoint:target,models,listingAvailable:true,keyVerified:!!key,modelListed,message:!models.length?`服务已响应，但没有返回可用模型。${key?'API 密钥已被服务接受。':'本次未使用 API 密钥，尚未验证密钥。'}请按服务商文档填写模型 ID。`:modelListed===false?'连接成功，但填写的模型 ID 不在列表中；它可能是服务端别名，请核对权限后再保存。':!key?'服务已响应并读取模型；本次没有使用 API 密钥，因此尚未验证密钥。':`连接成功，读取到 ${models.length-(modelListed===false?1:0)} 个模型，API 密钥已被服务接受。`};
   }
   async saveProfile(input){
@@ -126,7 +139,22 @@ class ModelConfig {
     this.profiles=[...previous];if(index>=0)this.profiles[index]=profile;else this.profiles.push(profile);
     try{await this.persist();}catch(error){this.profiles=previous;throw error;}return this.snapshot();
   }
-  async useProfile(id){await this.ready;const profile=this.profiles.find(value=>value.id===id);if(!profile)throw new Error('配置档案不存在');const previous={value:this.value,key:this.key,allowRemoteAttachments:this.allowRemoteAttachments};this.value={endpoint:profile.endpoint,model:profile.model,reasoningEffort:profile.reasoningEffort};this.key=profile.key;if(profile.endpoint!==previous.value.endpoint)this.allowRemoteAttachments=false;try{await this.persist();}catch(error){this.value=previous.value;this.key=previous.key;this.allowRemoteAttachments=previous.allowRemoteAttachments;throw error;}return this.snapshot();}
+  async saveConnection(value,key){
+    const previous={value:this.value,key:this.key,allowRemoteAttachments:this.allowRemoteAttachments,connectionConfigured:this.connectionConfigured};
+    this.value=value;
+    this.key=key;
+    this.connectionConfigured=true;
+    if(value.endpoint!==previous.value.endpoint)this.allowRemoteAttachments=false;
+    try{await this.persist();}catch(error){Object.assign(this,previous);throw error;}
+    return this.snapshot();
+  }
+  async useProfile(id){
+    await this.ready;
+    const profile=this.profiles.find(value=>value.id===id);
+    if(!profile)throw new Error('配置档案不存在');
+    const {endpoint,model,reasoningEffort,key}=profile;
+    return this.saveConnection({endpoint,model,reasoningEffort},key);
+  }
   async deleteProfile(id){await this.ready;const next=this.profiles.filter(profile=>profile.id!==id);if(next.length===this.profiles.length)throw new Error('配置档案不存在');const previous=this.profiles;this.profiles=next;try{await this.persist();}catch(error){this.profiles=previous;throw error;}return this.snapshot();}
 }
 module.exports={ModelConfig,endpoint,reasoningEffort};

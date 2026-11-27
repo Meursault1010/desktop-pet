@@ -44,6 +44,8 @@ jobs:
           Pop-Location
       - name: Build self-contained Windows app
         shell: pwsh
+        env:
+          YUKI_GITHUB_APP_CLIENT_ID: ${{ vars.YUKI_GITHUB_APP_CLIENT_ID }}
         run: |
           $env:YUKI_PACKAGE_OUTPUT = Join-Path $PWD 'releases/electron/yuki-win32-x64-release-candidate-v2'
           $env:YUKI_SPLIT_RELEASE = '1'

@@ -4,16 +4,11 @@
 
 ## 下载
 
-点击release即可下载 Windows 最新版本。
+点击 [GitHub Releases](https://github.com/Meursault1010/desktop-pet/releases/latest) 下载 Windows x64 最新版。
 
-- **轻量版**下载发布页的 Windows 应用 ZIP，解压后运行 `yuki.exe`。请完整保留解压后的文件夹。
-- **本地模型版**额外下载同一发布页的两个模型分卷，与应用 ZIP 放在同一个下载目录。在解压出的应用文件夹打开 PowerShell：
-
-  ```powershell
-  .\install-yuki.ps1 -AssetsPath "$HOME\Downloads" -IncludeModel
-  ```
-
-  将 `$HOME\Downloads` 替换成实际下载目录。安装完成后，内置模型默认关闭，可在“设置 → 通用”中开启。安装脚本会合并并校验模型。
+- **轻量版**下载发布页的 Windows 应用 ZIP，解压后运行 `yuki.exe`。请完整保留解压后的文件夹。已有本地模型服务时，可在「AI 助手 → 模型配置 → 本地模型」连接。
+- **本地模型版**额外下载同一发布页的 `part01` 和 `part02`，把两个分卷放在同一个文件夹。把应用 ZIP 完整解压后，双击 `yuki.exe`。支持图形化导入的版本会在程序所在目录、上一层目录和系统下载目录查找分卷，自动合并并校验。首次使用时会自动启用已导入的模型，已有的自定义模型连接会保留。
+- 分卷在其他位置时，打开「设置 → 通用 → 内置模型与性能」，开启「启用内置模型」，选择两个分卷所在的文件夹。旧版请使用相应发布页中的安装说明。
 
 ## 更新
 
@@ -43,3 +38,5 @@ v1.1.1 用户需要先从发布页手动安装一次支持更新的版本。只�
 ## 开发
 
 主要代码位于 `console-v2/`。开发环境需要 Python、Node.js 和 npm。运行 `install-electron.bat` 安装开发依赖，再运行 `start.bat` 启动。便携版由 `build-electron.ps1` 构建。
+
+设置中的 GitHub 加星入口默认打开项目页。要启用授权后自动加星，请在 GitHub 注册专用 GitHub App，启用 Device Flow，为用户授予 `Starring` 读写权限，并保留 `Metadata` 只读权限。把公开 Client ID 配置为仓库 Actions 变量 `YUKI_GITHUB_APP_CLIENT_ID`，或在本地开发、打包时设置同名环境变量。授权令牌仅在单次加星请求期间使用。

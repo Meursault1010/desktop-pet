@@ -174,7 +174,7 @@ class WorkbenchTimers {
   deliver(fired){
     fired.forEach(event=>{
       this.history=[event,...this.history].slice(0,20);
-      try{this.notify(event.text);}
+      try{this.notify(event.text,event.kind);}
       catch(error){this.log('提醒发送失败：'+String(error.message||error));}
     });
     try{this.changed();}catch(error){this.log('计时状态通知失败：'+String(error.message||error));}

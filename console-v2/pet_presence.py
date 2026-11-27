@@ -7,15 +7,13 @@ from PySide6.QtGui import QPixmap, QTransform
 ASSETS = Path(__file__).resolve().parent / 'assets/presence'
 ENTER = tuple(f'enter-{i:02d}.png' for i in range(1,11))
 EXIT = tuple(f'exit-{i:02d}.png' for i in range(1,8))
-# Presence should feel like one brisk, readable motion.  The authored peek
-# frames remain, but their holds are short enough that the walk carries the
-# transition instead of making the pet wait at the edge.
+# The peek poses stay part of the walk, with no stationary wait at the edge.
 ENTER_DURATIONS = (.34,.34,.34,.34,.34,.20,.20,.20,.24,.24)
 EXIT_DURATIONS = (.20,.24,.20,.20,.24,.28,.28)
-# Both directions use the same distance budget. Keep the transition calm and
-# deliberate while avoiding a separate, slower edge segment.
-PRESENCE_WALK_SPEED = 180.
-MIN_WALK_DURATION = .48
+# Use the same relaxed pace in both directions and give short segments
+# enough time to read as part of the walk.
+PRESENCE_WALK_SPEED = 120.
+MIN_WALK_DURATION = .72
 
 
 def ease(t):
